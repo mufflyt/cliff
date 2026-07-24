@@ -1,67 +1,57 @@
 ╔══════════════════════════════════════════════════════════════════════╗
-║                   WORKFORCE CLIFF MANUSCRIPT                         ║
-║                         QUICK START GUIDE                            ║
+║              GYNECOLOGIC WORKFORCE CLIFF — QUICK START               ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
-📁 EVERYTHING IS IN: /Users/tmuffly/isochrones/cliff/
+REPO: https://github.com/mufflyt/cliff  (private)
+ROOT: ~/cliff/
 
 ═══════════════════════════════════════════════════════════════════════
 
-🔍 VIEW THE MANUSCRIPT NOW:
+▶  RUN THE FULL PIPELINE (4 seconds):
 
-   open /Users/tmuffly/isochrones/cliff/WORKFORCE_CLIFF_ObGyn.html
-
-═══════════════════════════════════════════════════════════════════════
-
-📊 VIEW THE FIGURES:
-
-   Figure 1 (Workforce trajectories):
-   open /Users/tmuffly/isochrones/cliff/figures/figure1_workforce_trajectories.png
-
-   Figure 2 (Replacement gap):
-   open /Users/tmuffly/isochrones/cliff/figures/figure2_replacement_gap.png
+   cd ~/cliff
+   Rscript code/00_RUN_ALL.R
 
 ═══════════════════════════════════════════════════════════════════════
 
-📝 RENDER TO WORD (for journal submission):
+📊  VIEW THE FIGURES:
 
-   cd /Users/tmuffly/isochrones
-   Rscript -e "rmarkdown::render('cliff/manuscript/WORKFORCE_CLIFF_ObGyn.Rmd', output_format='word_document')"
+   open ~/cliff/figures/figure1_workforce_trajectories.png
+   open ~/cliff/figures/figure2_replacement_gap.png
+   open ~/cliff/figures/workforce_crisis_abstract.png
 
-   Output will be: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx
+📄  VIEW THE MANUSCRIPT:
 
-═══════════════════════════════════════════════════════════════════════
-
-📋 WHAT'S INCLUDED:
-
-   ✓ Complete manuscript in ObGyn format
-   ✓ Précis (50 words)
-   ✓ Structured abstract
-   ✓ 2 publication-ready tables
-   ✓ 2 figures (600 DPI TIFF + PNG)
-   ✓ 14 references with your suggestions
-   ✓ All statistics dynamically generated
-   ✓ Box 1 (retirement detection system)
+   open ~/cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html
+   open ~/cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx
 
 ═══════════════════════════════════════════════════════════════════════
 
-🎯 KEY FINDINGS:
+🎯  KEY FINDINGS (manuscript-confirmed):
 
-   INSUFFICIENT REPLACEMENT:
-   • FPMRS: 1,283 → 1,193 (-7.0%, ratio 0.85)
-   • GO: 1,352 → 1,249 (-7.6%, ratio 0.88)
+   FPMRS:  1,283 → 1,301  (+1.4%)   ratio 1.08  MARGINAL
+   GO:     1,352 → 1,278  (−5.5%)   ratio 0.73  INSUFFICIENT
+   MIGS:     767 →   835  (+8.9%)   ratio 1.61  ADEQUATE
 
-   ADEQUATE REPLACEMENT:
-   • MIGS: 767 → 831 (+8.4%, ratio 1.83)
-
-═══════════════════════════════════════════════════════════════════════
-
-📚 DOCUMENTATION:
-
-   Full details: cliff/README.md
-   Summary: cliff/MANUSCRIPT_SUMMARY.txt
+   Validation: 94.4% agreement with state medical board records
 
 ═══════════════════════════════════════════════════════════════════════
 
-✉️  QUESTIONS? tyler.muffly@dhha.org
+⚙️  FELLOWSHIP SCENARIOS:
 
+   Rscript code/00_RUN_ALL.R optimistic
+   Rscript code/00_RUN_ALL.R pessimistic
+   Rscript code/00_RUN_ALL.R historical_2025
+
+   Force Step 1 rebuild:
+   CLIFF_FORCE_REBUILD=1 Rscript code/00_RUN_ALL.R
+
+═══════════════════════════════════════════════════════════════════════
+
+📱  SHINY APP:
+
+   Rscript -e "shiny::runApp('app')"
+
+═══════════════════════════════════════════════════════════════════════
+
+✉️  CONTACT: tyler.muffly@dhha.org

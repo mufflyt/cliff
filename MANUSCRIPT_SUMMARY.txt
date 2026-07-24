@@ -1,143 +1,77 @@
 ==========================================================================
-GYNECOLOGIC SUBSPECIALTY WORKFORCE RETIREMENT ANALYSIS
+GYNECOLOGIC SUBSPECIALTY WORKFORCE CLIFF
 Manuscript Package Summary
 ==========================================================================
 
-TITLE: Retirement Rates Among U.S. Gynecologic Surgical Subspecialists 
-       Exceed Fellowship Replacement Capacity
+TITLE: Gynecologic Subspecialty Workforce Vulnerability: Retirement
+       Approaches or Exceeds Fellowship Replacement Capacity
+
+RUNNING TITLE: Gynecologic Subspecialty Workforce Gap
 
 TARGET JOURNAL: Obstetrics & Gynecology
 
-GENERATED: January 12, 2026
+AUTHORS: Tyler Muffly, MD; Sydney Archer, MD, MPH
+
+REPO: https://github.com/mufflyt/cliff (private)
+
+LAST UPDATED: 2026-07-24
 
 ==========================================================================
 FOLDER STRUCTURE
 ==========================================================================
 
-/Users/tmuffly/isochrones/cliff/
-├── code/
-│   ├── workforce_statistics.R (statistics helper functions)
-│   ├── manuscript_consolidate_existing_results.R (data processing)
-│   └── create_figures.R (figure generation)
-├── data/
-│   └── workforce_projections_consolidated.csv (analysis dataset)
-├── manuscript/
-│   └── WORKFORCE_CLIFF_ObGyn.Rmd (manuscript source)
-├── figures/
-│   ├── figure1_workforce_trajectories.png (600 DPI)
-│   ├── figure1_workforce_trajectories.tiff (600 DPI, LZW)
-│   ├── figure2_replacement_gap.png (600 DPI)
-│   └── figure2_replacement_gap.tiff (600 DPI, LZW)
-├── WORKFORCE_CLIFF_ObGyn.html (rendered preview)
-└── README.md (complete documentation)
+~/cliff/
+├── code/                         R pipeline scripts (00_RUN_ALL.R → 08)
+├── config/fellowship_assumptions.yml
+├── data/workforce_projections_consolidated.csv   (seed data, committed)
+├── manuscript/WORKFORCE_CLIFF_ObGyn.Rmd
+├── figures/                      Generated at runtime (600 DPI PNG + TIFF)
+├── app/                          Standalone Shiny retirement cliff app
+├── scripts/fig_fpmrs_supply_line.R
+└── tests/testthat/
 
 ==========================================================================
-KEY RESULTS
+KEY RESULTS (manuscript-confirmed, Monte Carlo 10,000 iterations)
 ==========================================================================
 
-RETIREMENT RATES (Annual):
-  • Gynecologic Oncology: 5.2%
-  • FPMRS: 4.4%
-  • MIGS: 3.4%
+OBSERVATION COHORT (2013-2023):
+  - 3,066 active subspecialists in 2024
+  - Combined annual retirement rate: 4.5% (152 retirements/yr)
+  - Algorithm validation: 94.4% agreement vs state medical board records
 
-WORKFORCE PROJECTIONS (2025-2029):
-  • FPMRS: 1,283 → 1,193 (-7.0%, ratio 0.85) INSUFFICIENT
-  • Gynecologic Oncology: 1,352 → 1,249 (-7.6%, ratio 0.88) INSUFFICIENT
-  • MIGS: 767 → 831 (+8.4%, ratio 1.83) ADEQUATE
+WORKFORCE PROJECTIONS (2025 -> 2029):
+  - FPMRS:  1,283 -> 1,301  (+1.4%)  95% CI [1,271-1,330]
+  - GO:     1,352 -> 1,278  (-5.5%)  95% CI [1,246-1,310]
+  - MIGS:     767 ->   835  (+8.9%)  95% CI [814-857]
 
-REPLACEMENT GAP:
-  • FPMRS: 47 fellows/year vs 55.6 retirements/year (15% shortfall)
-  • GO: 60 fellows/year vs 68.5 retirements/year (12% shortfall)
-  • MIGS: 51 fellows/year vs 27.9 retirements/year (83% surplus)
-
-==========================================================================
-MANUSCRIPT FEATURES
-==========================================================================
-
-FORMAT: Obstetrics & Gynecology journal style
-  ✓ Précis (50 words)
-  ✓ Structured abstract (250 words)
-  ✓ Key Points section
-  ✓ 14 annotated references
-  ✓ Box 1: Seven-source retirement detection system
-  ✓ 2 tables (publication-ready)
-  ✓ 2 figures (600 DPI TIFF + PNG)
-
-INLINE STATISTICS: All dynamically generated from data
-WORD COUNT: ~3,500 words (within journal limits)
-STROBE COMPLIANT: Yes
+REPLACEMENT RATIOS:
+  - FPMRS:  60 fellows/yr / 55.6 retirements/yr = 1.08  MARGINAL
+  - GO:     50 fellows/yr / 68.5 retirements/yr = 0.73  INSUFFICIENT
+  - MIGS:   45 fellows/yr / 27.9 retirements/yr = 1.61  ADEQUATE
 
 ==========================================================================
-TO VIEW MANUSCRIPT
+MANUSCRIPT FORMAT (Obstetrics & Gynecology)
 ==========================================================================
 
-HTML Preview:
-  open /Users/tmuffly/isochrones/cliff/WORKFORCE_CLIFF_ObGyn.html
-
-View Figures:
-  open /Users/tmuffly/isochrones/cliff/figures/
-
-Render to Word (for submission):
-  cd /Users/tmuffly/isochrones
-  Rscript -e "rmarkdown::render('cliff/manuscript/WORKFORCE_CLIFF_ObGyn.Rmd', output_format='word_document')"
-
-==========================================================================
-METHODOLOGY HIGHLIGHTS
-==========================================================================
-
-RETIREMENT DETECTION:
-  • Seven-source hierarchical system
-  • Validated: 92.4% sensitivity, 89.7% specificity
-  • Sources: ABMS, NPPES, Open Payments, PECOS, Medicare B/D, 
-            Physician Compare, State Boards
-
-MONTE CARLO SIMULATION:
-  • 1,000 iterations per subspecialty
-  • 2025-2029 projection period
-  • Age-, sex-, subspecialty-specific hazard rates
-  • 95% CI from empirical quantiles
-
-FELLOWSHIP DATA:
-  • ACGME 2022-2024 (3-year average)
-  • Assumed stable capacity through 2029
+  [x] Precis (50 words)
+  [x] Structured abstract (250 words)
+  [x] Key Points (Question / Findings / Meaning)
+  [x] Main text (~3,500 words)
+  [x] 2 main figures (600 DPI PNG + TIFF)
+  [x] 1 abstract figure (SGS style)
+  [x] Table 1: Physician demographics
+  [x] Table 2: Monte Carlo projections
+  [x] STROBE-compliant
+  [x] All inline statistics dynamically generated
 
 ==========================================================================
-FILES READY FOR SUBMISSION
+PIPELINE OUTPUTS
 ==========================================================================
 
-Required:
-  ✓ Manuscript source (WORKFORCE_CLIFF_ObGyn.Rmd)
-  ✓ Figure 1 TIFF (600 DPI, LZW compression)
-  ✓ Figure 2 TIFF (600 DPI, LZW compression)
-  ✓ Table 1 (embedded in manuscript)
-  ✓ Table 2 (embedded in manuscript)
-  ✓ Box 1 (embedded in manuscript)
-  ✓ References (14, properly formatted)
+  figures/figure1_workforce_trajectories.png/.tiff
+  figures/figure2_replacement_gap.png/.tiff
+  figures/workforce_crisis_abstract.png/.tiff
+  manuscript/WORKFORCE_CLIFF_ObGyn.html
+  manuscript/WORKFORCE_CLIFF_ObGyn.docx
 
-Optional:
-  ✓ README.md (methodology documentation)
-  ✓ Source code (reproducibility)
-  ✓ Analysis dataset (data availability statement)
-
-==========================================================================
-NEXT STEPS
-==========================================================================
-
-1. Review manuscript HTML preview
-2. Render to Word format for final review
-3. Customize author affiliations if needed
-4. Add acknowledgments section if desired
-5. Submit to Obstetrics & Gynecology
-
-==========================================================================
-CONTACT
-==========================================================================
-
-Corresponding Author:
-  Tyler Muffly, MD
-  Department of Obstetrics and Gynecology
-  Denver Health Medical Center
-  University of Colorado School of Medicine
-  Email: tyler.muffly@dhha.org
-
-==========================================================================
+Runtime: ~4 seconds from a clean clone.

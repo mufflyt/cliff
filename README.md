@@ -1,225 +1,175 @@
-# Gynecologic Subspecialty Workforce Retirement Analysis
+# Gynecologic Subspecialty Workforce Cliff
 
-**Title:** Retirement Rates Among U.S. Gynecologic Surgical Subspecialists Exceed Fellowship Replacement Capacity
+**Title:** Gynecologic Subspecialty Workforce Vulnerability: Retirement Approaches or Exceeds Fellowship Replacement Capacity
 
-**Authors:** Tyler Muffly, MD (Denver Health Medical Center, University of Colorado School of Medicine)
+**Authors:** Tyler Muffly, MD · Sydney Archer, MD, MPH  
+**Affiliation:** Denver Health Medical Center / University of Colorado School of Medicine  
+**Target Journal:** Obstetrics & Gynecology  
+**Status:** Under review (2026)
 
-**Date:** January 12, 2026
+> **Presented** as an oral presentation at the 52nd Annual Meeting of the Society of Gynecologic Surgeons, Phoenix, AZ, March 2026.
 
 ---
 
-## Getting Started
+## Quick Start
 
-This project contains the complete code, data, and manuscript materials for the gynecologic subspecialty workforce retirement analysis. To get started, follow these steps:
-
-### Prerequisites
-
-You will need R installed on your system.
-The following R packages are required:
-```r
-install.packages(c("tidyverse", "here", "knitr", "kableExtra", "scales", "rmarkdown", "gtsummary", "flextable", "yaml"))
+```bash
+git clone git@github.com:mufflyt/cliff.git
+cd cliff
+Rscript code/00_RUN_ALL.R
 ```
 
-### Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your_username/isochrones.git
-    cd isochrones/cliff
-    ```
-    (Note: Replace `https://github.com/your_username/isochrones.git` with the actual repository URL if this project is hosted publicly.)
-
-2.  **Ensure you are in the correct directory:**
-    All scripts in this project are designed to be run from the root of the `isochrones` project directory. For example, if your project is located at `/Users/youruser/isochrones`, you should navigate to this directory before running any R scripts.
-
-    ```bash
-    cd /Users/youruser/isochrones
-    ```
-    The master pipeline script (`cliff/code/00_RUN_ALL.R`) includes checks to ensure you are in the correct directory and will provide helpful error messages if not.
-
-### Running the Analysis
-
-Once prerequisites are met and the repository is cloned, you can run the entire analysis pipeline using the master script.
+Produces all figures, tables, and a rendered manuscript in ~4 seconds. No external data required — seed data is committed to `data/`.
 
 ---
 
-## Project Organization
+## Prerequisites
 
-This folder contains all code, data, and manuscript materials for the workforce retirement analysis.
+R ≥ 4.3 and the following packages:
+
+```r
+install.packages(c(
+  "tidyverse", "here", "yaml", "scales",
+  "knitr", "kableExtra", "rmarkdown",
+  "gtsummary", "flextable", "jsonlite", "testthat"
+))
+```
+
+---
+
+## Repository Structure
 
 ```
 cliff/
-├── code/           # R scripts and analysis code
-├── data/           # Processed data files
-├── manuscript/     # Manuscript source files
-├── figures/        # Publication-ready figures
-└── docs/           # Documentation and supplementary materials
+├── code/
+│   ├── 00_RUN_ALL.R                    # Master pipeline (run this)
+│   ├── 01_consolidate_workforce_data.R # Re-run Monte Carlo (optional)
+│   ├── 02_create_figures.R             # Figure 1 & 2
+│   ├── 03_create_abstract_figure.R     # SGS abstract figure
+│   ├── 04_compare_scenarios.R          # Fellowship sensitivity
+│   ├── 05_validate_with_monte_carlo.R  # Monte Carlo validation
+│   ├── 06_retirement_sensitivity.R     # Retirement threshold sensitivity
+│   ├── 07_create_table1.R             # Demographics table
+│   ├── 08_pairwise_comparisons.R       # Pairwise scenario comparisons
+│   └── workforce_statistics.R          # Inline statistics helpers
+├── config/
+│   └── fellowship_assumptions.yml      # 5 fellowship scenarios
+├── data/
+│   └── workforce_projections_consolidated.csv   # Seeded from manuscript
+├── manuscript/
+│   ├── WORKFORCE_CLIFF_ObGyn.Rmd       # Manuscript source (ObGyn format)
+│   ├── Surgical_workforce_cliff_FINAL.txt
+│   ├── Surgical_workforce_cliff_REVISED.txt
+│   └── Surgical_workforce_cliff_CORRECTED.txt
+├── figures/                            # Generated at runtime
+├── app/
+│   ├── app.R                           # Standalone Shiny retirement cliff app
+│   └── R/helpers_retirement_cliff.R
+├── scripts/
+│   └── fig_fpmrs_supply_line.R         # Static FPMRS supply/demand figure
+├── tests/testthat/
+│   └── test-cliff-workforce-scripts.R
+└── outputs/runs/                        # Timestamped run archives
 ```
 
 ---
 
-## Key Files
+## Pipeline Scenarios
 
-### Manuscript
-- **`manuscript/WORKFORCE_CLIFF_ObGyn.Rmd`** - Main manuscript in Obstetrics & Gynecology format
-  - Includes précis, structured abstract, introduction, methods, results, discussion
-  - All inline statistics are dynamically generated from data
-  - Formatted for journal submission
+```bash
+Rscript code/00_RUN_ALL.R                # default (current best estimates)
+Rscript code/00_RUN_ALL.R optimistic     # +10 fellows/yr each subspecialty
+Rscript code/00_RUN_ALL.R pessimistic    # -10 fellows/yr each subspecialty
+Rscript code/00_RUN_ALL.R historical_2025
+Rscript code/00_RUN_ALL.R status_quo
+```
 
-### Code
-- **`code/workforce_statistics.R`** - Statistics helper functions for inline calculations
-- **`code/manuscript_consolidate_existing_results.R`** - Data consolidation script
-- **`code/create_figures.R`** - Figure generation script (600 DPI PNG and TIFF)
+Step 1 is skipped when `data/workforce_projections_consolidated.csv` already exists. To force a rebuild from raw Monte Carlo inputs:
 
-### Data
-- **`data/workforce_projections_consolidated.csv`** - Primary analysis dataset
-  - Baseline workforce counts (2025)
-  - Projected workforce (2029)
-  - Retirement rates by subspecialty
-  - Replacement ratios
-  - 95% confidence intervals
-
-### Figures
-- **`figures/figure1_workforce_trajectories.png/.tiff`** - Workforce projection trajectories (2025-2029)
-- **`figures/figure2_replacement_gap.png/.tiff`** - Replacement gap visualization
+```bash
+CLIFF_FORCE_REBUILD=1 Rscript code/00_RUN_ALL.R
+```
 
 ---
 
 ## Key Findings
 
-### Retirement Rates (Annual)
-- **Gynecologic Oncology:** 5.2%
-- **FPMRS:** 4.4%
-- **MIGS:** 3.4%
+### Workforce Projections (2025 → 2029, Monte Carlo 10,000 iterations)
 
-### Workforce Projections (2025-2029)
-| Subspecialty | 2025 Baseline | 2029 Projected | Change | Replacement Ratio |
-|--------------|---------------|----------------|--------|-------------------|
-| **FPMRS** | 1,283 | 1,193 | -7.0% | 0.85 (marginal) |
-| **Gynecologic Oncology** | 1,352 | 1,249 | -7.6% | 0.88 (marginal) |
-| **MIGS** | 767 | 831 | +8.4% | 1.83 (adequate) |
+| Subspecialty | 2025 | 2029 (95% CI) | Change | Fellows/yr | Retirements/yr | Ratio | Status |
+|---|---|---|---|---|---|---|---|
+| **FPMRS** | 1,283 | 1,301 (1,271–1,330) | +1.4% | 60 | 55.6 | **1.08** | Marginal |
+| **Gynecologic Oncology** | 1,352 | 1,278 (1,246–1,310) | −5.5% | 50 | 68.5 | **0.73** | Insufficient |
+| **MIGS** | 767 | 835 (814–857) | +8.9% | 45 | 27.9 | **1.61** | Adequate |
 
-### Replacement Capacity
-- **FPMRS:** 47 fellowship graduates/year vs 55.6 retirements/year → **Insufficient**
-- **Gynecologic Oncology:** 60 graduates/year vs 68.5 retirements/year → **Insufficient**
-- **MIGS:** 51 graduates/year vs 27.9 retirements/year → **Adequate**
+### Annual Retirement Rates
+- GO: 5.2% — highest risk, replacement ratio **insufficient** (0.73)
+- FPMRS: 4.4% — marginal replacement (1.08); clinical capacity is the bottleneck
+- MIGS: 3.4% — youngest subspecialty, robust growth
 
----
-
-## Methodology Summary
-
-### Retirement Detection System
-Seven-source hierarchical detection integrating:
-1. ABMS board certification lapse (Confidence 0.95)
-2. NPPES deactivation (Confidence 0.90)
-3. Open Payments cessation (Confidence 0.70)
-4. PECOS disenrollment (Confidence 0.80)
-5. Medicare Part D cessation (Confidence 0.60)
-6. Medicare Part B cessation (Confidence 0.60)
-7. Physician Compare changes (Confidence 0.55)
-
-**Validation:** 92.4% sensitivity, 89.7% specificity (n=500 vs state license records)
-
-### Monte Carlo Simulation
-- **1,000 iterations** projecting 2025-2029
-- Subspecialty-, age-, and sex-specific retirement probabilities
-- Fellowship entrants: FPMRS 47/yr, GO 60/yr, MIGS 51/yr
-- 95% CI from empirical quantiles (5th-95th percentiles)
+### Validation
+- Retirement algorithm validated against state medical board records: **94.4% agreement** (472/500)
+- Observation period: 2013–2023 (3,066 active subspecialists in 2024)
 
 ---
 
-## Running the Analysis Pipeline
+## Shiny App
 
-### From Command Line
-
-```bash
-cd /Users/tmuffly/isochrones
-Rscript cliff/code/00_RUN_ALL.R
-```
-
-### From RStudio
+Interactive retirement cliff simulator:
 
 ```r
-setwd("/Users/tmuffly/isochrones")
-source("cliff/code/00_RUN_ALL.R")
+shiny::runApp("app")
 ```
 
-The master pipeline script (`cliff/code/00_RUN_ALL.R`) will:
-1. Consolidate data with updated fellowship assumptions.
-2. Generate all figures (main and abstract) in PNG and TIFF formats.
-3. Render the manuscript into HTML and Word documents.
-4. Archive all outputs with metadata for reproducibility.
-
-You can also run specific scenarios:
-```bash
-Rscript cliff/code/00_RUN_ALL.R optimistic
-Rscript cliff/code/00_RUN_ALL.R pessimistic
-```
-
-For more details on individual scripts and their functionalities, please refer to `cliff/code/README.md`.
+Shows population coverage drop as the oldest physicians retire first, with rural/urban equity breakdown.
 
 ---
 
 ## Data Sources
 
-### Primary Data (2013-2023)
-- **ABOG Certification Data** - Subspecialty certification records
-- **NPPES** - National Provider Identifier System (longitudinal locations)
-- **Medicare Part B Claims** - Billing activity (2013-2022)
-- **Medicare Part D Prescriber** - Prescribing activity (2013-2022)
-- **CMS Open Payments** - Industry payments (2013-2023)
-- **PECOS** - Provider enrollment status
-- **Physician Compare** - Practice status changes
-- **State Medical Boards** - License validation (CA, TX, FL, WA)
+| Source | Years | Purpose |
+|---|---|---|
+| ABOG certification records | 2013–2024 | Subspecialty identification |
+| NPPES | 2013–2024 | Practice locations, demographics |
+| Medicare Part B claims | 2013–2022 | Retirement detection |
+| Medicare Part D prescriber | 2013–2022 | Retirement detection |
+| CMS Open Payments | 2013–2023 | Retirement detection |
+| PECOS enrollment | 2013–2024 | Retirement detection |
+| Physician Compare | 2013–2023 | Status changes |
+| State medical boards (CA, TX, FL, WA) | Validation | Algorithm validation |
+| ACGME program data | 2022–2024 | Fellowship pipeline |
 
-### Fellowship Pipeline Data
-- **ACGME Program Data** - Fellowship graduates 2022-2024 (3-year average)
+All sources are publicly available and de-identified. IRB review not required.
 
 ---
 
-## Publication Status
+## From RStudio
 
-**Journal Target:** Obstetrics & Gynecology
+Open `RUN_FROM_RSTUDIO.R` and click **Source**, or:
 
-**Manuscript Format:**
-- Précis (50 words)
-- Structured abstract (250 words)
-- Main text (~3,500 words)
-- 14 references
-- 2 figures (600 DPI TIFF)
-- 2 tables
-
-**Key Points:**
-- Question, Findings, Meaning format
-- STROBE compliant
-- All statistics dynamically generated
-- Reproducible analysis pipeline
+```r
+setwd("~/cliff")
+source("code/00_RUN_ALL.R")
+```
 
 ---
 
 ## Contact
 
-**Corresponding Author:**
-Tyler Muffly, MD
-Department of Obstetrics and Gynecology
-Denver Health Medical Center
-University of Colorado School of Medicine
-777 Bannock Street, Denver, CO 80204
-Email: tyler.muffly@dhha.org
-
----
+**Tyler Muffly, MD**  
+Department of Obstetrics and Gynecology  
+Denver Health Medical Center · University of Colorado School of Medicine  
+777 Bannock Street, Denver, CO 80204  
+tyler.muffly@dhha.org  
+GitHub: [mufflyt/cliff](https://github.com/mufflyt/cliff)
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
-
-### Data Availability
-
-All data sources used in this project are publicly available and de-identified. Institutional Review Board (IRB) review was not required. Code and analysis scripts are available in this repository for reproducibility.
+MIT License — see [LICENSE](LICENSE).  
+All data sources are publicly available and de-identified.
 
 ---
 
-**Last Updated:** January 12, 2026
-
+*Last updated: 2026-07-24*
