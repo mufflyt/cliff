@@ -1,0 +1,279 @@
+source_name_raw,match_target_type,freida_program_name,freida_acgme_id,freida_state,approved_for_ground_truth
+Walter Reed Genl Hospital,program_name,National Capital Consortium Program,2212322002,MD,TRUE
+Walter Reed Army Medical Center,program_name,National Capital Consortium Program,2212322002,MD,TRUE
+Pennsyvania Hospital,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+Pennsylvania Hospital,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+Pennsylvania Hospital Of University Of Pennsylvania Health System,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+UCLA Medical Center,program_name,UCLA David Geffen School of Medicine/UCLA Medical Center Program,2250522007,CA,TRUE
+University Of California Los Angeles,program_name,UCLA David Geffen School of Medicine/UCLA Medical Center Program,2250522007,CA,TRUE
+University Of California At Los Angeles,program_name,UCLA David Geffen School of Medicine/UCLA Medical Center Program,2250522007,CA,TRUE
+National Institutes Of Health Clinical Center,program_name,Clinical Center at the National Institutes of Health Program,2352322002,MD,TRUE
+Nih Bethesda,program_name,Clinical Center at the National Institutes of Health Program,2352322002,MD,TRUE
+Bethesda Naval Hospital/National Naval Medical Center,program_name,National Capital Consortium Program,2252322001,MD,TRUE
+Stanford University,program_name,Stanford Health Care-Sponsored Stanford University Program,2250522006,CA,TRUE
+Stanford Hospital,program_name,Stanford Health Care-Sponsored Stanford University Program,2250522006,CA,TRUE
+UCSF,program_name,University of California (San Francisco) Program,2250522005,CA,TRUE
+UCSF Medical Center,program_name,University of California (San Francisco) Program,2250522005,CA,TRUE
+U C S F Medical Center,program_name,University of California (San Francisco) Program,2250522005,CA,TRUE
+NYU School of Medicine,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+New York University,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+SUNY Health Science Center at Brooklyn,program_name,Maimonides Medical Center/SUNY Downstate HSU Program,2253522005,NY,TRUE
+Mt Sinai Med Center,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+Mt Sinai Hospital,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+The Mount Sinai Medical Center,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+Mount Sinai Hospital,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+University of Southern California - LAC+USC Medical Center,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+University Of Southern California,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+University of Southern California / Keck School of Medicine,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+University of Southern California,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+U Southern California,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+Los Angeles County-U S C Medical Center,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+Usc Med Center,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+Columbia University College of Physicians & Surgeons,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+New York Presbyterian Hosp Columbia Univ Medical Ctr,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+Columbia Presbyn Mc,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+University of Michigan Hospitals and Health Centers,program_name,University of Michigan Program,2212522001,MI,TRUE
+Vanderbilt University,program_name,Vanderbilt University Medical Center Program,2214722001,TN,TRUE
+Albert Einstein College Med,program_name,Montefiore Medical Center/Albert Einstein College of Medicine of Yeshiva University Program,2213522003,NY,TRUE
+Albert Einstein College of Medicine,program_name,Montefiore Medical Center/Albert Einstein College of Medicine of Yeshiva University Program,2213522003,NY,TRUE
+Baylor College of Medicine,program_name,Baylor College of Medicine Program,2304822001,TX,TRUE
+Baylor College Of Med,program_name,Baylor College of Medicine Program,2304822001,TX,TRUE
+Tx Chldns Hospital Baylor College Med,program_name,Baylor College of Medicine Program,2304822001,TX,TRUE
+Hospital Of The University Of Pennsylvania,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+Perelman School Of Medicine University Of Pennsylvania,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+University of Pennsylvania,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+University Penn Hospital,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+University of Iowa Hospitals and Clinics,program_name,University of Iowa Health Care Medical Center Program,2211822001,IA,TRUE
+Yale University School of Medicine,program_name,Yale-New Haven Medical Center Program,2210822001,CT,TRUE
+Yale University,program_name,Yale-New Haven Medical Center Program,2210822001,CT,TRUE
+Yale,program_name,Yale-New Haven Medical Center Program,2210822001,CT,TRUE
+U Pittsburgh-Magee Womens H,program_name,UPMC Medical Education Program,2214122001,PA,TRUE
+University of Pittsburgh Medical Center,program_name,UPMC Medical Education Program,2214122001,PA,TRUE
+Magee-Womens Hospital,program_name,UPMC Medical Education Program,2214122001,PA,TRUE
+University Of Maryland School Of Med,program_name,University of Maryland Program,2302322002,MD,TRUE
+Michael Reese Hospital and Medical Center,program_name,University of Chicago Program,2211622004,IL,TRUE
+Albany Memorial Hospital,program_name,Albany Med Health System Program,2213522005,NY,TRUE
+Madigan Healthcare System,program_name,Madigan Army Medical Center Program,2305422002,WA,TRUE
+Mayo School of Graduate Medical Education,program_name,Mayo Clinic College of Medicine and Science (Rochester) Program,2212622001,MN,TRUE
+Georgetown University,program_name,MedStar Health Georgetown University/Washington Hospital Center Program,2211022001,DC,TRUE
+Georgetown University Hospital,program_name,MedStar Health Georgetown University/Washington Hospital Center Program,2211022001,DC,TRUE
+Denver Health and Hospitals,program_name,University of Colorado Program,2210722001,CO,TRUE
+Medical University Of South Carolina,program_name,Medical University of South Carolina Program,2254522001,SC,TRUE
+University Ala School Med,program_name,University of Alabama Hospital (Birmingham) Program,2210122001,AL,TRUE
+University of Alabama Medical Center,program_name,University of Alabama Hospital (Birmingham) Program,2210122001,AL,TRUE
+University Va School Med,program_name,University of Virginia Medical Center Program,2255122002,VA,TRUE
+Washington University,program_name,Washington University/B-JH/SLCH Consortium Program,2212822001,MO,TRUE
+Wayne State University School of Medicine,program_name,Detroit Medical Center/Wayne State University Program,2252522003,MI,TRUE
+Jackson Memorial Hospital - Jackson Health System,program_name,University of Miami/Jackson Health System Program,2251122001,FL,TRUE
+University of Texas Southwestern - Parkland Health & Hospital System,program_name,University of Texas Southwestern Medical Center Program,2214822001,TX,TRUE
+Parkland Meml University Tex Sw,program_name,University of Texas Southwestern Medical Center Program,2214822001,TX,TRUE
+Eastern Virginia Med School,program_name,Old Dominion University Program,2255122003,VA,TRUE
+Eastern Virginia Medical School,program_name,Old Dominion University Program,2255122003,VA,TRUE
+George Washington University,program_name,MedStar Health Georgetown University/Washington Hospital Center Program,2211022001,DC,TRUE
+Kennedy Memorial Hospital,program_name,Cooper Medical School of Rowan University/Cooper University Hospital Program,2213322001,NJ,TRUE
+Loyola University,program_name,Loyola University Medical Center Program,2211622002,IL,TRUE
+UMDNJ New Jersey Med School,program_name,Rutgers Health/New Jersey Medical School Program,2303322001,NJ,TRUE
+UMDNJ-Robert Wood Johnson Medical School,program_name,Rutgers Health/Robert Wood Johnson Medical School Program,2253322003,NJ,TRUE
+UMDNJ-University Hospital,program_name,Rutgers Health/New Jersey Medical School Program,2303322001,NJ,TRUE
+Umdnj-University Hospital,program_name,Rutgers Health/New Jersey Medical School Program,2303322001,NJ,TRUE
+University Of Illinois,program_name,University of Illinois College of Medicine at Chicago Program,2301622004,IL,TRUE
+University of Texas Health Science Center,program_name,University of Texas Health Science Center at Houston (Memorial Hermann Hospital) Program,2304822005,TX,TRUE
+University of Arizona,program_name,University of Arizona College of Medicine-Tucson Program,2300322002,AZ,TRUE
+Winthrop-University Hospital,program_name,NYU Grossman Long Island School of Medicine Program,2303522013,NY,TRUE
+Duke University Med Center,program_name,Duke University Hospital Program,2213622001,NC,TRUE
+Duke University Medical Center,program_name,Duke University Hospital Program,2213622001,NC,TRUE
+Harbor - UCLA Medical Center,program_name,Los Angeles County-Harbor-UCLA Medical Center Program,2210522001,CA,TRUE
+University Ark Med Center,program_name,University of Arkansas for Medical Sciences (UAMS) College of Medicine Program,2300422001,AR,TRUE
+University Nm,program_name,University of New Mexico School of Medicine Program,2213422001,NM,TRUE
+Bellevue Hospital Center,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+Harvard Medical School,program_name,Mass General Brigham/Massachusetts General Hospital Program,2212422003,MA,TRUE
+Northwestern University Hospitals,program_name,McGaw Medical Center of Northwestern University Program,2211622003,IL,TRUE
+University Calif Irvine,program_name,University of California (Irvine) Program,2210522002,CA,TRUE
+University of Kentucky College of Medicine,program_name,University of Kentucky College of Medicine Program,2212022001,KY,TRUE
+Brigham Womens Hospital,program_name,Mass General Brigham/Brigham and Women's Hospital Program,2252422001,MA,TRUE
+Brigham and Womens Hospital,program_name,Mass General Brigham/Brigham and Women's Hospital Program,2252422001,MA,TRUE
+North Shore-Long Island Jewish Health System,program_name,Zucker School of Medicine at Hofstra/Northwell Program,2213522002,NY,TRUE
+Mount Auburn Hospital,program_name,Beth Israel Deaconess Medical Center Program,2212422002,MA,TRUE
+Univ Of Tex MD Anderson Cancer Center,program_name,University of Texas M D Anderson Cancer Center Program,2254822001,TX,TRUE
+Wake Forest University,program_name,Wake Forest University Baptist Medical Center Program,2253622003,NC,TRUE
+Emory University,program_name,Emory University School of Medicine Program,2211222001,GA,TRUE
+Tufts Medical Center,program_name,Tufts Medical Center Program,2302422004,MA,TRUE
+Indiana University School of Medicine,program_name,Indiana University School of Medicine Program,2211722001,IN,TRUE
+Ohio State University,program_name,Ohio State University Hospital Program,2213822006,OH,TRUE
+Cleveland Clinic Foundation,program_name,Cleveland Clinic Foundation Program,2213822001,OH,TRUE
+Oregon Health & Science University,program_name,Oregon Health & Science University (OHSU Health) Program,2214022001,OR,TRUE
+Women and Infants Hospital,program_name,Women and Infants Hospital of Rhode Island/Brown University Program,2214322001,RI,TRUE
+Cedars-Sinai Medical Center,program_name,Cedars-Sinai Medical Center Program,2250522004,CA,TRUE
+University of Kentucky,program_name,University of Kentucky College of Medicine Program,2212022001,KY,TRUE
+Beth Israel Medical Center,program_name,Beth Israel Deaconess Medical Center Program,2212422002,MA,TRUE
+Beth Israel Deaconess Medical Center,program_name,Beth Israel Deaconess Medical Center Program,2212422002,MA,TRUE
+University of Minnesota,program_name,University of Minnesota Program,2252622001,MN,TRUE
+University of Washington,program_name,University of Washington Program,2255422001,WA,TRUE
+University of Wisconsin,program_name,University of Wisconsin Hospitals and Clinics Program,2215622001,WI,TRUE
+University of California San Diego,program_name,University of California (San Diego) Medical Center Program,2210522003,CA,TRUE
+University of Louisville,program_name,University of Louisville School of Medicine Program,2212022001,KY,TRUE
+Johns Hopkins Hospital,program_name,Johns Hopkins University School of Medicine Program,2212322001,MD,TRUE
+Johns Hopkins University,program_name,Johns Hopkins University School of Medicine Program,2212322001,MD,TRUE
+University of North Carolina,program_name,University of North Carolina Hospitals Program,2213622002,NC,TRUE
+University of Oklahoma,program_name,OU Medical Center Program,2213922001,OK,TRUE
+Ochsner Clinic Foundation,program_name,Ochsner Clinic Foundation Program,2302122001,LA,TRUE
+Dartmouth-Hitchcock Medical Center,program_name,Dartmouth-Hitchcock/Mary Hitchcock Memorial Hospital Program,2213222001,NH,TRUE
+Penn State Milton S Hershey Medical Center,program_name,Penn State Milton S Hershey Medical Center Program,2304122001,PA,TRUE
+Thomas Jefferson University Hospital,program_name,Sidney Kimmel Medical College at Thomas Jefferson University/TJUH Program,2304122003,PA,TRUE
+University of Cincinnati,program_name,University of Cincinnati Medical Center/College of Medicine Program,2303822003,OH,TRUE
+Louisiana State University,program_name,Louisiana State University School of Medicine Program,2212122001,LA,TRUE
+University of Utah,program_name,University of Utah Health Program,2214922001,UT,TRUE
+SUNY Stony Brook University Hospital & Medical Center,program_name,Stony Brook Medicine/University Hospital Program,2303522003,NY,TRUE
+University of Texas Medical Branch,program_name,University of Texas Medical Branch Hospitals Program,2214822005,TX,TRUE
+University of Rochester,program_name,University of Rochester Medical Center Program,2213522001,NY,TRUE
+Medical College of Georgia,program_name,Medical College of Georgia Program,2251222001,GA,TRUE
+University of Connecticut,program_name,University of Connecticut Program,2300822002,CT,TRUE
+University of South Florida,program_name,University of South Florida Morsani College of Medicine Program,2211122001,FL,TRUE
+Geisinger Medical Center,program_name,Geisinger Health System Program,2304122005,PA,TRUE
+University of Hawaii,program_name,University of Hawaii Program,2301422001,HI,TRUE
+Houston Methodist Hospital,program_name,Houston Methodist Hospital (Medical Center) Program,2214822003,TX,TRUE
+Cooper University Hospital,program_name,Cooper Medical School of Rowan University/Cooper University Hospital Program,2213322001,NJ,TRUE
+Hartford Hospital,program_name,Hartford Hospital Program,2210822002,CT,TRUE
+University of Mississippi,program_name,University of Mississippi Medical Center Program,2302722001,MS,TRUE
+Henry Ford Hospital,program_name,Henry Ford Health/Henry Ford Hospital Program,2212522002,MI,TRUE
+University of Massachusetts,program_name,UMass Chan Medical School Program,2212422001,MA,TRUE
+New York Presbyterian Hospital - Cornell Campus,program_name,New York Presbyterian Hospital (Cornell Campus) Program,2353522004,NY,TRUE
+New York Presbyterian Hospital - Columbia Campus,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+New York Presbyterian Hospital-Weill Cornell Medical Center,program_name,New York Presbyterian Hospital (Cornell Campus) Program,2353522004,NY,TRUE
+Cornell University Medical College,program_name,New York Presbyterian Hospital (Cornell Campus) Program,2353522004,NY,TRUE
+UCLA Med Center,program_name,UCLA David Geffen School of Medicine/UCLA Medical Center Program,2250522007,CA,TRUE
+Ucsf Medical Center,program_name,University of California (San Francisco) Program,2250522005,CA,TRUE
+Baylor University,program_name,Baylor College of Medicine Program,2304822001,TX,TRUE
+Bellevue Hospital Ctr/Nyu Hospital,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+Columbia U Phys&Surg/Columbia Presbyterian Med Ctr,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+Babies Hospital Columbia Presbyn Med Center,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+Cook Co Hospital,program_name,University of Illinois College of Medicine at Chicago Program,2301622004,IL,TRUE
+Harvard Med/Brigham and Women's,program_name,Mass General Brigham/Brigham and Women's Hospital Program,2252422001,MA,TRUE
+Jackson Memorial Hospital,program_name,University of Miami/Jackson Health System Program,2251122001,FL,TRUE
+MD Anderson Cancer Center,program_name,University of Texas M D Anderson Cancer Center Program,2254822001,TX,TRUE
+Montefiore Med Center,program_name,Montefiore Medical Center/Albert Einstein College of Medicine of Yeshiva University Program,2213522003,NY,TRUE
+Mount Sinai School Of Medicine,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+New York University Medical Center-Tisch Hospital,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+Ohio State University College of Medicine,program_name,Ohio State University Hospital Program,2213822006,OH,TRUE
+Saint Louis University / School Of Medicine,program_name,SSM Health/Saint Louis University School of Medicine Program,2302822001,MO,TRUE
+Stanford University School Med,program_name,Stanford Health Care-Sponsored Stanford University Program,2250522006,CA,TRUE
+Temple University Hospital,program_name,Temple University Hospital/Fox Chase Cancer Center Program,2254122006,PA,TRUE
+Ucsd,program_name,University of California (San Diego) Medical Center Program,2210522003,CA,TRUE
+University Ala,program_name,University of Alabama Hospital (Birmingham) Program,2210122001,AL,TRUE
+University Of California-Los Angeles,program_name,UCLA David Geffen School of Medicine/UCLA Medical Center Program,2250522007,CA,TRUE
+University Of Michigan / Ann Arbor,program_name,University of Michigan Program,2212522001,MI,TRUE
+University Of Pennsylvania,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+University Of Virginia Health System,program_name,University of Virginia Medical Center Program,2255122002,VA,TRUE
+University Of Washington,program_name,University of Washington Program,2255422001,WA,TRUE
+"University Of Washington, Health Promotion Research Center",program_name,University of Washington Program,2255422001,WA,TRUE
+University Pittsburgh Mc,program_name,UPMC Medical Education Program,2214122001,PA,TRUE
+University South Fla,program_name,University of South Florida Morsani College of Medicine Program,2211122001,FL,TRUE
+University Tex Hermann Hospital,program_name,University of Texas Health Science Center at Houston (Memorial Hermann Hospital) Program,2304822005,TX,TRUE
+University Tex Sw Med Center,program_name,University of Texas Southwestern Medical Center Program,2214822001,TX,TRUE
+Yale University School Of Med,program_name,Yale-New Haven Medical Center Program,2210822001,CT,TRUE
+Res-Yale Sch Med,program_name,Yale-New Haven Medical Center Program,2210822001,CT,TRUE
+Duke University School of Medicine,program_name,Duke University Hospital Program,2213622001,NC,TRUE
+Brigham and Women's Hospital,program_name,Mass General Brigham/Brigham and Women's Hospital Program,2252422001,MA,TRUE
+Drexel University - Hahnemann University Hospital,program_name,Temple University Hospital/Fox Chase Cancer Center Program,2254122006,PA,TRUE
+Michael Reese Hospital and Med Center,program_name,University of Chicago Program,2211622004,IL,TRUE
+Pennsylvania Hospital - University of Pennsylvania Health System,program_name,University of Pennsylvania Health System Program,2214122002,PA,TRUE
+St Luke's-Roosevelt Hospital Center,program_name,Icahn School of Medicine at Mount Sinai/West Program,2303522002,NY,TRUE
+Stanford University Hospital,program_name,Stanford Health Care-Sponsored Stanford University Program,2250522006,CA,TRUE
+Thomas Jefferson University,program_name,Sidney Kimmel Medical College at Thomas Jefferson University/TJUH Program,2304122003,PA,TRUE
+UMDNJ,program_name,Rutgers Health/New Jersey Medical School Program,2303322001,NJ,TRUE
+University Hospital - University of Cincinnati College of Medicine,program_name,University of Cincinnati Medical Center/College of Medicine Program,2303822003,OH,TRUE
+University Mo,program_name,University of Missouri-Kansas City School of Medicine Program,2212822002,MO,TRUE
+University of Connecticut Health Center - J Dempsey Hospital,program_name,University of Connecticut Program,2300822002,CT,TRUE
+University of Vermont - Fletcher Allen Health Care,program_name,University of Vermont Medical Center Program,2305022001,VT,TRUE
+University of Virginia,program_name,University of Virginia Medical Center Program,2255122002,VA,TRUE
+William Beaumont Hospital,program_name,Corewell Health William Beaumont University Hospital Program,2252522002,MI,TRUE
+Albert Einstein Healthcare Network,program_name,Sidney Kimmel Medical College at Thomas Jefferson University/TJUH Program,2304122003,PA,TRUE
+Virginia Mason Medical Center,program_name,University of Washington Program,2255422001,WA,TRUE
+Louisiana State University School of Medicine,program_name,Louisiana State University School of Medicine Program,2212122001,LA,TRUE
+Maimonides Medical Center,program_name,Maimonides Medical Center Program,2213522007,NY,TRUE
+Case Western Reserve University,program_name,Case Western Reserve University/University Hospitals Cleveland Medical Center Program,2213822002,OH,TRUE
+Good Samaritan Hospital,program_name,TriHealth Program,2213822003,OH,TRUE
+University of Missouri,program_name,University of Missouri-Columbia Program,2302822005,MO,TRUE
+Maternity Hosp,program_name,Johns Hopkins University School of Medicine Program,2212322001,MD,TRUE
+Anderson Hospital,program_name,Corewell Health William Beaumont University Hospital Program,2252522002,MI,TRUE
+Baylor College of Medicine & Affiliated Hospitals,program_name,Baylor College of Medicine Program,2304822001,TX,TRUE
+Baylor College of Medicine/Tex Chldns Hosp,program_name,Baylor College of Medicine Program,2304822001,TX,TRUE
+Boston Children's Hospital,program_name,Mass General Brigham/Brigham and Women's Hospital Program,2252422001,MA,TRUE
+Case West Res,program_name,Case Western Reserve University/University Hospitals Cleveland Medical Center Program,2213822002,OH,TRUE
+Cleveland Clin Found,program_name,Cleveland Clinic Foundation Program,2213822001,OH,TRUE
+Columbia P&S,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+Columbia University / College Of Physicians and Surgeons,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+Columbia University / College of Physicians And Surgeons,program_name,New York Presbyterian Hospital (Columbia Campus) Program,2253522003,NY,TRUE
+Cook Co Hosp,program_name,University of Illinois College of Medicine at Chicago Program,2301622004,IL,TRUE
+Emory Univ,program_name,Emory University School of Medicine Program,2211222001,GA,TRUE
+Emory University School Of Med,program_name,Emory University School of Medicine Program,2211222001,GA,TRUE
+Free Hosp Women,program_name,Mass General Brigham/Brigham and Women's Hospital Program,2252422001,MA,TRUE
+Geisinger Health System,program_name,Geisinger Health System Program,2304122005,PA,TRUE
+Harvard Med School,program_name,Mass General Brigham/Massachusetts General Hospital Program,2212422003,MA,TRUE
+Harvard U Hosp,program_name,Mass General Brigham/Massachusetts General Hospital Program,2212422003,MA,TRUE
+Hutzel Hosp,program_name,Detroit Medical Center/Wayne State University Program,2252522003,MI,TRUE
+Jackson Meml Hosp/U Miami,program_name,University of Miami/Jackson Health System Program,2251122001,FL,TRUE
+Jefferson Med College,program_name,Sidney Kimmel Medical College at Thomas Jefferson University/TJUH Program,2304122003,PA,TRUE
+Jones Institute For Reproductive Medicine,program_name,Old Dominion University Program,2355122001,VA,TRUE
+Lac & Usc Med Ctr Keck Sch Of Med Usc,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+Lac Usc Med Center,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+Lac+Usc Medical Center,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+Loyola University Hospital,program_name,Loyola University Medical Center Program,2211622002,IL,TRUE
+Loyola University Of Chicago / Stritch School Of Medicine,program_name,Loyola University Medical Center Program,2211622002,IL,TRUE
+Mayo Foundation For Medical Education and Research,program_name,Mayo Clinic College of Medicine and Science (Rochester) Program,2212622001,MN,TRUE
+Mayo Medical School,program_name,Mayo Clinic College of Medicine and Science (Rochester) Program,2212622001,MN,TRUE
+Med College Of Georgia,program_name,Medical College of Georgia Program,2251222001,GA,TRUE
+Med University Sc,program_name,Medical University of South Carolina Program,2254522001,SC,TRUE
+Medical College Of Georgia Hospital and Clinic,program_name,Medical College of Georgia Program,2251222001,GA,TRUE
+Mount Sinai School of Medicine,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+Mt Sinai,program_name,Icahn School of Medicine at Mount Sinai Program,2213522004,NY,TRUE
+Naval Medical Center,program_name,University of California (San Diego) Medical Center Program,2210522003,CA,TRUE
+New Eng Ob,program_name,Women and Infants Hospital of Rhode Island/Brown University Program,2214322001,RI,TRUE
+New York Hospital,program_name,New York Presbyterian Hospital (Cornell Campus) Program,2353522004,NY,TRUE
+New York Med College,program_name,New York Presbyterian Hospital (Cornell Campus) Program,2353522004,NY,TRUE
+New York Medical College,program_name,New York Presbyterian Hospital (Cornell Campus) Program,2353522004,NY,TRUE
+New York University Med Center,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+Nyu Langone Medical Center,program_name,NYU Grossman School of Medicine Program,2253522007,NY,TRUE
+Northwestern University Med School,program_name,McGaw Medical Center of Northwestern University Program,2211622003,IL,TRUE
+Ohio State University Med Center,program_name,Ohio State University Hospital Program,2213822006,OH,TRUE
+Rush Med College,program_name,Rush University Medical Center Program,2361622004,IL,TRUE
+St Louis Hosps,program_name,Washington University/B-JH/SLCH Consortium Program,2212822001,MO,TRUE
+St Lukes/Roosevelt,program_name,Icahn School of Medicine at Mount Sinai/West Program,2303522002,NY,TRUE
+St Michaels Hospital,program_name,Rutgers Health/New Jersey Medical School Program,2303322001,NJ,TRUE
+Stanford Hospitals and Clinics,program_name,Stanford Health Care-Sponsored Stanford University Program,2250522006,CA,TRUE
+Tufts Med Center,program_name,Tufts Medical Center Program,2302422004,MA,TRUE
+Tufts New England Medical Center,program_name,Tufts Medical Center Program,2302422004,MA,TRUE
+U Ala,program_name,University of Alabama Hospital (Birmingham) Program,2210122001,AL,TRUE
+U Calif,program_name,University of California (San Francisco) Program,2250522005,CA,TRUE
+University Calif,program_name,University of California (San Francisco) Program,2250522005,CA,TRUE
+U Minn Hosp-Mayo Clin,program_name,Mayo Clinic College of Medicine and Science (Rochester) Program,2212622001,MN,TRUE
+U Miss,program_name,University of Mississippi Medical Center Program,2302722001,MS,TRUE
+U Sth Fl,program_name,University of South Florida Morsani College of Medicine Program,2211122001,FL,TRUE
+U Tenn Ctr Hlth Sci,program_name,University of Tennessee Program,2304722001,TN,TRUE
+UC Davis Medical Center,program_name,University of California Davis Health Program,2250522002,CA,TRUE
+UC Irvine Medical Center,program_name,University of California (Irvine) Program,2210522002,CA,TRUE
+Uab Hospital,program_name,University of Alabama Hospital (Birmingham) Program,2210122001,AL,TRUE
+University Hospitals Of Cleveland,program_name,Case Western Reserve University/University Hospitals Cleveland Medical Center Program,2213822002,OH,TRUE
+University Minn,program_name,University of Minnesota Program,2252622001,MN,TRUE
+University Minn Hosps,program_name,University of Minnesota Program,2252622001,MN,TRUE
+University Of Minnesota / Twin Cities Campus,program_name,University of Minnesota Program,2252622001,MN,TRUE
+University Nc,program_name,University of North Carolina Hospitals Program,2213622002,NC,TRUE
+University Of California At Irvine / California College Of Medicine & Surgery,program_name,University of California (Irvine) Program,2210522002,CA,TRUE
+University Of Iowa Hospitals & Clinics,program_name,University of Iowa Health Care Medical Center Program,2211822001,IA,TRUE
+University Of Miami Miller School Of Medicine,program_name,University of Miami/Jackson Health System Program,2251122001,FL,TRUE
+University Of Oklahoma Health Sciences Center,program_name,OU Medical Center Program,2213922001,OK,TRUE
+University Of Pittsburgh / Main Campus,program_name,UPMC Medical Education Program,2214122001,PA,TRUE
+University Of South Florida / College Of Medicine,program_name,University of South Florida Morsani College of Medicine Program,2211122001,FL,TRUE
+University Sfl,program_name,University of South Florida Morsani College of Medicine Program,2211122001,FL,TRUE
+University Of Tennessee,program_name,University of Tennessee Program,2304722001,TN,TRUE
+University of Tennessee Medical Center,program_name,University of Tennessee Medical Center at Knoxville Program,2304722003,TN,TRUE
+University Of Texas Health Sciences Center,program_name,University of Texas Health Science Center San Antonio Joe and Teresa Lozano Long School of Medicine Program,2304822003,TX,TRUE
+"University Of Washington, Seattle, Wa",program_name,University of Washington Program,2255422001,WA,TRUE
+University Vt,program_name,University of Vermont Medical Center Program,2305022001,VT,TRUE
+University of Florida Affiliated Hospitals,program_name,University of Florida Program,2301122002,FL,TRUE
+University of New Mexico,program_name,University of New Mexico School of Medicine Program,2213422001,NM,TRUE
+University of Texas Southwestern Medical Center Affiliated Hospitals,program_name,University of Texas Southwestern Medical Center Program,2214822001,TX,TRUE
+Washington Hospital Center,program_name,MedStar Health Georgetown University/Washington Hospital Center Program,2211022001,DC,TRUE
+White Memorial Medical Center,program_name,University of Southern California/Los Angeles General Medical Center (USC/LA General) Program,2250522001,CA,TRUE
+William Beaumont Army Medical Center,program_name,National Capital Consortium Program,2212322002,MD,TRUE
+Yale-New Haven Comm Hosp,program_name,Yale-New Haven Medical Center Program,2210822001,CT,TRUE
