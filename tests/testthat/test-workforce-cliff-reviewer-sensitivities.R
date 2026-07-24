@@ -13,7 +13,7 @@ library(testthat)
 .root <- tryCatch(here::here(), error = function(e) {
   d <- normalizePath("."); while (!file.exists(file.path(d, "manuscript", "manuscript_WORKFORCE_CLIFF.Rmd")) &&
        dirname(d) != d) d <- dirname(d); d })
-DATA <- file.path(.root, "cliff", "data")
+DATA <- file.path(.root, "data")
 MAIN <- file.path(.root, "manuscript", "manuscript_WORKFORCE_CLIFF.Rmd")
 main <- paste(readLines(MAIN, warn = FALSE), collapse = "\n")
 csv  <- function(f) read.csv(file.path(DATA, f), stringsAsFactors = FALSE, check.names = FALSE)
@@ -182,7 +182,7 @@ test_that("[contract] sensitivity-artifact contract passes for committed artifac
   ok <- tryCatch({ source(file.path(.root, "manuscript", "R", "workforce_data_contract.R")); TRUE }, error = function(e) FALSE)
   skip_if_not(ok, "workforce_data_contract.R could not be sourced")
   # passes against the committed cliff/data artifacts
-  expect_true(validate_sensitivity_artifacts(data_dir = file.path(.root, "cliff", "data"), strict = TRUE))
+  expect_true(validate_sensitivity_artifacts(data_dir = file.path(.root, "data"), strict = TRUE))
   # fails loud when the artifacts are absent (empty dir)
   expect_error(validate_sensitivity_artifacts(data_dir = tempdir(), strict = TRUE), "sensitivity contract")
   # every registered artifact is one the manuscript getters actually read

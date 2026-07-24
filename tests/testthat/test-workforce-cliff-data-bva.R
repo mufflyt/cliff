@@ -224,7 +224,7 @@ test_that("BVA get_positions_for_adequate ceiling: exact integer vs just-over", 
 #    and nudging it onto/over the cutoff flips the label as classify_replacement says.
 # ============================================================================
 test_that("BVA real SSOT ratios straddle the cutoffs exactly as classify_replacement dictates", {
-  ssot <- read.csv(file.path(.root, "cliff", "data", "workforce_projections_consolidated.csv"),
+  ssot <- read.csv(file.path(.root, "data", "workforce_projections_consolidated.csv"),
                    stringsAsFactors = FALSE, check.names = FALSE)
   for (ab in c("URPS", "GO", "MIGS")) {
     r <- ssot$replacement_ratio[ssot$subspecialty_abbrev == ab]

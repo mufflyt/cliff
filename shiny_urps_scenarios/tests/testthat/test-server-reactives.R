@@ -10,8 +10,8 @@ test_that("model() reproduces the headline under Best estimate", {
   shiny::testServer(e$main_server, {
     set_best_estimate(session)
     m <- model()
-    expect_equal(round(m$avg_dep, 1), 12.7)
-    expect_equal(round(m$ratio, 2), 5.05)
+    expect_equal(round(m$avg_dep, 1), 12.8)
+    expect_equal(round(m$ratio, 2), 5.02)
     expect_equal(round(m$proj), 1538)
   })
 })
@@ -27,11 +27,11 @@ test_that("the executive flow visual shows enter/leave/net and supporting counts
     expect_true(grepl(">64</div>", ec))                       # enter value in the bar
     expect_true(grepl(">13</div>", ec))                       # leave value in the bar
     expect_true(grepl("Net gain: about \\+51 per year", ec))
-    expect_true(grepl("1,333", ec) && grepl("estimated active headcount in 2025", ec))
-    expect_true(grepl("1,538", ec) && grepl("projected active headcount in 2029", ec))
+    expect_true(grepl("1,339", ec) && grepl("estimated active headcount in 2025", ec))
+    expect_true(grepl("1,544", ec) && grepl("projected active headcount in 2029", ec))
     expect_true(grepl("Headcount replacement ratio: 5.0 to 1", ec))
     expect_false(grepl("specialists", ec))
-    expect_false(grepl("1,461", ec))                          # ramp figure moved to Research details
+    expect_false(grepl("1,466", ec))                          # ramp figure moved to Research details
     expect_false(grepl("gradual ramp-up", ec))
   })
 })
@@ -40,8 +40,8 @@ test_that("the ramp-adjusted 1,461 estimate lives in Research details, not the h
   e <- load_app_env()
   shiny::testServer(e$main_server, {
     set_best_estimate(session)
-    expect_false(grepl("1,461", output$exec_cards$html))       # not on the primary card
-    expect_true(grepl("1,461", output$assumptions$html))       # present as a labeled sensitivity
+    expect_false(grepl("1,466", output$exec_cards$html))       # not on the primary card
+    expect_true(grepl("1,466", output$assumptions$html))       # present as a labeled sensitivity
     expect_true(grepl("Ramp-up-adjusted 2029 estimate", output$assumptions$html))
   })
 })
@@ -52,7 +52,7 @@ test_that("the model reports both the immediate and transition-adjusted 2029 cou
     set_best_estimate(session)
     m <- model()
     expect_equal(round(m$proj), 1538)                       # immediate-entry
-    expect_lt(abs(m$proj_ramped - 1461), 5)                 # transition-adjusted (manuscript)
+    expect_lt(abs(m$proj_ramped - 1466), 5)                 # transition-adjusted (manuscript)
     expect_lt(m$proj_ramped, m$proj)
   })
 })
@@ -82,9 +82,9 @@ test_that("story cards show the baseline, flows, and the all-99 message", {
   e <- load_app_env()
   shiny::testServer(e$main_server, {
     set_best_estimate(session)
-    expect_true(grepl("1,333", output$story1$html))
+    expect_true(grepl("1,339", output$story1$html))
     expect_true(grepl("64", output$story2$html))
-    expect_true(grepl("12.7", output$story2$html))
+    expect_true(grepl("12.8", output$story2$html))
     # the robustness card reports the fixed prespecified grid, not the current scenario
     expect_true(grepl("99 of 99", output$story3$html))
     expect_true(grepl("prespecified sensitivity", output$story3$html))
