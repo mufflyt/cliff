@@ -1,0 +1,67 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                   WORKFORCE CLIFF MANUSCRIPT                         ║
+║                         QUICK START GUIDE                            ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+📁 EVERYTHING IS IN: /Users/tmuffly/isochrones/cliff/
+
+═══════════════════════════════════════════════════════════════════════
+
+🔍 VIEW THE MANUSCRIPT NOW:
+
+   open /Users/tmuffly/isochrones/cliff/WORKFORCE_CLIFF_ObGyn.html
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 VIEW THE FIGURES:
+
+   Figure 1 (Workforce trajectories):
+   open /Users/tmuffly/isochrones/cliff/figures/figure1_workforce_trajectories.png
+
+   Figure 2 (Replacement gap):
+   open /Users/tmuffly/isochrones/cliff/figures/figure2_replacement_gap.png
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 RENDER TO WORD (for journal submission):
+
+   cd /Users/tmuffly/isochrones
+   Rscript -e "rmarkdown::render('cliff/manuscript/WORKFORCE_CLIFF_ObGyn.Rmd', output_format='word_document')"
+
+   Output will be: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx
+
+═══════════════════════════════════════════════════════════════════════
+
+📋 WHAT'S INCLUDED:
+
+   ✓ Complete manuscript in ObGyn format
+   ✓ Précis (50 words)
+   ✓ Structured abstract
+   ✓ 2 publication-ready tables
+   ✓ 2 figures (600 DPI TIFF + PNG)
+   ✓ 14 references with your suggestions
+   ✓ All statistics dynamically generated
+   ✓ Box 1 (retirement detection system)
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 KEY FINDINGS:
+
+   INSUFFICIENT REPLACEMENT:
+   • FPMRS: 1,283 → 1,193 (-7.0%, ratio 0.85)
+   • GO: 1,352 → 1,249 (-7.6%, ratio 0.88)
+
+   ADEQUATE REPLACEMENT:
+   • MIGS: 767 → 831 (+8.4%, ratio 1.83)
+
+═══════════════════════════════════════════════════════════════════════
+
+📚 DOCUMENTATION:
+
+   Full details: cliff/README.md
+   Summary: cliff/MANUSCRIPT_SUMMARY.txt
+
+═══════════════════════════════════════════════════════════════════════
+
+✉️  QUESTIONS? tyler.muffly@dhha.org
+

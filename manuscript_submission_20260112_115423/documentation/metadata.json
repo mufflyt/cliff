@@ -1,0 +1,26 @@
+{
+  "run_info": {
+    "timestamp": "20260112_185135",
+    "datetime": "2026-01-12 18:51:35 UTC",
+    "scenario": "optimistic",
+    "runtime_seconds": 4.1739,
+    "r_version": "4.4.3",
+    "platform": "aarch64-apple-darwin20"
+  },
+  "fellowship_assumptions": {
+    "FPMRS": 70,
+    "GO": 60,
+    "MIG": 55
+  },
+  "git": {
+    "commit": "0419de1ff68c38a16a037167774b92778d1c7ac9",
+    "branch": "feature/seven-subspecialty-expansion",
+    "status": [" M manuscript/checkpoints/preflight_report.json", " M tests/test_pipeline_dependencies.R", " M tests/testthat/test-master-pipeline-preflight.R", "?? R/manuscript_consolidate_existing_results.R", "?? cliff/", "?? manuscript/R/workforce_statistics.R", "?? manuscript/manuscript_WORKFORCE_CLIFF.Rmd", "?? tests/testthat/test-step-1.6-production-validation.R"],
+    "remote": "git@github.com:mufflyt/isochrones.git"
+  },
+  "files": {
+    "data": "data/workforce_projections_consolidated.csv",
+    "figures": ["figures/figure1_workforce_trajectories.png", "figures/figure1_workforce_trajectories.tiff", "figures/figure2_replacement_gap.png", "figures/figure2_replacement_gap.tiff", "figures/workforce_crisis_abstract.png", "figures/workforce_crisis_abstract.tiff"]
+  },
+  "additional": []
+}

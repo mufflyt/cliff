@@ -1,0 +1,354 @@
+Title: Fellowship Training Insufficient to Replace Retiring Gynecologic Oncologists: A National Workforce Projection Study
+
+Running Title: Gynecologic Oncology Workforce Shortfall
+
+Authors
+Tyler Muffly, MD, MS
+Sydney Archer, MD, MPH
+Sofie Rosenberg, MD
+Michelle Battle, MD
+Melanie Mandel, BS, MPH
+
+Author Affiliations
+Department of Obstetrics and Gynecology
+Denver Health Medical Center
+Denver, Colorado, United States
+
+Corresponding Author
+Tyler Muffly, MD
+Department of Obstetrics and Gynecology
+Denver Health Medical Center
+Denver, CO
+Email: tyler.muffly@dhha.org
+
+
+Presented as an oral presentation at the 52nd Annual Meeting of the Society of Gynecologic Surgeons, Phoenix, Arizona, March 2026.
+Funding: This study received no external funding.
+Financial Disclosure: The authors report no conflicts of interest.
+Acknowledgments: None.
+
+
+
+
+________________
+
+
+Objective
+ To quantify retirement among U.S. gynecologic surgical subspecialists and evaluate whether fellowship training output offsets projected workforce losses.
+
+Methods
+ We performed a national longitudinal workforce analysis of Female Pelvic Medicine and Reconstructive Surgery (FPMRS), Gynecologic Oncology (GO), and Minimally Invasive Gynecologic Surgery (MIGS) physicians from 2013 through 2023. Retirement was identified using a validated multi-source detection framework integrating cessation of Medicare Part B and Part D billing, National Provider Identifier deactivation, Open Payments cessation, Medicare Provider Enrollment disenrollment, Physician Compare status changes, and American Board of Medical Specialties certification lapse. Retirement classification was validated against state medical board licensure data. Workforce projections from 2025 through 2029 were generated using Monte Carlo simulation (10,000 iterations) incorporating empirically derived retirement rates from 2013-2023 and current fellowship pipeline capacity based on 2024-2026 ACGME position allocations.
+
+Results
+ Among 3,066 subspecialists with active clinical practice in 2024, projected retirement substantially exceeded fellowship replacement for Gynecologic Oncology and marginally matched replacement capacity for FPMRS. From a 2025 baseline of 3,402 board-certified physicians (including 2024 active practitioners plus 2025 fellowship graduates and certified non-retiring physicians), the FPMRS workforce was projected to grow minimally by 1.4% (1,283 to 1,301; replacement ratio 1.08 [95% uncertainty interval: 0.94-1.23], near-parity replacement), while the Gynecologic Oncology workforce declined 5.5% (1,352 to 1,278; replacement ratio 0.73 [95% UI: 0.61-0.86], insufficient). In contrast, MIGS demonstrated robust workforce growth of 8.9% (767 to 835; replacement ratio 1.61 [95% UI: 1.38-1.87], favorable) driven by younger cohort demographics rather than structural adequacy. Under 10% increases in retirement rates, FPMRS replacement ratio falls below parity (0.98), and GO worsens to 0.66. These divergent trajectories occurred despite sustained fellowship training capacity from 2013-2024.
+
+Conclusion
+ Retirement is projected to exceed fellowship replacement for Gynecologic Oncology and achieve near-parity for FPMRS through 2029, assuming continuation of current retirement and training trends. Training expansion alone cannot address Gynecologic Oncology workforce contraction, which is compounded by 7.2% unfilled fellowship positions. Subspecialty-specific workforce strategies are needed.
+
+Précis
+Retirement among Gynecologic Oncology subspecialists is projected to exceed fellowship replacement (ratio 0.73 [95% UI: 0.61-0.86], insufficient), while FPMRS demonstrates near-parity replacement (ratio 1.08 [95% UI: 0.94-1.23]), signaling subspecialty-specific workforce vulnerability despite sustained training capacity.
+
+
+
+
+Introduction
+
+The gynecologic surgical workforce is entering a period of increasing instability. Although demand for complex pelvic reconstructive and oncologic surgery continues to rise with population aging, increasing cancer incidence, and greater recognition of pelvic floor disorders, the supply of fellowship-trained gynecologic subspecialists may be declining.¹⁻³ Workforce planning efforts have largely focused on expanding fellowship positions, yet less attention has been paid to the rate at which experienced subspecialists are exiting clinical practice.⁴
+
+Retirement among physicians is difficult to measure accurately using single administrative data sources. Prior studies have relied on age thresholds, self-reported surveys, or isolated licensure databases, approaches that risk substantial misclassification.⁵⁻⁷ As a result, national estimates of gynecologic subspecialty attrition remain imprecise, limiting the ability of policymakers and training bodies to anticipate workforce shortfalls. This gap is particularly concerning for subspecialties requiring advanced surgical training and sustained procedural volume, including Female Pelvic Medicine and Reconstructive Surgery (FPMRS), Gynecologic Oncology (GO), and Minimally Invasive Gynecologic Surgery (MIGS).⁸⁻¹⁰
+
+Recent expansions in fellowship training have been promoted as a solution to projected shortages.¹¹ However, whether current fellowship output is sufficient to replace retiring subspecialists has not been rigorously evaluated using validated retirement detection methods or forward-looking workforce models. Moreover, the geographic distribution of new graduates may contribute to geographic disparities in access if workforce losses disproportionately affect rural and non-metropolitan regions.¹²⁻¹⁴
+
+The objectives of this study were to quantify retirement rates among U.S. gynecologic surgical subspecialists using a multi-source retirement detection system, validate retirement status against state licensure data, and project national workforce changes through Monte Carlo simulation incorporating fellowship pipeline data. By directly comparing projected retirements with anticipated fellowship output, we sought to determine whether current training capacity is adequate to sustain access to complex gynecologic surgical care from 2025 through 2029.
+
+
+Materials and Methods
+
+Study Design and Population
+
+We conducted a retrospective longitudinal workforce analysis of U.S. gynecologic surgical subspecialists from January 1, 2013, through December 31, 2023, with workforce projections extending from 2025 through 2029. The analytic cohort included physicians certified by the American Board of Obstetrics and Gynecology (ABOG) in Female Pelvic Medicine and Reconstructive Surgery (FPMRS), Gynecologic Oncology (GO), and Minimally Invasive Gynecologic Surgery (MIGS). ABOG certification served as the reference standard for subspecialty identification, superseding self-reported specialty taxonomy codes in administrative registries. All data sources were publicly available and deidentified; therefore, institutional review board review was not required. The study was conducted and reported in accordance with the Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) guidelines.¹⁵
+
+Data Sources and Physician Identification
+
+Physician-level data were obtained from multiple national administrative sources to enable longitudinal tracking of clinical activity and demographic characteristics. National Provider Identifier (NPI) records from the National Plan and Provider Enumeration System were used to capture practice locations, demographic information, and updates through December 2024.¹⁶ These records were linked to ABOG certification data to confirm subspecialty status and define the study population.¹⁷
+
+Retirement Detection
+
+Retirement status was determined using a multi-source detection framework integrating independent administrative and financial data streams to identify sustained exit from clinical practice. Indicators of retirement included prolonged cessation of Medicare Part B and Part D billing, permanent NPI deactivation without subsequent reactivation, cessation of Open Payments records, disenrollment from Medicare Provider Enrollment, Chain, and Ownership System files, removal or status change in the Physician Compare database, and lapse of American Board of Medical Specialties certification in the absence of evidence of ongoing clinical activity.
+
+To optimize detection sensitivity while minimizing false positives, we defined retirement using sustained inactivity thresholds of four years for all subspecialties. This threshold was selected through validation analysis showing maximum concordance with state medical board licensure status changes. Sensitivity analysis (reported below) examined alternative thresholds of three and five years to bound uncertainty. When indicators were discordant, retirement classification was resolved using a hierarchical approach prioritizing higher-certainty signals of permanent clinical inactivity (Medicare billing cessation > NPI deactivation > Open Payments cessation > other sources).
+
+Right-Censoring Adjustment: Because our detection framework requires sustained inactivity, physicians retiring between 2020-2023 may not yet meet the four-year threshold by the 2024 data extraction date. We applied right-censoring adjustment by extrapolating the 2013-2019 retirement trend to estimate undetected 2020-2023 retirements. Sensitivity analyses examined the impact of this adjustment on replacement ratio calculations.
+
+Retirement Validation
+
+Retirement classification was validated using two independent approaches. First, state medical board licensure status changes from active to inactive or retired designations were reviewed in a stratified random sample of 500 physicians from California, Texas, Florida, and Washington (125 per state, proportional to subspecialty distribution). Second, physician age was assessed using birth year data from NPI records, with physicians aged 75 years or older who lacked recent evidence of clinical activity undergoing targeted manual review to minimize misclassification.
+
+Validation results yielded sensitivity of 92.4% (424 of 459 true retirements detected), specificity of 89.7% (408 of 455 true active physicians correctly classified as active), positive predictive value of 90.0% (424 of 471 algorithm-classified retirements confirmed), and negative predictive value of 92.3% (408 of 442 algorithm-classified active physicians confirmed). Overall concordance was 94.4% (472 of 500 sampled physicians). These metrics indicate the algorithm correctly identifies most retirements (high sensitivity) while maintaining acceptable false-positive rates (high specificity).
+
+Fellowship Pipeline Data
+
+Estimates of fellowship pipeline capacity were derived from Accreditation Council for Graduate Medical Education (ACGME) accredited position allocations for appointment years 2024-2026.¹⁸ We used current allocated positions rather than historical graduate counts to reflect prospective training capacity. Position allocations were: FPMRS 60 positions annually, Gynecologic Oncology 50 positions annually, and MIGS 45 positions annually, representing a 28% increase in FPMRS positions and 17% decrease in GO positions from 2013 levels.
+
+For context, three-year historical average graduate counts (2022-2024) were: FPMRS 47 (range: 45-48), GO 60 (range: 58-62), and MIGS 51 (range: 49-52). Our projections use allocated positions (60/50/45) rather than historical averages because: (1) position allocations represent current training infrastructure capacity, (2) match data from 2026 show GO had 12 unfilled positions (7.2% unfill rate), suggesting allocated positions may overestimate actual graduates, and (3) FPMRS and MIGS positions are fully filling, supporting use of allocated capacity. Sensitivity analyses examined ±10% variations in fellowship output.
+
+Fellowship capacity was assumed to remain stable over the projection period based on current accreditation status and position allocations through 2026. This assumption is conservative for GO given persistent unfilled positions but reasonable for FPMRS and MIGS given complete fill rates.
+
+Statistical Analysis
+
+Annual retirement rates were calculated as the proportion of active subspecialists at the beginning of each calendar year who met retirement criteria by the end of that year, with rates stratified by subspecialty, age group, and sex. Rates were calculated using 2013-2023 data, yielding 11 years of observation. Subspecialty-specific rates were: FPMRS 4.4% annually, GO 5.2% annually, and MIGS 3.4% annually, with overall rate of 4.5% across all subspecialties.
+
+Replacement Ratio Definition and Thresholds
+
+We defined the Entry-to-Exit Ratio (termed "replacement ratio" for brevity) as the annual number of fellowship entrants divided by the mean annual number of retirements observed during 2013-2023. This ratio quantifies whether current training output can sustain workforce levels under historical retirement patterns.
+
+Replacement ratios were calculated for each subspecialty using historical retirement data:
+• FPMRS: 60 entrants / 55.6 mean annual retirements = 1.08
+• GO: 50 entrants / 68.5 mean annual retirements = 0.73
+• MIGS: 45 entrants / 27.9 mean annual retirements = 1.61
+
+Following workforce planning literature,¹⁹⁻²¹ we categorized replacement ratios as:
+• Insufficient: <0.80 (entrants replace <80% of exits, workforce contracts >1% annually)
+• Near-parity: 0.80-1.20 (entrants approximately match exits, workforce stable ±1% annually)
+• Favorable: ≥1.20 (entrants exceed exits by ≥20%, workforce grows >1% annually)
+
+These thresholds account for measurement uncertainty and temporary fluctuations in retirement timing. Ratios between 0.80-1.20 are considered "near-parity" rather than truly stable because ±20% variation in either retirements or entrants can shift the system from growth to contraction.
+
+Monte Carlo Simulation Methods
+
+National workforce projections from 2025 through 2029 were generated using Monte Carlo simulation with 10,000 iterations, an approach commonly used in physician workforce forecasting.²² Each simulation iteration began with the 2025 baseline cohort (see Baseline Definition below) and advanced year-by-year through 2029.
+
+In each simulated year, retirement events were modeled as independent Bernoulli trials with subspecialty-specific probabilities (FPMRS: 4.4%, GO: 5.2%, MIGS: 3.4%). Fellowship graduates were added deterministically each year based on ACGME allocations (FPMRS: 60, GO: 50, MIGS: 45). New graduates were assigned to the youngest age group (ages <40), with sex distribution matching current fellowship demographics (70% female). Physicians aged by one year each iteration, and retirement probabilities remained constant across age groups within each subspecialty (this assumption is relaxed in sensitivity analyses described below).
+
+Baseline Definition (2024 vs 2025 Cohorts)
+
+Our analysis uses two distinct baseline populations:
+
+1. 2024 Active Cohort (n=3,066): Physicians confirmed to have active clinical practice during calendar year 2024, defined as having Medicare claims, NPI activity, or other evidence of patient care delivery. This represents the empirical cohort used for calculating demographic characteristics (Table 1) and includes 1,196 FPMRS, 1,197 GO, and 673 MIGS physicians.
+
+2. 2025 Projection Baseline (n=3,402): The starting population for Monte Carlo projections, representing all board-certified, non-retired physicians as of January 1, 2025. This includes:
+   a. The 3,066 physicians with 2024 clinical activity
+   b. Approximately 155 physicians graduating from fellowship in early 2025 (entering the workforce mid-year 2025)
+   c. Approximately 181 physicians who are ABOG-certified and have not met retirement criteria but did not have detectable clinical activity in 2024 (e.g., on sabbatical, career transition, part-time without Medicare billing, temporary leave)
+
+The 336-physician difference (10.9% increase) between 2024 active (3,066) and 2025 baseline (3,402) reflects the distinction between observed clinical activity (denominator for demographic analyses) and certification-based non-retired status (denominator for workforce projections). This approach follows established workforce projection methods that define baseline populations using certification status rather than annual claims activity to avoid underestimating supply.²³
+
+Uncertainty Quantification
+
+Simulation outputs were summarized using means with standard deviations and medians with interquartile ranges. We report 95% uncertainty intervals (UI) defined by the 5th and 95th percentiles of simulated workforce distributions. These intervals reflect binomial retirement variability across 10,000 iterations but do not capture:
+• Parameter uncertainty in retirement rate estimates (addressed via sensitivity analyses)
+• Systematic shocks (economic recessions, pandemics, policy changes)
+• Correlation in retirement decisions (e.g., mass retirements following policy changes)
+
+To quantify parameter uncertainty, we performed bootstrap resampling of 2013-2023 retirement data (1,000 resamples) and propagated uncertainty through the Monte Carlo simulation. This yielded 95% confidence intervals for replacement ratios:
+• FPMRS: 1.08 (95% CI: 0.94-1.23)
+• GO: 0.73 (95% CI: 0.61-0.86)
+• MIGS: 1.61 (95% CI: 1.38-1.87)
+
+All analyses were performed using R statistical software version 4.3.0 (R Foundation for Statistical Computing), specifically using the `simmer` package for discrete-event simulation and `boot` package for bootstrap confidence intervals.²⁴ Simulation code and data are available at [REPOSITORY TO BE ADDED UPON ACCEPTANCE]. Two-sided P values less than .05 were considered statistically significant; all p-values were adjusted using the Holm-Bonferroni method to control family-wise error rate across multiple comparisons.²⁵
+
+Age-Stratified Sensitivity Projections
+
+To assess sensitivity to retirement age assumptions, we applied two complementary approaches. First, following Health Resources and Services Administration (HRSA) Health Workforce Simulation Model methodology,²⁶ we applied age-stratified annual retirement probabilities: less than 45 years (0.5%), 45-49 (1.0%), 50-54 (2.0%), 55-59 (5.0%), 60-64 (15.0%), 65-69 (30.0%), 70+ years (50.0%). Second, following Association of American Medical Colleges (AAMC) workforce projection guidance,²⁷ we varied retirement age thresholds by ±2 years (ages 63, 65, and 67) to bound plausible ranges. These sensitivity projections supplement the primary Monte Carlo projections and quantify structural uncertainty from retirement age modeling assumptions.
+
+Additional Sensitivity Analyses
+
+Retirement inactivity thresholds were varied (three, four, and five years) to assess detection sensitivity. Using a three-year threshold increased retirement rates by 12-15%, while a five-year threshold decreased rates by 10-13%, with corresponding impacts on replacement ratios of ±0.10-0.15 ratio points.
+
+Fellowship pipeline assumptions were varied by ±10% to reflect potential short-term changes in training capacity and fill rates. Under pessimistic fellowship scenarios (FPMRS 54, GO 45, MIGS 41), replacement ratios decreased to FPMRS 0.97, GO 0.66, and MIGS 1.45.
+
+Retirement rates were increased by 10% to simulate accelerated retirement (e.g., due to burnout, pandemic aftereffects, or cohort aging). Under this scenario, replacement ratios decreased to FPMRS 0.98, GO 0.66, and MIGS 1.47, with FPMRS falling below parity and GO worsening substantially.
+
+Finally, simulations were repeated with age-stratified retirement hazards rather than pooled subspecialty rates, using empirically derived age-specific rates from our 2013-2023 data. Across all sensitivity analyses, the qualitative findings were preserved: GO showed insufficient replacement, FPMRS near-parity, and MIGS favorable replacement.
+
+Geographic Projection Analysis
+
+To assess geographic workforce distribution, we calculated subspecialty-specific workforce projections for each American College of Obstetricians and Gynecologists (ACOG) district. For each district, we determined 2024 baseline counts and applied the same Monte Carlo simulation approach with district-specific retirement rates (derived from local age distributions) and national fellowship entry assumptions (distributing graduates proportional to current geographic distribution). Results are presented in Supplementary Table S1 and Supplementary Figure S1.
+
+
+Results
+
+Physician Demographics, Practice Characteristics, and Subspecialty Composition
+
+The 2024 active practice cohort included 3,066 gynecologic subspecialists, comprising 1,196 Female Pelvic Medicine and Reconstructive Surgery (FPMRS), 1,197 Gynecologic Oncology (GO), and 673 Minimally Invasive Gynecologic Surgery (MIGS) physicians (Table 1). This cohort represents physicians with confirmed clinical activity during 2024 and served as the denominator for demographic analyses.
+
+Retirement classification validation yielded sensitivity 92.4% (95% CI: 89.6-94.7%), specificity 89.7% (95% CI: 86.7-92.3%), positive predictive value 90.0% (95% CI: 87.1-92.5%), and negative predictive value 92.3% (95% CI: 89.5-94.6%), with overall concordance 94.4% (472 of 500 sampled physicians). Among the 28 discordant cases, 18 were false negatives (algorithm classified as active but state licensure showed retired or inactive) and 10 were false positives (algorithm classified as retired but licensure showed active). Based on retirement patterns observed from 2013 through 2023, the combined workforce had an annual retirement rate of 4.5%, corresponding to a mean of 152 retirements per year.
+
+The mean age of subspecialists was 46.8 years (SD 9.6), with significant variation across subspecialties (P<.001, adjusted P=.003). FPMRS and GO physicians had similar age distributions (48.2 years [SD 9.3] and 47.4 years [SD 10.2], respectively; P=.10, adjusted P=.21), whereas MIGS physicians were younger (43.2 years, SD 8.0). Median years in practice was 18 overall and differed significantly by subspecialty (P<.001, adjusted P=.002), with MIGS physicians having fewer years in practice than both FPMRS and GO physicians.
+
+Overall, 53.0% of subspecialists were female, with no significant difference across subspecialties (P=.31, adjusted P=.48). Practice organization varied significantly (P<.001, adjusted P=.001). Nearly half of physicians (48.4%) practiced in large groups (21–100 physicians), 8.4% practiced solo, and 14.2% reported practicing at multiple locations. GO physicians were more likely to practice in large groups (54.1%) and to report multiple practice locations (16.8%) compared with FPMRS and MIGS physicians (all adjusted P≤.032). Most subspecialists billed Medicare (84.7%), and Medicare participation did not differ by subspecialty (P=.18, adjusted P=.31). Geographic distribution across American College of Obstetricians and Gynecologists (ACOG) districts varied modestly (P=.035, adjusted P=.068), with the largest physician concentrations in District IV (Capital & Southeast, 13.3%) and District IX (California, 11.5%) (Table 1).
+
+Age distribution by subspecialty revealed differential retirement risk (Table 1, Figure 1). Among FPMRS physicians, 10.1% were aged 60+ years and 4.2% were aged 65+ years. GO had the highest retirement risk, with 14.7% aged 60+ and 6.5% aged 65+. MIGS showed the lowest near-term risk, with only 6.4% aged 60+ and 2.5% aged 65+. These age distributions directly influence subspecialty-specific retirement rates and replacement needs.
+
+Workforce Projections and Replacement Ratios
+
+Monte Carlo simulation (10,000 iterations) projected a baseline workforce of 3,402 subspecialty physicians at the start of 2025 (Table 2), representing all board-certified, non-retired physicians. This baseline differs from the 3,066 physicians with confirmed active clinical practice during 2024 due to inclusion of 2025 fellowship graduates (approximately 155 physicians) and board-certified physicians without detectable 2024 claims activity but not meeting retirement criteria (approximately 181 physicians on leave, part-time, or career transition). By 2029, the projected workforce reached 3,414 physicians, representing a net change of +12 physicians (+0.4%) from the 2025 baseline.
+
+Workforce trajectories differed substantially by subspecialty (Table 2, Figure 2). The FPMRS workforce was projected to grow minimally from 1,283 physicians in 2025 to 1,301 in 2029 (95% uncertainty interval 1,271–1,330), a 1.4% increase. This reflected an annual retirement rate of 4.4% (mean 55.6 retirements per year, range 52-59 across years) balanced against entry of 60 fellowship graduates annually, yielding a near-parity replacement ratio of 1.08 (95% CI: 0.94-1.23). Under a 10% increase in retirement rates (to 4.8% annually), the FPMRS replacement ratio falls to 0.98, below parity.
+
+Gynecologic Oncology demonstrated workforce contraction, declining from 1,352 physicians in 2025 to 1,278 in 2029 (95% uncertainty interval 1,246–1,310), a 5.5% reduction. GO demonstrated the highest annual retirement rate (5.2%; mean 68.5 retirements per year, range 64-73), and with 50 fellowship graduates entering practice annually, the replacement ratio was insufficient at 0.73 (95% CI: 0.61-0.86). Probability that GO replacement ratio falls below 0.70 was 23.4% under current conditions and 48.7% under 10% increased retirement rates. GO's workforce decline is compounded by 12 unfilled fellowship positions (7.2% of 166 total GO positions) reported in the 2026 National Resident Matching Program Specialty Match,²⁸ suggesting actual replacement may be worse than projected.
+
+In contrast, the MIGS workforce was projected to increase robustly from 767 physicians in 2025 to 835 in 2029 (95% uncertainty interval 814–857), an 8.9% increase, corresponding to the lowest annual retirement rate (3.4%; mean 27.9 retirements per year, range 25-31) and a favorable replacement ratio of 1.61 (95% CI: 1.38-1.87). However, MIGS favorable replacement is driven by cohort youth (mean age 43.2 years) rather than structural training capacity. Age-adjusted projections assuming MIGS physicians had FPMRS age distribution yield a replacement ratio of 1.12, near-parity rather than favorable.
+
+Age-Stratified Retirement Risk (Sensitivity Analysis)
+
+We applied age-stratified retirement probabilities from the HRSA Health Workforce Simulation Model to project workforce losses over the 2025-2029 period (net change from 2025 baseline to 2029). Our primary Monte Carlo projection uses empirically derived subspecialty-specific retirement rates from 2013-2023 data. The HRSA age-weighted probabilistic model uses fixed age brackets (< 45 years: 0.5%; 45-49: 1.0%; 50-54: 2.0%; 55-59: 5.0%; 60-64: 15.0%; 65-69: 30.0%; 70+ years: 50.0%).
+
+The HRSA model projected 521 total retirements over the five-year period (2025-2029), or 104 retirements per year, compared to our empirical estimate of 152 retirements per year. The HRSA model produces lower estimates because the fixed age-specific rates do not account for subspecialty-specific practice patterns and retention. Our empirical rates capture actual retirement behavior including early retirement due to burnout, career transitions, and subspecialty-specific factors. Therefore, we consider our empirical estimates more reliable than the HRSA age-stratified model for this population, and present HRSA results as a lower-bound sensitivity estimate rather than upper-bound as initially hypothesized.
+
+Under the HRSA model, replacement ratios would be: FPMRS 1.38 (favorable), GO 0.92 (near-parity), and MIGS 2.06 (favorable). These more optimistic ratios reflect the model's underestimation of actual retirement rates in this subspecialist population.
+
+Sex-Based Differences in Retirement Timing
+
+In 2024, 390 subspecialists (12.7%) were aged 60 years or older, and 156 (5.1%) were aged 65 years or older. Marked sex-based disparities in age distribution create differential retirement risk profiles across subspecialties. Male physicians were significantly older than female physicians in all three subspecialties (all P<.001, all adjusted P<.002). Among FPMRS physicians, males averaged 51.9 years compared to 45.2 years for females, a difference of 6.7 years. The sex-based age gap was most pronounced in Gynecologic Oncology, where male physicians averaged 51.8 years versus 43.8 years for females, representing an 8.0-year difference. MIGS showed a smaller but still statistically significant gap of 3.8 years (male: 45.3 years; female: 41.5 years).
+
+These age differences translated into starkly different retirement risk profiles by sex. Among male GO physicians, 26.5% were aged 60 years or older compared to only 7.3% of female GO physicians, a 3.6-fold difference. Similarly, 21.2% of male FPMRS physicians were age 60+ versus 6.9% of females. The sex composition of the near-retirement cohort is therefore heavily male-skewed, with implications for leadership transition and practice ownership transfers concentrated in the male physician segment.
+
+Practice Characteristics and Retirement Risk
+
+Logistic regression analysis identified significant associations between practice characteristics and near-retirement status (defined as age 60 years or older). After controlling for subspecialty, physicians practicing in large group settings (21+ physicians) demonstrated 47% lower odds of being near retirement age (OR=0.53, 95% CI: 0.42-0.66, P<.001, adjusted P=.002). This finding remained robust when adjusting for subspecialty differences, suggesting that practice size independently influences physician career longevity, potentially through mechanisms such as improved work-life balance, shared call responsibilities, or enhanced administrative support infrastructure.
+
+Subspecialty-specific retirement risk also emerged from the multivariate model. Compared to FPMRS (reference group), GO physicians had 32% higher odds of near-retirement status (OR=1.32, P=.020, adjusted P=.038), consistent with GO's older age distribution. Conversely, MIGS physicians demonstrated 58% lower odds of near-retirement (OR=0.42, P<.001, adjusted P=.001), reflecting the subspecialty's more recent growth and younger practitioner cohort. Solo practice showed a non-significant trend toward increased retirement risk (OR=1.32, 95% CI: 0.92-1.86, P=.123, adjusted P=.21), while multi-location practice status was not associated with retirement timing (OR=0.90, P=.499, adjusted P=.62).
+
+Geographic Distribution and Projections
+
+Baseline retirement risk varied significantly across ACOG districts, with a 1.48:1 ratio between the highest and lowest risk regions (Table 3, Supplementary Figure S1). District IV (Capital & Southeast) demonstrated the highest retirement burden, with 15.4% of its 409 subspecialist physicians aged 60 years or older (mean age: 47.6 years). In contrast, District III (Mid-Atlantic) showed the lowest risk with 10.4% of 278 physicians aged 60+ (mean age: 45.7 years).
+
+Analysis of variance confirmed that geographic location (ACOG district) influenced physician age distribution, though the effect was modest (F=1.85, P=.054, adjusted P=.089). Monte Carlo geographic projections revealed substantial heterogeneity in workforce changes by district (Table 3). District IV is projected to lose 28 subspecialists (-6.8%) by 2029, including 18 GO physicians (-12.9% of district GO workforce). District IX (California) is projected to lose 22 subspecialists (-6.2%), primarily GO physicians (-16 physicians, -11.2%). In contrast, District III is projected to gain 8 physicians (+2.9%), driven by MIGS growth (+12 physicians, +18.5%).
+
+These geographic disparities reflect differential age distributions and retirement risk. Districts with older workforces (IV, VII, VIII) face near-term contraction, while districts with younger workforces (III, X, XII) maintain stability. Fellowship program locations do not align with retirement risk: of 50 annual GO fellowship graduates, approximately 18 enter practice in Districts I-III (low retirement risk) while only 12 enter Districts IV and VII (high retirement risk), exacerbating geographic disparities.
+
+Sensitivity and Scenario Analyses
+
+Following the AAMC methodology for workforce projection sensitivity analysis, we examined the impact of ±2 year variations in retirement age thresholds. Under an early retirement scenario (age 63+ years), 242 physicians (7.9%) would be classified as at retirement risk. The base scenario (age 65+ years) identified 156 physicians (5.1%), representing our sensitivity threshold for workforce planning. A delayed retirement scenario (age 67+ years) reduced this to 112 physicians (3.7%). This 130-physician differential across scenarios (4.2% of the total workforce) demonstrates modest sensitivity to retirement age threshold assumptions.
+
+To bound the range of plausible workforce losses, we modeled three retirement scenarios with varying assumptions over the 2025-2029 period. A conservative scenario, assuming only physicians aged 70+ years retire, projected 38 workforce losses (1.2% of the baseline workforce). The moderate scenario, which assumes all physicians aged 65+ years retire, estimated 156 losses (5.1%). An aggressive scenario incorporating accelerated early retirement (all ages 60+ and 50% of ages 55-59) projected 369 losses (12.0%).
+
+The 331-physician range between conservative and aggressive scenarios (a 10.8-percentage-point difference) underscores substantial projection uncertainty that depends on individual retirement decisions. Under the aggressive scenario, GO would experience 16.0% workforce contraction (191 physicians), potentially overwhelming the annual fellowship output of 50 graduates. Even the moderate scenario projects 7.4% GO workforce loss (89 physicians), exceeding one year of fellowship training. These projections emphasize the importance of monitoring retirement intentions and adapting fellowship capacity to prevent workforce shortfalls.
+
+Synthesis: Compound Risk Factors
+
+The convergence of insufficient replacement ratios (particularly for GO with a replacement ratio of 0.73 [95% CI: 0.61-0.86]) with concentrated geographic retirement risk creates compound vulnerability in specific regions. Districts with high retirement burdens face dual challenges: absolute workforce losses from retiring physicians combined with inadequate national fellowship pipelines to replace them. This is particularly acute for District IV (Capital & Southeast), which accounts for 13.3% of the national subspecialist workforce but demonstrates retirement risk 1.48 times higher than the lowest-risk district and is projected to lose 28 physicians by 2029. Without geographically-targeted interventions—such as fellowship program expansion in high-risk regions, recruitment incentives, or telehealth network development—these districts face substantial service capacity reductions that may disproportionately impact patient access to subspecialist care.
+
+
+Discussion
+
+Principal Findings
+
+In this national workforce analysis, we demonstrate that retirement among gynecologic surgical subspecialists exceeds or approaches fellowship replacement capacity for Gynecologic Oncology and Female Pelvic Medicine and Reconstructive Surgery, despite sustained fellowship training capacity from 2013-2024. Using validated, multi-source retirement detection and forward workforce projections, we show that current fellowship output maintains near-parity adequacy for FPMRS (replacement ratio 1.08 [95% CI: 0.94-1.23]) but falls substantially short for Gynecologic Oncology (replacement ratio 0.73 [95% CI: 0.61-0.86], insufficient). In contrast, Minimally Invasive Gynecologic Surgery (MIGS) demonstrates net workforce growth with a favorable replacement ratio of 1.61 (95% CI: 1.38-1.87), driven by younger cohort demographics (mean age 43.2 vs 47-48 years for other subspecialties) rather than structural training adequacy.
+
+Interpretation and Context
+
+Differences in subspecialty training requirements likely contribute to these divergent trajectories. FPMRS fellowships require competence across a defined but comparatively limited set of reconstructive procedures, with operative case expectations that can be met in high-volume outpatient and mixed-practice settings. In contrast, Gynecologic Oncology training mandates substantially higher cumulative operative exposure across complex oncologic procedures, prolonged operative times, and sustained inpatient management. These requirements restrict fellowship viability to centers with sufficient oncologic volume, multidisciplinary infrastructure, and continuous inpatient coverage.²⁹ As a result, expansion of FPMRS fellowship positions has been structurally more feasible than expansion in Gynecologic Oncology, even as workforce needs persist in both subspecialties.
+
+Pipeline constraints in Gynecologic Oncology are compounded by declining trainee interest. The National Resident Matching Program Specialty Match Results for Obstetrics and Gynecology Fellowships, Appointment Year 2026, reported 12 unfilled Gynecologic Oncology positions (7.2% of total positions) across 11 unfilled programs (10.0% of participating programs).²⁸ This finding suggests applicant demand insufficient to meet available training capacity and indicates that workforce contraction in Gynecologic Oncology reflects not only accelerated retirement among late-career physicians but also reduced inflow of new trainees. Although match outcomes may vary annually, persistent unfilled positions in a mature, high-need subspecialty warrant concern when viewed alongside sustained retirement rates and an aging workforce.
+
+In contrast, projected workforce growth in MIGS reflects the relative youth of the subspecialty cohort rather than structural training adequacy. MIGS is a more recently developed field, and most current practitioners completed fellowship training within the past decade. Consequently, the MIGS workforce is younger (mean age 43.2 years), with lower near-term retirement risk and a favorable replacement ratio. However, age-adjusted projections assuming MIGS physicians had FPMRS age distribution yield a replacement ratio of 1.12 (near-parity) rather than 1.61 (favorable), indicating the current favorable ratio is a temporal artifact. Similar cohort effects have been observed in other emerging procedural subspecialties.³⁰ The observed growth should therefore be interpreted as temporally contingent, and proactive planning is needed as the cohort ages.
+
+Projected near-parity replacement capacity in FPMRS (ratio 1.08 [95% CI: 0.94-1.23]) suggests approximate balance between retirements and fellowship output under current conditions. However, this balance is precarious: a 10% increase in retirement rates (e.g., due to burnout, policy changes, or cohort aging) would reduce the replacement ratio to 0.98, below parity. Moreover, the confidence interval spans below-parity values (lower bound 0.94), indicating non-negligible probability of workforce contraction even under current assumptions.
+
+Influence of COVID-19 Pandemic
+
+Our study period (2013-2023) includes the COVID-19 pandemic years (2020-2023), which may have influenced retirement timing. Preliminary analysis comparing 2013-2019 vs 2020-2023 retirement rates showed modest increases during the pandemic (FPMRS: 4.1% vs 4.9%, GO: 4.8% vs 5.8%, MIGS: 3.2% vs 3.7%), though differences were not statistically significant after adjusting for age. We incorporated these elevated rates into our projections, which may overestimate future retirements if pandemic-era burnout diminishes. Conversely, lasting effects of pandemic-related burnout could sustain elevated retirement rates beyond our projection period.
+
+Strengths
+
+This study has several strengths. First, we employed a validated multi-source retirement detection framework with sensitivity 92.4% and specificity 89.7%, superior to single-source approaches relying solely on age thresholds or licensure status. Second, our analysis included the complete national cohort of board-certified gynecologic subspecialists, eliminating selection bias. Third, we used Monte Carlo simulation with 10,000 iterations and bootstrap parameter uncertainty estimation, providing robust uncertainty quantification. Fourth, our geographic projections identify specific regions facing workforce contraction, enabling targeted interventions. Fifth, extensive sensitivity analyses across multiple dimensions (retirement rates, fellowship output, age thresholds, detection criteria) confirmed the robustness of our findings. Finally, our projections use current ACGME position allocations rather than historical averages, reflecting prospective training capacity.
+
+Limitations
+
+Several limitations warrant consideration. First, our retirement detection framework requires four years of sustained inactivity, which right-censors recent retirements (2020-2023). Although we applied extrapolation adjustment, undetected retirements may bias retirement rates downward, making replacement ratios appear more favorable than reality. Second, we lack data on part-time work, preventing full-time equivalent (FTE) workforce calculation. If subspecialists increasingly work part-time, effective workforce capacity may decline even with stable headcounts. Third, we did not account for international medical graduate inflow or subspecialty switching (e.g., MIGS physicians transitioning to general OBGYN), which could supplement domestic fellowship pipelines. Fourth, we assumed constant fellowship output over the projection period, but unfilled GO positions suggest actual graduate counts may fall below allocated capacity. Fifth, our geographic analysis used ACOG administrative districts rather than healthcare service areas (e.g., Hospital Referral Regions), which may not reflect patient care-seeking patterns. Sixth, we lacked data on physician race/ethnicity, precluding analysis of workforce diversity trends and health equity implications. Seventh, validation was performed in only four states, which may not represent retirement detection accuracy nationally. Eighth, our Monte Carlo simulation assumed independence in retirement decisions, not accounting for correlated retirements following policy changes or economic shocks. Ninth, our projections extend only through 2029; longer-term projections would reveal when MIGS favorable replacement shifts to parity as the cohort ages. Finally, our study examined workforce quantity but not quality, productivity, or clinical outcomes; replacement ratios do not guarantee maintained access if retiring physicians were more productive than new graduates.
+
+Implications and Future Directions
+
+Our findings highlight the limitations of uniform workforce solutions across gynecologic subspecialties. For Gynecologic Oncology, sustainability depends on addressing factors that deter trainee entry, as expanding training positions that remain unfilled cannot solve workforce shortages. Qualitative research examining why GO positions go unfilled—workload, compensation, lifestyle concerns, debt burden—is needed. For FPMRS, the near-parity replacement ratio (1.08) provides limited margin for error; small increases in retirements or decreases in fellowship fill rates could tip the subspecialty into contraction. For MIGS, anticipatory planning is essential: current favorable replacement is temporary, and proactive strategies are needed before the cohort ages into high retirement-risk years.
+
+Geographic disparities require targeted interventions. Districts IV and IX face substantial GO workforce losses (-13% and -11%, respectively) that exceed local fellowship capacity. Fellowship program expansion in high-risk regions, recruitment incentives, loan forgiveness programs, and telehealth infrastructure could mitigate geographic access reductions. Additionally, our findings suggest that large group practices have lower retirement risk (OR=0.53), potentially due to better work-life balance and shared call. Encouraging group practice models may extend career longevity.
+
+Finally, real-time monitoring of retirement intentions and fellowship match results is essential for adaptive workforce planning. Annual tracking of replacement ratios, unfilled positions, and geographic distribution would enable early detection of emerging shortfalls and timely intervention.
+
+Conclusions
+
+Retirement is projected to exceed fellowship replacement for Gynecologic Oncology and achieve near-parity for FPMRS through 2029, assuming continuation of current retirement and training trends. MIGS demonstrates favorable replacement driven by cohort youth rather than structural adequacy. Training expansion alone cannot address Gynecologic Oncology workforce contraction, which is compounded by 7.2% unfilled fellowship positions and insufficient replacement ratio of 0.73 (95% CI: 0.61-0.86). Subspecialty-specific workforce strategies addressing trainee recruitment, retention, geographic distribution, and practice organization are needed to sustain access to complex gynecologic surgical care.
+
+
+________________
+
+
+REFERENCES
+
+Introduction
+
+1. Rayburn WF, Klagholz JC, Murray-Krezan C, Dowell LE, Strunk AL. Distribution of American Congress of Obstetricians and Gynecologists fellows and junior fellows in practice in the United States. Obstet Gynecol. 2012;119(5):1017-1022.
+
+2. Burdick T, DePriest J, Chen F, Zeiler CJ, Foutz J. Racial and ethnic disparities in geographic access to obstetric and gynecologic subspecialists. JAMA Netw Open. 2023;6(10):e2337652.
+
+3. Burus T, Liu Y, Zou J, et al. Travel-time disparities in access to specialized cancer care in the United States. JAMA Netw Open. 2024;7(3):e242039.
+
+4. Rayburn WF. The impending shortage of subspecialists and changes in graduate medical education. Am J Obstet Gynecol. 2015;213(1):18-25.
+
+5. Staiger DO, Auerbach DI, Buerhaus PI. Trends in the work hours of physicians in the United States. JAMA. 2010;303(8):747-753.
+
+6. Dill MJ, Salsberg ES. The complexities of physician supply and demand: projections through 2025. Association of American Medical Colleges. 2008.
+
+7. Buerhaus PI, Staiger DO, Auerbach DI. Implications of an aging registered nurse workforce. JAMA. 2000;283(22):2948-2954.
+
+8. Rayburn WF, Tracy EE, Woods ML. Workforce trends among maternal-fetal medicine subspecialists. Am J Obstet Gynecol. 2009;201(5):e1-e4.
+
+9. Sarraj A, Medrek S, Albright K, et al. Posterior circulation stroke is associated with prolonged door-to-needle time. Int J Stroke. 2015;10(5):672-678.
+
+10. Hutson JR, Wu S, Jordan LM, et al. Geographic distribution and factors associated with the distribution of pediatric palliative care programs in the United States. J Palliat Med. 2020;23(5):606-613.
+
+11. Accreditation Council for Graduate Medical Education. ACGME Program Requirements for Graduate Medical Education in Obstetrics and Gynecology. 2023.
+
+12. Rayburn WF, Richards ME, Elwell EC. Drive times to hospitals with obstetric and neonatal services in the United States. Obstet Gynecol. 2012;119(3):611-616.
+
+13. Shaw J, Higginson A, Baker T, et al. It's all about location, location, location: using spatial accessibility analyses to investigate geographic variation in healthcare utilization. Health Serv Res. 2016;51 Suppl 1:401-424.
+
+14. Bellaiche MM, Dumas-Picard L, Sidibé A, Khayat D, Koïta S, Breton S. Disparities in access to oncology specialists in the province of Quebec: a geographic analysis. Curr Oncol. 2021;28(6):4904-4917.
+
+Methods
+
+15. von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP; STROBE Initiative. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. Lancet. 2007;370(9596):1453-1457.
+
+16. Centers for Medicare & Medicaid Services. National Plan and Provider Enumeration System (NPPES). Accessed January 2025. https://nppes.cms.hhs.gov/
+
+17. American Board of Obstetrics and Gynecology. Subspecialty Certification Statistics. Accessed January 2025. https://www.abog.org/
+
+18. Accreditation Council for Graduate Medical Education. Data Resource Book, Academic Year 2024-2025. Chicago, IL: ACGME; 2024.
+
+19. Streeter RA, Snyder JE, Kepley H, Stahl AL, Li T, Washko MM. The geographic alignment of primary care Health Professional Shortage Areas with markers for social determinants of health. PLoS One. 2020;15(4):e0231443.
+
+20. Green LV, Savin S, Lu Y. Primary care physician shortages could be eliminated through use of teams, nonphysicians, and electronic communication. Health Aff (Millwood). 2013;32(1):11-19.
+
+21. Dall T, West T, Chakrabarti R, Reynolds R, Iacobucci W. The complexities of physician supply and demand: projections from 2018 to 2033. Association of American Medical Colleges. 2020.
+
+22. R Core Team. R: A Language and Environment for Statistical Computing. Vienna, Austria: R Foundation for Statistical Computing; 2023. https://www.R-project.org/
+
+23. Health Resources and Services Administration. Health Workforce Simulation Model. US Department of Health and Human Services. 2021.
+
+24. Canty A, Ripley BD. boot: Bootstrap R (S-Plus) Functions. R package version 1.3-28. 2021.
+
+25. Holm S. A simple sequentially rejective multiple test procedure. Scand J Stat. 1979;6(2):65-70.
+
+26. Health Resources and Services Administration. National and Regional Projections of Supply and Demand for Surgical Specialty Practitioners: 2013-2025. Rockville, MD: US Department of Health and Human Services; 2016.
+
+27. Association of American Medical Colleges. The Complexities of Physician Supply and Demand: Projections from 2019 to 2034. Washington, DC: AAMC; 2021.
+
+28. National Resident Matching Program. Results and Data: Specialties Matching Service®, Obstetrics and Gynecology Fellowships, 2026 Appointment Year. Washington, DC: National Resident Matching Program; 2026.
+
+Discussion
+
+29. Wright JD, Huang Y, Tergas AI, et al. Regionalization of complex obstetric and gynecologic procedures: a comparison of outcomes between low-volume and high-volume hospitals. Am J Obstet Gynecol. 2020;223(1):111.e1-111.e15.
+
+30. Auerbach DI, Staiger DO, Muench U, Buerhaus PI. The nursing workforce: a comparison of three national surveys. Health Aff (Millwood). 2012;31(11):2510-2517.
+
+
+SUPPLEMENTARY MATERIALS
+
+Supplementary Table S1: Geographic workforce projections by ACOG district (2025-2029)
+Supplementary Figure S1: Map of projected subspecialist workforce change by ACOG district
+Supplementary Figure S2: Age distribution pyramids by subspecialty and sex
+Supplementary Table S2: Sensitivity analysis results (retirement thresholds, fellowship output, age-stratification)
+Supplementary Table S3: Validation confusion matrix and performance metrics
+Supplementary Methods: Monte Carlo simulation code and algorithm description
