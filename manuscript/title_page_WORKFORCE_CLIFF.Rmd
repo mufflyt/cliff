@@ -1,0 +1,51 @@
+---
+output:
+  word_document:
+    reference_docx: templates/green_journal_reference.docx
+---
+
+<!--
+Obstetrics & Gynecology title page (submitted as a SEPARATE file from the
+blinded manuscript). The Précis is a title-page element, distinct from the
+Abstract. Word counts mirror the rendered manuscript.
+-->
+
+# Title Page
+
+**Title:** Projected Clinical-Practice Departure and Fellowship Replacement in Gynecologic Surgical Specialty and Focused-Practice Workforces, 2025-2029
+
+**Running head:** Gynecologic Subspecialist Workforce
+
+**Précis:** In both gynecologic surgical subspecialties and an exploratory focused-practice cohort, annual fellowship graduate output exceeds administratively identified departures in headcount through 2029.
+
+---
+
+**Author:**
+
+Tyler Muffly, MD
+
+**Affiliation:**
+
+Department of Obstetrics and Gynecology, Denver Health Medical Center, and University of Colorado School of Medicine, Denver, Colorado.
+
+**Corresponding author:**
+
+Tyler Muffly, MD
+Department of Obstetrics and Gynecology
+Denver Health Medical Center
+777 Bannock Street, Denver, CO 80204
+Email: tyler.muffly@dhha.org
+
+---
+
+**Financial Disclosure:** The author did not report any potential conflicts of interest.
+
+**Funding:** This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+**Institutional Review Board:** Analyses used public-record professional data (board certification, NPPES, Medicare administrative files); this is public-records research not involving human-subjects participants, so institutional review board review was not required.
+
+**Word count (abstract):** 300
+
+**Word count (main text, excluding abstract, references, tables, and figure legends):** 3,700
+
+**Each author has confirmed compliance with the journal's requirements for authorship.**
