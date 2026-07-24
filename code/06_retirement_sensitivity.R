@@ -54,9 +54,9 @@ suppressPackageStartupMessages({
 # The 'tribble' function creates a tibble (a modern data frame) from data entered row-by-row.
 BASELINE_RATES <- tribble(
   ~subspecialty, ~baseline_rate,
-  "FPMRS",       4.4,
-  "GO",          5.2,
-  "MIG",         3.4
+  "URPS",        0.8809,
+  "GO",          1.0027,
+  "MIGS",        0.7024
 )
 
 # Fellowship assumptions (use default scenario)
@@ -71,9 +71,9 @@ INPUT_CSV <- here("data/workforce_projections_consolidated.csv")
 # Standard deviations (from original analysis)
 SD_VALUES <- tribble(
   ~subspecialty, ~sd_2029,
-  "FPMRS",       15.2,
+  "URPS",        15.2,
   "GO",          16.1,
-  "MIG",         11.0
+  "MIGS",        11.0
 )
 
 cat("\n")
@@ -177,8 +177,8 @@ for (scenario_id in names(retirement_scenarios)) {
   adjusted_rates <- BASELINE_RATES %>%
     mutate(
       adjusted_rate = baseline_rate * (1 + scenario$adjustment),
-      adjusted_rate = pmax(adjusted_rate, 1.0),  # Min 1% rate
-      adjusted_rate = pmin(adjusted_rate, 12.0)  # Max 12% rate
+      adjusted_rate = pmax(adjusted_rate, baseline_rate * 0.1),  # Min 10% of baseline
+      adjusted_rate = pmin(adjusted_rate, baseline_rate * 10)    # Max 10x baseline
     )
 
   # Calculate projections with adjusted retirement rates
@@ -189,13 +189,8 @@ for (scenario_id in names(retirement_scenarios)) {
       # Use original retirements as anchor, then apply adjustment to stay consistent with baseline
       avg_annual_retirements = avg_annual_retirements * (adjusted_rate / baseline_rate),
 
-      # Update fellowship numbers to default scenario
-      annual_entrants = case_when(
-        subspecialty == "FPMRS" ~ FELLOWSHIP_DEFAULT$FPMRS,
-        subspecialty == "GO" ~ FELLOWSHIP_DEFAULT$GO,
-        subspecialty == "MIG" ~ FELLOWSHIP_DEFAULT$MIG,
-        TRUE ~ annual_entrants
-      ),
+      # Keep SSOT fellowship numbers (no override from outdated config)
+      annual_entrants = annual_entrants,
 
       # Recalculate replacement ratio
       replacement_ratio = annual_entrants / avg_annual_retirements,
@@ -214,10 +209,10 @@ for (scenario_id in names(retirement_scenarios)) {
 
   all_results[[scenario_id]] <- results
 
-  cat(sprintf("  Adjusted rates: FPMRS %.2f%%, GO %.2f%%, MIG %.2f%%\n",
-              adjusted_rates$adjusted_rate[adjusted_rates$subspecialty == "FPMRS"],
+  cat(sprintf("  Adjusted rates: URPS %.4f, GO %.4f, MIGS %.4f\n",
+              adjusted_rates$adjusted_rate[adjusted_rates$subspecialty == "URPS"],
               adjusted_rates$adjusted_rate[adjusted_rates$subspecialty == "GO"],
-              adjusted_rates$adjusted_rate[adjusted_rates$subspecialty == "MIG"]))
+              adjusted_rates$adjusted_rate[adjusted_rates$subspecialty == "MIGS"]))
   cat(sprintf("  ✓ Completed\n"))
 }
 
@@ -257,7 +252,7 @@ summary_table <- comparison_data %>%
   )
 
 # Print by subspecialty
-for (subspec in c("FPMRS", "GO", "MIG")) {
+for (subspec in c("URPS", "GO", "MIGS")) {
   cat(sprintf("\n%s:\n", subspec))
   # The 'filter' function selects rows based on their values.
   subspec_table <- summary_table %>%
@@ -350,9 +345,9 @@ plot_data <- comparison_data %>%
   mutate(
     scenario_id = factor(scenario_id, levels = scenario_order),
     subspecialty_label = case_when(
-      subspecialty == "FPMRS" ~ "FPMRS (Urogynecology)",
+      subspecialty == "URPS" ~ "Urogynecology (URPS)",
       subspecialty == "GO" ~ "Gynecologic Oncology",
-      subspecialty == "MIG" ~ "MIGS",
+      subspecialty == "MIGS" ~ "MIGS",
       TRUE ~ subspecialty
     ),
     # Shorten scenario names for plotting

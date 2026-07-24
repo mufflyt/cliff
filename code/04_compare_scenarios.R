@@ -78,44 +78,49 @@ cat("Running projections for each scenario...\n\n")
 
 all_results <- list()
 
+# Load the SSOT directly (single-source projection baseline)
+ssot_file <- here("data/workforce_projections_consolidated.csv")
+if (!file.exists(ssot_file)) stop(sprintf("SSOT not found: %s", ssot_file))
+ssot <- read_csv(ssot_file, show_col_types = FALSE)
+
+# YAML config uses FPMRS/GO/MIG keys; map to SSOT abbreviations URPS/GO/MIGS
+abbrev_map <- c(URPS = "FPMRS", GO = "GO", MIGS = "MIG")
+
 for (scenario in scenarios) {
   cat(sprintf("[%s] Running scenario: %s\n", Sys.time(), scenario))
 
-  # Run consolidation script with this scenario
-  # The 'system' function executes a command-line command.
-  cmd <- sprintf("Rscript %s %s",
-                 here("code/01_consolidate_workforce_data.R"),
-                 scenario)
-
-  # Suppress output for cleaner display
-  status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
-
-  if (status != 0) {
-    warning(sprintf("  ⚠ Scenario '%s' failed with exit code %d", scenario, status))
+  scenario_cfg <- config[[scenario]]
+  if (is.null(scenario_cfg)) {
+    warning(sprintf("  ⚠ Scenario '%s' has no config entries", scenario))
     next
   }
 
-  # Read the results
-  result_file <- here("data/workforce_projections_consolidated.csv")
-  if (file.exists(result_file)) {
-    # The 'read_csv' function reads a comma-separated value (CSV) file into a tibble.
-    results <- read_csv(result_file, show_col_types = FALSE) %>%
-      # The 'mutate' function adds new variables to a tibble.
-      mutate(scenario = scenario)
-    all_results[[scenario]] <- results
-
-    # Save scenario-specific snapshot so default data is not lost
-    scenario_file <- here(
-      "cliff/data",
-      sprintf("workforce_projections_consolidated_%s.csv", scenario)
+  # Apply scenario fellowship numbers; recalculate projections from SSOT baseline
+  results <- ssot %>%
+    mutate(
+      annual_entrants = case_when(
+        subspecialty_abbrev == "URPS" ~ as.numeric(scenario_cfg[["FPMRS"]] %||% annual_entrants),
+        subspecialty_abbrev == "GO"   ~ as.numeric(scenario_cfg[["GO"]]    %||% annual_entrants),
+        subspecialty_abbrev == "MIGS" ~ as.numeric(scenario_cfg[["MIG"]]   %||% annual_entrants),
+        TRUE ~ annual_entrants
+      ),
+      projected_2029  = baseline_2025 + 4 * (annual_entrants - avg_annual_retirements),
+      percent_change  = 100 * (projected_2029 - baseline_2025) / baseline_2025,
+      replacement_ratio = annual_entrants / avg_annual_retirements,
+      fellowship_total_4yr = as.integer(annual_entrants) * 4L,
+      scenario = scenario
     )
-    # The 'write_csv' function writes a tibble to a CSV file.
-    write_csv(results, scenario_file)
-    cat(sprintf("  ✓ Completed: %s\n", scenario))
-    cat(sprintf("    ↳ Snapshot saved to %s\n", basename(scenario_file)))
-  } else {
-    warning(sprintf("  ⚠ Results file not found for scenario: %s", scenario))
-  }
+
+  all_results[[scenario]] <- results
+
+  # Save scenario-specific snapshot
+  scenario_file <- here(
+    "data",
+    sprintf("workforce_projections_consolidated_%s.csv", scenario)
+  )
+  write_csv(results, scenario_file)
+  cat(sprintf("  ✓ Completed: %s\n", scenario))
+  cat(sprintf("    ↳ Snapshot saved to %s\n", basename(scenario_file)))
 }
 
 cat("\n")
@@ -138,9 +143,13 @@ cat("SCENARIO COMPARISON: 2029 Projected Workforce\n")
 cat(paste0(rep("=", 70), collapse = ""), "\n")
 cat("\n")
 
+if (nrow(comparison_data) == 0) {
+  cat("  ⚠ No scenario results available; skipping comparison table.\n")
+} else {
+
 comparison_table <- comparison_data %>%
   # The 'select' function keeps or drops variables from a tibble.
-  select(scenario, subspecialty_abbrev, projected_2029, annual_entrants) %>%
+  select(all_of(c("scenario", "subspecialty_abbrev", "projected_2029", "annual_entrants"))) %>%
   # The 'arrange' function reorders rows.
   arrange(subspecialty_abbrev, scenario) %>%
   # The 'pivot_wider' function reshapes data from long to wide format.
@@ -153,11 +162,17 @@ comparison_table <- comparison_data %>%
 
 print(comparison_table, width = Inf)
 
+} # end if (nrow(comparison_data) > 0)
+
 cat("\n")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create Comparison Figure: Workforce by Scenario
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if (nrow(comparison_data) == 0) {
+  cat("[", as.character(Sys.time()), "] No scenario data — skipping figures.\n", sep = "")
+} else {
 
 cat("[", as.character(Sys.time()), "] Creating scenario comparison figure\n", sep = "")
 
@@ -289,25 +304,11 @@ ggsave(here("figures/scenario_comparison_change.tiff"),
        compression = "lzw")
 cat("  Saved: cliff/figures/scenario_comparison_change.tiff\n")
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Restore Default Scenario Output
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+} # end if (nrow(comparison_data) > 0) for figures
 
-if ("default" %in% scenarios) {
-  cat("\nRestoring default scenario outputs for downstream scripts...\n")
-  restore_cmd <- sprintf("Rscript %s %s",
-                         here("code/01_consolidate_workforce_data.R"),
-                         "default")
-  # The 'system' function executes a command-line command.
-  restore_status <- system(restore_cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
-  if (restore_status != 0) {
-    warning("  ⚠ Failed to restore default scenario. Please run step 01 manually.")
-  } else {
-    cat("  ✓ Default scenario restored\n")
-  }
-} else {
-  warning("Default scenario not found in config; canonical data file was not reset.")
-}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Restore Default Scenario Output (no-op: SSOT is already the default)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Summary Report

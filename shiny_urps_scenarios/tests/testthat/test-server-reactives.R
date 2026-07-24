@@ -12,7 +12,7 @@ test_that("model() reproduces the headline under Best estimate", {
     m <- model()
     expect_equal(round(m$avg_dep, 1), 12.8)
     expect_equal(round(m$ratio, 2), 5.02)
-    expect_equal(round(m$proj), 1538)
+    expect_equal(round(m$proj), 1544)
   })
 })
 
@@ -51,7 +51,7 @@ test_that("the model reports both the immediate and transition-adjusted 2029 cou
   shiny::testServer(e$main_server, {
     set_best_estimate(session)
     m <- model()
-    expect_equal(round(m$proj), 1538)                       # immediate-entry
+    expect_equal(round(m$proj), 1544)                       # immediate-entry
     expect_lt(abs(m$proj_ramped - 1466), 5)                 # transition-adjusted (manuscript)
     expect_lt(m$proj_ramped, m$proj)
   })

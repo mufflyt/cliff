@@ -1,0 +1,4 @@
+subspecialty,subspecialty_abbrev,baseline_2025,projected_2029,sd_2029,ci95_lower,ci95_upper,percent_change,annual_retirement_rate,avg_annual_retirements,annual_entrants,replacement_ratio,replacement_assessment,fellowship_total_4yr,total_retirements_4yr,scenario
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1437.367288,15.2,1476,1535,10.993612972972967,0.88094,11.408178,47,4.119851566130893,Above replacement,188,46,historical_2025
+Gynecologic Oncology,GO,1052,1249.805908,16.1,1278,1341,18.802842965779472,1.00271,10.548523,60,5.6880001114848024,Above replacement,240,42,historical_2025
+Minimally Invasive Gynecologic Surgery,MIGS,605,792.001808,11,754,798,30.90938975206611,0.7024,4.249548,51,12.001276371039932,Above replacement,204,17,historical_2025

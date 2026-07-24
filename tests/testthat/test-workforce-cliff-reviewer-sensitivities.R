@@ -120,7 +120,7 @@ test_that("[adversarial] baseline-lag decomposition reconciles and does not weak
     # removing long-lag carried-forward stock does not lower the ratio
     expect_gte(r$ratio_lag_trimmed, r$ratio_primary)
     # most of the Part B-observable stock is directly supported in the latest admin year
-    expect_gt(r$directly_supported / (r$baseline_total - r$abu_net_new), 0.8, info = ab)
+    expect_true(r$directly_supported / (r$baseline_total - r$abu_net_new) > 0.8, info = ab)
   }
 })
 

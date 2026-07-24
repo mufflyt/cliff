@@ -20,7 +20,7 @@
 # CANONICAL SOURCE: the workforce-cliff manuscript reports EXACTLY the three
 #   gynecologic *surgical* subspecialties (URPS, GO, MIGS). Monte Carlo workforce
 #   projections exist only for these three. The authoritative frozen table lives
-#   at cliff/data/workforce_projections_consolidated.csv (matches the published
+#   at data/workforce_projections_consolidated.csv (matches the published
 #   SGS deck). This is deliberately DIFFERENT from the 7-subspecialty cohort in
 #   config/cohort_criteria.yml, which scopes the separate isochrone-access paper.
 #
@@ -94,7 +94,7 @@ WORKFORCE_REQUIRED_COLUMNS <- c(
 #'
 #' Order of precedence:
 #'   1. `WORKFORCE_DATA_CSV` environment variable (tests / overrides).
-#'   2. The frozen authoritative table at cliff/data/ (SSOT).
+#'   2. The frozen authoritative table at data/ (SSOT).
 #'
 #' @return Absolute path to the workforce-projection CSV (character scalar).
 #' @keywords internal
@@ -103,7 +103,7 @@ resolve_workforce_data_path <- function() {
   if (nzchar(env_path)) {
     return(env_path)
   }
-  here::here("cliff", "data", "workforce_projections_consolidated.csv")
+  here::here("data", "workforce_projections_consolidated.csv")
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,7 +166,7 @@ validate_workforce_data <- function(df,
     fail(paste0(
       "subspecialty set mismatch.\n  expected exactly: %s\n  got:              %s\n",
       "  -> This usually means the CSV is a stale/zero scaffold. Restore the ",
-      "frozen table at cliff/data/workforce_projections_consolidated.csv."),
+      "frozen table at data/workforce_projections_consolidated.csv."),
       paste(expected, collapse = ", "),
       paste(df$subspecialty_abbrev, collapse = ", "))
   }
@@ -238,11 +238,14 @@ load_workforce_data <- function(path = resolve_workforce_data_path(),
   if (!file.exists(path)) {
     stop(sprintf(paste0(
       "[workforce contract] data file not found: %s\n",
-      "  Restore the frozen table at cliff/data/workforce_projections_consolidated.csv ",
+      "  Restore the frozen table at data/workforce_projections_consolidated.csv ",
       "or set WORKFORCE_DATA_CSV."), path), call. = FALSE)
   }
   df <- readr::read_csv(path, show_col_types = FALSE)
   validate_workforce_data(df, expected = expected, source_hint = basename(path))
+  # Strip readr's non-deterministic pointer-valued 'problems' attribute so that
+  # identical(load_workforce_data(), load_workforce_data()) holds.
+  attr(df, "problems") <- NULL
   df
 }
 
@@ -268,7 +271,7 @@ WORKFORCE_SENSITIVITY_ARTIFACTS <- list(
 #' @param data_dir directory holding the sensitivity CSVs (default cliff/data).
 #' @param strict   TRUE (default) stops on any problem; FALSE warns. Env override:
 #'   WORKFORCE_SENSITIVITY_CONTRACT=relaxed downgrades to a warning.
-validate_sensitivity_artifacts <- function(data_dir = here::here("cliff", "data"), strict = TRUE) {
+validate_sensitivity_artifacts <- function(data_dir = here::here("data"), strict = TRUE) {
   if (identical(Sys.getenv("WORKFORCE_SENSITIVITY_CONTRACT"), "relaxed")) strict <- FALSE
   problems <- character()
   for (f in names(WORKFORCE_SENSITIVITY_ARTIFACTS)) {
