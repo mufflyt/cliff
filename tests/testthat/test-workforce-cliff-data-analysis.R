@@ -32,7 +32,7 @@ library(testthat)
          dirname(d) != d) d <- dirname(d)
   d
 })
-DATA <- file.path(.root, "cliff", "data")
+DATA <- file.path(.root, "data")
 csv  <- function(f) read.csv(file.path(DATA, f), stringsAsFactors = FALSE, check.names = FALSE)
 row1 <- function(df, ab) {
   r <- df[toupper(df$subspecialty_abbrev) == toupper(ab), , drop = FALSE]

@@ -34,11 +34,11 @@ expect_successful_run <- function(result, script_name) {
 }
 
 test_that("04_compare_scenarios produces scenario comparison artifacts", {
-  script <- here("cliff", "code", "04_compare_scenarios.R")
+  script <- here("code", "04_compare_scenarios.R")
   result <- run_cliff_script(script)
   expect_successful_run(result, basename(script))
 
-  comparison_file <- here("cliff", "data", "scenario_comparison.csv")
+  comparison_file <- here("data", "scenario_comparison.csv")
   expect_true(file.exists(comparison_file))
 
   comparison_data <- read_csv(comparison_file, show_col_types = FALSE)
@@ -46,12 +46,12 @@ test_that("04_compare_scenarios produces scenario comparison artifacts", {
                     names(comparison_data)))
   expect_true("default" %in% unique(comparison_data$scenario))
 
-  default_snapshot <- here("cliff", "data", "workforce_projections_consolidated_default.csv")
+  default_snapshot <- here("data", "workforce_projections_consolidated_default.csv")
   expect_true(file.exists(default_snapshot))
 })
 
 test_that("05_validate_with_monte_carlo generates validation snapshot", {
-  script <- here("cliff", "code", "05_validate_with_monte_carlo.R")
+  script <- here("code", "05_validate_with_monte_carlo.R")
   result <- run_cliff_script(script)
   expect_successful_run(result, basename(script))
 
@@ -67,11 +67,11 @@ test_that("05_validate_with_monte_carlo generates validation snapshot", {
 })
 
 test_that("06_retirement_sensitivity recalculates sensitivity dataset", {
-  script <- here("cliff", "code", "06_retirement_sensitivity.R")
+  script <- here("code", "06_retirement_sensitivity.R")
   result <- run_cliff_script(script)
   expect_successful_run(result, basename(script))
 
-  sensitivity_file <- here("cliff", "data", "retirement_sensitivity.csv")
+  sensitivity_file <- here("data", "retirement_sensitivity.csv")
   expect_true(file.exists(sensitivity_file))
 
   sensitivity <- read_csv(sensitivity_file, show_col_types = FALSE)
@@ -83,7 +83,7 @@ test_that("06_retirement_sensitivity recalculates sensitivity dataset", {
 })
 
 test_that("07_create_table1 pipeline generates artifacts", {
-  script <- here("cliff", "code", "07_create_table1.R")
+  script <- here("code", "07_create_table1.R")
   result <- run_cliff_script(script)
 
   if (result$status != 0 &&
@@ -94,8 +94,8 @@ test_that("07_create_table1 pipeline generates artifacts", {
 
   expect_successful_run(result, basename(script))
 
-  table1_data <- here("cliff", "data", "table1_physicians.csv")
-  table1_doc <- here("cliff", "manuscript", "tables", "table1_demographics.docx")
+  table1_data <- here("data", "table1_physicians.csv")
+  table1_doc <- here("manuscript", "tables", "table1_demographics.docx")
 
   expect_true(file.exists(table1_data))
   expect_true(file.exists(table1_doc))

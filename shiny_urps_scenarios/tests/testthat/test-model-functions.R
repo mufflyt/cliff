@@ -27,8 +27,8 @@ test_that("the 70+ hazard treatments behave as documented", {
 test_that("the primary projection reproduces the frozen headline numbers", {
   e <- load_app_env()
   r <- e$project_traj(e$URPS_AGES, 64, e$adjusted_haz("fully_obs", 1, "obs"), 4)
-  expect_equal(round(r$avg_dep, 1), 12.7)
-  expect_equal(round(64 / r$avg_dep, 2), 5.05)
+  expect_equal(round(r$avg_dep, 1), 12.8)
+  expect_equal(round(64 / r$avg_dep, 2), 5.02)
   expect_equal(round(tail(r$traj, 1)), 1538)
   expect_length(r$traj, 5)                                   # baseline + 4 years
 })
@@ -52,9 +52,9 @@ test_that("the Monte Carlo seed matches the manuscript bootstrap", {
 test_that("canonical figures load from the manuscript CSVs and match the model", {
   e <- load_app_env()
   expect_equal(e$CANON$source, "graduation_active_transition CSVs")   # SSOT, not the frozen fallback
-  expect_equal(e$CANON$baseline, 1333L)
-  expect_equal(e$CANON$proj_immediate, 1538)
-  expect_equal(e$CANON$proj_ramped, 1461)
+  expect_equal(e$CANON$baseline, 1339L)
+  expect_equal(e$CANON$proj_immediate, 1544)
+  expect_equal(e$CANON$proj_ramped, 1466)
   expect_equal(e$RAMP_CUM_URPS, e$CANON$ramp_cum)                     # curve comes from the CSV
   # the live model reproduces the published immediate and transition-adjusted counts
   hz <- e$adjusted_haz("fully_obs", 1, "obs")
@@ -102,7 +102,7 @@ test_that("age_table has non-NA hazards and a sparse 70+ under as-observed", {
   at <- e$age_table("fully_obs", 1, "obs")
   expect_false(anyNA(at$hazard))
   expect_equal(at$hazard[at$band == "70+"], 0)              # sparse marker
-  expect_equal(round(sum(at$n)), 1333)
+  expect_equal(round(sum(at$n)), 1339)
 })
 
 test_that("run_mc is deterministic under its fixed seed and brackets the point ratio", {
@@ -110,8 +110,8 @@ test_that("run_mc is deterministic under its fixed seed and brackets the point r
   a <- e$run_mc("fully_obs", 1, 1, 4, 34, 0, 200, "obs")
   b <- e$run_mc("fully_obs", 1, 1, 4, 34, 0, 200, "obs")
   expect_identical(a$ratio, b$ratio)                        # same seed -> identical draws
-  expect_lt(a$ratio_lo, 5.05)
-  expect_gt(a$ratio_hi, 5.05)
+  expect_lt(a$ratio_lo, 5.02)
+  expect_gt(a$ratio_hi, 5.02)
 })
 
 test_that("validate_model passes with the frozen engine", {

@@ -22,7 +22,7 @@ library(testthat)
          dirname(d) != d) d <- dirname(d)
   d
 })
-DATA <- file.path(.root, "cliff", "data")
+DATA <- file.path(.root, "data")
 csv  <- function(f) read.csv(file.path(DATA, f), stringsAsFactors = FALSE, check.names = FALSE)
 source(file.path(.root, "manuscript", "R", "workforce_data_contract.R"))
 SUBS <- c("URPS", "GO", "MIGS")
