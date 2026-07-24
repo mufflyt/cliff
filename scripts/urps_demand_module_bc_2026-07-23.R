@@ -1,0 +1,88 @@
+#!/usr/bin/env Rscript
+# ACS Module B (procedure-based demand) + C (empirical plasticity/attribution)
+# for urogynecology, national, 2025-2050.
+#   B: observed 2024 Medicare volume per core service -> per-capita rate on women
+#      65+ -> projected with Census 2023 female-65+ population.
+#   C: urogyn-attributable share = fraction of each service currently performed by
+#      our board-certified cohort (EMPIRICAL), with low/mid/high scenarios.
+#   Required FTE = attributable demand / observed procedures-per-active-urogyn
+#      (demand and productivity both on the Medicare basis, so the all-payer
+#      undercount largely cancels in the adequacy ratio).
+suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
+SCR <- "/Users/tylermuffly/Library/Caches/claude-code-tmp/claude-501/-Users-tylermuffly-isochrones/5b8acb2f-8ebf-4a3f-b93c-042bbf0bc68c/scratchpad"
+inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
+sq <- function(v) paste0("(", paste0("'", v, "'", collapse=","), ")")
+
+con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
+on.exit(dbDisconnect(con, shutdown=TRUE))
+abu <- fread("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
+abog<- fread("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
+coh <- unique(c(as.character(abu$npi[inmodel(abu$in_model_baseline)]),
+                as.character(abog$npi[inmodel(abog$in_model_baseline)])))
+dbWriteTable(con, "coh", data.frame(npi=coh), temporary=TRUE, overwrite=TRUE)
+
+grp <- list(
+  sling       = "57288",
+  prolapse    = c("57240","57250","57260","57265","57267","57282","57283","57284","57285"),
+  urodynamics = c("51728","51729","51784","51741","51797","51798","51785","51726","51727"),
+  oab_botox   = "52287",
+  pessary     = c("57160","A4562"),
+  neuromod    = c("64561","64581","64585","64590"))
+
+vol <- rbindlist(lapply(names(grp), function(g){
+  cds <- sq(grp[[g]])
+  q <- function(extra) dbGetQuery(con, sprintf(
+    "SELECT CAST(SUM(Tot_Srvcs) AS INT) n, SUM(Tot_Srvcs*Avg_Mdcr_Alowd_Amt) usd
+     FROM medicare_part_b_by_service_2024 WHERE HCPCS_Cd IN %s %s", cds, extra))
+  natl <- q(""); cohv <- q("AND CAST(Rndrng_NPI AS VARCHAR) IN (SELECT npi FROM coh)")
+  data.table(service=g, national_2024=natl$n, cohort_2024=cohv$n, count_share=cohv$n/natl$n,
+             national_usd=natl$usd, cohort_usd=cohv$usd, usd_share=cohv$usd/natl$usd)
+}))
+n_proc <- dbGetQuery(con, sprintf("SELECT COUNT(DISTINCT CAST(Rndrng_NPI AS VARCHAR)) n FROM medicare_part_b_by_service_2024 WHERE CAST(Rndrng_NPI AS VARCHAR) IN (SELECT npi FROM coh) AND HCPCS_Cd IN %s", sq(unlist(grp))))$n
+usd_per_fte <- sum(vol$cohort_usd)/n_proc   # work-unit (allowed-$) throughput per procedurally-active urogyn
+
+cat("== Core urogyn services, Medicare 2024 (Module C: empirical attribution) ==\n")
+print(vol[, .(service, national_2024, cohort_2024, urogyn_share=round(count_share,3),
+              natl_work_usd_M=round(national_usd/1e6,1), urogyn_work_share=round(usd_share,3))])
+cat(sprintf("Procedurally-active urogyns: %d; work-units (allowed $) per FTE: $%s\n\n",
+    n_proc, format(round(usd_per_fte), big.mark=",")))
+
+## ── Women 65+ per year (Census 2023 mid) + supply from prior model ──────────
+fem <- fread(file.path(SCR,"np2023_d1_mid.csv"))[SEX==2 & ORIGIN==0 & RACE==0]
+w65 <- fem[, .(women65 = rowSums(.SD)), by=YEAR, .SDcols=sprintf("POP_%d",65:100)]
+w65_2024 <- w65[YEAR==2024]$women65
+supply <- fread("cliff/data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, supply, supply_lo, supply_hi)]
+
+## ── Module B: project each service, Module C: attribute + scenarios ─────────
+yrs <- 2025:2050
+proj <- data.table(YEAR=yrs, women65=w65[match(yrs,YEAR)]$women65)
+proj[, growth := women65/w65_2024]
+# urogyn-attributable PROCEDURE COUNT (reporting) and WORK ($, for FTE), scaled by 65+ growth
+attr_proc <- function(mult) round(sum(vol$national_2024*pmin(vol$count_share*mult,1))*proj$growth)
+attr_work <- function(mult)       sum(vol$national_usd*pmin(vol$usd_share*mult,1))*proj$growth
+proj[, urogyn_procedures_mid := attr_proc(1.0)]
+proj[, urogyn_procedures_low := attr_proc(0.8)]
+proj[, urogyn_procedures_high:= attr_proc(1.2)]
+# required FTE = attributable WORK ($) / work-per-FTE  (both Medicare $, so all-payer bias largely cancels)
+for (s in c("mid","low","high")){
+  m <- c(mid=1.0,low=0.8,high=1.2)[s]
+  proj[[paste0("required_fte_",s)]] <- round(attr_work(m)/usd_per_fte)
+}
+# adequacy = supply / required (mid supply vs mid demand; plus bounds)
+proj <- merge(proj, supply, by="YEAR")
+proj[, adequacy_mid  := round(supply/required_fte_mid,2)]
+proj[, adequacy_low  := round(supply_lo/required_fte_high,2)]   # worst: low supply / high demand
+proj[, adequacy_high := round(supply_hi/required_fte_low,2)]    # best:  high supply / low demand
+
+fwrite(proj, "cliff/data/urps_demand_module_bc_2026-07-23.csv")
+cat("Wrote cliff/data/urps_demand_module_bc_2026-07-23.csv\n\n")
+show <- proj[YEAR %in% c(2025,2030,2035,2040,2045,2050)]
+print(show[, .(YEAR, women65_M=round(women65/1e6,1), urogyn_procedures_mid, required_fte_mid, supply,
+               adequacy=adequacy_mid, adeq_band=paste0(adequacy_low,"-",adequacy_high))])
+cat(sprintf("\nRequired urogyn FTEs (mid): %d (2025) -> %d (2050); supply %d -> %d\n",
+    proj[YEAR==2025]$required_fte_mid, proj[YEAR==2050]$required_fte_mid,
+    proj[YEAR==2025]$supply, proj[YEAR==2050]$supply))
+cat(sprintf("Adequacy (supply/required, mid): %.2f (2025) -> %.2f (2050); 2050 band %.2f-%.2f\n",
+    proj[YEAR==2025]$adequacy_mid, proj[YEAR==2050]$adequacy_mid,
+    proj[YEAR==2050]$adequacy_low, proj[YEAR==2050]$adequacy_high))
+saveRDS(list(vol=vol, usd_per_fte=usd_per_fte, n_proc=n_proc), "/tmp/module_bc_meta.rds")

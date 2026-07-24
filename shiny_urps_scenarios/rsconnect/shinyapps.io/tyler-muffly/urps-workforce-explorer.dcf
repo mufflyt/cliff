@@ -1,0 +1,10 @@
+name: urps-workforce-explorer
+title: Urogynecology Workforce Replacement Explorer
+username: tyler-muffly
+account: tyler-muffly
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 17633097
+bundleId: 12309267
+url: https://tyler-muffly.shinyapps.io/urps-workforce-explorer/
+version: 1

@@ -1,0 +1,5 @@
+code,procedure,n_observable_positive,n_not_observable,n_confirmed_zero,note
+57282,Apical suspension,106,1233,0,"absent NPI = not observable (billed 0 or suppressed, indistinguishable); NOT confirmed zero"
+57288,Sling,341,998,0,"absent NPI = not observable (billed 0 or suppressed, indistinguishable); NOT confirmed zero"
+51728,Complex urodynamics,256,1083,0,"absent NPI = not observable (billed 0 or suppressed, indistinguishable); NOT confirmed zero"
+52287,Bladder BOTOX,473,866,0,"absent NPI = not observable (billed 0 or suppressed, indistinguishable); NOT confirmed zero"

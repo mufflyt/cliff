@@ -1,0 +1,27 @@
+# Cliff-local path registry (reviewer-improvement #5).
+# ONE entry per external input; every workforce-cliff script resolves through
+# wc_path() in R/workforce_cliff_engine.R instead of hardcoding absolute paths
+# (previously 42 DuckDB + 29 cohort-CSV refs scattered across scripts).
+# Machine-specific overrides: cliff/config/cliff_paths.local.yml (gitignored),
+# or the env var named in `env` below.
+
+cohort_csv:
+  path: /Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv
+  env: WORKFORCE_COHORT_CSV
+
+abu_crosswalk:
+  path: /Users/tylermuffly/isochrones/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv
+  env: WORKFORCE_ABU_CROSSWALK
+
+abu_net_new:
+  # 2026-07-22: 270 original net-new + 38 reinstated urology-pathway urogynecologists
+  # (28 with FPMRS taxonomy + 10 false ABOG-generalist NPI collisions) an over-broad
+  # dedup had dropped; audit trail in abu_fpmrs_reinstated_38_2026-07-22.csv.
+  path: /Users/tylermuffly/isochrones/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-22.txt
+  env: WORKFORCE_ABU_NET_NEW
+
+signals_duckdb:
+  # primary + fallback (macOS " 1" mount drift); first existing path wins
+  path: /Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb
+  fallback: /Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb
+  env: WORKFORCE_SIGNALS_DUCKDB

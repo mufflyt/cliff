@@ -1,0 +1,7 @@
+npi,name,city,state,status,cert_year,age_proxy_from_cert,grad_year,note
+1679558662,"Kristie Blanchard-Burch, MD",MOBILE,AL,net-new (in model),2007,49,2000,"RETAINED in 1,339 cohort; missing from abu_npi_crosswalk_2026-07-14 only; age via age_proxy_from_cert for projection"
+1720069537,"Osvaldo Francisco Padron, MD",Tampa,FL,net-new (in model),1998,58,1989,"RETAINED in 1,339 cohort; missing from abu_npi_crosswalk_2026-07-14 only; age via age_proxy_from_cert for projection"
+1790098333,"Laura Annelise Chang Kit, MD",NAPLES,FL,net-new (in model),2014,42,2005,"RETAINED in 1,339 cohort; missing from abu_npi_crosswalk_2026-07-14 only; age via age_proxy_from_cert for projection"
+1851236723,"Paholo Graziano Barboglio Romo, MD",Ann Arbor,MI,net-new (in model),2020,36,,"RETAINED in 1,339 cohort; missing from abu_npi_crosswalk_2026-07-14 only; age via age_proxy_from_cert for projection"
+1871551291,"Michael Harris Safir, MD",LOS ANGELES,CA,net-new (in model),2001,55,,"RETAINED in 1,339 cohort; missing from abu_npi_crosswalk_2026-07-14 only; age via age_proxy_from_cert for projection"
+1891365078,"Mitchell Goldenberg, MBBS","","",net-new (in model),2025,31,2012,"RETAINED in 1,339 cohort; missing from abu_npi_crosswalk_2026-07-14 only; age via age_proxy_from_cert for projection"

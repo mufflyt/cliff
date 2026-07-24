@@ -1,0 +1,5 @@
+cohort,n,annual_departure_rate_pct,departures,age_source,median_departure_age,p25,p75,pct_departures_before_50,median_age_gradyear,reentry_pct
+General OB/GYN,27283,1.68,3451,graduation year,43,35,56,64.2,43,NA
+GO,1190,1.51,137,Healthgrades,52,42,65,43.9,48,0
+URPS,1135,1.05,92,Healthgrades,55,44,64,38.7,48,0
+MIGS,660,1.58,79,Healthgrades,39,34,44,87.9,40,0

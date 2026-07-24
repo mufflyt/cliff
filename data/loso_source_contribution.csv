@@ -1,0 +1,6 @@
+source,n_departures_supported,pct_of_departures,sole_support_lost_if_removed,pct_lost_if_removed
+ABMS MOC lapse (priority 1),0,0,0,0
+NPPES deactivation (priority 2),0,0,0,0
+Open Payments cessation (priority 3),233,79.5,89,30.4
+Medicare Part D cessation (priority 5),164,56,21,7.2
+Medicare Part B cessation (priority 6),132,45.1,10,3.4

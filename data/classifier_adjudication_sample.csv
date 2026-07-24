@@ -1,0 +1,158 @@
+subspecialty_abbrev,npi,name,cert_year,departure_year,age_at_departure,last_billing_year,nppes_deactivated,abms_retirement_year,corroborated,stratum
+GO,1740423623,"Abigail Duncan Winder, MD",2014,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1295726958,"Adekunle Omotayo Odunsi, M.D.",2003,NA,NA,2020,FALSE,NA,NA,control_active
+GO,1811254154,"Alexander Melamed, MD, MPH",2021,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1003877002,"Babak Litkouhi, M.D.",2009,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1366620916,"Celestine Shauching Tung, MD",2013,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1801873930,"David Griffin, M.D.",2004,NA,NA,NA,FALSE,NA,NA,control_active
+GO,1881783231,"Daynelle Marie Dedmond, M.D.",2013,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1245215565,"Dennis S. Chi, MD",1998,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1588846463,"Elena Ratner, M.D.",2012,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1730382839,"Elena S. Diaz, M.D.",2014,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1104995356,"Eli Serur, MD",1992,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1750594800,"Erin King Crane, MD",2017,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1639247950,"Ernest Soyoung Han, M.D.",2006,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1144263765,"Ginger Jean Gardner, M.D.",2006,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1689699985,"Harvey Greenberg, M.D.",1980,NA,NA,NA,FALSE,NA,NA,control_active
+GO,1427376854,"Jill Ashley Gadzinski, MD",2018,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1346215100,"Jing Wang Chiang, M.D.",2006,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1215978051,"Jonathan Oh, M.D.",2005,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1821219569,"Kevin Michael Schuler, M.D.",2011,NA,NA,2021,FALSE,NA,NA,control_active
+GO,1376855288,"Laura Huffman, MD",2018,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1811209703,"Margaret I. Liang, MD, MS",2019,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1043250566,"Mark Charles Genesen, MD",1991,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1003922436,"Matthew F. Kohler, MD",1995,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1043219512,Michael Loran Pearl,1995,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1639171754,"Mike Franz Janicek, MD",1997,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1669433082,"Mildred R. Chernofsky, M.D.",2004,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1619602091,"Paul Meynardo Magtibay, MD",1999,NA,NA,NA,FALSE,NA,NA,control_active
+GO,1396988945,"Rebecca Ann Previs, MD",2018,NA,NA,2022,FALSE,NA,NA,control_active
+GO,1033324793,"Rebecca Lynn Stone, M.D.",2015,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1063622959,"William Jeffrey Lowery, M.D.",2010,NA,NA,2023,FALSE,NA,NA,control_active
+GO,1629166582,"Adnan Radwan Munkarah, MD",1996,2021,55,2017,FALSE,NA,TRUE,departure_corroborated
+GO,1982628111,"Charles Warren Whitney, M.D.",1982,2020,68,2018,FALSE,NA,TRUE,departure_corroborated
+GO,1841346756,"Christopher Jesse Jolles, M.D.",1984,2019,65,2016,FALSE,NA,TRUE,departure_corroborated
+GO,1770683435,"Dale M. Larson, M.D.",1987,2021,64,2019,FALSE,NA,TRUE,departure_corroborated
+GO,1669477071,"Eric L. Jenison, MD",1984,2021,67,2021,FALSE,NA,TRUE,departure_corroborated
+GO,1053421024,"Gordon O. Downey, MD",1981,2017,66,2016,FALSE,NA,TRUE,departure_corroborated
+GO,1366419418,"James Fanning, DO",1990,2020,60,2020,FALSE,2020,TRUE,departure_corroborated
+GO,1194702001,"James Stanley Hoffman, M.D.",1983,2021,68,2018,FALSE,NA,TRUE,departure_corroborated
+GO,1306843370,"James Woods Orr, Jr., M.D.",1983,2019,66,2020,FALSE,NA,TRUE,departure_corroborated
+GO,1447232467,"John Lee Dalrymple, MD",1999,2019,50,2018,FALSE,NA,TRUE,departure_corroborated
+GO,1326023714,"John V. Knaus, DO",1982,2019,67,2021,FALSE,2019,TRUE,departure_corroborated
+GO,1619046257,"Laurel Wysong Rice, MD",1990,2021,61,2020,FALSE,NA,TRUE,departure_corroborated
+GO,1801812581,"Leslie Robbins DeMars, MD",1995,2021,56,2021,FALSE,NA,TRUE,departure_corroborated
+GO,1982634341,"Paul Joseph MacKoul, MD",1996,2020,54,2015,FALSE,2020,TRUE,departure_corroborated
+GO,1306969480,"Timothy Guiney DeEulis, MD",1984,2019,65,2019,FALSE,NA,TRUE,departure_corroborated
+GO,1356431126,"Weldon Edward Chafe, M.D.",1984,2017,63,2017,FALSE,NA,TRUE,departure_corroborated
+GO,1629076765,"Willard A. Barnes, MD",1987,2019,62,2018,FALSE,NA,TRUE,departure_corroborated
+GO,1770558611,"Younes N. Bakri, MD",1981,2020,69,2015,FALSE,NA,TRUE,departure_corroborated
+GO,1932191582,"Alan Niles Gordon, M.D.",1984,2020,66,2022,FALSE,NA,FALSE,departure_uncorroborated
+GO,1902816663,"Brent DuBeshter, MD",1987,2020,63,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1881679439,"Brigitte Eva Miller, MD",1993,2021,58,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1881691210,"Carolyn D. Runowicz, M.D.",1984,2017,63,NA,FALSE,NA,FALSE,departure_uncorroborated
+GO,1720183049,"Charles Levenback, MD",1991,2019,58,2021,FALSE,NA,FALSE,departure_uncorroborated
+GO,1821062118,"Cynthia A. Bergman, MD",1999,2019,50,2022,FALSE,NA,FALSE,departure_uncorroborated
+GO,1912265315,"David Gal, M.D.",1984,2018,64,NA,FALSE,NA,FALSE,departure_uncorroborated
+GO,1396834065,"Diane Catherine Bodurka, MD, MPH",1997,2019,52,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1699750943,"Elizabeth A. Poynor, MD",1999,2019,50,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1689640708,"Ellen Marie Hartenbach, MD",1997,2021,54,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1033168547,"Mack Nathaniel Barnes, III, MD",1999,2019,50,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1487659876,"Mark Brendan Reedy, MD",1995,2021,56,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1083766455,"Robert Gerald Pretorius, M.D.",1983,2021,68,NA,FALSE,NA,FALSE,departure_uncorroborated
+GO,1396776688,"Robin P. Farias-Eisner, MD, PhD",1993,2019,56,2021,FALSE,NA,FALSE,departure_uncorroborated
+GO,1154306702,"Samuel S. Lentz, MD",1984,2019,65,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1801869300,"Setsuko Kuki Chambers, MD",1987,2021,64,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1619069424,"Thomas Everett Hackett, DO",1989,2021,62,2023,FALSE,NA,FALSE,departure_uncorroborated
+GO,1790856474,"Amreen Husain, MD",2002,2019,47,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1588922488,"Andrea Smiens O'Shea, MD",2021,2021,30,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1518391275,"Arthur-Quan Minh Tran, MD",2016,2020,34,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1992105357,"Bethany Grace Bustamante, MD",2019,2019,30,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1497017875,"Christine Garcia, MD",2018,2021,33,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1265497770,"Christine Lee, M.D.",2006,2020,44,2015,FALSE,2020,TRUE,departure_young(<50)
+GO,1659564763,"Colleen Renee Kelly Evans, D.O.",2014,2019,35,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1962673046,"Daniel Young Paik, M.D.",2015,2020,35,2017,FALSE,NA,TRUE,departure_young(<50)
+GO,1811169485,"Janiel M. Cragun, MD",2010,2021,41,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1649333436,"Jason Riebel Lefringhouse, MD",2014,2019,35,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1184910879,"Jennifer E Bergstrom, MD",2021,2020,29,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1649368093,"John Matthew McDonald, M.D.",2003,2021,48,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1568690832,"Kenneth HyunChung Kim, M.D.",2014,2020,36,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1255568333,"Kenny Bozorgi, MD",2001,2020,49,NA,FALSE,2014,FALSE,departure_young(<50)
+GO,1851427207,"Koji Matsuo, M.D., Ph.D.",2015,2016,31,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1962632612,"Long Duc Nguyen, MD",2016,2019,33,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1881888022,"Mian Shahzad, M.D.",2014,2020,36,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1871572909,"Sally Anne Mullany, M.D.",2009,2021,42,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1548468259,"Stephanie Jean, M.D.",2014,2020,36,2023,FALSE,NA,FALSE,departure_young(<50)
+GO,1932105913,"Stephen Lee, MD",2017,2020,33,NA,FALSE,NA,FALSE,departure_young(<50)
+GO,1184704264,"Wendy Rosamund Brewster, MD, PhD",2002,2020,48,2022,FALSE,NA,FALSE,departure_young(<50)
+URPS,1528132560,"Amanda J. Simsiman, M.D.",2001,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1720353808,"Bryan Hill, MD",2015,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1093926396,"Carey Andreoiu, DO",2015,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1760023642,"Caroline Foust Wright, M.D.",2014,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1538246152,"Debra Jean Ravasia, M.D.",2003,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1801974985,"G. Iram Qidwai, M.D.",2008,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1841266616,"James Chivian Lukban, DO",1999,NA,NA,2021,FALSE,NA,NA,control_active
+URPS,1740283688,"Jeffrey Allen McQueary, MD",1998,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1619941879,"Jerry L. Lowder, M.D., MS",2007,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1922397256,"Jessica Zigman, MD",2017,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1093765919,"John W. Spurlock, M.D.",1990,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1689780587,"Juana Hutchinson-Colas, MD",1997,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1518925692,"Karen Pearce Gold, M.D.",2001,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1841288768,"Kathleen Anne Connell, M.D.",2004,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1437218146,"Kenneth Griffis, Jr., MD",1989,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1659348498,"Kevin D. Breniman, M.D.",2003,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1285945022,"Kristin J Hung, MD",2016,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1194830505,"Madeline A. Dick-Biascoechea, MD",2006,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1003872227,"Neeraj Kohli, MD, MBA",2001,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1760895973,"Payton Claire Schmidt, MD",2019,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1558376137,"Philip A. Basala, DO",1993,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1427404193,"Phillip Paul Smith, M.D.",1990,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1245677582,"Rachel High, DO",2021,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1992770101,"Sohail Abid Siddique, M.D.",2007,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1508177718,"Solafa Elshatanoufy, MD",2017,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1255592952,"Stephanie Deter Pickett, MD",2014,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1316044605,"Stephen Douglas Seymour, DO",1999,NA,NA,2023,FALSE,NA,NA,control_active
+URPS,1639127103,"Stuart R. Hart, M.D.",2004,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1720240104,"Sybil G. Dessie, M.D.",2013,NA,NA,2014,FALSE,NA,NA,control_active
+URPS,1114487873,"William Wei-Shin Su, MD",1994,NA,NA,NA,FALSE,NA,NA,control_active
+URPS,1972539146,"Anne Kessler Wiskind, MD",1993,2021,58,NA,FALSE,2021,TRUE,departure_corroborated
+URPS,1437260973,"Gregory Lee Gimbel, M.D.",1985,2020,65,2019,FALSE,NA,TRUE,departure_corroborated
+URPS,1669514279,"Hilary J. Cholhan, MD",1992,2021,59,2016,FALSE,NA,TRUE,departure_corroborated
+URPS,1366519167,"Jaime Luis Sepulveda, MD",1993,2019,56,2019,FALSE,NA,TRUE,departure_corroborated
+URPS,1164900080,"James Phillip Rice, M.D.",1987,2021,64,NA,FALSE,2021,TRUE,departure_corroborated
+URPS,1629052253,"Jorge Fernando Peacher, MD",1990,2021,61,2018,FALSE,NA,TRUE,departure_corroborated
+URPS,1639168909,Joseph Michael Novi,1998,2021,53,2020,FALSE,NA,TRUE,departure_corroborated
+URPS,1821178096,"Karen Lyn Noblett, MD, MS, MBA",2000,2021,51,2017,FALSE,NA,TRUE,departure_corroborated
+URPS,1780694919,"Kenneth Paul Blau, M.D.",1985,2019,64,2018,FALSE,NA,TRUE,departure_corroborated
+URPS,1841387313,"Lanita Carol Witt, M.D.",1982,2021,69,2016,FALSE,NA,TRUE,departure_corroborated
+URPS,1609802412,"Mark Douglas Walters, M.D.",1987,2019,62,2020,FALSE,NA,TRUE,departure_corroborated
+URPS,1689663304,"Paul David M. Pettit, M.D.",1983,2019,66,2020,FALSE,NA,TRUE,departure_corroborated
+URPS,1346226743,"Ragnvald Mjanger, M.D.",2000,2020,50,2019,FALSE,2020,TRUE,departure_corroborated
+URPS,1053424127,"Abraham Jacob Sklar, M.D.",1990,2021,61,NA,FALSE,NA,FALSE,departure_uncorroborated
+URPS,1326115247,"Adrienne Marie Zazzi, M.D.",1985,2018,63,NA,FALSE,NA,FALSE,departure_uncorroborated
+URPS,1538252747,"Dee Ellen Fenner, MD",1991,2019,58,2023,FALSE,NA,FALSE,departure_uncorroborated
+URPS,1043396567,"Karen Belinda Garcia, MD",1997,2019,52,NA,FALSE,NA,FALSE,departure_uncorroborated
+URPS,1447338124,"Michael Dean Maddox, M.D.",1985,2021,66,NA,FALSE,NA,FALSE,departure_uncorroborated
+URPS,1982708921,"Narender N. Bhatia, M.D.",1981,2019,68,NA,FALSE,NA,FALSE,departure_uncorroborated
+URPS,1831307388,"Alicia Christine Ballard, M.D.",2013,2019,36,2019,FALSE,NA,TRUE,departure_young(<50)
+URPS,1306845680,"Ambereen Sleemi, M.D.",2002,2019,47,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1255423182,"Anthony James O'Connell, MD",2002,2016,44,2016,FALSE,NA,TRUE,departure_young(<50)
+URPS,1477705168,"Blair Beverly Washington, M.D.",2011,2019,38,2023,FALSE,NA,FALSE,departure_young(<50)
+URPS,1891942512,"Christina Liao, M.D.",2014,2021,37,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1821051434,"Christy James Guepet, M.D.",2004,2019,45,2022,FALSE,NA,FALSE,departure_young(<50)
+URPS,1629145537,"Curt L. Bouma, M.D.",2005,2021,46,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1487664413,"Danica M. Bloomquist, M.D.",2006,2021,45,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1861755290,"Divya Arunachalam, MD",2017,2021,34,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1336254028,"Docile Saguan, M.D.",2009,2019,40,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1871878678,"Emily Ruth Adams-Piper, MD",2015,2020,35,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1588652143,"Heidi Wittenberg, M.D.",2002,2017,45,2018,FALSE,NA,TRUE,departure_young(<50)
+URPS,1649391954,"Hiren Patel, D.O.",2011,2017,36,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1053332296,"Husam Abed, M.D.",2008,2021,43,2022,FALSE,2021,TRUE,departure_young(<50)
+URPS,1619149515,"Jamil Ayanna Harp, M.D.",2013,2020,37,2016,FALSE,NA,TRUE,departure_young(<50)
+URPS,1467426932,"Joy A. Greer, M.D.",2007,2016,39,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1639490337,"Lauren Siff, M.D.",2016,2019,33,2022,FALSE,NA,FALSE,departure_young(<50)
+URPS,1023068525,"Maria Dolores Hernandez, M.D.",2014,2019,35,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1588800361,"Rebecca S. Nelken, M.D.",2008,2019,41,2019,FALSE,NA,TRUE,departure_young(<50)
+URPS,1275506487,"Shannon VanderPas Lamb, M.D.",2009,2016,37,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1629113196,"Thomas Mayeli, M.D.",2009,2021,42,NA,FALSE,NA,FALSE,departure_young(<50)
+URPS,1134357593,"Vaneesha Vallabh-Patel, DO",2015,2020,35,NA,FALSE,NA,FALSE,departure_young(<50)

@@ -1,0 +1,3 @@
+reference,n,mean_error,sd_error,median_abs_error,p25_abs,p75_abs,correlation,pct_same_band
+Healthgrades profile age,2234,-2.31,4.05,2,1,4,0.913,63.4
+Medicare graduation-year age,2420,-2.81,2.61,2,1,4,0.961,59.2

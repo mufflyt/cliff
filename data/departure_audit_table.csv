@@ -1,0 +1,11 @@
+definition,subspecialty_abbrev,window,urps_pathway,eligible_departures,pooled_person_years,active_baseline,static_2025_rate_pct,dynamic_4yr_departures,dynamic_annual_rate_pct,graduate_input,completion_to_departure_ratio,projected_2029
+primary (non-OP anchored),GO,2016-2021,NA,37,12837,1052,0.99,42.2,1,75,7.11,1309.8
+primary (non-OP anchored),URPS,2016-2021,both,35,12837,1295,0.78,45.6,0.88,64,5.61,1505.4
+OP-inclusive consensus,GO,2016-2021,NA,56,12813,1052,1.26,53.6,1.27,75,5.6,1298.4
+OP-inclusive consensus,URPS,2016-2021,both,41,12813,1295,1.03,59.5,1.15,64,4.31,1491.5
+"primary, ABOG-only URPS baseline",GO,2016-2021,NA,37,12837,1052,0.99,42.2,1,75,7.11,1309.8
+"primary, ABOG-only URPS baseline",URPS,2016-2021,ABOG-only,35,12837,1031,0.86,40.2,0.98,64,6.36,1246.8
+"primary, window 2016-2019",GO,2016-2019,NA,16,8368,1052,1.02,47.1,1.12,75,6.37,1304.9
+"primary, window 2016-2019",URPS,2016-2019,both,18,8368,1295,0.69,42.6,0.82,64,6.01,1508.4
+"primary, window 2016-2023",GO,2016-2023,NA,91,17314,1052,1.51,69.7,1.66,75,4.3,1282.3
+"primary, window 2016-2023",URPS,2016-2023,both,71,17314,1295,1.18,69.3,1.34,64,3.69,1481.7

@@ -1,0 +1,4 @@
+"subspecialty_abbrev","subspecialty","currently_certified_us","currently_certified_total","is_abms_board_certification","source_report","source_url"
+"GO","Gynecologic Oncology",1580,1612,TRUE,"ABMS Board Certification Report 2024-2025, Table 2C (ABMS Board Certified Diplomates by Member Board and Location)","https://www.abms.org/wp-content/uploads/2025/12/2024_25_ABMSCertReport_FNL_20251212.pdf"
+"URPS","Urogynecology and Reconstructive Pelvic Surgery",1312,1320,TRUE,"ABMS Board Certification Report 2024-2025, Table 2C (ABMS Board Certified Diplomates by Member Board and Location)","https://www.abms.org/wp-content/uploads/2025/12/2024_25_ABMSCertReport_FNL_20251212.pdf"
+"MIGS","Minimally Invasive Gynecologic Surgery",NA,NA,FALSE,"Voluntary ABOG Focused Practice Designation (not an ABMS board certification); no ABMS currently-certified count exists.","https://www.abms.org/wp-content/uploads/2025/12/2024_25_ABMSCertReport_FNL_20251212.pdf"

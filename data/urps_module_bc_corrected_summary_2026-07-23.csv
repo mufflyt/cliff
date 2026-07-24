@@ -1,0 +1,5 @@
+code,family,national_observable_2024,confirmed_urps_2024,confirmed_share,attr_low,attr_mid,attr_high,active_urps_npis,mean_sd,median_iqr,pct_cohort_zero_this_proc,top10_pct,vol_2030,vol_2050,req_fte_confirmed_2024,req_fte_confirmed_2050,req_fte_mid_2050,episode_flag
+51728,Complex urodynamics,59828,10835,0.181,0.181,0.26,0.379,256,42 (39),"28 [18, 48]",80.9,33,68860,79304,256,339.3,487.7,single anchor; primary-physician; facility+APP excluded; no age-specific rate; PSPS-assistant not yet netted
+52287,Bladder BOTOX,47236,20651,0.437,0.437,0.488,0.564,473,44 (40),"30 [19, 54]",64.7,31,54367,62613,473,627,699.7,single anchor; primary-physician; facility+APP excluded; no age-specific rate; PSPS-assistant not yet netted
+57282,Apical suspension,3036,2208,0.727,0.727,0.815,0.902,106,21 (13),"15 [13, 23]",92.1,27,3494,4024,106,140.5,157.4,single anchor; primary-physician; facility+APP excluded; no age-specific rate; PSPS-assistant not yet netted
+57288,Sling for SUI,12060,8566,0.71,0.71,0.806,0.902,341,25 (14),"21 [16, 30]",74.5,23,13881,15986,341,452,513,single anchor; primary-physician; facility+APP excluded; no age-specific rate; PSPS-assistant not yet netted

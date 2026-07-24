@@ -1,0 +1,46 @@
+subspecialty_abbrev,subspecialty,scenario,year,median,lo,hi,entrants
+URPS,Urogynecology and Reconstructive Pelvic Surgery,conservative,2025,1295,1295,1295,44.8
+URPS,Urogynecology and Reconstructive Pelvic Surgery,conservative,2026,1330,1321,1337,44.8
+URPS,Urogynecology and Reconstructive Pelvic Surgery,conservative,2027,1363,1350,1375,44.8
+URPS,Urogynecology and Reconstructive Pelvic Surgery,conservative,2028,1396,1378,1410,44.8
+URPS,Urogynecology and Reconstructive Pelvic Surgery,conservative,2029,1427,1406,1445,44.8
+URPS,Urogynecology and Reconstructive Pelvic Surgery,status-quo,2025,1295,1295,1295,64
+URPS,Urogynecology and Reconstructive Pelvic Surgery,status-quo,2026,1349,1340,1356,64
+URPS,Urogynecology and Reconstructive Pelvic Surgery,status-quo,2027,1402,1388,1413,64
+URPS,Urogynecology and Reconstructive Pelvic Surgery,status-quo,2028,1453,1436,1468,64
+URPS,Urogynecology and Reconstructive Pelvic Surgery,status-quo,2029,1503,1481,1522,64
+URPS,Urogynecology and Reconstructive Pelvic Surgery,optimistic,2025,1295,1295,1295,74
+URPS,Urogynecology and Reconstructive Pelvic Surgery,optimistic,2026,1348.5,1340,1357,74
+URPS,Urogynecology and Reconstructive Pelvic Surgery,optimistic,2027,1402,1389,1414,74
+URPS,Urogynecology and Reconstructive Pelvic Surgery,optimistic,2028,1455,1438,1471,74
+URPS,Urogynecology and Reconstructive Pelvic Surgery,optimistic,2029,1515,1494,1534,74
+GO,Gynecologic Oncology,conservative,2025,1052,1052,1052,52.5
+GO,Gynecologic Oncology,conservative,2026,1093,1082,1105,52.5
+GO,Gynecologic Oncology,conservative,2027,1134,1117,1151,52.5
+GO,Gynecologic Oncology,conservative,2028,1175,1152,1196,52.5
+GO,Gynecologic Oncology,conservative,2029,1216,1186,1241,52.5
+GO,Gynecologic Oncology,status-quo,2025,1052,1052,1052,75
+GO,Gynecologic Oncology,status-quo,2026,1116,1104,1127,75
+GO,Gynecologic Oncology,status-quo,2027,1180,1162,1195,75
+GO,Gynecologic Oncology,status-quo,2028,1243,1219,1262,75
+GO,Gynecologic Oncology,status-quo,2029,1305,1275,1329,75
+GO,Gynecologic Oncology,optimistic,2025,1052,1052,1052,88
+GO,Gynecologic Oncology,optimistic,2026,1116,1104,1126,88
+GO,Gynecologic Oncology,optimistic,2027,1180,1161,1196,88
+GO,Gynecologic Oncology,optimistic,2028,1242,1219,1263,88
+GO,Gynecologic Oncology,optimistic,2029,1318,1289.975,1342,88
+MIGS,Minimally Invasive Gynecologic Surgery,conservative,2025,605,605,605,33.1
+MIGS,Minimally Invasive Gynecologic Surgery,conservative,2026,635,629,640,33.1
+MIGS,Minimally Invasive Gynecologic Surgery,conservative,2027,663,655,671,33.1
+MIGS,Minimally Invasive Gynecologic Surgery,conservative,2028,692,682,702,33.1
+MIGS,Minimally Invasive Gynecologic Surgery,conservative,2029,720,708,732,33.1
+MIGS,Minimally Invasive Gynecologic Surgery,status-quo,2025,605,605,605,47.2
+MIGS,Minimally Invasive Gynecologic Surgery,status-quo,2026,649,643,654,47.2
+MIGS,Minimally Invasive Gynecologic Surgery,status-quo,2027,692,683,699,47.2
+MIGS,Minimally Invasive Gynecologic Surgery,status-quo,2028,735,724,744.0249999999999,47.2
+MIGS,Minimally Invasive Gynecologic Surgery,status-quo,2029,777,764,788.0249999999999,47.2
+MIGS,Minimally Invasive Gynecologic Surgery,optimistic,2025,605,605,605,51
+MIGS,Minimally Invasive Gynecologic Surgery,optimistic,2026,649,643,654,51
+MIGS,Minimally Invasive Gynecologic Surgery,optimistic,2027,692,683,699.0249999999999,51
+MIGS,Minimally Invasive Gynecologic Surgery,optimistic,2028,734,724,744,51
+MIGS,Minimally Invasive Gynecologic Surgery,optimistic,2029,780,767,792,51

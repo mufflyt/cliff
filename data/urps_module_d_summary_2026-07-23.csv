@@ -1,0 +1,14 @@
+metric,value
+active urogynecologists (in map),1293
+CONUS women 65+,24909756
+national women-65+ per urogyn,19265
+CONUS counties,3109
+counties with 0 urogynecologists,2747
+% counties with 0 urogynecologists,88.4
+% women 65+ in a county with 0 urogynecologists,42.7
+% women 65+ within 25 mi of a urogynecologist,71.1
+% women 65+ within 50 mi,88.2
+% women 65+ within 100 mi,96.3
+% women 65+ >100 mi from nearest urogynecologist,3.7
+median county miles to nearest,43.1
+90th-pctile county miles to nearest,126.8

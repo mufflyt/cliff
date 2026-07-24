@@ -1,0 +1,13 @@
+subspecialty_abbrev,k,cum_active_fraction,ever_billed_ceiling
+GO,0,0.681,0.888
+GO,1,0.781,0.888
+GO,2,0.89,0.888
+GO,3,0.96,0.888
+GO,4,0.987,0.888
+GO,5,0.997,0.888
+URPS,0,0.329,0.843
+URPS,1,0.595,0.843
+URPS,2,0.881,0.843
+URPS,3,0.956,0.843
+URPS,4,0.972,0.843
+URPS,5,0.984,0.843

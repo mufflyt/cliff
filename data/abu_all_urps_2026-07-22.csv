@@ -1,0 +1,366 @@
+pathway,npi,name,city,state,cert_year,nppes_primary_taxonomy,has_fpmrs_taxonomy,has_urology_taxonomy,npi_match_confidence,in_abog_universe,status,in_model_baseline
+ABU (urology),1790712602,"Christopher E Wolter, MD",NA,NA,2010,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1932169190,"Erin Travis Bird, MD",NA,NA,2001,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1992901508,"Grace Anne Yang Biggs, MD",NA,NA,2011,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1245236348,"Henry Evangelista Ruiz, MD",NA,NA,1997,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1841272085,"Larry Thomas Sirls II, MD",NA,NA,1995,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1346449204,"Anne Michelle Suskind, MD",San Francisco,CA,2016,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1508073511,"Forrest Craig Jellison, MD",LOMA LINDA,CA,2015,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1467415919,"Gamal Mostafa Ghoniem, MD",ORANGE,CA,1990,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1225142490,"Jennifer Gwendolyn Rothschild, MD",SACRAMENTO,CA,2015,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1093924714,"Sophie G Fletcher, MD",SANTA ROSA,CA,2011,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1962602151,"Wesley Gin Nung Kong, MD",MOUNTAIN VIEW,CA,2011,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1538371679,"Zachery Chad Baxter, MD",SANTA MONICA,CA,2012,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1376508887,"Sneha Shah Vaish, MD",Weston,FL,2013,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1679744817,"Katie Nicole Ballert, MD",LEXINGTON,KY,2010,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1811084932,"Jonathan Scott Starkman, MD",SPRINGFIELD,MA,2009,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1841413275,"David James Osborn, MD",Silver Spring,MD,2009,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1366405359,"J Quentin Clemens, MD",Ann Arbor,MI,2002,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1790734721,"Jason Patrick Gilleran, MD",ROYAL OAK,MI,2007,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1952458994,"John Thomas Stoffel, MD",Ann Arbor,MI,2006,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1659559003,"Priya Padmanabhan, MD",ROYAL OAK,MI,2012,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1992048748,"Samantha Marie Raffee, MD",STERLING HEIGHTS,MI,2022,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1659692630,"Brian J. Linder, MD",ROCHESTER,MN,2020,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1679769491,"Allen McNeil Haraway, MD",Jackson,MS,2014,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1811930365,"Gopal H Badlani, MD",Winston Salem,NC,1982,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1356363410,"Veronica Triaca, MD",CONCORD,NH,2010,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1861606329,"Michael Scott Ingber, MD",MENDHAM,NJ,2012,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1487684551,"Neil David Sherman, MD",EDISON,NJ,2007,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1235295619,"Benjamin Michael Brucker, MD",New York,NY,2014,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1104910082,"Daniel Mark Katz, MD",Poughkeepsie,NY,1998,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1437182029,"Farzeen Firoozi, MD",New York,NY,2012,NA,NA,NA,unmatched,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1598823023,"Nicole B Fleischmann, MD",WHITE PLAINS,NY,2006,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1144214693,"Nirit Rosenblum, MD",CHAPPAQUA,NY,2004,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1568552644,"Courtenay Kathryn Moore, MD",Powell,OH,2008,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1689637597,"Firouz Daneshgari, MD",Akron,OH,2000,Urology,FALSE,TRUE,medium,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1154386324,"Howard Brian Goldman, MD",Beachwood,OH,1999,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1699719443,"Raymond Robert Rackley, MD",CLEVELAND,OH,1997,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1356306328,"Sandip Prasan Vasavada, MD",Cleveland,OH,2001,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1942366265,"Ariana Leigh Smith, MD",PHILADELPHIA,PA,2011,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1861589970,"Harriette Miles Scarpero, MD",NASHVILLE,TN,2004,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1376690255,"Melissa Rae Kaufman, MD",Nashville,TN,2021,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1508953613,"Roger R Dmochowski, MD",NASHVILLE,TN,1991,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1033179486,"Gary E Lemack, MD",Dallas,TX,2001,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1770871667,"Maude Carmel, MD",DALLAS,TX,2015,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1164491627,"Philippe E Zimmern, MD",DALLAS,TX,1990,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1801067954,"Sara Marie Lenherr, MD",SALT LAKE CITY,UT,2017,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1639344534,"Alvaro Lucioni, MD",Seattle,WA,2012,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1790957520,"Una Jeanie Lee, MD",SEATTLE,WA,2013,Urology,FALSE,TRUE,high,TRUE,"dual-boarded, held out (general-urology taxonomy)",FALSE
+ABU (urology),1336467414,"Aisha Khalali Taylor, MD",NA,NA,2018,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1427207281,"Alexis Maria Chesrow, MD",NA,NA,2013,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1841346871,"Andrew Robert Medendorp, MD",NA,NA,2013,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1962664409,"Brett Daniel Lebed, MD",NA,NA,2011,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1588695654,"Charles Lloyd Secrest, MD",NA,NA,1994,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1912978511,"Curtis Ryan Powell, MD",NA,NA,2000,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1295145571,"Daniela Kaefer, MD",NA,NA,2024,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1518229046,"Dayron Rodriguez, MD",NA,NA,2022,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1790896157,"Dena Esther Moskowitz, MD",NA,NA,2020,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1871569186,"Elizabeth Rose Mueller, MD",NA,NA,2007,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1083712210,"Gina M Rooker, MD",NA,NA,1997,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1477518082,"Harvey R Samowitz, MD",NA,NA,1995,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1194787408,"James Wesley Cullison, MD",NA,NA,2003,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1245674480,"Kai Dallas, MD",NA,NA,2023,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1093854028,"Keith Rohan Xavier, MD",NA,NA,2010,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1326138926,"Lindsey Arden Kerr, MD",NA,NA,1995,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1770727018,"Melissa Ann Laudano, MD",NA,NA,2019,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1891365078,"Mitchell Goldenberg, MBBS",NA,NA,2025,NA,NA,NA,unmatched,FALSE,net-new (in model),TRUE
+ABU (urology),1730281593,"Polina Reyblat, MD",NA,NA,2012,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1720016462,"Stephanie J Kielb, MD",NA,NA,2004,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1508854951,"Suzette Elisabeth Sutherland, MD",NA,NA,2006,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1497764104,"Tony Eugene Pinson, MD",NA,NA,1999,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1710963749,"Traci Patrice Beck, MD",NA,NA,2004,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1407983869,"Ying Hua Jura, MD",NA,NA,2016,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1215141395,"Yvonne Katherine Piedrahita Koch, MD",NA,NA,2011,Urology,FALSE,TRUE,low,FALSE,net-new (in model),TRUE
+ABU (urology),1316106164,"Himanshu Aggarwal, MD",MONTGOMERY,AL,2018,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1679558662,"Kristie Blanchard-Burch, MD",MOBILE,AL,2007,NA,NA,NA,unmatched,FALSE,net-new (in model),TRUE
+ABU (urology),1962487934,"Lorie G Fleck, MD",MOBILE,AL,1997,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1033182241,"Nicolisa DeSouza Massie, MD",HOMEWOOD,AL,2002,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1033185301,"Anoop K Sharma, MD",GILBERT,AZ,2005,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1164661765,"Aqsa Azam Khan, MD",PHOENIX,AZ,2017,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1356346878,"Daniel Clement Jaffee, MD",Phoenix,AZ,2006,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1568450666,"Matthew Elan Karlovsky, MD",Wickenburg,AZ,2007,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1063407260,"Susan Marie Jones Kalota, MD",Tucson,AZ,1994,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1053310821,"Akhil K Das, MD",ORANGE,CA,2000,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1285950329,"Amy Diane Dobberfuhl, MD",Palo Alto,CA,2021,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1760610711,"Anne Lenore Ackerman, MD",LOS ANGELES,CA,2018,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1689745598,"Ashok Chopra, MD",NEWPORT BEACH,CA,1998,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1396891982,"Benjamin Paul Wisner, MD",Santa Barbara,CA,2012,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1891793980,"Brian David Hopkins, MD",Danville,CA,2002,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1003029646,"Christopher Francis Tenggardjaja, MD",Los Angeles,CA,2016,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1841685401,"Claire Burton, MD",GLENDORA,CA,2025,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1689081275,"Claudia Sevilla, MD",SAN DIEGO,CA,2021,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1073534525,"David Alan Ginsberg, MD",LOS ANGELES,CA,1999,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1477743300,"Denise Chow, MD",SAN RAFAEL,CA,2016,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1598813511,"Dennis Hyun Kim, MD",Beverly Hills,CA,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1396796678,"Donna Y Deng, MD",OAKLAND,CA,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1750558193,"Ekene Ada Enemchukwu, MD",Palo Alto,CA,2017,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1578577664,"Elise Sharon Perer, MD",Northridge,CA,2009,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1750610804,"Elodi Joy Dielubanza, MD",LOS ANGELES,CA,2019,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1407800295,"Emily Elizabeth Cole, MD",SAN DIEGO,CA,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1255508057,"Eugene Whan Lee, MD",Palo Alto,CA,2017,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1386870889,"Evgeniy I. Kreydin, MD",Downey,CA,2019,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1396877387,"Jennifer Lyn Mehdizadeh, MD",TARZANA,CA,2011,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1902846629,"Jill Gerspach Byers, MD",Newport Beach,CA,1999,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1558420174,"Joseph Hun Chang, MD",PALOS VERDES ESTATES,CA,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1386974483,"Judy Miyoung Choi, MD",HACIENDA HEIGHTS,CA,2017,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1336181965,"Karyn Schlunt Eilber, MD",BEVERLY HILLS,CA,2004,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1265427975,"Kenneth Chin-Kuo Hsiao, MD",WALNUT CREEK,CA,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1447298567,"Kevin Charles Shandera, MD",Rancho Mirage,CA,1997,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1952350829,"Lamia L. Gabal, MD",Tustin,CA,2003,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1225033996,"Mark Alan Wainstein, MD",TRUCKEE,CA,1999,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1639132731,"Michael Abraham Aleman, MD",YORBA LINDA,CA,2008,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1912938499,"Michael Edward Albo, MD",LA JOLLA,CA,1998,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1871551291,"Michael Harris Safir, MD",LOS ANGELES,CA,2001,NA,NA,NA,unmatched,FALSE,net-new (in model),TRUE
+ABU (urology),1144377938,"Michelle Elaine Koski, MD",Carlsbad,CA,2013,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1538435276,"Michelle Elizabeth Van Kuiken, MD",SAN FRANCISCO,CA,2022,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1679685374,"Nancy Ann Little, MD",Lodi,CA,1992,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1235159773,"Raul Ceasar Ordorica, MD",RIVERSIDE,CA,1996,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1518263128,"Rena Deep Malik, MD",LONG BEACH,CA,2020,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1013931930,"Saad Juma, MD",ENCINITAS,CA,1992,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1164670287,"Seth Ashley Cohen, MD",IRVINE,CA,2018,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1275822322,"Victoria Celeste Sullivan Scott, MD",MISSION HILLS,CA,2021,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1851519417,"Viet Quoc Tran, MD",Downey,CA,2012,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1275747727,"Benjamin Jacob Girdler, MD",Fort Collins,CO,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1063433514,"Brian Joseph Flynn, MD",Aurora,CO,2004,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1902077332,"Elias I-Hsin Hsu, MD",DENVER,CO,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1003137936,"Janine Lynn Oliver, MD",Aurora,CO,2019,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1083650170,"Matthew Phillip Rutman, MD",Dillon,CO,2007,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1508203316,"Dmitry Volkin, MD",WATERFORD,CT,2020,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1972539930,"Mary Grey Maher, MD",New Haven,CT,2009,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1972695054,"Scott Serels, MD",Norwalk,CT,2001,Specialist,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1417184441,"Elizabeth Timbrook Brown, MD",Washington,DC,2018,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1750542429,"Lee Ann Richter, MD",Washington,DC,2017,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1457459778,"Pamela Warrenette Coleman, MD",WASHINGTON,DC,1988,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1366718504,"Rachael Dana Sussman, MD",WASHINGTON,DC,2021,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1447226337,"Raymond Anthony Bologna, MD",MILFORD,DE,2001,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1730105818,"Alexander Gomelsky, MD",Gainesville,FL,2005,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1821028259,"Angelo E Gousse, MD",AVENTURA,FL,2000,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1013178227,"Ashley Brittingham King, MD",Pensacola,FL,2017,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1699926238,"Christopher Scott Gomez, MD",Miami,FL,2014,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1932318243,"Clinton Wood Collins, MD",JACKSONVILLE,FL,2013,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1144481615,"Daniel Joseph Caruso, MD",JUPITER,FL,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1356347280,"David Jerome DiPiazza, MD",Trinity,FL,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1841227667,"Jamil Ur Rehman, MBBS",Brandon,FL,2013,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1477602068,"Joanna Kum Son Chon, MD",Naples,FL,2003,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1225088305,"Jonathan Keith Jay, MD",NAPLES,FL,2000,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1467424093,"Joseph Anthony Costa, DO",JACKSONVILLE,FL,2002,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1437425246,"Katherine Ann Amin, MD",MIAMI,FL,2021,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1790098333,"Laura Annelise Chang Kit, MD",NAPLES,FL,2014,NA,NA,NA,unmatched,FALSE,net-new (in model),TRUE
+ABU (urology),1194764613,"M Louis Moy, MD",GAINESVILLE,FL,2006,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1972700565,"Margaret Elizabeth Speeker-Cruit, MD",GULF BREEZE,FL,2009,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1720069537,"Osvaldo Francisco Padron, MD",Tampa,FL,1998,NA,NA,NA,unmatched,FALSE,net-new (in model),TRUE
+ABU (urology),1982690665,"Rakesh Champak Patel, MD",ORLANDO,FL,2005,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1194086918,"Raveen Syan, MD",MIAMI,FL,2021,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1861455768,"Raviender Bukkapatnam, MD",TAMPA,FL,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1215295639,"Ricardo Ismael Palmerola, MD",MIAMI,FL,2021,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1295786093,"Rolando Rivera, MD",NAPLES,FL,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1770604548,"Sagar R Shah, MD",JACKSONVILLE,FL,2012,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1982694782,"Steven P Petrou, MD",JACKSONVILLE,FL,1993,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1275737066,"Aliénor Sylvaine Marly Gilchrist, MD",Stockbridge,GA,2013,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1174628127,"Catherine Elizabeth Bath Schwender, MD",Watkinsville,GA,2009,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1548281397,"Donald Albert Culley, MD",Atlanta,GA,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1154329613,"Jenelle Elizabeth Foote, MD",ATLANTA,GA,1993,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1215316658,"Rita Jen, MD",ATLANTA,GA,2024,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1255690905,"Sophia Delpe Goodridge, MD",Alpharetta,GA,2021,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1942629274,"Annah Vollstedt, MD",Iowa City,IA,2023,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1447229901,"Elizabeth Broghammer Takacs, MD",CLIVE,IA,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1922063627,"Jennifer Lynn Gruenenfelder, MD",BOISE,ID,2004,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1003086588,"Maggie Dwyer Vuturo, MD",BOISE,ID,2013,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1225055866,"Jae Hong Kim, MD",Elgin,IL,1999,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1336299494,"Jennifer Ulanda Miles-Thomas, MD",Chicago,IL,2011,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1386601185,"Mark Anthony Cabelin, MD",CHICAGO,IL,2002,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1639281926,"Tamra Elizabeth Lewis, MD",Barrington,IL,2008,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1013125871,"Charles Randall Powell, MD",INDIANAPOLIS,IN,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1184789919,"Gregory Thomas Bales, MD",Munster,IN,1998,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1083925127,"Casey G Kowalik, MD",KANSAS CITY,KS,2020,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1386743672,"Tomas Lindor Griebling, MD",Kansas City,KS,2001,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1770529067,"Brian Francis Shay, MD",CRESTVIEW HILLS,KY,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1164631149,"Colin Murrah Goudelocke, MD",NEW ORLEANS,LA,2014,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1609296649,"Elizabeth Ann Rourke, DO",METAIRIE,LA,2023,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1194756999,"Jack Christian Winters, MD",NEW ORLEANS,LA,1997,"Obstetrics & Gynecology, Urogynecology and Reconstructive Pelvic Surgery",FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1366475360,"Joanna Maya Togami, MD",NEW ORLEANS,LA,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1477550705,"William Samuel Kubricht III, MD",BATON ROUGE,LA,2003,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1649238577,"Arthur P Mourtzinos, MD",GROTON,MA,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1811314966,"Jacqueline Speed, MD",SALEM,MA,2023,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1831161991,"Linda Ng, MD",BOSTON,MA,2007,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1942220371,"Susan Ellen Pursell, MD",newburyport,MA,1998,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1265548697,"Toby C Chai, MD",BOSTON,MA,1998,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1174934624,"Alyssa Gracely, MD",SALISBURY,MD,2023,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1407819642,"David A Gordon, MD",LUTHERVILLE,MD,1997,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1437180205,"Edward James Wright III, MD",SEVERNA PARK,MD,1999,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1205118296,"Laura Lynn Giusto, MD",OWINGS MILLS,MD,2021,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1851564231,"Marisa Meyer Clifton, MD",BALTIMORE,MD,2018,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1710094792,"Richard Duane Cespedes, MD",EASTON,MD,1998,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1720074503,"Robert Clayton McDonough III, MD",EASTON,MD,2006,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1669631966,"William Stuart Reynolds, MD",BETHESDA,MD,2013,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1174560221,"Marc Adam Hodroff, MD",South Portland,ME,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1972560415,"Eric Robert Stockall, MD",OKEMOS,MI,1996,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1114361649,"Giulia Maria Rosa Ippolito, MD",Ann Arbor,MI,2023,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1104089986,"Jannah Hilary Thompson, MD",NORTON SHORES,MI,2012,"Obstetrics & Gynecology, Urogynecology and Reconstructive Pelvic Surgery",FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1851236723,"Paholo Graziano Barboglio Romo, MD",Ann Arbor,MI,2020,NA,NA,NA,unmatched,FALSE,net-new (in model),TRUE
+ABU (urology),1285615583,"Pradeep Nagaraju, MD",TROY,MI,2002,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1174758262,"Priyanka Gupta, MD",Ann Arbor,MI,2018,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1497710982,"Shiva J Maralani, MD",Saint Clair Shores,MI,2000,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1891773016,"Daniel Steven Elliott, MD",Rochester,MN,2002,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1821143645,"Lioudmila Sitnikova, MD",Edina,MN,2009,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1649447368,"Michael Joseph Ehlert, MD",WOODBURY,MN,2017,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1568574630,"Michael Long Tran, MD",FRIDLEY,MN,2004,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1669516852,"Nissrine A Nakib, MD",Minneapolis,MN,2010,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1790802429,"Elizabeth Reichert Williams, MD",SAINT LOUIS,MO,2012,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1376676734,"Hing Hung Henry Lai, MD",SAINT LOUIS,MO,2009,Urology,TRUE,TRUE,low,FALSE,net-new (in model),TRUE
+ABU (urology),1093705501,"Serge Peter Marinkovic, MD",SAINT LOUIS,MO,2005,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1699810507,"Travis L Bullock, MD",SAINT LOUIS,MO,2010,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1104871367,"Andrew Charles Peterson, MD",Durham,NC,2005,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1336340579,"Brian Louis Cohen, MD",PISGAH FOREST,NC,2010,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1932425998,"Catherine Jamison Harris, MD",Morehead City,NC,2020,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1225359243,"Elizabeth Van Huffel Dray, MD",ASHEVILLE,NC,2020,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1831124809,"Gjanje Louise Smith-Mathus, MD",Raleigh,NC,2014,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1891786091,"John Victor Kaspar, MD",RALEIGH,NC,1999,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1558655936,"Manish Prafulla Patel, MD",CHARLOTTE,NC,2004,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1720021637,"Michael Joseph Kennelly, MD",Charlotte,NC,1997,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1346222775,"Scott Avard MacDiarmid, MD",GREENSBORO,NC,1996,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1093794935,"Ansar Ullah Khan, MD",Fremont,NE,1978,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1013910280,"Patrick Bryan Leu, MD",Omaha,NE,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1457465189,"Elizabeth Ann Gormley, MD",Lebanon,NH,1995,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1750374823,"David C Chaikin, MD",MORRISTOWN,NJ,1999,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1801839642,"Debra Lynn Fromer, MD",Tenafly,NJ,2005,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1285842310,"Hari S G R Tunuguntla, MD",SOMERVILLE,NJ,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1821350315,"Lauren Tennyson, MD",SHREWSBURY,NJ,2023,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1477735280,"Rhonda Marie Walsh, MD",WEST ORANGE,NJ,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1366555450,"Rupa Patel, MD",Edison,NJ,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1568808707,"Siobhan Marie Hartigan, MD",Flemington,NJ,2022,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1922044395,"Mulugeta Dessie Kassahun, MD",LAS VEGAS,NV,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1659328391,"Sarah Rueff Ryan, MD",LAS VEGAS,NV,2008,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1720173602,"Victor Emmanuil Grigoriev, MD",Las Vegas,NV,1996,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1922307180,"Allison Rachel Polland, MD",BROOKLYN,NY,2020,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1083659072,"Brian P Murray, MD",Albany,NY,2003,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1801849039,"Brian S Yamada, MD",Saratoga Springs,NY,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1215188214,"Doreen Eleanor Chung, MD",SCARSDALE,NY,2012,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1699855619,"Elise J B De, MD",Albany,NY,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1003911132,"Farshad Avraham Shafizadeh, MD",NEW YORK,NY,2003,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1275707846,"Jason Michael Kim, MD",SETAUKET,NY,2013,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1508843988,"Jaspreet Singh Sandhu, MD",SCARSDALE,NY,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1730113689,"Johanna C Figueroa, MD",Glen Cove,NY,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1497774210,"Larissa Virginia Rodriguez, MD",New York,NY,2005,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1245530484,"Natasha Ginzburg, MD",SKANEATELES,NY,2017,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1598185332,"Neil Kocher, MD",POUGHKEEPSIE,NY,2023,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1881851202,"Richard Kao Lee, MD",New York,NY,2013,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1477997690,"Samir Derisavifard, MD",REGO PARK,NY,2022,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1609877588,"Scott Mitchell Press, MD",Port Jefferson,NY,1999,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1205247178,"Siri Drangsholt, MD",Hawthorne,NY,2023,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1245211663,"Sovrin M Shah, MD",NEW YORK,NY,2013,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1528202835,"Steven Jonathan Weissbart, MD",STONY BROOK,NY,2019,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1861752347,"Wai Lee, MD",NEW YORK,NY,2022,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1548264005,"Wellman Wai-Man Cheung, MD",Brooklyn,NY,2003,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1225223043,"David Alan Hadley, MD",DAYTON,OH,2013,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1467642496,"Holly Kay Wyneski, MD",WOOSTER,OH,2012,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1942507322,"Iryna Makovey Crescenze, MD",COLUMBUS,OH,2021,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1942241260,"Jeffrey Michael Carey, MD",GAHANNA,OH,2005,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1134176076,"Melinda Kay Knight, MD",AKRON,OH,2004,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1679557011,"Michael Joseph Scolieri, MD",Salem,OH,2003,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1932177185,"Gennady Slobodov, MD",OKLAHOMA CITY,OK,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1558382028,"Scott Eric Litwiller, MD",TULSA,OK,1998,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1144544248,"Jessica Catherine Lloyd, MD",Springfield,OR,2020,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1043207871,"Jin-Hee Kim, MD",TUALATIN,OR,2015,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1720070873,"Shammai Rockove, MD",Gresham,OR,1997,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1942307038,"Christopher John Chermansky, MD",Pittsburgh,PA,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1114156692,"Joshua Aaron Cohn, MD",PHILADELPHIA,PA,2019,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1023307386,"Patricia Martha Zahner, MD",Langhorne,PA,2021,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1740209493,"Patrick John Shenot, MD",PHILADELPHIA,PA,2000,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1013222959,"Juan Manuel Guzman-Negron, MD",San Juan,PR,2020,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1679848592,"Lysanne Campeau, MD",Montreal,QC,2017,Urology,FALSE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1841237013,"Eric S Rovner, MD",CHARLESTON,SC,1999,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1801841523,"James Daniel Fogarty, DO",CONWAY,SC,2009,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1497199400,"Jessica Jackson Rueb, MD",WEST COLUMBIA,SC,2022,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1063674133,"Lindsey Cassini Cox, MD",CHARLESTON,SC,2017,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1801836747,"Ronald William Glinski, MD",Florence,SC,2001,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1780022921,"Lauren Wood Thum, MD",SIOUX FALLS,SD,2020,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1134545346,"Elisabeth Sebesta, MD",NASHVILLE,TN,2024,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1225263254,"Henry Tobechi Okafor, MD",CHATTANOOGA,TN,2019,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1710140124,"Jessica Hammett Gatliff, MD",Knoxville,TN,2017,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1316931462,"Joe Dick Mobley III, MD",PARIS,TN,2013,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1952388977,"Marcy Janice Abel, MD",NASHVILLE,TN,2007,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1326201567,"Rowena A DeSouza, MD",Memphis,TN,2010,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1497966105,"Tara M Allen, MD",NASHVILLE,TN,2010,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1881853877,"Benjamin Ethan Dillon, MD",Houston,TX,2014,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1902893654,"Christina Klein Pramudji, MD",HOUSTON,TX,2004,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1366545873,"Ginger Isom-Batz, MD",Dallas,TX,2009,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1831185941,"Marie-Blanche N Tchetgen, MD",FORT WORTH,TX,2001,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1518283795,"Melissa Talbert Sanford, MD",LUBBOCK,TX,2020,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1376855312,"Natalie Pardue Gaines, MD",AMARILLO,TX,2019,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1467878314,"Oluwarotimi Nettey, MD",HOUSTON,TX,2024,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1417980525,"Ouida Lenaine Westney, MD",Houston,TX,2001,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1144665886,"Pansy Uberoi, MD",FORT SAM HOUSTON,TX,2023,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1699118687,"Ramy Goueli, MD",DALLAS,TX,2023,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1629020292,"Ricardo Rene Gonzalez, MD",HOUSTON,TX,2008,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1356323448,"Robert Grady Bruce, MD",Austin,TX,2001,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1780658112,"Robert Wayne Frederick, MD",Longview,TX,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1356458426,"Stephen R Kraus, MD",SAN ANTONIO,TX,2000,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1942297569,"Tracy La Rae Cannon-Smith, MD",Grapevine,TX,2004,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1811168966,"Alok Shirish Desai, MD",WOODBRIDGE,VA,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1194996686,"Charles Ralph Beamon III, MD",Fredericksburg,VA,2011,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1427011329,"David Brendan Glazier, MD",RICHMOND,VA,2003,Urology,TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1639373269,"David Elliot Rapp, MD",Glen Allen,VA,2010,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1073908190,"Jacqueline Zillioux, MD",CHARLOTTESVILLE,VA,2024,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1245282458,"Joseph Michael Carbone, MD",DANVILLE,VA,2002,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1639257090,"Elizabeth A Miller, MD",BELLEVUE,WA,2003,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1376515015,"Emily Bergida Bradley, MD",SEATTLE,WA,2006,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1306879366,"Jack Ryan Walter, MD",TACOMA,WA,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1437239423,"Jane Louise Miller, MD",Seattle,WA,1995,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1841274412,"Karny Jacoby, MD",KIRKLAND,WA,1994,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1477500544,"Lora A Plaskon, MD",Issaquah,WA,2005,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1144488503,"Stephen Mock, MD",EVERETT,WA,2017,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1083730394,"Wendy Siu, MD",BELLEVUE,WA,2010,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1275973737,"Frank C. Lin, MD",Madison,WI,2022,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1851332290,"Jennifer Lynn Maskel, MD",MADISON,WI,2007,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1962446476,"Joseph William Babiarz, MD",Schofield,WI,1995,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1245678051,"Temitope Oluwafemi Rude, MD",MADISON,WI,2022,Urology,TRUE,TRUE,medium,FALSE,net-new (in model),TRUE
+ABU (urology),1821183278,"Stanley Zaslau, MD",GLEN DALE,WV,2003,Urology,FALSE,TRUE,high,FALSE,net-new (in model),TRUE
+ABU (urology),1497945901,"Ryan Michael Krlin, MD",NA,NA,2014,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,medium,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1902856735,"Tracey Small Wilson, MD",BIRMINGHAM,AL,2005,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1770505836,"Christian Owen Twiss, MD",Tucson,AZ,2010,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1861464513,"Chong Hyun Choe, MD",LAGUNA NIGUEL,CA,2016,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1609063262,"Christopher Stephen Elliott, MD",MOUNTAIN VIEW,CA,2014,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1780657171,"Craig Vance Comiter, MD",Palo Alto,CA,2001,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1942321393,"Ja-Hong Kim, MD",LOS ANGELES,CA,2011,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1114949807,"Jennifer Tash Anger, MD",La Jolla,CA,2008,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1063626893,"Leah Yukie Nakamura, MD",LAGUNA HILLS,CA,2016,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1164666228,"Shelby Nicole Morrisroe, MD",RANCHO PALOS VERDES,CA,2015,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1003800806,"Victor W Nitti, MD",LOS ANGELES,CA,1994,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1396930079,"Leslie Minor Rickey, MD",NEW HAVEN,CT,2009,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1972527158,"Richard Todd Kershen, MD",Hartford,CT,2006,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1023248911,"Ayman Mahdy, MBBCh",Winter park,FL,2023,Urology,FALSE,TRUE,medium,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1356667224,"Sarah Ashley Adelstein, MD",Chicago,IL,2019,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1629267042,"Anne Pelletier Cameron, MD",Ann Arbor,MI,2011,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1326067067,"Melissa Cooper Fischer, MD",BLOOMFIELD HILLS,MI,2008,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1730341231,"Cynthia See-Ming Fok, MD",Minneapolis,MN,2016,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1073620712,"Michael Patrick Feloney, MD",OMAHA,NE,2009,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1205020385,"Brian Kennedy Marks, MD",BEDFORD,NH,2015,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1407905383,"Kristene Elizabeth Whitmore, MD",CHERRY HILL,NJ,1988,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1861657108,"Bilal Iftikhar Chughtai, MD",SYOSSET,NY,2014,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1386695781,"Elizabeth Kavaler, MD",New York,NY,2002,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1891800033,"Neil H Grafstein, MD",New York,NY,2011,Urology,FALSE,TRUE,medium,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1417152349,"Nitya Elizabeth Abraham, MD",BRONX,NY,2017,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1790043107,"Emily Anne Slopnick, MD",CLEVELAND,OH,2022,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1245293299,"Humphrey Odei Atiemo, MD",Toledo,OH,2009,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1134239262,"Mia Addison Duncan, MD",COLUMBUS,OH,2012,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1538388848,"Rebecca Anne Roedersheimer, MD",CINCINNATI,OH,2011,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1184818551,"Sunshine Murray, MD",TULSA,OK,2013,Urology,FALSE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1508986530,"Kamran P Sajadi, MD",PORTLAND,OR,2013,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1760631477,"Alana Maeve Murphy, MD",Philadelphia,PA,2014,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1518227867,"Whitney Renee Smith, MD",PHILADELPHIA,PA,2023,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1528160132,"Kathleen Chizuko Kobashi, MD",Houston,TX,2001,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1386712040,"Ngoc-Bich Phan Le, MD",Austin,TX,2014,Urology,TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1891769022,"Wendy Wunching Leng, MD",FORT WORTH,TX,2001,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1598743692,"Kurt Anthony McCammon, MD",VIRGINIA BEACH,VA,2001,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1386795227,"Sarah Elizabeth McAchran, MD",MADISON,WI,2010,"Urology, Urogynecology and Reconstructive Pelvic Surgery",TRUE,TRUE,high,TRUE,reinstated dual-boarded (in model),TRUE
+ABU (urology),1134116072,"Joel S Bass, MD",West Palm Beach,FL,1992,Urology,FALSE,TRUE,medium,FALSE,not in model,FALSE
+ABU (urology),1265431092,"Mark Frederick Ellison, MD",ATHENS,GA,1990,Urology,FALSE,TRUE,high,FALSE,not in model,FALSE
+ABU (urology),1144207309,"Deborah J Lightner, MD",Rochester,MN,1990,Urology,FALSE,TRUE,high,FALSE,not in model,FALSE
+ABU (urology),1710974753,"Steven William Siegel, MD",North Oaks,MN,1988,Urology,TRUE,TRUE,high,FALSE,not in model,FALSE
+ABU (urology),NA,"Deborah Lynn Wilson, MD",NA,NA,2001,NA,NA,NA,unmatched,FALSE,unmatched to NPI,FALSE
+ABU (urology),NA,"Jennifer Rebecca Hill, MD",NA,NA,2011,NA,NA,NA,unmatched,FALSE,unmatched to NPI,FALSE
+ABU (urology),NA,"LiAnn Nicole Handel, MD",NA,NA,2010,NA,NA,NA,unmatched,FALSE,unmatched to NPI,FALSE
+ABU (urology),NA,"Christopher Paul Fontenot, MD",Lafayette,LA,2001,NA,NA,NA,unmatched,FALSE,unmatched to NPI,FALSE
+ABU (urology),NA,"Tiffany Michelle Sotelo Bukzin, MD",ARLINGTON,VA,2009,NA,NA,NA,unmatched,FALSE,unmatched to NPI,FALSE
+ABU (urology),NA,"Tanya Nazemi Quraishi, MD",Seattle,WA,2009,NA,NA,NA,unmatched,FALSE,unmatched to NPI,FALSE

@@ -1,0 +1,3 @@
+field,t_mid,t_hi,rationale
+OBG,0.5,1,reconstructive: unmatched OB/GYN plausibly urogynecologic; mid transfers half / high all of the OB/GYN field residual
+URO,0.1,0.25,functional: most urology urodynamics/BOTOX is genuine urology; only a modest transfer of urology residual; urology keeps >=75%

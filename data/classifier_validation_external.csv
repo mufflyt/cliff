@@ -1,0 +1,5 @@
+subspec,n,TP,FN,FP,TN,sensitivity,specificity,ppv,npv,accuracy,kappa,reference,label_rule
+URPS,415,1,3,45,366,0.25,0.891,0.022,0.992,0.884,0.023,state_board_lifecycle_registry,active_vs_definitive_exit_inactive_excluded
+GO,390,3,10,38,339,0.231,0.899,0.073,0.971,0.877,0.064,state_board_lifecycle_registry,active_vs_definitive_exit_inactive_excluded
+MIGS,251,3,6,29,213,0.333,0.88,0.094,0.973,0.861,0.096,state_board_lifecycle_registry,active_vs_definitive_exit_inactive_excluded
+ALL,1056,7,19,112,918,0.269,0.891,0.059,0.98,0.876,0.059,state_board_lifecycle_registry,active_vs_definitive_exit_inactive_excluded

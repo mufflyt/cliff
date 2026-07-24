@@ -1,0 +1,3 @@
+subspecialty_abbrev,n_cessations,pct_total_billing_continued,pct_total_billing_stopped,pct_nppes_deactivated,pct_age_under_50,pct_corroborated_true_exit
+URPS,74,82,18,0,61,18
+GO,72,93,7,0,54,7

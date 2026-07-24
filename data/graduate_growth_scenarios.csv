@@ -1,0 +1,13 @@
+subspecialty_abbrev,scenario,scenario_label,annual_graduates,replacement_ratio,projected_2029,assessment
+GO,flat_recent_mean,Flat recent mean (status-quo),75,7.11,1310,Adequate
+GO,cohort_accounting,Cohort accounting (most recent year),79,7.47,1326,Adequate
+GO,contraction,Contraction (recent low),70,6.65,1290,Adequate
+GO,cautious_trend,Cautious trend,78.2,7.4,1323,Adequate
+GO,conservative_70pct,Conservative (70% conversion),52.5,5.03,1220,Adequate
+GO,optimistic_nrmp,Optimistic (NRMP benchmark),88,8.29,1362,Adequate
+URPS,flat_recent_mean,Flat recent mean (status-quo),64,5.61,1505,Adequate
+URPS,cohort_accounting,Cohort accounting (most recent year),66,5.78,1513,Adequate
+URPS,contraction,Contraction (recent low),61,5.36,1493,Adequate
+URPS,cautious_trend,Cautious trend,65.2,5.71,1510,Adequate
+URPS,conservative_70pct,Conservative (70% conversion),44.8,3.96,1429,Adequate
+URPS,optimistic_nrmp,Optimistic (NRMP benchmark),74,6.46,1545,Adequate

@@ -1,0 +1,13 @@
+academic_year,subspecialty_abbrev,true_dropouts,transfers,note
+2018-19,URPS,2,0,"withdrawal/dismissal/non-completion (excludes transfers)"
+2019-20,URPS,0,1,"one transfer (may complete elsewhere)"
+2020-21,URPS,2,0,""
+2021-22,URPS,1,0,""
+2022-23,URPS,2,1,"one transfer"
+2023-24,URPS,0,0,""
+2018-19,GO,0,0,""
+2019-20,GO,3,0,""
+2020-21,GO,0,0,""
+2021-22,GO,2,1,"one transfer"
+2022-23,GO,3,0,""
+2023-24,GO,1,0,""

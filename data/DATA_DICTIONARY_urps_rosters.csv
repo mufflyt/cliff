@@ -1,0 +1,82 @@
+variable,applies_to,category,description,source,notes
+npi,both,Identity,National Provider Identifier (10-digit),NPPES / board data,""
+pathway,both,Identity,Board pathway: ABU (urology) or ABOG (OB/GYN),Roster construction,""
+name,both,Identity,Physician name,Board / NPPES,""
+city,ABU only,Location,Practice city,DAC / NPPES,""
+state,both,Location,Practice state,DAC / NPPES,""
+cert_year,both,Training,Subspecialty board-certification year,ABU / ABOG board data,""
+nppes_primary_taxonomy,ABU only,Identity,NPPES primary taxonomy code,NPPES,""
+has_fpmrs_taxonomy,ABU only,Adjudication,TRUE if the NPI carries the FPMRS taxonomy,NPPES,ABU dedup adjudication
+has_urology_taxonomy,ABU only,Adjudication,TRUE if the NPI carries a urology taxonomy,NPPES,ABU dedup adjudication
+npi_match_confidence,ABU only,Adjudication,Confidence of the ABU-scrape-to-NPI match,ABU pipeline,""
+in_abog_universe,ABU only,Adjudication,TRUE if this NPI also appears in the ABOG universe,Dedup,ABU only
+status,ABU only,Adjudication,ABU roster status (net-new in model / reinstated / held out / unmatched),Adjudication,ABU only
+in_model_baseline,both,Cohort,"TRUE = counted in the active workforce baseline (the 1,339)",Cohort gate,Table 1 & projection use this
+gender,both,Demographics,Gender (F/M),NPPES,""
+age_proxy_from_cert,both,Demographics,Estimated age derived from certification year,Derived,""
+acog_district,both,Geography,ACOG district (I-XI),State -> district crosswalk,""
+dac_gender,both,Demographics,Gender as recorded in CMS DAC,DAC,""
+credential,both,Training,"Credential string (MD, DO, ...)",DAC,""
+grad_year,both,Training,Medical-school graduation year,DAC / enrichment,""
+primary_specialty,both,Practice,DAC primary specialty,DAC,""
+telehealth,both,Practice,DAC telehealth indicator,DAC,sparse (33-59% coverage)
+group_size,both,Practice,DAC group-practice member count (num_org_mem),DAC,"organization size, not clinic size"
+age_from_grad_year,both,Demographics,Estimated age derived from graduation year,Derived,""
+nppes_gender,both,Demographics,Gender from NPPES,NPPES,""
+nppes_credential,both,Training,Credential from NPPES,NPPES,""
+business_state,both,Location,NPPES business practice state,NPPES,""
+business_zip5,both,Location,NPPES business ZIP5,NPPES,keep as text; leading zeros
+enumeration_year,both,Practice,Year the NPI was enumerated,NPPES,""
+sole_proprietor,both,Practice,NPPES sole-proprietor flag (Y/N/X; X=unanswered),NPPES,""
+n_taxonomies,both,Practice,Number of NPPES taxonomy codes,NPPES,""
+n_state_licenses,both,Practice,Number of state medical licenses,NPPES,""
+npi_tenure_years,both,Practice,Years since NPI enumeration,Derived,""
+ruca_code,both,Geography,USDA RUCA code (rurality),USDA RUCA ZIP crosswalk,""
+rurality,both,Geography,Urban / Suburban / Rural (from RUCA),Derived from RUCA,""
+zcta,both,Geography,ZIP Code Tabulation Area (from practice coordinates),Reverse-geocode,""
+tract,both,Geography,Census tract FIPS (11-digit),Reverse-geocode,""
+msa,both,Geography,Metropolitan Statistical Area,Reverse-geocode,""
+adi,both,Environment,Area Deprivation Index (~100-centered score; higher=more deprived),Neighborhood Atlas (via mysterycall),""
+svi,both,Environment,CDC Social Vulnerability Index (0-1; higher=more vulnerable),CDC/ATSDR (via mysterycall),""
+hhi,both,Environment,Health-insurer market concentration by MSA (Herfindahl-Hirschman Index),KFF (via mysterycall),""
+hhi_cat,both,Environment,HHI category (low / moderate / high concentration),Derived,""
+medical_school,both,Training,Medical school (DAC field),DAC,often OTHER/blank
+county_fips,both,Geography,"County FIPS (5-digit, from tract)",Derived,""
+n_secondary_locations,both,Practice,Count of NPPES self-reported SECONDARY practice offices,NPPES pl_pfile,lower bound (self-report)
+n_dac_practice_locations,both,Practice,Count of Medicare-billed practice addresses,DAC,""
+secondary_specialties,both,Practice,DAC secondary specialties (sec_spec_all),DAC,""
+n_secondary_specialties,both,Practice,Count of DAC secondary specialties,DAC,""
+county_women_65plus,both,Demand,ACS count of women 65+ in the physician's county,ACS 2022,""
+n_urogyn_county,both,Demand,Active URPS in the county (INCLUDING self),Cohort geography,""
+urogyn_per_100k_women65,both,Demand,Active urogynecologists per 100k women 65+ (county),Derived,physician-weighted
+medical_school_name_best,both,Training,Best-sourced medical-school name,Physician Compare > GOBA > Doximity,""
+med_school_class,both,Training,US_MD / US_DO / CAN_MD / IMG / Unknown,GOBA recode + AAMC name lookup,""
+img_us,both,Training,US / IMG / Unknown (international vs US graduate),GOBA recode + AAMC lookup,ABU IMG is a lower bound
+med_school_source,both,Training,Which source classified med_school_class,Provenance,""
+pip_in_designated_hpsa,both,Access,TRUE if the practice point falls in a Designated primary-care HPSA polygon,HRSA HPSA shapefile (point-in-polygon),""
+hpsa_score_pip,both,Access,HPSA score (0-26; higher=more underserved) at the practice location,HRSA,only where in a HPSA
+hpsa_type_pip,both,Access,HPSA designation type(s) at the location,HRSA,""
+n_other_urps_county,both,Demand,Active URPS in the county EXCLUDING self (peer density),Cohort geography,""
+slings_medicare_2023,both,Medicare-2023,Sling operations for SUI billed (CPT 57288),Medicare by-service 2023,lower bound; <11 suppressed
+urogyn_procedures_2023,both,Medicare-2023,Distinct FPMRS-defining HCPCS codes billed (of 89),Medicare by-service 2023,""
+urogyn_services_2023,both,Medicare-2023,Total services across FPMRS codes,Medicare by-service 2023,""
+did_urogyn_surgery_2023,both,Medicare-2023,TRUE if billed >=1 FPMRS code,Medicare by-service 2023,""
+slings_medicare_2024,both,Medicare-2024,Sling operations for SUI billed (CPT 57288),Medicare by-service 2024,lower bound; <11 suppressed
+urogyn_procedures_2024,both,Medicare-2024,Distinct FPMRS-defining HCPCS codes billed (of 89),Medicare by-service 2024,""
+urogyn_services_2024,both,Medicare-2024,Total services across FPMRS codes,Medicare by-service 2024,""
+did_urogyn_surgery_2024,both,Medicare-2024,TRUE if billed >=1 FPMRS code,Medicare by-service 2024,""
+medicare_services_2024,both,Medicare-2024,Total Medicare services (all codes),Medicare by-service 2024,""
+medicare_allowed_2024,both,Medicare-2024,"Total Medicare allowed amount, USD",Medicare by-service 2024,""
+n_medicare_codes_2024,both,Medicare-2024,Distinct HCPCS codes billed,Medicare by-service 2024,""
+partd_claims_2023,both,PartD-2023,Total Part D claims,Medicare Part D 2023,""
+partd_bene_avg_age_2023,both,PartD-2023,Average age of the physician's Part D beneficiaries,Medicare Part D 2023,""
+partd_pct_female_benes_2023,both,PartD-2023,% female among Part D beneficiaries (prescription-patient sex mix),Medicare Part D 2023,urologists treat men -> <100%
+has_medicare_2024,both,Medicare-2024,TRUE if any Medicare fee-for-service billing in 2024,Medicare by-service 2024,""
+has_part_d_2023,both,PartD-2023,TRUE if any Medicare Part D prescribing in 2023,Medicare Part D 2023,""
+did_cystoscopy_2024,both,Medicare-2024,"Billed cystoscopy (52000). TRUE/FALSE among Medicare-present, else NA",Medicare by-service 2024,""
+did_bladder_botox_2024,both,Medicare-2024,Billed bladder chemodenervation/BOTOX (52287),Medicare by-service 2024,""
+did_upper_tract_2024,both,Medicare-2024,"Billed upper urinary tract / kidney-stone procedures (52332, 52351-56, 52310)",Medicare by-service 2024,general urology
+did_prolapse_repair_2024,both,Medicare-2024,"Billed vaginal prolapse repair (57240-57285, 57267)",Medicare by-service 2024,""
+did_pessary_2024,both,Medicare-2024,"Billed pessary fitting/device (57160, A4562)",Medicare by-service 2024,""
+did_neuromodulation_2024,both,Medicare-2024,Billed sacral neuromodulation (64561/64581/64585/64590),Medicare by-service 2024,""
+did_hospital_care_2024,both,Medicare-2024,"Billed hospital admission/subsequent care (99221-99223, 99231-99233)",Medicare by-service 2024,""
