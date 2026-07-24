@@ -1,1 +1,15 @@
 manuscript/R/pipeline_table1_physician_characteristics_2024.R
+# --- R / renv / RStudio (added 2026-07-24) ---
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+renv/library/
+renv/local/
+renv/cellar/
+renv/staging/
+renv/python/
+renv/sandbox/
+.DS_Store
+*.utf8.md
+*.knit.md
