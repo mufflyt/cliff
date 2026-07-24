@@ -1,0 +1,26 @@
+{
+  "run_info": {
+    "timestamp": "20260724_195852",
+    "datetime": "2026-07-24 19:58:53 UTC",
+    "scenario": "default",
+    "runtime_seconds": 3.5588,
+    "r_version": "4.6.0",
+    "platform": "aarch64-apple-darwin23"
+  },
+  "fellowship_assumptions": {
+    "FPMRS": 60,
+    "GO": 50,
+    "MIG": 45
+  },
+  "git": {
+    "commit": "3fe0c3b78a9d4fc4567d739192a79165e9b0b842",
+    "branch": "main",
+    "status": ["?? figures/", "?? manuscript/WORKFORCE_CLIFF_ObGyn.docx", "?? manuscript/WORKFORCE_CLIFF_ObGyn.html"],
+    "remote": "git@github.com:mufflyt/cliff.git"
+  },
+  "files": {
+    "data": "data/workforce_projections_consolidated.csv",
+    "figures": ["figures/figure1_workforce_trajectories.png", "figures/figure1_workforce_trajectories.tiff", "figures/figure2_replacement_gap.png", "figures/figure2_replacement_gap.tiff", "figures/workforce_crisis_abstract.png", "figures/workforce_crisis_abstract.tiff"]
+  },
+  "additional": []
+}

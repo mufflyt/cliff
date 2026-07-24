@@ -1,0 +1,6 @@
+"abog_id","physician_name","first_name","last_name","certStatus","clinicallyActive","startDate","certification_year","subspecialty","state","city"
+"1001","Alice Smith","Alice","Smith","Certified","Yes","2005-01-01",2005,"FPMRS","RI","Providence"
+"1002","Bob Jones","Bob","Jones","Certified","Yes","2010-06-15",2010,"REI","RI","Providence"
+"1003","Carol Williams","Carol","Williams","Certified","Yes","2008-03-20",2008,"MFM","RI","Newport"
+"1004","Diana Chen","Diana","Chen","Certified","Yes","2012-09-01",2012,"GO","RI","Warwick"
+"1005","Eve Foster","Eve","Foster","Retired","No","2015-11-10",2015,"MIGS","RI","Cranston"

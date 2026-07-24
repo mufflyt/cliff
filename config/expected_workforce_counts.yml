@@ -1,0 +1,78 @@
+---
+# Expected US Subspecialty Workforce Counts
+# These are regression test thresholds - we should have APPROXIMATELY these numbers
+# for EACH year if the pipeline is working correctly
+
+subspecialty_expected_counts:
+  FPMRS:
+    min_npis_per_year: 1000
+    expected_npis_per_year: 1100
+    max_npis_per_year: 1300
+    min_total_cohort: 1000
+    max_total_cohort: 1500
+    field_name: "Female Pelvic Medicine and Reconstructive Surgery (Urogynecology)"
+
+  GO:
+    min_npis_per_year: 900
+    expected_npis_per_year: 1000
+    max_npis_per_year: 1200
+    min_total_cohort: 1200
+    max_total_cohort: 1800
+    field_name: "Gynecologic Oncology"
+
+  MFM:
+    min_npis_per_year: 1450
+    expected_npis_per_year: 1500
+    max_npis_per_year: 1600
+    min_total_cohort: 2500
+    max_total_cohort: 3200
+    field_name: "Maternal-Fetal Medicine"
+    note: "Per user: There should be 1,500 unique NPI numbers representing maternal-fetal medicine subspecialists per year"
+
+  REI:
+    min_npis_per_year: 800
+    expected_npis_per_year: 900
+    max_npis_per_year: 1100
+    min_total_cohort: 1300
+    max_total_cohort: 1800
+    field_name: "Reproductive Endocrinology and Infertility"
+
+  CFP:
+    min_npis_per_year: 100
+    expected_npis_per_year: 200
+    max_npis_per_year: 400
+    min_total_cohort: 150
+    max_total_cohort: 400
+    field_name: "Complex Family Planning"
+    note: "Newer subspecialty with smaller workforce; counts may grow over study period"
+
+  MIGS:
+    min_npis_per_year: 150
+    expected_npis_per_year: 300
+    max_npis_per_year: 500
+    min_total_cohort: 400
+    max_total_cohort: 900
+    field_name: "Minimally Invasive Gynecologic Surgery"
+    note: "Newer subspecialty; workforce growing rapidly"
+
+  PAG:
+    min_npis_per_year: 50
+    expected_npis_per_year: 100
+    max_npis_per_year: 200
+    min_total_cohort: 150
+    max_total_cohort: 350
+    field_name: "Pediatric and Adolescent Gynecology"
+    note: "Smallest subspecialty by workforce size"
+
+# Total expected workforce
+total_expected:
+  min_npis_per_year: 4500
+  expected_npis_per_year: 5100
+  max_npis_per_year: 6700
+
+# Years to test
+test_years: [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+
+# Failure thresholds
+critical_threshold: 0.50  # If we have <50% of expected, CRITICAL FAILURE
+warning_threshold: 0.80   # If we have <80% of expected, WARNING

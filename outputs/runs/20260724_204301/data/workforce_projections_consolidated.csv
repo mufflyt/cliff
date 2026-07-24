@@ -1,0 +1,4 @@
+subspecialty,subspecialty_abbrev,baseline_2025,projected_2029,sd_2029,ci95_lower,ci95_upper,percent_change,annual_retirement_rate,avg_annual_retirements,annual_entrants,replacement_ratio,replacement_assessment,fellowship_total_5yr,total_retirements_4yr
+Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1301,15.2,1271,1330,1.4,4.4,55.6,60,1.08,Marginal,300,222
+Gynecologic Oncology,GO,1352,1278,16.1,1246,1310,-5.5,5.2,68.5,50,0.73,Insufficient,250,274
+Minimally Invasive Gynecologic Surgery,MIG,767,835,11.0,814,857,8.9,3.4,27.9,45,1.61,Adequate,225,112
