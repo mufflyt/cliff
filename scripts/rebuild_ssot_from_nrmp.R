@@ -24,9 +24,9 @@ source(here::here("manuscript", "R", "workforce_data_contract.R"))
 HZ <- WORKFORCE_PROJECTION_HORIZON_YEARS  # 4
 Z  <- WORKFORCE_CI_Z95                    # 1.96
 
-current <- readr::read_csv(here::here("cliff", "data", "workforce_projections_consolidated.csv"),
+current <- readr::read_csv(here::here("data", "workforce_projections_consolidated.csv"),
                            show_col_types = FALSE)
-nrmp <- readr::read_csv(here::here("cliff", "data", "nrmp_fellowship_entrants.csv"),
+nrmp <- readr::read_csv(here::here("data", "nrmp_fellowship_entrants.csv"),
                         show_col_types = FALSE) %>%
   dplyr::select(subspecialty_abbrev, nrmp_entrants = annual_entrants)
 
@@ -52,7 +52,7 @@ validate_cols <- rebuilt %>%
                                 "fellowship_total_4yr", "total_retirements_4yr")))
 validate_workforce_data(as.data.frame(validate_cols), source_hint = "NRMP-rebuilt")
 
-out_path <- here::here("cliff", "data", "workforce_projections_NRMP_corrected.csv")
+out_path <- here::here("data", "workforce_projections_NRMP_corrected.csv")
 readr::write_csv(dplyr::select(rebuilt, -old_entrants, -nrmp_entrants), out_path)
 
 # --- Old vs corrected comparison ------------------------------------------

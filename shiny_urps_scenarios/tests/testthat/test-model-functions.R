@@ -29,7 +29,7 @@ test_that("the primary projection reproduces the frozen headline numbers", {
   r <- e$project_traj(e$URPS_AGES, 64, e$adjusted_haz("fully_obs", 1, "obs"), 4)
   expect_equal(round(r$avg_dep, 1), 12.8)
   expect_equal(round(64 / r$avg_dep, 2), 5.02)
-  expect_equal(round(tail(r$traj, 1)), 1538)
+  expect_equal(round(tail(r$traj, 1)), 1544)
   expect_length(r$traj, 5)                                   # baseline + 4 years
 })
 

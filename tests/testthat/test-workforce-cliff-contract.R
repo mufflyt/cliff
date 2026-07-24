@@ -77,7 +77,7 @@ test_that("ADV3: 7-subspecialty scaffold (wrong set) is rejected", {
 
 test_that("ADV4: missing a required subspecialty is rejected", {
   df <- valid_df()
-  df <- df[df$subspecialty_abbrev != "MIG", ]
+  df <- df[df$subspecialty_abbrev != "MIGS", ]
   expect_error(validate_workforce_data(df), "subspecialty set mismatch")
 })
 
@@ -149,7 +149,7 @@ test_that("ADV14: empty table is rejected", {
 
 test_that("SEM1: exactly the three surgical subspecialties, no more", {
   df <- valid_df()
-  expect_setequal(df$subspecialty_abbrev, c("FPMRS", "GO", "MIG"))
+  expect_setequal(df$subspecialty_abbrev, c("URPS", "GO", "MIGS"))
   expect_equal(nrow(df), 3L)
 })
 
@@ -189,8 +189,8 @@ test_that("SEM6: all three subspecialties are adequately replaced (NRMP-correcte
   df <- valid_df()
   get <- function(ab) df$replacement_assessment[df$subspecialty_abbrev == ab]
   expect_equal(get("GO"), "Above replacement")
-  expect_equal(get("MIG"), "Above replacement")
-  expect_equal(get("FPMRS"), "Above replacement")
+  expect_equal(get("MIGS"), "Above replacement")
+  expect_equal(get("URPS"), "Above replacement")
 })
 
 test_that("SEM7: combined workforce grows and every subspecialty grows (NRMP-corrected)", {
@@ -227,7 +227,7 @@ test_that("SEM9: helpers report graduates (sum entrants), not total workforce", 
   expect_false(identical(get_total_annual_entrants(), get_total_baseline()))
 
   # 4-year fellowship totals use the horizon constant.
-  for (ab in c("FPMRS", "GO", "MIG")) {
+  for (ab in c("URPS", "GO", "MIGS")) {
     ent <- df$annual_entrants[df$subspecialty_abbrev == ab]
     expect_equal(get_fellowship_total_5yr(ab),
                  format(ent * WORKFORCE_PROJECTION_HORIZON_YEARS, big.mark = ","))
@@ -254,7 +254,7 @@ test_that("SEM11: direction helpers follow the sign of percent_change", {
   source(here("manuscript", "R", "workforce_statistics.R"), local = TRUE)
 
   df <- valid_df()
-  for (ab in c("FPMRS", "GO", "MIG")) {
+  for (ab in c("URPS", "GO", "MIGS")) {
     pct <- df$percent_change[df$subspecialty_abbrev == ab]
     up <- pct >= 0
     expect_equal(get_direction(ab),   if (up) "growth"     else "decline")
@@ -267,7 +267,7 @@ test_that("SEM12: percent-change magnitude carries no sign (no double negative)"
   withr::local_envvar(WORKFORCE_DATA_CSV = .valid_path)
   source(here("manuscript", "R", "workforce_statistics.R"), local = TRUE)
 
-  for (ab in c("FPMRS", "GO", "MIG")) {
+  for (ab in c("URPS", "GO", "MIGS")) {
     mag <- get_percent_change_magnitude(ab)
     expect_false(grepl("[-+]", mag))                 # no leading sign
     expect_true(grepl("^[0-9]+\\.[0-9]$", mag))      # bare "n.n"
@@ -279,7 +279,7 @@ test_that("SEM13: policy target = ceil(retirements * adequate-min); threshold re
   source(here("manuscript", "R", "workforce_statistics.R"), local = TRUE)
 
   df <- valid_df()
-  for (ab in c("FPMRS", "GO", "MIG")) {
+  for (ab in c("URPS", "GO", "MIGS")) {
     ret <- df$avg_annual_retirements[df$subspecialty_abbrev == ab]
     expect_equal(get_positions_for_adequate(ab),
                  as.integer(ceiling(ret * WORKFORCE_REPLACEMENT_BUFFER)))
@@ -316,13 +316,13 @@ test_that("SEM16: retirement rates are the cohort-EMPIRICAL rates, not HRSA band
   # every rate sits in the empirical low-attrition band, well below the HRSA values
   expect_true(all(rate >= 0.5 & rate <= 2.6))
   expect_lt(rate[["GO"]], 4.0)     # HRSA GO was 6.0
-  expect_lt(rate[["FPMRS"]], 3.0)   # HRSA URPS was 4.7
+  expect_lt(rate[["URPS"]], 3.0)   # HRSA URPS was 4.7
 })
 
 test_that("SEM15: obsolete 5-year fellowship horizon cannot reappear", {
   df <- valid_df()
   # SSOT carries the 4-year fellowship column, never the old 5-year one.
-  expect_true("fellowship_total_5yr" %in% names(df))
+  expect_true("fellowship_total_4yr" %in% names(df))
   expect_false("fellowship_total_5yr" %in% names(df))
   # The 5-year report-horizon constant was removed from the contract.
   expect_false(exists("WORKFORCE_FELLOWSHIP_REPORT_YEARS"))

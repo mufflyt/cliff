@@ -11,7 +11,7 @@ suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr)
 .wf_GO <- "#1b6ca8"; .wf_URPS <- "#d1495b"
 .wf_lab <- c(GO = "Gynecologic Oncology", URPS = "Urogynecology (both-pathway)")
 .wf_pal <- setNames(c(.wf_GO, .wf_URPS), .wf_lab[c("GO","URPS")])
-.wf_rd  <- function(f) read_csv(here("cliff","data",f), show_col_types = FALSE)
+.wf_rd  <- function(f) read_csv(here("data",f), show_col_types = FALSE)
 
 .wf_theme <- function(base = 11) theme_minimal(base_size = base) +
   theme(plot.title.position = "plot",

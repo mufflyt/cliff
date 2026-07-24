@@ -32,17 +32,21 @@ suppressPackageStartupMessages({
 # Load Data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.workforce_data_path <- here("manuscript/data/workforce_projections_consolidated.csv")
+# Resolve data path: WORKFORCE_DATA_CSV env var overrides the default,
+# matching the data-contract's resolve_workforce_data_path() precedence.
+.workforce_data_path <- {
+  env_path <- Sys.getenv("WORKFORCE_DATA_CSV", unset = "")
+  if (nzchar(env_path)) env_path
+  else {
+    mp <- here::here("manuscript", "data", "workforce_projections_consolidated.csv")
+    if (file.exists(mp)) mp else here::here("data", "workforce_projections_consolidated.csv")
+  }
+}
 
 if (!file.exists(.workforce_data_path)) {
   warning(sprintf(paste0(
     "Data file not found: %s\n",
-    "  Run DAG Step 5.0 to generate this file:\n",
-    "    TEST_MODE=1 Rscript 00_MASTER_PUBLICATION_PIPELINE.R  # generates stub\n",
-    "  Or run directly:\n",
-    "    Rscript R/manuscript_consolidate_existing_results.R\n",
-    "  See WORKFORCE_SOURCE_CSV env var to point at a custom input CSV.\n",
-    "  Accessor functions will error until the data file is present."
+    "  Set WORKFORCE_DATA_CSV env var or run DAG Step 5.0 to generate this file."
   ), .workforce_data_path))
   .workforce_data <- tibble::tibble()
 } else {
@@ -187,8 +191,7 @@ get_ci_upper <- function(subspecialty) {
 get_percent_change <- function(subspecialty) {
   .filter_subspec(subspecialty) %>%
     pull(percent_change) %>%
-    abs() %>%
-    sprintf("%.1f", .)
+    sprintf("%+.1f", .)
 }
 
 #' Get signed percent change 2025–2029
@@ -240,7 +243,7 @@ get_annual_rate <- function(subspecialty) {
 get_replacement_ratio <- function(subspecialty) {
   .filter_subspec(subspecialty) %>%
     pull(replacement_ratio) %>%
-    sprintf("%.2f", .)
+    sprintf("%.1f", .)
 }
 
 #' Get workforce replacement assessment classification
@@ -271,7 +274,7 @@ get_replacement_assessment <- function(subspecialty) {
 #' }
 get_fellowship_total <- function(subspecialty) {
   .filter_subspec(subspecialty) %>%
-    pull(fellowship_total_5yr) %>%
+    pull(fellowship_total_4yr) %>%
     format(big.mark = ",")
 }
 
@@ -418,6 +421,212 @@ get_total_percent_change <- function() {
 #' }
 count_by_assessment <- function(assessment) {
   sum(.workforce_data$replacement_assessment == assessment)
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Temporal back-test accessor
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#' Maximum age-band calibration error for well-populated bands.
+#'
+#' Reads the age-band back-test artifact and returns the maximum absolute
+#' percentage error across bands with at least `min_n` physicians. Used in
+#' the manuscript's inline statistic: "calibration to within about X%".
+#'
+#' @param min_n Minimum cohort size to include a band (default 50).
+#' @return Character scalar formatted as "N" (no decimal, no percent sign).
+get_backtest_band_maxerr <- function(min_n = 50L) {
+  bt_path <- here::here("data", "temporal_backtest_ageband.csv")
+  if (!file.exists(bt_path)) return(NA_character_)
+  bt <- utils::read.csv(bt_path, stringsAsFactors = FALSE, check.names = FALSE)
+  well <- bt[bt$n_base >= min_n, , drop = FALSE]
+  if (nrow(well) == 0) return("0")
+  sprintf("%.0f", max(abs(well$pct_error), na.rm = TRUE))
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Aggregate entrant getters
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#' Total annual entrants across all subspecialties.
+get_total_annual_entrants <- function() {
+  format(sum(.workforce_data$annual_entrants), big.mark = ",")
+}
+
+#' Fellowship total over the 4-year projection horizon (alias kept for compat).
+get_fellowship_total_5yr <- function(subspecialty) {
+  get_fellowship_total(subspecialty)
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Direction / growth-word helpers
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.pct_for <- function(ab) {
+  r <- .workforce_data[.workforce_data$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("No subspecialty found matching abbreviation: '%s'", ab))
+  r$percent_change[1]
+}
+
+#' "growth" or "decline" depending on percent_change sign.
+get_direction <- function(subspecialty) {
+  pct <- .pct_for(subspecialty)
+  if (pct >= 0) "growth" else "decline"
+}
+
+#' "increase" or "decrease" depending on percent_change sign.
+get_change_noun <- function(subspecialty) {
+  pct <- .pct_for(subspecialty)
+  if (pct >= 0) "increase" else "decrease"
+}
+
+#' "increasing" or "decreasing" depending on percent_change sign.
+get_change_verb <- function(subspecialty) {
+  pct <- .pct_for(subspecialty)
+  if (pct >= 0) "increasing" else "decreasing"
+}
+
+#' Absolute magnitude of percent change, formatted "n.n" (no sign, no trailing zero noise).
+get_percent_change_magnitude <- function(subspecialty) {
+  pct <- .pct_for(subspecialty)
+  sprintf("%.1f", abs(pct))
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Policy-target helpers
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#' Number of annual fellowship positions needed to meet the replacement buffer threshold.
+get_positions_for_adequate <- function(subspecialty) {
+  r <- .filter_subspec(subspecialty)
+  as.integer(ceiling(r$avg_annual_retirements * WORKFORCE_REPLACEMENT_BUFFER))
+}
+
+#' Replacement buffer threshold as a character string (e.g., "1.2").
+get_adequate_threshold <- function() {
+  sprintf("%.1f", WORKFORCE_REPLACEMENT_BUFFER)
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Per-subspecialty net-change and fellowship-total getters
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#' Net change in workforce headcount from 2025 to 2029 (signed integer).
+#'
+#' @param subspecialty [character(1)] Partial name or abbreviation.
+#' @return Formatted character string with explicit sign (e.g., `"+210"`, `"-74"`).
+get_net_change_4yr <- function(subspecialty) {
+  r <- .filter_subspec(subspecialty)
+  net <- as.integer(round(r$projected_2029)) - as.integer(r$baseline_2025)
+  sprintf("%+d", net)
+}
+
+#' Total fellowship graduates over the 4-year projection horizon (annual_entrants * 4).
+#'
+#' @param subspecialty [character(1)] Partial name or abbreviation.
+#' @return Formatted character string with comma thousands separator.
+get_fellowship_total_4yr <- function(subspecialty) {
+  r <- .filter_subspec(subspecialty)
+  format(as.integer(r$annual_entrants) * 4L, big.mark = ",")
+}
+
+#' Range of graduate-drop percentages that would tip a subspecialty below replacement,
+#' scaled by a conversion factor \code{conv} (fraction of graduates actually entering
+#' the counted workforce).
+#'
+#' @param conv [numeric(1)] Conversion fraction, 0 < conv <= 1.  Default 1.0.
+#' @return Character string of the form `"X% to Y%"`.
+get_tipping_missed_range <- function(conv = 1.0) {
+  b_path <- here::here("data", "breakeven_thresholds.csv")
+  if (!file.exists(b_path)) return("0% to 0%")
+  b <- utils::read.csv(b_path, stringsAsFactors = FALSE, check.names = FALSE)
+  ssot <- .workforce_data
+  drops <- vapply(seq_len(nrow(b)), function(i) {
+    ab  <- b$subspecialty_abbrev[i]
+    row <- ssot[ssot$subspecialty_abbrev == ab, , drop = FALSE]
+    if (nrow(row) == 0) return(0)
+    ent <- row$annual_entrants[1] * conv
+    bg  <- b$breakeven_graduates[i]
+    if (ent <= 0) 0 else max(0, 100 * (1 - bg / ent))
+  }, numeric(1))
+  sprintf("%d%% to %d%%", floor(min(drops)), ceiling(max(drops)))
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Sensitivity-artifact getters
+# Each function reads its named CSV (listed here so the contract test can grep
+# for every registered artifact filename in this source file):
+#   mortality_sensitivity.csv
+#   consistent_definition_baseline_sensitivity.csv
+#   inactivity_threshold_sensitivity.csv
+#   hierarchical_hazard_comparison.csv
+#   graduate_growth_scenarios.csv
+#   baseline_lag_decomposition.csv
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.op_load <- function(fname) {
+  p <- here::here("data", fname)
+  if (!file.exists(p)) stop(sprintf("sensitivity artifact not found: %s", p))
+  utils::read.csv(p, stringsAsFactors = FALSE, check.names = FALSE)
+}
+
+#' Mortality-adjusted replacement ratio (all missed deaths).
+get_mortality_ratio_all <- function(ab) {
+  d <- .op_load("mortality_sensitivity.csv")
+  r <- d[d$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s in mortality_sensitivity.csv", ab))
+  sprintf("%.1f", r$ratio_adj_all_missed[1])
+}
+
+#' Mortality-adjusted replacement ratio (half missed deaths).
+get_mortality_ratio_half <- function(ab) {
+  d <- .op_load("mortality_sensitivity.csv")
+  r <- d[d$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s in mortality_sensitivity.csv", ab))
+  sprintf("%.1f", r$ratio_adj_half_missed[1])
+}
+
+#' Consistent-definition baseline sensitivity ratio.
+get_consistent_ratio <- function(ab) {
+  d <- .op_load("consistent_definition_baseline_sensitivity.csv")
+  r <- d[d$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s in consistent_definition_baseline_sensitivity.csv", ab))
+  sprintf("%.1f", r$ratio_consistent[1])
+}
+
+#' Inactivity-threshold sensitivity ratio.
+#' @param threshold_years integer threshold (2, 3, or 4).
+get_inactivity_ratio <- function(threshold_years, ab) {
+  d <- .op_load("inactivity_threshold_sensitivity.csv")
+  r <- d[d$subspecialty_abbrev == ab & d$threshold_years == threshold_years, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s/threshold=%s in inactivity_threshold_sensitivity.csv", ab, threshold_years))
+  sprintf("%.1f", r$replacement_ratio[1])
+}
+
+#' Hierarchical partial-pooling replacement ratio.
+#' @param method one of "unpooled", "pooled", "partial_pooled".
+get_hier_ratio <- function(method, ab) {
+  d <- .op_load("hierarchical_hazard_comparison.csv")
+  r <- d[d$method == method & d$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s/%s in hierarchical_hazard_comparison.csv", method, ab))
+  sprintf("%.1f", r$replacement_ratio[1])
+}
+
+#' Graduate-supply scenario replacement ratio.
+#' @param scenario one of "flat_recent_mean", "cohort_accounting", "contraction", "cautious_trend".
+get_grad_scenario_ratio <- function(scenario, ab) {
+  d <- .op_load("graduate_growth_scenarios.csv")
+  r <- d[d$scenario == scenario & d$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s/%s in graduate_growth_scenarios.csv", scenario, ab))
+  sprintf("%.1f", r$replacement_ratio[1])
+}
+
+#' Baseline-lag decomposition: directly-supported fraction.
+get_lag_direct_fraction <- function(ab) {
+  d <- .op_load("baseline_lag_decomposition.csv")
+  r <- d[d$subspecialty_abbrev == ab, , drop = FALSE]
+  if (nrow(r) == 0) stop(sprintf("no row for %s in baseline_lag_decomposition.csv", ab))
+  sprintf("%.0f%%", 100 * r$directly_supported[1] / (r$baseline_total[1] - r$abu_net_new[1]))
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

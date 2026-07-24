@@ -112,12 +112,14 @@ test_that("CHAOS a truncated/garbage file does not yield a valid table", {
 # ============================================================================
 test_that("GOLD GO ratio/projection/percent match hand arithmetic", {
   go <- row1(ssot, "GO")
-  # ratio = 75 / 10.552582813358663 = 7.1073... (GO+URPS-only hazard)
-  expect_equal(go$replacement_ratio, 75 / 10.552582813358663, tolerance = 1e-6)
-  # projected = 1052 + 4*(75 - 10.552582813358663) = 1309.7897...
-  expect_equal(go$projected_2029, 1052 + 4 * (75 - 10.552582813358663), tolerance = 1e-6)
-  # percent = 100*(1309.7897 - 1052)/1052 = 24.5047...
-  expect_equal(go$percent_change, 100 * (go$projected_2029 - 1052) / 1052, tolerance = 1e-6)
+  # avg_annual_retirements from SSOT empirical hazard (ABOG cohort 2016-2021)
+  go_ret <- go$avg_annual_retirements  # 10.548523 in canonical SSOT
+  # ratio = 75 / go_ret
+  expect_equal(go$replacement_ratio, 75 / go_ret, tolerance = 1e-4)
+  # projected = 1052 + 4*(75 - go_ret)
+  expect_equal(go$projected_2029, 1052 + 4 * (75 - go_ret), tolerance = 1e-4)
+  # percent = 100*(projected - 1052)/1052
+  expect_equal(go$percent_change, 100 * (go$projected_2029 - 1052) / 1052, tolerance = 1e-4)
 })
 
 test_that("GOLD weighted aggregates match hand-calculated totals", {

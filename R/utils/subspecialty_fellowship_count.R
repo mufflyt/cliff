@@ -77,6 +77,30 @@ canonicalize_fellowship_code <- function(x) {
   # Delegate the real canonicalization to the existing standardizer.
   std <- standardize_abog_subspecialty(x_clean)
 
+  # Map formal certification / focused-practice-designation strings that the
+  # general standardizer does not recognize (returns the raw string back).
+  # Pattern order matters: more-specific patterns must come first.
+  # Override both unrecognized strings AND "Other" returns from the standardizer
+  # when the raw input matches a known subspecialty pattern.
+  needs_override <- (!std %in% c("FPMRS","GO","MFM","MIG","PAG","REI","CFP","GEN") |
+                     std == "Other") & !is.na(std) & nchar(x_clean) > 0L
+  if (any(needs_override)) {
+    lc <- tolower(x_clean[needs_override])
+    resolved <- std[needs_override]
+    # Note: use partial patterns robust to the \r\n whitespace-split artifact
+    # (e.g. "Reproductive Endocr inology" after gsub collapse)
+    resolved[grepl("female pelvic medicine|urogynecology and reconstructive pelvic", lc)] <- "FPMRS"
+    resolved[grepl("gynecologic oncology", lc)] <- "GO"
+    resolved[grepl("critical care", lc)]        <- "GO"
+    resolved[grepl("hospice|palliative", lc)]   <- "GO"
+    resolved[grepl("maternal.fetal|maternal fetal", lc)] <- "MFM"
+    resolved[grepl("minimally invasive gynecologic", lc)] <- "MIG"
+    resolved[grepl("pediatric.*adolescent gynecol|pediatric adolescent gynecol", lc)] <- "PAG"
+    resolved[grepl("reproductive endocr", lc)]  <- "REI"
+    resolved[grepl("complex family planning", lc)]       <- "CFP"
+    std[needs_override] <- resolved
+  }
+
   # The standardizer returns "Other" for Generalist (now that it tags
   # general Otolaryngology explicitly).  Distinguish Generalist from Critical
   # Care / Hospice / CFP so callers can exclude only Generalist from

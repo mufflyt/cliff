@@ -24,7 +24,7 @@ test_that("non-canonical SSOT builders fail closed on the consolidated write", {
 test_that("rebuild_ssot_revised.R is the marked canonical writer", {
   src <- rd("rebuild_ssot_revised.R")
   expect_true(grepl("CANONICAL SSOT WRITER", src, fixed = TRUE))
-  expect_true(grepl("write_csv(primary, here::here(\"cliff\",\"data\",\"workforce_projections_consolidated.csv\"))", src, fixed = TRUE))
+  expect_true(grepl("write_csv(primary, here::here(\"data\",\"workforce_projections_consolidated.csv\"))", src, fixed = TRUE))
   # it must NOT carry the refusal guard itself (it is the one allowed to write);
   # the canonical marker comment may name the override var when describing the variants,
   # so we assert the absence of the REFUSED stop rather than the env-var mention.

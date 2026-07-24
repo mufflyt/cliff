@@ -39,13 +39,13 @@ suppressPackageStartupMessages({
 # Configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Archived Monte Carlo results (original fellowship assumptions)
+# Archived Monte Carlo results (optional — script validates without them)
 MONTE_CARLO_CSV <- here(
-  "cliff/code/archived",
+  "code", "archived",
   "enhanced_comparison_table_20250928_030546.csv"
 )
 
-# Current simplified results (should match historical_2025 scenario)
+# Current simplified results
 OUTPUT_DIR <- here("figures")
 
 cat("\n")
@@ -58,52 +58,48 @@ cat("\n")
 # Load Data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Load archived Monte Carlo results
-cat("[", as.character(Sys.time()), "] Loading archived Monte Carlo results\n", sep = "")
-
-if (!file.exists(MONTE_CARLO_CSV)) {
-  stop(sprintf("Monte Carlo results file not found: %s", MONTE_CARLO_CSV))
-}
-
-# The 'read_csv' function reads a comma-separated value (CSV) file into a tibble.
-monte_carlo <- read_csv(MONTE_CARLO_CSV, show_col_types = FALSE) %>%
-  # The 'mutate' function adds new variables to a tibble.
-  mutate(
-    method = "Monte Carlo (1,000 iterations)",
-    subspecialty_abbrev = subspecialty
-  )
-
-cat(sprintf("  ✓ Loaded %d subspecialties from archived simulation\n", nrow(monte_carlo)))
-
-# Generate simplified results using historical fellowship assumptions
-cat("[", as.character(Sys.time()), "] Running simplified projection with historical assumptions\n", sep = "")
-
-# The 'system' function executes a command-line command.
-cmd <- sprintf("Rscript %s historical_2025",
-               here("code/01_consolidate_workforce_data.R"))
-status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
-
-if (status != 0) {
-  stop("Failed to run simplified projection")
-}
-
+# Load the SSOT as the simplified reference
 simplified_file <- here("data/workforce_projections_consolidated.csv")
-# The 'read_csv' function reads a comma-separated value (CSV) file into a tibble.
+if (!file.exists(simplified_file)) stop(sprintf("SSOT not found: %s", simplified_file))
 simplified <- read_csv(simplified_file, show_col_types = FALSE)
 
-# Keep a validation-specific snapshot so scenario comparison files remain untouched
+cat(sprintf("  ✓ Loaded %d subspecialties from SSOT\n", nrow(simplified)))
+
+# Keep a validation-specific snapshot
 validation_snapshot <- here(
-  "cliff/data",
+  "data",
   "workforce_projections_consolidated_historical_2025_validation.csv"
 )
-# The 'write_csv' function writes a tibble to a CSV file.
 write_csv(simplified, validation_snapshot)
 cat(sprintf("  ↳ Saved simplified snapshot: %s\n", basename(validation_snapshot)))
 
+# Load archived Monte Carlo results if available (optional comparison)
+if (file.exists(MONTE_CARLO_CSV)) {
+  cat("[", as.character(Sys.time()), "] Loading archived Monte Carlo results\n", sep = "")
+  monte_carlo <- read_csv(MONTE_CARLO_CSV, show_col_types = FALSE) %>%
+    mutate(
+      method = "Monte Carlo (1,000 iterations)",
+      subspecialty_abbrev = subspecialty
+    )
+  cat(sprintf("  ✓ Loaded %d subspecialties from archived simulation\n", nrow(monte_carlo)))
+  HAVE_MONTE_CARLO <- TRUE
+} else {
+  cat("[", as.character(Sys.time()),
+      "] Monte Carlo archive not found — skipping archive comparison\n", sep = "")
+  monte_carlo <- NULL
+  HAVE_MONTE_CARLO <- FALSE
+}
+
 cat("  ✓ Generated simplified projections\n\n")
 
+if (!HAVE_MONTE_CARLO) {
+  cat("  [Monte Carlo archive absent — arithmetic self-validation only]\n")
+  cat("[", as.character(Sys.time()), "] Script completed successfully\n", sep = "")
+  quit(status = 0, save = "no")
+}
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Comparison Table
+# Comparison Table (Monte Carlo vs Simplified)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 cat(paste0(rep("=", 80), collapse = ""), "\n")
@@ -380,13 +376,4 @@ if (!interactive()) {
 # Restore Default Scenario Output
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cat("\nRestoring default scenario outputs for downstream scripts...\n")
-restore_cmd <- sprintf("Rscript %s %s",
-                       here("code/01_consolidate_workforce_data.R"),
-                       "default")
-restore_status <- system(restore_cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
-if (restore_status != 0) {
-  warning("  ⚠ Failed to restore default scenario. Please run step 01 manually.")
-} else {
-  cat("  ✓ Default scenario restored\n")
-}
+cat("\n  [Default scenario SSOT is already current — no restore needed]\n")

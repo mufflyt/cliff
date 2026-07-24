@@ -1,22 +1,22 @@
 subspecialty_full,subspecialty,baseline_workforce,projected_workforce,percent_change,annual_entrants,avg_annual_retirements,avg_retirement_rate,baseline_rate,adjusted_rate,replacement_ratio,scenario_id,scenario_name,retirement_adjustment
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1300.6,1.3717848791893927,60,55.6,4.4,4.4,4.4,1.079136690647482,baseline,Baseline (Current),0
-Gynecologic Oncology,GO,1352,1278,-5.4733727810650885,50,68.5,5.2,5.2,5.2,0.7299270072992701,baseline,Baseline (Current),0
-Minimally Invasive Gynecologic Surgery,MIG,767,835.4,8.917861799217729,45,27.9,3.4,3.4,3.4,1.6129032258064517,baseline,Baseline (Current),0
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1267.24,-1.2283710054559618,60,63.94,4.4,4.4,5.06,0.9383797309978105,threshold_minus_1yr,Threshold -1yr (Stricter),0.15
-Gynecologic Oncology,GO,1352,1236.9,-8.513313609467449,50,78.77499999999999,5.2,5.2,5.9799999999999995,0.634719136781974,threshold_minus_1yr,Threshold -1yr (Stricter),0.15
-Minimally Invasive Gynecologic Surgery,MIG,767,818.6600000000001,6.735332464146034,45,32.084999999999994,3.4,3.4,3.9099999999999997,1.4025245441795233,threshold_minus_1yr,Threshold -1yr (Stricter),0.15
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1333.96,3.9719407638347652,60,47.26,4.4,4.4,3.74,1.2695725772323319,threshold_plus_1yr,Threshold +1yr (Looser),-0.15
-Gynecologic Oncology,GO,1352,1319.1,-2.433431952662729,50,58.225,5.2,5.2,4.42,0.8587376556462001,threshold_plus_1yr,Threshold +1yr (Looser),-0.15
-Minimally Invasive Gynecologic Surgery,MIG,767,852.14,11.100391134289437,45,23.715,3.4,3.4,2.8899999999999997,1.8975332068311195,threshold_plus_1yr,Threshold +1yr (Looser),-0.15
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1278.36,-0.3616523772408496,60,61.160000000000004,4.4,4.4,4.840000000000001,0.9810333551340745,conservative_higher,Conservative Higher (+10%),0.1
-Gynecologic Oncology,GO,1352,1250.6,-7.500000000000007,50,75.35000000000001,5.2,5.2,5.720000000000001,0.6635700066357,conservative_higher,Conservative Higher (+10%),0.1
-Minimally Invasive Gynecologic Surgery,MIG,767,824.24,7.46284224250326,45,30.69,3.4,3.4,3.74,1.466275659824047,conservative_higher,Conservative Higher (+10%),0.1
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1322.84,3.105222135619635,60,50.04,4.4,4.4,3.9600000000000004,1.1990407673860912,conservative_lower,Conservative Lower (-10%),-0.1
-Gynecologic Oncology,GO,1352,1305.4,-3.446745562130171,50,61.650000000000006,5.2,5.2,4.680000000000001,0.8110300081103,conservative_lower,Conservative Lower (-10%),-0.1
-Minimally Invasive Gynecologic Surgery,MIG,767,846.56,10.372881355932197,45,25.11,3.4,3.4,3.06,1.7921146953405018,conservative_lower,Conservative Lower (-10%),-0.1
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1233.88,-3.8285268901013163,60,72.28,4.4,4.4,5.720000000000001,0.8301051466519093,aggressive_higher,Aggressive Higher (+30%),0.3
-Gynecologic Oncology,GO,1352,1195.8,-11.553254437869825,50,89.05,5.2,5.2,6.760000000000001,0.5614823133071308,aggressive_higher,Aggressive Higher (+30%),0.3
-Minimally Invasive Gynecologic Surgery,MIG,767,801.9200000000001,4.552803129074325,45,36.269999999999996,3.4,3.4,4.42,1.240694789081886,aggressive_higher,Aggressive Higher (+30%),0.3
-Female Pelvic Medicine & Reconstructive Surgery,FPMRS,1283,1367.32,6.572096648480119,60,38.92,4.4,4.4,3.08,1.541623843782117,aggressive_lower,Aggressive Lower (-30%),-0.3
-Gynecologic Oncology,GO,1352,1360.2,0.6065088757396483,50,47.949999999999996,5.2,5.2,3.6399999999999997,1.0427528675703859,aggressive_lower,Aggressive Lower (-30%),-0.3
-Minimally Invasive Gynecologic Surgery,MIG,767,868.88,13.282920469361148,45,19.529999999999998,3.4,3.4,2.38,2.3041474654377883,aggressive_lower,Aggressive Lower (-30%),-0.3
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1505.367288,16.244578223938216,64,11.408178,0.88094,0.8809,0.8809,5.6100106432420676,baseline,Baseline (Current),0
+Gynecologic Oncology,GO,1052,1309.805908,24.506265019011412,75,10.548523,1.00271,1.0027,1.0027,7.1100001393560035,baseline,Baseline (Current),0
+Minimally Invasive Gynecologic Surgery,MIGS,605,776.001808,28.26476165289256,47,4.249548,0.7024,0.7024,0.7024,11.059999792919154,baseline,Baseline (Current),0
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1498.5223812,15.716013992277988,64,13.119404699999999,0.88094,0.8809,1.013035,4.87827012455832,threshold_minus_1yr,Threshold -1yr (Stricter),0.15
+Gynecologic Oncology,GO,1052,1303.4767941999999,23.90463823193915,75,12.130801449999998,1.00271,1.0027,1.1531049999999998,6.182608816831308,threshold_minus_1yr,Threshold -1yr (Stricter),0.15
+Minimally Invasive Gynecologic Surgery,MIGS,605,773.4520792,27.843318876033052,47,4.886980199999999,0.7024,0.7024,0.8077599999999999,9.617391124277527,threshold_minus_1yr,Threshold -1yr (Stricter),0.15
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1512.2121948,16.77314245559845,64,9.696951299999998,0.88094,0.8809,0.748765,6.600012521461257,threshold_plus_1yr,Threshold +1yr (Looser),-0.15
+Gynecologic Oncology,GO,1052,1316.1350218,25.10789180608365,75,8.966244549999999,1.00271,1.0027,0.8522949999999999,8.36470604630118,threshold_plus_1yr,Threshold +1yr (Looser),-0.15
+Minimally Invasive Gynecologic Surgery,MIGS,605,778.5515368,28.686204429752067,47,3.6121157999999998,0.7024,0.7024,0.59704,13.011764462257828,threshold_plus_1yr,Threshold +1yr (Looser),-0.15
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1500.8040168,15.892202069498069,64,12.5489958,0.88094,0.8809,0.9689900000000001,5.100009675674607,conservative_higher,Conservative Higher (+10%),0.1
+Gynecologic Oncology,GO,1052,1305.5864987999998,24.10518049429656,75,11.6033753,1.00271,1.0027,1.10297,6.463636490323639,conservative_higher,Conservative Higher (+10%),0.1
+Minimally Invasive Gynecologic Surgery,MIGS,605,774.3019888,27.983799801652893,47,4.6745028,0.7024,0.7024,0.7726400000000001,10.05454526629014,conservative_higher,Conservative Higher (+10%),0.1
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1509.9305592,16.596954378378385,64,10.2673602,0.88094,0.8809,0.79281,6.233345159157852,conservative_lower,Conservative Lower (-10%),-0.1
+Gynecologic Oncology,GO,1052,1314.0253172,24.907349543726237,75,9.4936707,1.00271,1.0027,0.90243,7.900000154840003,conservative_lower,Conservative Lower (-10%),-0.1
+Minimally Invasive Gynecologic Surgery,MIGS,605,777.7016272,28.545723504132226,47,3.8245932,0.7024,0.7024,0.63216,12.28888865879906,conservative_lower,Conservative Lower (-10%),-0.1
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1491.6774744,15.187449760617755,64,14.8306314,0.88094,0.8809,1.14517,4.315392802493898,aggressive_higher,Aggressive Higher (+30%),0.3
+Gynecologic Oncology,GO,1052,1297.1476804,23.303011444866907,75,13.7130799,1.00271,1.0027,1.30351,5.4692308764276945,aggressive_higher,Aggressive Higher (+30%),0.3
+Minimally Invasive Gynecologic Surgery,MIGS,605,770.9023504,27.42187609917356,47,5.5244124,0.7024,0.7024,0.91312,8.507692148399348,aggressive_higher,Aggressive Higher (+30%),0.3
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1519.0571016,17.30170668725868,64,7.985724599999999,0.88094,0.8809,0.61663,8.01430091891724,aggressive_lower,Aggressive Lower (-30%),-0.3
+Gynecologic Oncology,GO,1052,1322.4641356,25.70951859315589,75,7.383966099999999,1.00271,1.0027,0.7018899999999999,10.157143056222862,aggressive_lower,Aggressive Lower (-30%),-0.3
+Minimally Invasive Gynecologic Surgery,MIGS,605,781.1012656,29.107647206611578,47,2.9746835999999997,0.7024,0.7024,0.49168,15.79999970417022,aggressive_lower,Aggressive Lower (-30%),-0.3

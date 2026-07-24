@@ -554,7 +554,7 @@ calculate_replacement_gap <- function(retirees_by_subspec, fellowship_grads) {
       projected_grads_5yr = .data$annual_grads * 5,
 
       # Replacement ratio
-      replacement_ratio = safe_divide(.data$projected_grads_5yr, .data$retiring_count, 0),
+      replacement_ratio = safe_divide(.data$projected_grads_5yr, .data$retiring_count, NA_real_),
 
       # Gap analysis
       net_gap = .data$retiring_count - .data$projected_grads_5yr,
@@ -578,7 +578,7 @@ calculate_replacement_gap <- function(retirees_by_subspec, fellowship_grads) {
       total_graduates_projected = total_grad_proj,
       net_gap = overall_gap,
       gap_percentage = overall_gap_pct,
-      replacement_ratio = safe_divide(total_grad_proj, total_retiring, 0)
+      replacement_ratio = safe_divide(total_grad_proj, total_retiring, NA_real_)
     )
   )
 
