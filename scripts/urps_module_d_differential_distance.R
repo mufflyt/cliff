@@ -16,7 +16,8 @@
 # Run:  URPS_OBGYN_POINTS=path/to/all_obgyn_geocoded.csv Rscript scripts/urps_module_d_differential_distance.R
 suppressPackageStartupMessages({ library(data.table); library(sf); library(tigris) })
 options(tigris_use_cache=TRUE, tigris_class="sf"); sf::sf_use_s2(TRUE)
-MI <- 1609.344; NONCONUS <- c("02","15","72","60","66","69","78")
+source("R/conus.R")   # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()
+MI <- 1609.344
 
 read_points <- function(f) {
   d <- fread(f)
@@ -24,7 +25,7 @@ read_points <- function(f) {
   latcol <- grep("^lat|latitude",  names(d), ignore.case=TRUE, value=TRUE)[1]
   if (is.na(loncol) || is.na(latcol)) stop("point file needs lon/lat columns: ", f)
   lo <- d[[loncol]]; la <- d[[latcol]]                        # plain vectors, no dt-scope shadowing
-  keep <- !is.na(lo) & !is.na(la) & lo > -125 & lo < -66 & la > 24 & la < 50   # CONUS box
+  keep <- !is.na(lo) & !is.na(la) & in_conus_bbox(lo, la)   # CONUS box (SSOT: R/conus.R)
   st_as_sf(d[keep], coords=c(loncol, latcol), crs=4326)
 }
 
@@ -53,7 +54,7 @@ if (!file.exists(OBGYN_F)) {
 uro_sf   <- read_points(URO_F)
 obgyn_sf <- read_points(OBGYN_F)
 cty <- st_transform(counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE), 4326)
-cty <- cty[!(cty$STATEFP %in% NONCONUS), ]
+cty <- cty[is_conus_fips(cty$STATEFP), ]
 sf_use_s2(FALSE); ctr <- suppressWarnings(st_centroid(st_geometry(cty))); sf_use_s2(TRUE)
 
 dd <- compute_differential_distance(ctr, cty$GEOID, uro_sf, obgyn_sf)
