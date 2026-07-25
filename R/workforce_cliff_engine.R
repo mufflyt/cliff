@@ -14,17 +14,18 @@
 suppressPackageStartupMessages({library(readr); library(dplyr)})
 
 # ---- constants (verbatim from rebuild_ssot_revised.R) ----------------------
+source(here::here("R", "workforce_constants.R"), local = TRUE)   # canonical WORKFORCE_PROJECTION_HORIZON_YEARS
 WC_BANDS       <- c(0, 45, 50, 55, 60, 65, 70, Inf)
 WC_BAND_LABELS <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
 WC_WIN         <- c(2016L, 2021L)
 WC_AGE_AT_CERT <- 30L
-WC_HORIZON     <- 4L
+WC_HORIZON     <- WORKFORCE_PROJECTION_HORIZON_YEARS   # SSOT: shared with the data contract
 WC_ENTRY_AGE   <- 34L
 WC_REF_YEAR    <- 2024L
 WC_YEAR0       <- 2025L
 WC_OBS_END     <- 2023L
-WC_SUBS      <- c(URPS = "Female Pelvic Medicine & Reconstructive Surgery", GO = "Gynecologic Oncology", MIGS = "MIGS")
-WC_SUBS_FULL <- c(URPS = "Urogynecology and Reconstructive Pelvic Surgery", GO = "Gynecologic Oncology", MIGS = "Minimally Invasive Gynecologic Surgery")
+# WC_SUBS / WC_SUBS_FULL are the canonical subspecialty mappings, now defined in
+# R/workforce_constants.R (sourced above) so both the engine and manuscript lineages share them.
 WC_GRAD      <- list(GO = c(70,73,78,79), URPS = c(61,66,63,66), MIGS = c(47,50,45,47))
 WC_ENTRANTS  <- sapply(WC_GRAD, mean)
 WC_ENTRANTS_NRMP <- c(URPS = 74L, GO = 88L, MIGS = 51L)

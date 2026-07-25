@@ -42,13 +42,23 @@ suppressPackageStartupMessages({
 # comparable. The prior separate 5-year fellowship-report horizon was removed
 # on 2026-07-15 — mixing a 5-year fellowship count with 4-year retirements was
 # an apples-to-oranges trap.
-WORKFORCE_PROJECTION_HORIZON_YEARS <- 4L
+# Canonical definition lives in R/workforce_constants.R (single source of truth,
+# shared with the projection engine so the two cannot drift).
+source(here::here("R", "workforce_constants.R"), local = TRUE)
 
-# Monte Carlo iteration count (frozen archival simulation; no live re-run exists).
-WORKFORCE_MONTE_CARLO_ITERATIONS <- 1000L
+# Monte Carlo iteration count of the frozen archival projection simulation (no live re-run exists).
+# Corrected 2026-07-25 from a stale 1000L to 10000L: the manuscript Methods and the supply-line
+# figure caption both state the projection Monte Carlo used 10,000 iterations. The constant was a
+# dead alias (only re-exported as N_MONTE_CARLO_ITERATIONS, never consumed), so this is a
+# documentation correction with no behavioral effect; the manuscript now derives its stated count
+# from this constant so the two cannot diverge again.
+WORKFORCE_MONTE_CARLO_ITERATIONS <- 10000L
 
-# Parametric 95% CI multiplier (mean +/- z * SD).
-WORKFORCE_CI_Z95 <- 1.96
+# Parametric 95% CI multiplier (mean +/- z * SD). Canonical definition now lives in
+# R/workforce_constants.R (sourced above, line 47) so the manuscript, the supply figure,
+# and the NRMP rebuild all share one z-multiplier and cannot drift. Re-exported here for
+# consumers that source only the contract; not redefined.
+stopifnot(exists("WORKFORCE_CI_Z95"))   # must arrive from workforce_constants.R
 
 # Replacement-ratio labels are descriptive of HEADCOUNT replacement balance only
 # (graduates / departures), NOT of adequacy relative to population demand. A ratio

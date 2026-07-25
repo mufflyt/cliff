@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-source(here::here("R", "wc_path.R"))
+source(here::here("R", "workforce_cliff_engine.R"))   # SSOT: study constants (WC_*) + wc_path()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Pooled vs unpooled age-band departure hazards (peer review #4 + pooling concern).
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,10 +22,11 @@ source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 suppressPackageStartupMessages({library(here); library(readr); library(dplyr)})
-BANDS <- c(0,45,50,55,60,65,70,Inf); BL <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
+# Study constants: SSOT = R/workforce_cliff_engine.R (WC_*).
+BANDS <- WC_BANDS; BL <- WC_BAND_LABELS
 band_of <- function(a) as.character(cut(a, BANDS, labels=BL, right=FALSE))
-AGE_AT_CERT <- 30L; REF_YEAR <- 2024L; WIN <- c(2016L,2021L)
-SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery", GO="Gynecologic Oncology", MIGS="MIGS")
+AGE_AT_CERT <- WC_AGE_AT_CERT; REF_YEAR <- WC_REF_YEAR; WIN <- WC_WIN
+SUBS <- WC_SUBS
 
 coh <- read_csv(wc_path("cohort_csv"),
                 show_col_types=FALSE, guess_max=1e5) %>%

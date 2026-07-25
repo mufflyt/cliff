@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-source(here::here("R", "wc_path.R"))
+source(here::here("R", "workforce_cliff_engine.R"))   # SSOT: study constants (WC_*) + wc_path()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Scenario-based workforce projection trajectories (2025-2029) for Figure 1A,
 # following the fixed-entrant scenario design of Shah et al. (uveitis forecast):
@@ -17,15 +17,17 @@ source(here::here("R", "wc_path.R"))
 suppressPackageStartupMessages({library(dplyr); library(readr); library(here)})
 set.seed(20260718L)
 
-BANDS <- c(0,45,50,55,60,65,70,Inf); BL <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
+# Study constants: SSOT = R/workforce_cliff_engine.R (WC_*). This script previously
+# duplicated the entire block as literals; it now aliases the canonical values so it
+# cannot drift. N_BOOT is script-specific (this figure's bootstrap count).
+BANDS <- WC_BANDS; BL <- WC_BAND_LABELS
 band_of <- function(a) as.character(cut(a, BANDS, labels=BL, right=FALSE))
-WIN <- c(2016L,2021L); AGE_AT_CERT <- 30L; ENTRY_AGE <- 34L; REF_YEAR <- 2024L
-YEAR0 <- 2025L; HORIZON <- 4L; N_BOOT <- 2000L
-SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery", GO="Gynecologic Oncology", MIGS="MIGS")
-SUBS_FULL <- c(URPS="Urogynecology and Reconstructive Pelvic Surgery",
-               GO="Gynecologic Oncology", MIGS="Minimally Invasive Gynecologic Surgery")
-GRAD <- list(GO=c(70,73,78,79), URPS=c(61,66,63,66), MIGS=c(47,50,45,47))
-NRMP <- c(GO=88, URPS=74, MIGS=51)
+WIN <- WC_WIN; AGE_AT_CERT <- WC_AGE_AT_CERT; ENTRY_AGE <- WC_ENTRY_AGE; REF_YEAR <- WC_REF_YEAR
+YEAR0 <- WC_YEAR0; HORIZON <- WC_HORIZON; N_BOOT <- 2000L
+SUBS <- WC_SUBS
+SUBS_FULL <- WC_SUBS_FULL
+GRAD <- WC_GRAD
+NRMP <- WC_ENTRANTS_NRMP
 
 # ---- cohort (ABOG) + ABU net-new for URPS -------------------------------------
 coh <- read_csv(wc_path("cohort_csv"),

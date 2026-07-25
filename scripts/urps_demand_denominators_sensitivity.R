@@ -48,6 +48,20 @@ d <- read_csv(CSV, show_col_types = FALSE) %>% arrange(YEAR)
 BASE <- 2025L
 stopifnot(BASE %in% d$YEAR)
 
+# --- verified citation anchors (single source; kept in sync with URPS_DEMAND_DENOMINATOR_SENSITIVITY.md,
+#     enforced by a code<->doc guard test) ---
+# Kirby AC et al., Am J Obstet Gynecol 2013;209(6):584.e1-5 — national new PFD-care visits.
+KIRBY_VISITS_2010 <- 1218371L
+KIRBY_VISITS_2030 <- 1644804L
+# Wu JM et al., Am J Obstet Gynecol 2011 — national SUI + POP surgery volume (totals).
+#   2010: SUI 210,700 + POP 166,000 = 376,700 (decomposition checks out below).
+#   2050: SUI 310,050 + POP 245,970. The frozen analysis + doc use 555,020, but the component sum
+#   is 556,020 — a 1,000-off arithmetic slip in the original figure. Kept at 555,020 to preserve the
+#   frozen D3 output; flagged in docs/SSOT_LEDGER.md for deliberate correction (moves D3 by <0.2%).
+WU2011_SURG_2010 <- 376700L
+WU2011_SURG_2050 <- 555020L
+stopifnot(210700L + 166000L == WU2011_SURG_2010)
+
 # --- constant-growth index builder from two published anchor totals ----------
 # Returns an index (base_year = 100) for every year in `years`, using the
 # geometric annual growth implied by (v0 @ y0) -> (v1 @ y1).
@@ -64,11 +78,11 @@ anchor_index <- function(years, y0, v0, y1, v1, base = BASE) {
 D1 <- d$pfd_index
 
 # --- D2 New specialty consultations (Kirby 2013) -----------------------------
-k <- anchor_index(d$YEAR, 2010, 1218371, 2030, 1644804)
+k <- anchor_index(d$YEAR, 2010, KIRBY_VISITS_2010, 2030, KIRBY_VISITS_2030)
 D2 <- k$index
 
 # --- D3 Surgical volume, SUI + POP (Wu 2011) ---------------------------------
-w <- anchor_index(d$YEAR, 2010, 376700, 2050, 555020)
+w <- anchor_index(d$YEAR, 2010, WU2011_SURG_2010, 2050, WU2011_SURG_2050)
 D3 <- w$index
 
 # --- supply (both-pathway urogynecologist workforce projection) --------------
