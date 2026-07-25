@@ -8,7 +8,7 @@
 #     pooled age-band departure hazard + 64 entrants/yr at age 34), projected
 #     forward from the 1,339 active baseline.
 suppressPackageStartupMessages({library(data.table)})
-SCR <- "/Users/tylermuffly/Library/Caches/claude-code-tmp/claude-501/-Users-tylermuffly-isochrones/5b8acb2f-8ebf-4a3f-b93c-042bbf0bc68c/scratchpad"
+SCR <- here::here("data", "census")
 source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV, BAND_PY, BAND_LABELS
 
 ## ── DEMAND: Census female population by age band, per year (mid + low/high) ──

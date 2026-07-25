@@ -1,6 +1,3 @@
-RENV_LIB <- "/Users/tylermuffly/isochrones/renv/library/R-4.5/x86_64-apple-darwin20"
-.libPaths(c(RENV_LIB, .libPaths()))
-
 library(testthat)
 library(here)
 source(here("R", "safe_divide.R"))

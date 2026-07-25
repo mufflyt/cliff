@@ -18,7 +18,7 @@
 # (extracted 2026-07-23); Census 2023 National Population Projections (mid).
 
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
-SCR <- "/Users/tylermuffly/Library/Caches/claude-code-tmp/claude-501/-Users-tylermuffly-isochrones/5b8acb2f-8ebf-4a3f-b93c-042bbf0bc68c/scratchpad"
+SCR <- here::here("data", "census")
 EXTRACT_DATE <- "2024 PUF (PHY_R26...D24), extracted 2026-07-23"
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 
