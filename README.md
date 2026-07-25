@@ -121,10 +121,8 @@ Interactive explorers built from this repo's model:
 |---|---|---|
 | **Urogynecology Workforce Replacement Explorer** | Projects active urogynecologist headcount under adjustable fellowship-inflow, departure-rate, and graduate-conversion scenarios | **[▶ Live app](https://tyler-muffly.shinyapps.io/urps-workforce-explorer/)** · `shiny::runApp("shiny_urps_scenarios")` |
 | **Urogynecology Effective-Adequacy Explorer** | Supply-vs-demand adequacy and capacity margin, with a slider for urologists' share of clinical time in urogynecology — productivity-adjusted capacity, "beyond the head count" | `shiny::runApp("shiny_urps_adequacy")` *(run locally)* |
-| Retirement Cliff Simulator | Population coverage drop as the oldest physicians retire first, with rural/urban equity breakdown | `shiny::runApp("app")` *(run locally)* |
 
-Only the Workforce Replacement Explorer is currently deployed to shinyapps.io; the
-other two run locally from a clone.
+Both apps can also be run locally from a clone with `shiny::runApp()`.
 
 ---
 
