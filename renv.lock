@@ -4514,6 +4514,16 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
+    "mufflyaccess": {
+      "Package": "mufflyaccess",
+      "Version": "0.1.4",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "mufflyaccess",
+      "RemoteUsername": "mufflyt",
+      "RemoteRef": "v0.1.4"
+    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-169",
