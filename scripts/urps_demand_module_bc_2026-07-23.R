@@ -9,7 +9,7 @@
 #      (demand and productivity both on the Medicare basis, so the all-payer
 #      undercount largely cancels in the adequacy ratio).
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
-SCR <- "/Users/tylermuffly/Library/Caches/claude-code-tmp/claude-501/-Users-tylermuffly-isochrones/5b8acb2f-8ebf-4a3f-b93c-042bbf0bc68c/scratchpad"
+SCR <- here::here("data", "census")
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 sq <- function(v) paste0("(", paste0("'", v, "'", collapse=","), ")")
 
