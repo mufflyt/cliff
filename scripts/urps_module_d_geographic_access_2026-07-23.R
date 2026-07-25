@@ -52,7 +52,7 @@ if (file.exists(acs_cache)) {
   w65 <- fread(acs_cache)
 } else {
   vars <- sprintf("B01001_%03d", 44:49)  # female 65-66,67-69,70-74,75-79,80-84,85+
-  acs <- get_acs("county", variables=vars, year=2023, survey="acs5", cache_table=TRUE)
+  acs <- get_acs("county", variables=vars, year=CENSUS_VINTAGE_YEAR, survey="acs5", cache_table=TRUE)
   setDT(acs)
   w65 <- acs[, .(women_65plus=sum(estimate),
                  moe=tidycensus::moe_sum(moe, estimate)), by=.(GEOID)]
@@ -61,7 +61,7 @@ if (file.exists(acs_cache)) {
 w65 <- w65[is_conus_fips(GEOID)]
 
 ## ── 3. county geometry + centroids (CONUS) ───────────────────────────────────
-cty <- counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE)
+cty <- counties(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE)
 cty <- st_transform(cty, 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]   # SSOT (R/conus.R); drops AK/HI + territories = 48 states + DC
 cty <- merge(cty, w65, by="GEOID", all.x=TRUE)

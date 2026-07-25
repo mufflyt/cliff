@@ -53,7 +53,7 @@ if (!file.exists(OBGYN_F)) {
 
 uro_sf   <- read_points(URO_F)
 obgyn_sf <- read_points(OBGYN_F)
-cty <- st_transform(counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE), 4326)
+cty <- st_transform(counties(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE), 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]
 sf_use_s2(FALSE); ctr <- suppressWarnings(st_centroid(st_geometry(cty))); sf_use_s2(TRUE)
 

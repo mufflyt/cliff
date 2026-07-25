@@ -55,3 +55,38 @@ stopifnot(
 in_conus_bbox <- function(lon, lat) {
   lon > CONUS_LON[1] & lon < CONUS_LON[2] & lat > CONUS_LAT[1] & lat < CONUS_LAT[2]
 }
+
+# ── 3. Census geography vintage year ─────────────────────────────────────────
+# CENSUS_VINTAGE_YEAR
+#   Meaning : the Census vintage year used for BOTH the ACS 5-year data pull
+#             (tidycensus::get_acs(year=)) AND the TIGER/Line boundary pull (tigris::counties/states(year=)).
+#             The two MUST be the same year: the geographic-access step merges ACS county estimates onto the
+#             tigris county polygons BY GEOID, so a boundary-vs-data vintage mismatch silently breaks the join
+#             (e.g. the 2022+ Connecticut planning-region GEOIDs vs 2020 county GEOIDs). Boundary vintage is
+#             keyed off the ACS year here, never a separate literal.
+#   Units   : calendar year (integer).
+#   Range   : a 4-digit ACS/TIGER release year.
+#   Source  : study design (the 2019-2023 ACS 5-year vintage; 2020-based boundaries).
+#   Consumers: scripts/urps_module_d_{differential_distance,differential_map,geographic_access,map}.R
+CENSUS_VINTAGE_YEAR <- 2023L
+stopifnot(
+  is.integer(CENSUS_VINTAGE_YEAR), length(CENSUS_VINTAGE_YEAR) == 1L, !is.na(CENSUS_VINTAGE_YEAR),
+  CENSUS_VINTAGE_YEAR >= 2009L, CENSUS_VINTAGE_YEAR <= 2100L,
+  CENSUS_VINTAGE_YEAR == 2023L   # pin the published vintage; a change moves ACS + boundaries together, deliberately
+)
+
+# CENSUS_CB_RESOLUTION
+#   Meaning : the tigris cartographic-boundary generalization used for EVERY module-D county/state pull
+#             (tigris::counties/states(cb=TRUE, resolution=)). It MUST be the same across the scripts: the
+#             differential-distance and geographic-access steps both compute county-CENTROID-to-provider
+#             distances, and a different boundary generalization shifts the centroids -> different distances
+#             for the same county. Kept alongside CENSUS_VINTAGE_YEAR so the geometry inputs match.
+#   Units   : tigris resolution string ("20m" = 1:20,000,000; also valid: "5m", "500k").
+#   Range   : one of tigris's cartographic-boundary resolutions.
+#   Source  : study design (national-scale choropleth generalization).
+#   Consumers: scripts/urps_module_d_{differential_distance,differential_map,geographic_access,map}.R
+CENSUS_CB_RESOLUTION <- "20m"
+stopifnot(
+  is.character(CENSUS_CB_RESOLUTION), length(CENSUS_CB_RESOLUTION) == 1L, !is.na(CENSUS_CB_RESOLUTION),
+  CENSUS_CB_RESOLUTION %in% c("20m", "5m", "500k")   # valid tigris cb resolutions
+)

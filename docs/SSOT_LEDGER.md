@@ -1728,3 +1728,80 @@ intentional (N_BOOT), frozen, schema-tied, or shiny-self-contained.
 
 **Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 27-28 files (uncommitted since
 the `bacb1a5` push).
+**NOTE:** iterations 27-28 committed & pushed as `7f2a6ac` (2026-07-25).
+
+---
+
+## Iteration 29 — Census vintage year (2023) → `R/conus.R::CENSUS_VINTAGE_YEAR`
+
+**Candidate: the Census vintage year `2023`** — the tigris boundary vintage (`counties/states(year=2023)`, 5
+sites) AND the ACS data year (`get_acs(year=2023)`, 1 site), 6 sites across the 4 module-D scripts. Found via a
+verification-pass broad scan (all 28 prior guards re-confirmed 391/0 first).
+
+**Why high-risk:** `geographic_access` merges ACS county estimates onto tigris county polygons **by GEOID**;
+the ACS data year and the boundary year MUST match or the join silently breaks (the 2022+ Connecticut
+planning-region GEOIDs vs 2020 county GEOIDs — a documented failure mode). Two independent literals per the
+project's own "boundary vintage keyed off the ACS year" rule → one concept that must move together.
+
+**Discrepancy / adjudication:** the tigris `year=` and the ACS `year=` are the SAME concept (not intentionally
+different) — the boundary vintage is keyed off the ACS year, and both must produce matching GEOIDs. Single-
+sourcing enforces that. Not the isochrone TARGET_YEAR (a different concept, not present here).
+
+**Canonical:** `R/conus.R::CENSUS_VINTAGE_YEAR <- 2023L` (the geographic module all 4 scripts already source
+since iter 17 — zero new source lines). Integer, pinned `== 2023L`.
+
+**Files changed:** `R/conus.R` (+ constant + validation); the 4 `urps_module_d_*` scripts (`year=2023` →
+`year=CENSUS_VINTAGE_YEAR`, 6 sites); new `tests/testthat/test-ssot-census-vintage-year.R`.
+
+**Hardcoded copies removed:** 6 → 0. Behavior-preserving (`== 2023L`); all 4 scripts parse.
+
+**Validation guard:** integer, range, pinned `== 2023L`.
+
+**Tests added:** `test-ssot-census-vintage-year.R` (18): value pinned; **adversarial** (all 4 derive it, no
+bare `year=2023`, source conus.R); **semantic** (geographic_access's `get_acs(year=)` and `counties(year=)`
+share the ONE constant — the GEOID-match contract).
+
+**Initial failures:** none. **Final: census-vintage-year 18/0; all 29 SSOT guards 409/0.**
+
+**Remaining risks:** none for this value. Pool remains otherwise exhausted; verification cadence recommended.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 29 files only.
+
+---
+
+## Iteration 30 — tigris cartographic-boundary resolution ("20m") → `R/conus.R::CENSUS_CB_RESOLUTION`
+
+**Candidate: `resolution="20m"`** — the tigris cartographic-boundary generalization in every module-D
+county/state pull (`counties/states(cb=TRUE, resolution="20m")`), 5 sites across the 4 module-D scripts. Sits
+alongside the iter-29 `CENSUS_VINTAGE_YEAR` in the same calls.
+
+**Why (chosen over `crs=4326`):** the differential-distance and geographic-access steps both compute county-
+CENTROID-to-provider distances; a different boundary generalization shifts the centroids, giving different
+distances for the same county — so the resolution must be consistent for the two distance metrics to be
+comparable. `crs=4326` (WGS84) was the alternative but it is a universal standard with ~zero drift (like
+per-100k / guess_max) → lower value; noted, not taken.
+
+**Canonical:** `R/conus.R::CENSUS_CB_RESOLUTION <- "20m"` (the geographic module all 4 scripts already source;
+zero new source lines). Validated: single non-NA character, one of tigris's valid cb resolutions.
+
+**Files changed:** `R/conus.R` (+ constant + validation); the 4 `urps_module_d_*` scripts (`resolution="20m"`
+→ `resolution=CENSUS_CB_RESOLUTION`, 5 sites); new `tests/testthat/test-ssot-census-cb-resolution.R`.
+
+**Hardcoded copies removed:** 5 → 0. Behavior-preserving (`== "20m"`); all 4 scripts parse.
+
+**Validation guard:** character scalar, in {"20m","5m","500k"}.
+
+**Tests added:** `test-ssot-census-cb-resolution.R` (17): value pinned; **adversarial** (all boundary pulls
+derive it, no bare `"20m"`, source conus.R); **semantic** (both distance-computing scripts share the ONE
+constant so centroids align).
+
+**Initial failures:** none. **Final: census-cb-resolution 17/0; all 30 SSOT guards 426/0.**
+
+**Remaining risks:** none for this value. `crs=4326` remains hardcoded (universal WGS84 standard, deliberately
+not canonicalised — over-engineering). The pool is otherwise exhausted; verification cadence recommended.
+
+**Recommended next candidate:** none clean/high-value remaining. `crs=4326` only if a future re-projection
+introduces a second CRS worth naming. Otherwise: verify + commit cadence.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 29-30 files (uncommitted since
+the `7f2a6ac` push).
