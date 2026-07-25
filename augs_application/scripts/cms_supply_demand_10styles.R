@@ -6,10 +6,10 @@ suppressPackageStartupMessages({
 ft <- tryCatch({ f <- systemfonts::system_fonts()$family
   if ("Inter" %in% f) "Inter" else "sans" }, error = function(e) "sans")
 
-OUT <- "figures/cms_styles"
+OUT <- here::here("augs_application","figures","cms_styles")
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 
-d <- read_csv("data/urps_supply_demand_national_2026-07-23.csv", show_col_types = FALSE) %>%
+d <- read_csv(here::here("data","urps_supply_demand_national_2026-07-23.csv"), show_col_types = FALSE) %>%
   mutate(demand_equiv    = 1339 * w65_index/100,        # physicians to hold 2025 status quo
          demand_equiv_lo = 1339 * w65_lo_index/100,
          demand_equiv_hi = 1339 * w65_hi_index/100,
