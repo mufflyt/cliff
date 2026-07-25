@@ -1619,3 +1619,112 @@ OR a verification/commit pass — the clean in-repo pool is now essentially exha
 
 **Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-26 files (uncommitted since
 the `eb6862b` push).
+**NOTE:** iterations 18-26 were committed & pushed to `origin/main` as `bacb1a5` (2026-07-25).
+
+---
+
+## Iteration 27 — read_csv `guess_max` default (1e5) → `R/wc_path.R::READ_GUESS_MAX_ROWS`
+
+**Candidate: the `guess_max=1e5` read default.** Copy-pasted across **6 scripts / 10 sites** (the read-heavy
+regeneration + sensitivity scripts). The last cross-file literal duplicate in the repo.
+
+**Why (and why it's low-value but legitimate):** `N_BOOT` was audited first and STOPPED — it is explicitly
+script-specific (300 in hierarchical-hazard, 2000 in scenario-projection, both documented "script-specific"),
+an intentional difference. `guess_max=1e5` is a genuine cross-file duplicate; it affects no published number
+(a type-inference row hint, near-zero drift), but single-sourcing it (a) removes the last bare `1e5` in the
+repo and completes the disambiguation started in iter 25 (per-100k `RATE_PER_100K` vs this read hint), and
+(b) prevents a future script silently using a different `guess_max` and mis-typing a wide column.
+
+**Canonical:** `R/wc_path.R::READ_GUESS_MAX_ROWS <- 1e5` — the shared, lightweight, side-effect-free I/O module
+every consumer already reaches (4 via `workforce_cliff_engine.R` → `wc_path.R`; 2 source `wc_path.R` directly),
+so ZERO new source lines. Numeric, pinned `== 1e5`.
+
+**Discrepancy / adjudication:** the same literal `1e5` is ALSO `R/units.R::RATE_PER_100K` (the per-100k rate
+base) — a **different concept**, kept as a separate constant (guarded both ways). `N_BOOT` differences are
+intentional (not touched).
+
+**Files changed:** `R/wc_path.R` (+ constant + validation); the 6 consumer scripts (`guess_max=1e5` →
+`guess_max=READ_GUESS_MAX_ROWS`, 10 sites); new `tests/testthat/test-ssot-read-guess-max.R`; **updated**
+`tests/testthat/test-ssot-rate-per-100k.R` (one obsolete assertion — see failures).
+
+**Hardcoded copies removed:** 10 → 0. Behavior-preserving (`READ_GUESS_MAX_ROWS == 1e5`, `read_csv` unchanged);
+all 6 scripts parse; reachable in real execution (engine-global and direct-source paths both confirmed).
+
+**Validation guards:** numeric scalar, pinned `== 1e5`.
+
+**Tests added:** `test-ssot-read-guess-max.R` (19): value pinned; behavior-preserving; **adversarial** (all 6
+use the constant, no bare `guess_max=1e5`); **intentional-difference** (it lives in `wc_path.R` and is a
+distinct constant from `units.R::RATE_PER_100K` despite the equal value).
+
+**Initial failures:** 1 — `test-ssot-rate-per-100k.R` (iter 25) pinned the literal `guess_max=1e5` in
+`build_hazard_comparison.R` as its intentional-difference example; iter 27 canonicalised it. Classified as
+**obsolete test tied to the old literal**; updated to assert `guess_max=READ_GUESS_MAX_ROWS` (intent
+preserved + stronger — both concepts now named constants).
+
+**Final results:** read-guess-max 19/0; all **27 SSOT guards 381/0**.
+
+**Remaining risks:** none for this value. **The clean in-repo cross-file duplicate pool is now exhausted**
+(27 iterations). Remaining hardcoded values are single-site, intentional (N_BOOT, literature anchors, the
+Medicare table-name vintage 2024), frozen, or shiny-self-contained. Further iterations would be low-value;
+recommend shifting to a **verification pass** (re-run all 27 guards periodically) rather than forcing new SSOTs.
+
+**Recommended next candidate:** none clean remaining. If pressed: the Medicare data-vintage `2024` in table
+names (`medicare_part_b_by_service_2024`) — but it is DB-schema-tied and risky, so likely STOP. Better: a
+verification/commit cadence.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 27 files only.
+
+---
+
+## Iteration 28 — PRIMARY pooled subspecialties (GO+URPS) → wire `build_hazard_comparison` to `WC_PRIMARY`
+
+**Candidate: the primary-subspecialty pair `c("GO","URPS")`.** `WC_PRIMARY` (the GO+URPS pool used for the
+pooled age-band hazard, MIGS excluded) is the engine SSOT and is consumed via `PRIMARY <- WC_PRIMARY` by
+`graduate_growth_scenarios` and `hierarchical_hazard_partial_pooling` — but `build_hazard_comparison.R`
+hardcoded `c("GO","URPS")` twice (the pool filter at :54 and the `rate_tbl` label at :84). An un-wired consumer
+of an established SSOT (the iter-26 pattern). So the iter-27 "pool exhausted" note was slightly premature —
+this one remained.
+
+**Why higher-risk than alternatives:** it defines WHICH subspecialties are pooled for the published hazard
+comparison. If the hardcoded pair drifted from `WC_PRIMARY` (e.g. the study scope changed, or MIGS were
+un-excluded), `build_hazard_comparison` would silently pool the wrong set and mis-estimate the hazard — a
+published model input. Higher-value than the remaining read/display literals.
+
+**Canonical:** `R/workforce_cliff_engine.R::WC_PRIMARY <- c("GO","URPS")` (unchanged). This iteration wires the
+last un-wired consumer.
+
+**Discrepancy / adjudication:** the `:54` filter (`%in%`) is unambiguously the pool (order-independent) → wired
+to `PRIMARY`. The `:84` `rate_tbl` block lists the pair as the row LABEL, aligned with value columns hardcoded
+in GO-then-URPS order (`rate_of("GO",…)`, `rate_of("URPS",…)`). The label now derives from `PRIMARY`, and a
+fail-loud `stopifnot(identical(PRIMARY, c("GO","URPS")))` guards the order the hardcoded value vectors assume
+(so the label can't silently misalign if `WC_PRIMARY` is ever reordered). The per-subspecialty `rate_of("GO"/
+"URPS")` calls stay (they are inherently per-subspecialty computations, now order-guarded); fully deriving them
+via a `sapply(PRIMARY, …)` + HZ-lookup restructure is out of scope (behaviour-risky, unrunnable here).
+
+**Files changed:** `scripts/build_hazard_comparison.R` (+ `PRIMARY <- WC_PRIMARY`; `%in% PRIMARY`;
+`subspecialty_abbrev = PRIMARY` + the alignment guard); new `tests/testthat/test-ssot-primary-subspecialties.R`.
+
+**Hardcoded copies removed:** 2 (the filter + the label). The only remaining `c("GO","URPS")` is the alignment
+**guard** (a contract assertion, not a data definition). Behavior-preserving: `%in% PRIMARY == %in% c("GO",
+"URPS")` and `subspecialty_abbrev = PRIMARY` == the prior label (verified); script parses.
+
+**Validation guard:** the fail-loud `identical(PRIMARY, c("GO","URPS"))` before `rate_tbl`.
+
+**Tests added:** `test-ssot-primary-subspecialties.R` (10): `WC_PRIMARY == c("GO","URPS")` + MIGS excluded;
+**behavior-preserving** (`%in%` mask identical); **adversarial** (build_hazard uses `PRIMARY` for alias/filter/
+label, no literal filter/label remains); **consistency** (the two sibling scripts also alias `PRIMARY <- WC_PRIMARY`).
+
+**Initial failures:** none — narrow 10/0 first run.
+
+**Final results:** primary-subspecialties 10/0; all **28 SSOT guards 391/0**.
+
+**Remaining risks:** none for this value. The `rate_of("GO"/"URPS")` per-subspecialty calls remain (order-
+guarded); a future full `sapply(PRIMARY,…)` restructure would remove even those but needs the data to verify.
+**With this, the clean cross-file duplicate pool is genuinely exhausted** — remaining literals are single-site,
+intentional (N_BOOT), frozen, schema-tied, or shiny-self-contained.
+
+**Recommended next candidate:** none clean remaining — recommend the verification/commit cadence (re-run the
+28 guards periodically). If a specific new number enters the manuscript, add its SSOT + guard then.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 27-28 files (uncommitted since
+the `bacb1a5` push).

@@ -31,8 +31,9 @@ test_that("[adversarial] all 3 producers use RATE_PER_100K; no bare 1e5* rate li
 })
 
 test_that("[intentional difference preserved] guess_max=1e5 is a data-loading hint, NOT the rate base", {
-  # a script that uses guess_max=1e5 keeps it as a literal and does NOT reroute it through RATE_PER_100K
+  # the read guess_max is its OWN constant (READ_GUESS_MAX_ROWS, iter 27) — a different concept from the
+  # per-100k rate base, so a guess_max script uses that constant and does NOT reroute through RATE_PER_100K
   bh <- readLines(here::here("scripts", "build_hazard_comparison.R"), warn = FALSE)
-  expect_true(any(grepl("guess_max=1e5", bh)))
+  expect_true(any(grepl("guess_max=READ_GUESS_MAX_ROWS", bh)))
   expect_false(any(grepl("RATE_PER_100K", bh)))
 })

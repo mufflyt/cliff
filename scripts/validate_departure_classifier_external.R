@@ -44,7 +44,7 @@ SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery",
           GO="Gynecologic Oncology", MIGS="MIGS")
 
 # ---- test: classifier labels for the 3 surgical subspecialties -------------
-coh <- read_csv(COHORT, show_col_types=FALSE, guess_max=1e5) %>%
+coh <- read_csv(COHORT, show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   filter(subspecialty %in% unname(SUBS)) %>%
   transmute(npi=as.character(npi),
             subspec=names(SUBS)[match(subspecialty,SUBS)],
@@ -53,7 +53,7 @@ coh <- read_csv(COHORT, show_col_types=FALSE, guess_max=1e5) %>%
   distinct(npi,.keep_all=TRUE) %>% filter(!is.na(subspec), !is.na(test_departed))
 
 # ---- reference: collapse registry to one INDEPENDENT label per NPI ---------
-reg <- read_csv(REG, show_col_types=FALSE, guess_max=1e5) %>%
+reg <- read_csv(REG, show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   transmute(npi=as.character(npi), lifecycle_state=tolower(lifecycle_state),
             ref_year=suppressWarnings(as.integer(retirement_year)))
 DEFINITIVE <- c("retired","revoked","surrendered","suspended")

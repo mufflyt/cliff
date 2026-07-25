@@ -19,7 +19,7 @@ WIN <- WC_WIN; AGE_AT_CERT <- WC_AGE_AT_CERT; REF_YEAR <- WC_REF_YEAR; HORIZON <
 band_of <- function(age) as.character(cut(age, BANDS, labels=BL, right=FALSE))
 
 coh <- read_csv(wc_path("cohort_csv"),
-                show_col_types=FALSE, guess_max=1e5) %>%
+                show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   filter(subspecialty=="Female Pelvic Medicine & Reconstructive Surgery", !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), cert_year=as.integer(cert_year),
             ry=suppressWarnings(as.integer(retirement_year)),
@@ -42,7 +42,7 @@ haz_for <- function(age, mult=1){ h<-HAZ[band_of(age)]*mult; h[is.na(h)]<-max(HA
 
 abog_ages <- coh %>% filter(ret==FALSE, !is.na(age)) %>% pull(age)
 abu_cw <- read_csv(wc_path("abu_crosswalk"),
-                   show_col_types=FALSE, guess_max=1e5) %>%
+                   show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
 abu_nn <- trimws(gsub('"','', readLines(
   wc_path("abu_net_new"))))

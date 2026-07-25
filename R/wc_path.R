@@ -28,3 +28,20 @@ wc_path <- function(key, must_exist = FALSE) {
   p
 }
 wc_duckdb_path <- function() wc_path("signals_duckdb")
+
+# READ_GUESS_MAX_ROWS
+#   Meaning : the readr::read_csv() `guess_max` default shared by the read-heavy regeneration/sensitivity
+#             scripts — scan this many rows to infer column types on the large roster/crosswalk CSVs, so a
+#             wide column is never mis-typed from a small sample. Co-located in this lightweight, side-effect-
+#             free I/O module because every consumer already reaches it (directly or via the engine).
+#   Units   : rows (numeric, matching read_csv's guess_max).
+#   Range   : exactly 1e5.
+#   Source  : project convention (large-file type-inference robustness).
+#   Consumers: scripts/{abu_pathway_sensitivity,build_hazard_comparison,departure_anchor,
+#             hierarchical_hazard_partial_pooling,scenario_projection_trajectories,validate_departure_classifier_external}.R
+#   NOT: the per-100,000 rate base (R/units.R::RATE_PER_100K, also 1e5 but a rate multiplier, a different concept).
+READ_GUESS_MAX_ROWS <- 1e5
+stopifnot(
+  is.numeric(READ_GUESS_MAX_ROWS), length(READ_GUESS_MAX_ROWS) == 1L,
+  !is.na(READ_GUESS_MAX_ROWS), READ_GUESS_MAX_ROWS == 1e5
+)
