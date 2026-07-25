@@ -10,7 +10,11 @@
 library(testthat); suppressPackageStartupMessages(library(data.table))
 
 .here <- function(p) {
-  for (r in c(".", "..", "../..", "../../..")) if (file.exists(file.path(r,p))) return(file.path(r,p))
+  # Resolve under either the isochrones layout (cliff/data/...) or the standalone
+  # cliff repo layout (data/...), searched up to a few parent directories.
+  cands <- unique(c(p, sub("^cliff/", "", p)))
+  for (r in c(".", "..", "../..", "../../..")) for (q in cands)
+    if (file.exists(file.path(r, q))) return(file.path(r, q))
   p
 }
 FROZEN <- fread(.here("cliff/data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
