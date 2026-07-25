@@ -13,3 +13,4 @@ renv/sandbox/
 .DS_Store
 *.utf8.md
 *.knit.md
+data/enrichment_inputs/

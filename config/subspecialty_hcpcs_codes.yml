@@ -1,0 +1,1197 @@
+# =============================================================================
+# Subspecialty-Defining HCPCS Codes
+# =============================================================================
+# Two sources combined:
+#   1. Empirically derived from Medicare Part B by-service 2022 data
+#      (>=3 physicians billing, >=80% specificity to one subspecialty)
+#   2. Clinically curated codes for subspecialties with low Medicare
+#      visibility (REI, MFM, PAG) -- these patients are pre-Medicare age
+#      so empirical derivation from Medicare misses them
+#
+# Generated: 2026-05-16
+# Updated: 2026-05-16 (added REI embryology, MFM ultrasound, PAG codes)
+# =============================================================================
+
+female_pelvic_medicine_reconstructive_surgery:
+  label: "Female Pelvic Medicine & Reconstructive Surgery"
+  n_defining_codes: 89
+  codes:
+    - code: "51741"
+      description: "Electronic assessment of bladder emptying"
+      n_physicians: 480
+      total_services: 25687
+      specificity_pct: 98
+    - code: "51797"
+      description: "Insertion of device into abdomen with pressure and urine flow rate study"
+      n_physicians: 443
+      total_services: 18756
+      specificity_pct: 98
+    - code: "51784"
+      description: "Non-needle measurement and recording of electrical activity of muscles at bladde"
+      n_physicians: 430
+      total_services: 20883
+      specificity_pct: 98
+    - code: "51701"
+      description: "Insertion of temporary bladder tube"
+      n_physicians: 402
+      total_services: 44054
+      specificity_pct: 99
+    - code: "51729"
+      description: "Complex measurement of pressure of urine flow in bladder with urethra pressure a"
+      n_physicians: 391
+      total_services: 16802
+      specificity_pct: 98
+    - code: "52000"
+      description: "Diagnostic exam of bladder and urethra using an endoscope"
+      n_physicians: 374
+      total_services: 14594
+      specificity_pct: 94
+    - code: "57288"
+      description: "Creation of sling around urethra in female to control leakage"
+      n_physicians: 337
+      total_services: 7801
+      specificity_pct: 99
+    - code: "51798"
+      description: "Ultrasound measurement of bladder capacity after voiding"
+      n_physicians: 308
+      total_services: 36613
+      specificity_pct: 97
+    - code: "57160"
+      description: "Fitting and insertion of vaginal support device"
+      n_physicians: 307
+      total_services: 10424
+      specificity_pct: 97
+    - code: "81003"
+      description: "Automated urinalysis test"
+      n_physicians: 282
+      total_services: 44721
+      specificity_pct: 84
+    - code: "81002"
+      description: "Urinalysis, manual test"
+      n_physicians: 268
+      total_services: 44644
+      specificity_pct: 83
+    - code: "52287"
+      description: "Exam with injections of chemical for destruction of bladder using an endoscope"
+      n_physicians: 248
+      total_services: 8178
+      specificity_pct: 99
+    - code: "A4562"
+      description: "Pessary, non rubber, any type"
+      n_physicians: 226
+      total_services: 6972
+      specificity_pct: 98
+    - code: "J0585"
+      description: "Injection, onabotulinumtoxina, 1 unit"
+      n_physicians: 176
+      total_services: 652840
+      specificity_pct: 96
+    - code: "57425"
+      description: "Surgical repair of vaginal defect using an endoscope"
+      n_physicians: 164
+      total_services: 3464
+      specificity_pct: 95
+    - code: "57250"
+      description: "Repair of herniated rectum into vaginal wall"
+      n_physicians: 143
+      total_services: 2699
+      specificity_pct: 100
+    - code: "51700"
+      description: "Simple bladder irrigation and/or instillation"
+      n_physicians: 109
+      total_services: 9493
+      specificity_pct: 98
+    - code: "57260"
+      description: "Plastic repair of vagina and tissue separating vagina, rectum, and bladder"
+      n_physicians: 108
+      total_services: 1935
+      specificity_pct: 96
+    - code: "51728"
+      description: "Complex measurement of pressure of urine flow in bladder with voiding pressure s"
+      n_physicians: 101
+      total_services: 3676
+      specificity_pct: 98
+    - code: "64566"
+      description: "Insertion of lower leg neurostimulator electrode"
+      n_physicians: 91
+      total_services: 14851
+      specificity_pct: 98
+    - code: "57283"
+      description: "Repair of prolapsing vaginal vault through vagina"
+      n_physicians: 86
+      total_services: 1675
+      specificity_pct: 99
+    - code: "57282"
+      description: "Repair of pelvic ligaments through vagina"
+      n_physicians: 78
+      total_services: 1661
+      specificity_pct: 96
+    - code: "57265"
+      description: "Repair of bulging of rectum and bladder into vaginal wall"
+      n_physicians: 60
+      total_services: 1502
+      specificity_pct: 100
+    - code: "64590"
+      description: "Insertion of peripheral or gastric neurostimulator generator"
+      n_physicians: 59
+      total_services: 1171
+      specificity_pct: 97
+    - code: "51725"
+      description: "Simple measurement of pressure of urine flow in bladder"
+      n_physicians: 57
+      total_services: 3355
+      specificity_pct: 95
+    - code: "57150"
+      description: "Irrigation of vagina and/or application of drug to treat infection"
+      n_physicians: 50
+      total_services: 3263
+      specificity_pct: 94
+    - code: "95972"
+      description: "Electronic analysis of implanted neurostimulator generator with complex spinal c"
+      n_physicians: 50
+      total_services: 1673
+      specificity_pct: 98
+    - code: "64561"
+      description: "Insertion of sacral nerve neurostimulator electrode array"
+      n_physicians: 50
+      total_services: 1343
+      specificity_pct: 96
+    - code: "51715"
+      description: "Injection of implant material beneath lining of bladder and/or urethra using an "
+      n_physicians: 43
+      total_services: 982
+      specificity_pct: 100
+    - code: "57240"
+      description: "Repair of bladder hernia into vaginal wall"
+      n_physicians: 40
+      total_services: 714
+      specificity_pct: 98
+    - code: "58262"
+      description: "Removal of uterus, tubes, and/or ovaries through vagina, 250.0 g or less"
+      n_physicians: 36
+      total_services: 652
+      specificity_pct: 100
+    - code: "58542"
+      description: "Partial removal of uterus, tubes, and/or ovaries with retention of cervix using "
+      n_physicians: 34
+      total_services: 605
+      specificity_pct: 100
+    - code: "57120"
+      description: "Suture closure of vagina and vaginal opening"
+      n_physicians: 34
+      total_services: 482
+      specificity_pct: 100
+    - code: "57267"
+      description: "Insertion of artificial material for pelvic floor defect"
+      n_physicians: 27
+      total_services: 909
+      specificity_pct: 93
+    - code: "J1644"
+      description: "Injection, heparin sodium, per 1000 units"
+      n_physicians: 24
+      total_services: 69504
+      specificity_pct: 100
+    - code: "91122"
+      description: "Study of rectum sensitivity and function"
+      n_physicians: 23
+      total_services: 908
+      specificity_pct: 92
+    - code: "52281"
+      description: "Dilation of urethra using an endoscope"
+      n_physicians: 22
+      total_services: 1621
+      specificity_pct: 96
+    - code: "58260"
+      description: "Removal of uterus through vagina, 250.0 g or less"
+      n_physicians: 22
+      total_services: 288
+      specificity_pct: 100
+    - code: "76000"
+      description: "Imaging guidance for procedure, 60 minutes or less"
+      n_physicians: 21
+      total_services: 503
+      specificity_pct: 95
+    - code: "95971"
+      description: "Electronic analysis of implanted neurostimulator generator with simple spinal co"
+      n_physicians: 20
+      total_services: 507
+      specificity_pct: 95
+    - code: "17250"
+      description: "Application of chemical to stop tissue regrowth in wound"
+      n_physicians: 19
+      total_services: 593
+      specificity_pct: 95
+    - code: "L8606"
+      description: "Injectable bulking agent, synthetic implant, urinary tract, 1 ml syringe, includ"
+      n_physicians: 18
+      total_services: 749
+      specificity_pct: 100
+    - code: "64581"
+      description: "Insertion of sacral nerve neurostimulator electrode"
+      n_physicians: 17
+      total_services: 333
+      specificity_pct: 94
+    - code: "87186"
+      description: "Evaluation of antimicrobial drug (antibiotic, antifungal, antiviral), microdilut"
+      n_physicians: 14
+      total_services: 1227
+      specificity_pct: 82
+    - code: "91120"
+      description: "Test for tone and sensation of rectum and anus"
+      n_physicians: 14
+      total_services: 385
+      specificity_pct: 93
+    - code: "97032"
+      description: "Application of electrical stimulation with therapist present, each 15 minutes"
+      n_physicians: 13
+      total_services: 1787
+      specificity_pct: 93
+    - code: "45560"
+      description: "Repair of bulging of rectum into vagina"
+      n_physicians: 13
+      total_services: 355
+      specificity_pct: 93
+    - code: "A4561"
+      description: "Pessary, rubber, any type"
+      n_physicians: 13
+      total_services: 321
+      specificity_pct: 100
+    - code: "90912"
+      description: "Biofeedback training for bowel or bladder control, initial 15 minutes"
+      n_physicians: 12
+      total_services: 1053
+      specificity_pct: 92
+    - code: "P9612"
+      description: "Catheterization for collection of specimen, single patient, all places of servic"
+      n_physicians: 12
+      total_services: 813
+      specificity_pct: 100
+    - code: "51736"
+      description: "Simple timed assessment of bladder emptying"
+      n_physicians: 12
+      total_services: 632
+      specificity_pct: 92
+    - code: "95970"
+      description: "Electronic analysis of implanted brain, spinal cord, or peripheral neurostimulat"
+      n_physicians: 12
+      total_services: 475
+      specificity_pct: 92
+    - code: "57423"
+      description: "Repair of vaginal defect using an endoscope"
+      n_physicians: 12
+      total_services: 289
+      specificity_pct: 100
+    - code: "87481"
+      description: "Detection test for candida species (yeast), amplified probe technique"
+      n_physicians: 11
+      total_services: 2360
+      specificity_pct: 92
+    - code: "51727"
+      description: "Complex measurement of pressure of urine flow in bladder with urethra pressure s"
+      n_physicians: 11
+      total_services: 978
+      specificity_pct: 100
+    - code: "87077"
+      description: "Bacterial culture for aerobic isolates"
+      n_physicians: 11
+      total_services: 795
+      specificity_pct: 85
+    - code: "87088"
+      description: "Bacterial urine culture"
+      n_physicians: 10
+      total_services: 1159
+      specificity_pct: 91
+    - code: "57285"
+      description: "Repair of vaginal wall defect through vagina"
+      n_physicians: 10
+      total_services: 247
+      specificity_pct: 100
+    - code: "97750"
+      description: "Test or measurement for functional capacity, each 15 minutes"
+      n_physicians: 9
+      total_services: 352
+      specificity_pct: 90
+    - code: "87798"
+      description: "Detection test by nucleic acid for organism, amplified probe technique"
+      n_physicians: 8
+      total_services: 8351
+      specificity_pct: 89
+    - code: "87640"
+      description: "Detection test by nucleic acid for staphylococcus aureus (bacteria), amplified p"
+      n_physicians: 8
+      total_services: 809
+      specificity_pct: 89
+    - code: "87653"
+      description: "Detection test by nucleic acid for strep (streptococcus, group b), amplified pro"
+      n_physicians: 8
+      total_services: 808
+      specificity_pct: 89
+    - code: "57110"
+      description: "Removal of vaginal wall"
+      n_physicians: 8
+      total_services: 125
+      specificity_pct: 100
+    - code: "87801"
+      description: "Detection test by nucleic acid for multiple organisms, amplified probe(s) techni"
+      n_physicians: 7
+      total_services: 1745
+      specificity_pct: 88
+    - code: "A4353"
+      description: "Intermittent urinary catheter, with insertion supplies"
+      n_physicians: 7
+      total_services: 761
+      specificity_pct: 100
+    - code: "51792"
+      description: "Assessment of muscle signal of pelvic nerves"
+      n_physicians: 6
+      total_services: 513
+      specificity_pct: 100
+    - code: "87500"
+      description: "Detection test by nucleic acid for vancomycin resistance strep (vre), amplified "
+      n_physicians: 6
+      total_services: 497
+      specificity_pct: 86
+    - code: "87661"
+      description: "Detection test by nucleic acid for trichomonas vaginalis (genital parasite), amp"
+      n_physicians: 6
+      total_services: 279
+      specificity_pct: 86
+    - code: "57280"
+      description: "Attachment of vagina to rear pelvic bone"
+      n_physicians: 6
+      total_services: 87
+      specificity_pct: 100
+    - code: "57061"
+      description: "Simple destruction of growth of vagina"
+      n_physicians: 5
+      total_services: 237
+      specificity_pct: 100
+    - code: "51726"
+      description: "Complex measurement of pressure of urine flow in bladder"
+      n_physicians: 5
+      total_services: 121
+      specificity_pct: 100
+    - code: "51102"
+      description: "Aspiration of bladder with insertion of bladder tube to skin"
+      n_physicians: 5
+      total_services: 114
+      specificity_pct: 100
+    - code: "57270"
+      description: "Repair of protrusion of intestine into rectum or vagina through abdomen"
+      n_physicians: 5
+      total_services: 114
+      specificity_pct: 100
+    - code: "J1720"
+      description: "Injection, hydrocortisone sodium succinate, up to 100 mg"
+      n_physicians: 4
+      total_services: 850
+      specificity_pct: 100
+    - code: "57065"
+      description: "Extensive destruction of growth of vagina"
+      n_physicians: 4
+      total_services: 644
+      specificity_pct: 100
+    - code: "90913"
+      description: "Biofeedback training for bowel or bladder control, each additional 15 minutes"
+      n_physicians: 4
+      total_services: 540
+      specificity_pct: 80
+    - code: "83986"
+      description: "Body fluid ph level"
+      n_physicians: 4
+      total_services: 412
+      specificity_pct: 100
+    - code: "46750"
+      description: "Repair of anal muscle for incontinence or prolapse, adult"
+      n_physicians: 4
+      total_services: 152
+      specificity_pct: 80
+    - code: "Q0111"
+      description: "Wet mounts, including preparations of vaginal, cervical or skin specimens"
+      n_physicians: 4
+      total_services: 91
+      specificity_pct: 80
+    - code: "64585"
+      description: "Revision of peripheral neurostimulator electrodes"
+      n_physicians: 4
+      total_services: 90
+      specificity_pct: 100
+    - code: "64595"
+      description: "Revision of peripheral or gastric neurostimulator generator"
+      n_physicians: 4
+      total_services: 66
+      specificity_pct: 100
+    - code: "J1071"
+      description: "Injection, testosterone cypionate, 1 mg"
+      n_physicians: 3
+      total_services: 21033
+      specificity_pct: 100
+    - code: "G0283"
+      description: "Electrical stimulation (unattended), to one or more areas for indication(s) othe"
+      n_physicians: 3
+      total_services: 320
+      specificity_pct: 100
+    - code: "57210"
+      description: "Suture of injury of vagina and/or skin"
+      n_physicians: 3
+      total_services: 164
+      specificity_pct: 100
+    - code: "82670"
+      description: "Measurement of total estradiol (hormone)"
+      n_physicians: 3
+      total_services: 131
+      specificity_pct: 100
+    - code: "84270"
+      description: "Sex hormone binding globulin (protein) level"
+      n_physicians: 3
+      total_services: 121
+      specificity_pct: 100
+    - code: "51785"
+      description: "Needle measurement and recording of electrical activity of muscles at bladder an"
+      n_physicians: 3
+      total_services: 103
+      specificity_pct: 100
+    - code: "52260"
+      description: "Dilation of bladder using an endoscope under general or spinal anesthesia"
+      n_physicians: 3
+      total_services: 86
+      specificity_pct: 100
+    - code: "58180"
+      description: "Removal of uterus through abdomen"
+      n_physicians: 3
+      total_services: 42
+      specificity_pct: 100
+
+gynecologic_oncology:
+  label: "Gynecologic Oncology"
+  n_defining_codes: 72
+  codes:
+    - code: "58571"
+      description: "Removal of uterus, tubes, and/or ovaries through abdomen using an endoscope, 250"
+      n_physicians: 412
+      total_services: 8135
+      specificity_pct: 90
+    - code: "38900"
+      description: "Imaging of lymph nodes during surgery"
+      n_physicians: 195
+      total_services: 3188
+      specificity_pct: 98
+    - code: "38570"
+      description: "Biopsy and removal of lymph nodes of abdominal cavity using an endoscope"
+      n_physicians: 127
+      total_services: 2016
+      specificity_pct: 99
+    - code: "96413"
+      description: "Administration of chemotherapy into vein, 1 hour or less"
+      n_physicians: 72
+      total_services: 11400
+      specificity_pct: 99
+    - code: "J1100"
+      description: "Injection, dexamethasone sodium phosphate, 1 mg"
+      n_physicians: 65
+      total_services: 99128
+      specificity_pct: 88
+    - code: "96367"
+      description: "Infusion into a vein for therapy, prevention, or diagnosis, additional sequentia"
+      n_physicians: 59
+      total_services: 9508
+      specificity_pct: 98
+    - code: "86304"
+      description: "Immunologic analysis for detection of tumor antigen, quantitative; ca 125"
+      n_physicians: 58
+      total_services: 9200
+      specificity_pct: 98
+    - code: "96375"
+      description: "Injection of additional new drug or substance into vein"
+      n_physicians: 57
+      total_services: 12586
+      specificity_pct: 98
+    - code: "96417"
+      description: "Administration of additional new drug or substance into vein, 1 hour or less"
+      n_physicians: 54
+      total_services: 4786
+      specificity_pct: 100
+    - code: "J1200"
+      description: "Injection, diphenhydramine hcl, up to 50 mg"
+      n_physicians: 51
+      total_services: 4770
+      specificity_pct: 98
+    - code: "J9045"
+      description: "Injection, carboplatin, 50 mg"
+      n_physicians: 48
+      total_services: 28214
+      specificity_pct: 100
+    - code: "96415"
+      description: "Administration of chemotherapy into vein, each additional hour"
+      n_physicians: 44
+      total_services: 5307
+      specificity_pct: 98
+    - code: "J9267"
+      description: "Injection, paclitaxel, 1 mg"
+      n_physicians: 40
+      total_services: 629377
+      specificity_pct: 100
+    - code: "J3490"
+      description: "Unclassified drugs"
+      n_physicians: 37
+      total_services: 3852
+      specificity_pct: 86
+    - code: "J2469"
+      description: "Injection, palonosetron hcl, 25 mcg"
+      n_physicians: 36
+      total_services: 31460
+      specificity_pct: 97
+    - code: "56820"
+      description: "Exam of external female genitals using an endoscope"
+      n_physicians: 35
+      total_services: 917
+      specificity_pct: 100
+    - code: "38571"
+      description: "Removal of lymph nodes of both sides of pelvis using an endoscope"
+      n_physicians: 34
+      total_services: 546
+      specificity_pct: 94
+    - code: "G9678"
+      description: "Oncology care model (ocm) monthly enhanced oncology services (meos) payment for "
+      n_physicians: 31
+      total_services: 1762
+      specificity_pct: 100
+    - code: "83735"
+      description: "Magnesium level"
+      n_physicians: 27
+      total_services: 3757
+      specificity_pct: 90
+    - code: "J7030"
+      description: "Infusion, normal saline solution , 1000 cc"
+      n_physicians: 27
+      total_services: 1489
+      specificity_pct: 84
+    - code: "58661"
+      description: "Removal of ovaries and/or tubes using an endoscope"
+      n_physicians: 27
+      total_services: 381
+      specificity_pct: 82
+    - code: "J1453"
+      description: "Injection, fosaprepitant, 1 mg"
+      n_physicians: 24
+      total_services: 205800
+      specificity_pct: 100
+    - code: "96361"
+      description: "Infusion into a vein for hydration, each additional hour"
+      n_physicians: 22
+      total_services: 1849
+      specificity_pct: 100
+    - code: "96523"
+      description: "Irrigation of implanted venous access drug delivery device"
+      n_physicians: 21
+      total_services: 845
+      specificity_pct: 100
+    - code: "96365"
+      description: "Infusion into a vein for therapy, prevention, or diagnosis, 1 hour or less"
+      n_physicians: 20
+      total_services: 1383
+      specificity_pct: 83
+    - code: "J1626"
+      description: "Injection, granisetron hydrochloride, 100 mcg"
+      n_physicians: 19
+      total_services: 14508
+      specificity_pct: 100
+    - code: "J2405"
+      description: "Injection, ondansetron hydrochloride, per 1 mg"
+      n_physicians: 17
+      total_services: 18031
+      specificity_pct: 100
+    - code: "J7040"
+      description: "Infusion, normal saline solution, sterile (500 ml = 1 unit)"
+      n_physicians: 15
+      total_services: 1874
+      specificity_pct: 100
+    - code: "J9271"
+      description: "Injection, pembrolizumab, 1 mg"
+      n_physicians: 14
+      total_services: 142626
+      specificity_pct: 100
+    - code: "A9552"
+      description: "Fluorodeoxyglucose f-18 fdg, diagnostic, per study dose, up to 45 millicuries"
+      n_physicians: 14
+      total_services: 302
+      specificity_pct: 93
+    - code: "58548"
+      description: "Removal of uterus, cervix, and lymph nodes of pelvis with biopsy of aortic lymph"
+      n_physicians: 14
+      total_services: 280
+      specificity_pct: 100
+    - code: "J0185"
+      description: "Injection, aprepitant, 1 mg"
+      n_physicians: 13
+      total_services: 106990
+      specificity_pct: 100
+    - code: "J2506"
+      description: "Injection, pegfilgrastim, excludes biosimilar, 0.5 mg"
+      n_physicians: 13
+      total_services: 7992
+      specificity_pct: 100
+    - code: "96368"
+      description: "Infusion into a vein for therapy, prevention, or diagnosis concurrent with anoth"
+      n_physicians: 13
+      total_services: 914
+      specificity_pct: 93
+    - code: "36591"
+      description: "Collection of blood sample from implanted device"
+      n_physicians: 12
+      total_services: 706
+      specificity_pct: 100
+    - code: "J7050"
+      description: "Infusion, normal saline solution, 250 cc"
+      n_physicians: 11
+      total_services: 2496
+      specificity_pct: 85
+    - code: "96401"
+      description: "Administration of non-hormonal anti-neoplastic chemotherapy under skin or into m"
+      n_physicians: 11
+      total_services: 629
+      specificity_pct: 92
+    - code: "38572"
+      description: "Removal of lymph nodes of both sides of pelvis and abdominal lymph node biopsy u"
+      n_physicians: 11
+      total_services: 213
+      specificity_pct: 100
+    - code: "57420"
+      description: "Exam of vagina and cervix using an endoscope"
+      n_physicians: 10
+      total_services: 377
+      specificity_pct: 91
+    - code: "96360"
+      description: "Infusion into a vein for hydration, 31-60 minutes"
+      n_physicians: 10
+      total_services: 316
+      specificity_pct: 100
+    - code: "50715"
+      description: "Release of scar tissue at ureter"
+      n_physicians: 10
+      total_services: 158
+      specificity_pct: 83
+    - code: "J3489"
+      description: "Injection, zoledronic acid, 1 mg"
+      n_physicians: 9
+      total_services: 858
+      specificity_pct: 82
+    - code: "96377"
+      description: "Application of on-body injector for under skin injection"
+      n_physicians: 9
+      total_services: 528
+      specificity_pct: 100
+    - code: "58575"
+      description: "Removal of uterus for removal of growth using an endoscope"
+      n_physicians: 9
+      total_services: 136
+      specificity_pct: 100
+    - code: "Q5118"
+      description: "Injection, bevacizumab-bvzr, biosimilar, (zirabev), 10 mg"
+      n_physicians: 8
+      total_services: 37960
+      specificity_pct: 100
+    - code: "83615"
+      description: "Lactate dehydrogenase (enzyme) level"
+      n_physicians: 8
+      total_services: 1350
+      specificity_pct: 89
+    - code: "96366"
+      description: "Infusion into a vein for therapy, prevention, or diagnosis, each additional hour"
+      n_physicians: 7
+      total_services: 440
+      specificity_pct: 100
+    - code: "84520"
+      description: "Urea nitrogen level to assess kidney function, quantitative"
+      n_physicians: 7
+      total_services: 165
+      specificity_pct: 100
+    - code: "J1439"
+      description: "Injection, ferric carboxymaltose, 1 mg"
+      n_physicians: 6
+      total_services: 175500
+      specificity_pct: 100
+    - code: "96374"
+      description: "Injection of drug or substance into vein"
+      n_physicians: 6
+      total_services: 256
+      specificity_pct: 86
+    - code: "96411"
+      description: "Administration of additional new drug or substance into vein using push techniqu"
+      n_physicians: 6
+      total_services: 171
+      specificity_pct: 100
+    - code: "77001"
+      description: "Fluoroscopic guidance for insertion or removal of central vein access device"
+      n_physicians: 6
+      total_services: 95
+      specificity_pct: 86
+    - code: "57421"
+      description: "Biopsy of vagina and cervix using an endoscope"
+      n_physicians: 6
+      total_services: 90
+      specificity_pct: 100
+    - code: "J9190"
+      description: "Injection, fluorouracil, 500 mg"
+      n_physicians: 5
+      total_services: 1868
+      specificity_pct: 100
+    - code: "G0498"
+      description: "Chemotherapy administration, intravenous infusion technique; initiation of infus"
+      n_physicians: 5
+      total_services: 193
+      specificity_pct: 100
+    - code: "56821"
+      description: "Exam and biopsy of external female genitals using an endoscope"
+      n_physicians: 5
+      total_services: 109
+      specificity_pct: 83
+    - code: "J0881"
+      description: "Injection, darbepoetin alfa, 1 microgram (non-esrd use)"
+      n_physicians: 4
+      total_services: 49400
+      specificity_pct: 80
+    - code: "Q5107"
+      description: "Injection, bevacizumab-awwb, biosimilar, (mvasi), 10 mg"
+      n_physicians: 4
+      total_services: 36542
+      specificity_pct: 100
+    - code: "J0640"
+      description: "Injection, leucovorin calcium, per 50 mg"
+      n_physicians: 4
+      total_services: 1884
+      specificity_pct: 100
+    - code: "J3475"
+      description: "Injection, magnesium sulfate, per 500 mg"
+      n_physicians: 4
+      total_services: 1314
+      specificity_pct: 100
+    - code: "J1454"
+      description: "Injection, fosnetupitant 235 mg and palonosetron 0.25 mg"
+      n_physicians: 4
+      total_services: 193
+      specificity_pct: 100
+    - code: "Q0138"
+      description: "Injection, ferumoxytol, for treatment of iron deficiency anemia, 1 mg (non-esrd "
+      n_physicians: 3
+      total_services: 57630
+      specificity_pct: 100
+    - code: "J9299"
+      description: "Injection, nivolumab, 1 mg"
+      n_physicians: 3
+      total_services: 26540
+      specificity_pct: 100
+    - code: "J1627"
+      description: "Injection, granisetron, extended-release, 0.1 mg"
+      n_physicians: 3
+      total_services: 21700
+      specificity_pct: 100
+    - code: "Q5122"
+      description: "Injection, pegfilgrastim-apgf, biosimilar, (nyvepria), 0.5 mg"
+      n_physicians: 3
+      total_services: 960
+      specificity_pct: 100
+    - code: "84100"
+      description: "Phosphate level"
+      n_physicians: 3
+      total_services: 879
+      specificity_pct: 100
+    - code: "J3480"
+      description: "Injection, potassium chloride, per 2 meq"
+      n_physicians: 3
+      total_services: 715
+      specificity_pct: 100
+    - code: "50949"
+      description: "Other procedure on ureter using an endoscope"
+      n_physicians: 3
+      total_services: 164
+      specificity_pct: 100
+    - code: "58150"
+      description: "Removal of uterus and cervix through abdomen"
+      n_physicians: 3
+      total_services: 52
+      specificity_pct: 100
+    - code: "36590"
+      description: "Removal of central venous tube with port or pump"
+      n_physicians: 3
+      total_services: 40
+      specificity_pct: 100
+    - code: "58953"
+      description: "Removal of lining of abdomen, uterus, ovaries, and fallopian tubes with extensiv"
+      n_physicians: 3
+      total_services: 37
+      specificity_pct: 100
+    - code: "19303"
+      description: "Simple complete removal of breast"
+      n_physicians: 3
+      total_services: 37
+      specificity_pct: 100
+
+maternal_fetal_medicine:
+  label: "Maternal-Fetal Medicine"
+  n_defining_codes: 20
+  codes:
+    - code: "76816"
+      description: "Follow-up ultrasound scan of pregnant uterus"
+      n_physicians: 16
+      total_services: 325
+      specificity_pct: 100
+    - code: "76819"
+      description: "Ultrasound scan of fetus"
+      n_physicians: 8
+      total_services: 322
+      specificity_pct: 100
+    - code: "J1030"
+      description: "Injection, methylprednisolone acetate, 40 mg"
+      n_physicians: 7
+      total_services: 297
+      specificity_pct: 88
+    - code: "22853"
+      description: "Insertion of cage or mesh device to spine bone and disc space during spine fusio"
+      n_physicians: 5
+      total_services: 257
+      specificity_pct: 100
+    - code: "45378"
+      description: "Diagnostic exam of large bowel using a flexible endoscope"
+      n_physicians: 5
+      total_services: 128
+      specificity_pct: 100
+    - code: "93248"
+      description: "Heart rhythm review and interpretation of continous external ekg over 8-15 days"
+      n_physicians: 4
+      total_services: 293
+      specificity_pct: 100
+    - code: "72158"
+      description: "Mri scan of lower spinal canal before and after contrast"
+      n_physicians: 4
+      total_services: 131
+      specificity_pct: 100
+    - code: "76820"
+      description: "Ultrasound scan of fetal umbilical artery blood flow rate"
+      n_physicians: 4
+      total_services: 99
+      specificity_pct: 100
+    - code: "77002"
+      description: "Fluoroscopic guidance for needle placement"
+      n_physicians: 4
+      total_services: 77
+      specificity_pct: 80
+    - code: "22614"
+      description: "Fusion of additional segment of spine"
+      n_physicians: 3
+      total_services: 171
+      specificity_pct: 100
+    - code: "80305"
+      description: "Testing for presence of drug, read by direct observation"
+      n_physicians: 3
+      total_services: 158
+      specificity_pct: 100
+    - code: "63048"
+      description: "Partial removal of spine bone with release of spinal cord and/or nerves, each ad"
+      n_physicians: 3
+      total_services: 130
+      specificity_pct: 100
+    - code: "76815"
+      description: "Limited ultrasound of pregnant uterus"
+      n_physicians: 3
+      total_services: 100
+      specificity_pct: 100
+    - code: "93244"
+      description: "Heart rhythm review, and interpretation of continous external ekg over more than"
+      n_physicians: 3
+      total_services: 92
+      specificity_pct: 100
+    - code: "93242"
+      description: "Heart rhythm recording continous external ekg over more than 48 hours up to 7 da"
+      n_physicians: 3
+      total_services: 85
+      specificity_pct: 100
+    - code: "22842"
+      description: "Placement of stabilizing device to back, 3-6 spine bone segments"
+      n_physicians: 3
+      total_services: 57
+      specificity_pct: 100
+    - code: "70543"
+      description: "Mri scan of bone of eye socket, face, and/or neck before and after contrast"
+      n_physicians: 3
+      total_services: 55
+      specificity_pct: 100
+    - code: "22840"
+      description: "Placement of stabilizing device to back of 1 spine bone in neck"
+      n_physicians: 3
+      total_services: 45
+      specificity_pct: 100
+    - code: "G0121"
+      description: "Colorectal cancer screening; colonoscopy on individual not meeting criteria for "
+      n_physicians: 3
+      total_services: 45
+      specificity_pct: 100
+    - code: "72220"
+      description: "X-ray of sacrum and tailbone, minimum of 2 views"
+      n_physicians: 3
+      total_services: 40
+      specificity_pct: 100
+
+# =============================================================================
+# CLINICALLY CURATED CODES (pre-Medicare subspecialties)
+# These codes are NOT empirically derived from Medicare because the patient
+# populations are predominantly pre-Medicare age. They are curated from
+# CPT codebooks and subspecialty practice guidelines.
+# =============================================================================
+
+reproductive_endocrinology_infertility:
+  label: "Reproductive Endocrinology and Infertility"
+  source: "clinically_curated"
+  note: "REI patients are reproductive-age (15-49), predominantly self-pay or commercial. <10% visible in Medicare."
+  codes:
+    # Semen / sperm processing
+    - code: "89257"
+      description: "Sperm identification from aspirate"
+      category: "Andrology"
+    - code: "89258"
+      description: "Sperm isolation, simple prep"
+      category: "Andrology"
+    - code: "89259"
+      description: "Sperm isolation, complex prep"
+      category: "Andrology"
+    - code: "89300"
+      description: "Semen analysis, volume/count/motility"
+      category: "Andrology"
+    - code: "89310"
+      description: "Motility and density evaluation"
+      category: "Andrology"
+    - code: "89320"
+      description: "Complete semen analysis"
+      category: "Andrology"
+    # Oocyte retrieval / IVF
+    - code: "58970"
+      description: "Follicle puncture for oocyte retrieval"
+      category: "IVF"
+    - code: "58974"
+      description: "Embryo transfer"
+      category: "IVF"
+    - code: "58976"
+      description: "Gamete or zygote intrafallopian transfer"
+      category: "IVF"
+    # Insemination
+    - code: "58321"
+      description: "Artificial insemination"
+      category: "IUI"
+    - code: "58322"
+      description: "Artificial insemination using donor sperm"
+      category: "IUI"
+    - code: "58323"
+      description: "Sperm washing for insemination"
+      category: "IUI"
+    # Embryology laboratory
+    - code: "89250"
+      description: "Culture of oocytes/embryos, <4 days"
+      category: "Embryology"
+    - code: "89251"
+      description: "Culture of oocytes/embryos, 4-7 days"
+      category: "Embryology"
+    - code: "89253"
+      description: "Assisted embryo hatching"
+      category: "Embryology"
+    - code: "89254"
+      description: "Oocyte identification from follicular fluid"
+      category: "Embryology"
+    - code: "89255"
+      description: "Preparation of embryo for transfer"
+      category: "Embryology"
+    - code: "89260"
+      description: "Sperm isolation for insemination/diagnosis"
+      category: "Embryology"
+    - code: "89261"
+      description: "Complex sperm isolation"
+      category: "Embryology"
+    - code: "89264"
+      description: "Oocyte assessment and culture"
+      category: "Embryology"
+    - code: "89268"
+      description: "In vitro microtechnique"
+      category: "Embryology"
+    - code: "89272"
+      description: "Extended culture of oocytes/embryos"
+      category: "Embryology"
+    - code: "89280"
+      description: "Assisted oocyte fertilization, microinjection (ICSI)"
+      category: "Embryology"
+    - code: "89281"
+      description: "Assisted oocyte fertilization, assisted sperm prep"
+      category: "Embryology"
+    # Cryopreservation
+    - code: "89337"
+      description: "Cryopreservation and storage of embryos"
+      category: "Cryopreservation"
+    - code: "89342"
+      description: "Storage of cryopreserved embryos"
+      category: "Cryopreservation"
+    - code: "89346"
+      description: "Storage of cryopreserved oocytes"
+      category: "Cryopreservation"
+    - code: "89352"
+      description: "Preparation of embryo for transfer"
+      category: "Cryopreservation"
+    - code: "89356"
+      description: "Thawing and preparation of cryopreserved sperm"
+      category: "Cryopreservation"
+
+maternal_fetal_medicine_curated:
+  label: "Maternal-Fetal Medicine"
+  source: "clinically_curated"
+  note: "MFM patients are pregnant women (median age ~30), predominantly commercial insurance. <12% visible in Medicare Part B."
+  codes:
+    # Basic obstetric ultrasound
+    - code: "76801"
+      description: "Ultrasound, pregnant uterus, first trimester"
+      category: "Obstetric Ultrasound"
+    - code: "76802"
+      description: "Additional fetus, first trimester"
+      category: "Obstetric Ultrasound"
+    - code: "76805"
+      description: "Complete fetal and maternal evaluation"
+      category: "Obstetric Ultrasound"
+    - code: "76810"
+      description: "Additional fetus, complete exam"
+      category: "Obstetric Ultrasound"
+    # Detailed anatomy (MFM-defining)
+    - code: "76811"
+      description: "Detailed fetal anatomic examination, singleton"
+      category: "MFM Detailed Anatomy"
+    - code: "76812"
+      description: "Detailed fetal anatomic examination, additional fetus"
+      category: "MFM Detailed Anatomy"
+    # Follow-up / surveillance
+    - code: "76815"
+      description: "Limited obstetric ultrasound"
+      category: "Limited Ultrasound"
+    - code: "76816"
+      description: "Follow-up obstetric ultrasound"
+      category: "Growth Ultrasound"
+    - code: "76817"
+      description: "Transvaginal obstetric ultrasound (cervical length)"
+      category: "Transvaginal Ultrasound"
+    # Biophysical profile
+    - code: "76818"
+      description: "Fetal biophysical profile without nonstress testing"
+      category: "Biophysical Profile"
+    - code: "76819"
+      description: "Fetal biophysical profile with nonstress testing"
+      category: "Biophysical Profile"
+    # Dopplers
+    - code: "76820"
+      description: "Umbilical artery Doppler velocimetry"
+      category: "Doppler"
+    - code: "76821"
+      description: "Middle cerebral artery Doppler velocimetry"
+      category: "Doppler"
+    # Fetal echocardiography
+    - code: "76825"
+      description: "Fetal echocardiography, complete"
+      category: "Fetal Echocardiography"
+    - code: "76826"
+      description: "Follow-up fetal echocardiography"
+      category: "Fetal Echocardiography"
+    - code: "76827"
+      description: "Fetal cardiovascular Doppler"
+      category: "Fetal Echocardiography"
+    # Procedural ultrasound guidance
+    - code: "76946"
+      description: "Ultrasound guidance for amniocentesis"
+      category: "Ultrasound Guidance"
+    # Fetal procedures
+    - code: "59000"
+      description: "Amniocentesis"
+      category: "Fetal Procedure"
+    - code: "59001"
+      description: "Therapeutic amniocentesis (amnioreduction)"
+      category: "Fetal Procedure"
+    - code: "59015"
+      description: "Chorionic villus sampling"
+      category: "Fetal Procedure"
+    - code: "59020"
+      description: "Contraction stress test"
+      category: "Fetal Surveillance"
+    - code: "59025"
+      description: "Fetal nonstress test"
+      category: "Fetal Surveillance"
+
+pediatric_adolescent_gynecology:
+  label: "Pediatric and Adolescent Gynecology"
+  source: "clinically_curated"
+  note: "PAG patients are ages 0-21. Zero Medicare visibility. PAG procedures share CPT codes with adult gynecology; patient age is the distinguishing factor."
+  codes:
+    # Vaginoscopy / hysteroscopy
+    - code: "57452"
+      description: "Colposcopy in pediatric/adolescent patient"
+      category: "Vaginoscopy"
+    - code: "58555"
+      description: "Diagnostic hysteroscopy"
+      category: "Diagnostic Hysteroscopy"
+    - code: "58558"
+      description: "Hysteroscopy with biopsy/polypectomy"
+      category: "Operative Hysteroscopy"
+    # Hymenal / vaginal anomalies
+    - code: "56700"
+      description: "Partial hymenectomy or revision"
+      category: "Hymenectomy"
+    - code: "56740"
+      description: "Excision of lesion of vulva/perineum"
+      category: "Introital Surgery"
+    - code: "57010"
+      description: "Pelvic examination under anesthesia"
+      category: "Vaginal Exam Under Anesthesia"
+    - code: "57130"
+      description: "Excision of vaginal septum"
+      category: "Vaginectomy/Septum"
+    - code: "57135"
+      description: "Excision of vaginal lesion"
+      category: "Vaginal Reconstruction"
+    # Congenital anomalies
+    - code: "57291"
+      description: "Correction of congenital vaginal anomaly"
+      category: "Congenital Anomaly"
+    - code: "57300"
+      description: "Plastic repair of urethrovaginal lesion"
+      category: "Fistula/Anomaly"
+    - code: "58999"
+      description: "Unlisted gynecologic procedure"
+      category: "Unlisted Procedure"
+    # Ovarian torsion / adnexal surgery
+    - code: "58661"
+      description: "Laparoscopic removal of adnexal structures"
+      category: "Laparoscopy"
+    - code: "58925"
+      description: "Ovarian cystectomy, unilateral/bilateral"
+      category: "Ovarian Surgery"
+    - code: "49320"
+      description: "Diagnostic laparoscopy"
+      category: "Diagnostic Laparoscopy"
+    # Menstrual suppression / contraception
+    - code: "11981"
+      description: "Insertion of contraceptive implant"
+      category: "Implant"
+    - code: "11982"
+      description: "Removal of contraceptive implant"
+      category: "Implant Removal"
+    - code: "11983"
+      description: "Removal and reinsertion of implant"
+      category: "Implant Replacement"
+    - code: "58300"
+      description: "Insertion of intrauterine device"
+      category: "IUD"
+    # Vulvar disease
+    - code: "56501"
+      description: "Biopsy of vulva/perineum"
+      category: "Vulvar Biopsy"
+    - code: "56605"
+      description: "Biopsy of vulvar lesion"
+      category: "Vulvar Lesion"
+    # Pelvic pain / endometriosis
+    - code: "58662"
+      description: "Laparoscopic fulguration/excision of lesions"
+      category: "Endometriosis"
+    - code: "58740"
+      description: "Fimbrioplasty/salpingeal surgery"
+      category: "Tubal Surgery"
