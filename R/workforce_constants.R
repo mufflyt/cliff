@@ -117,3 +117,36 @@ stopifnot(
   WORKFORCE_CI_Z95 > 1.9, WORKFORCE_CI_Z95 < 2.0,
   round(stats::qnorm(0.975), 2) == WORKFORCE_CI_Z95   # it IS the two-sided 95% z (rounded), not an arbitrary number
 )
+
+# WORKFORCE_OUTLOOK_ADEQUATE_MIN / WORKFORCE_OUTLOOK_MARGINAL_MIN + classify_workforce_outlook()
+#   Meaning : the "Workforce Outlook" categorisation of a replacement ratio (graduates / retirements) into
+#             Adequate / Marginal / Insufficient, as published in the manuscript workforce table caption and
+#             the replacement-ratio appendix:
+#               Adequate     if RR >= 1.2   (>= a 20% entry-over-exit buffer)
+#               Marginal     if 0.8 <= RR < 1.2
+#               Insufficient if RR < 0.8    (net workforce decline)
+#   Units   : dimensionless replacement ratio thresholds.
+#   Range   : 0 < MARGINAL_MIN < ADEQUATE_MIN.
+#   Source  : study design (manuscript "Workforce Outlook" bands; appendix_workforce_replacement_ratio.Rmd).
+#   Consumers: scripts/graduate_growth_scenarios.R (the only site that COMPUTES the label). The manuscript
+#             table (create_workforce_table.R) carries the outlook as reviewed data + states these cutpoints in
+#             its caption; a guard checks that caption + the appendix math against these constants.
+#   DISTINCT FROM: the contract's replacement classification classify_replacement() (Above/At/Below replacement,
+#             cuts 0.95/1.05 via WORKFORCE_REPLACEMENT_* in manuscript/R/workforce_data_contract.R). The two are
+#             SEPARATE schemes (different labels, different cutpoints, different tables) and must NOT be merged.
+WORKFORCE_OUTLOOK_ADEQUATE_MIN <- 1.2   # RR >= this -> "Adequate"
+WORKFORCE_OUTLOOK_MARGINAL_MIN <- 0.8   # RR >= this (and < ADEQUATE_MIN) -> "Marginal"; below -> "Insufficient"
+stopifnot(
+  is.numeric(WORKFORCE_OUTLOOK_ADEQUATE_MIN), length(WORKFORCE_OUTLOOK_ADEQUATE_MIN) == 1L,
+  is.numeric(WORKFORCE_OUTLOOK_MARGINAL_MIN), length(WORKFORCE_OUTLOOK_MARGINAL_MIN) == 1L,
+  WORKFORCE_OUTLOOK_MARGINAL_MIN > 0,
+  WORKFORCE_OUTLOOK_MARGINAL_MIN < WORKFORCE_OUTLOOK_ADEQUATE_MIN   # ordered bands
+)
+
+#' Classify a replacement ratio into a workforce-outlook label (Adequate / Marginal / Insufficient).
+#' @param ratio Numeric vector of replacement ratios (graduates / retirements).
+#' @return Character vector of "Adequate" / "Marginal" / "Insufficient".
+classify_workforce_outlook <- function(ratio) {
+  ifelse(ratio >= WORKFORCE_OUTLOOK_ADEQUATE_MIN, "Adequate",
+         ifelse(ratio >= WORKFORCE_OUTLOOK_MARGINAL_MIN, "Marginal", "Insufficient"))
+}
