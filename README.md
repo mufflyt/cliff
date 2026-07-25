@@ -124,6 +124,16 @@ Interactive explorers built from this repo's model:
 
 Both apps can also be run locally from a clone with `shiny::runApp()`.
 
+### Interactive map
+
+**Urogynecology geographic access** — a self-contained Leaflet map: county choropleth of
+straight-line miles to the nearest urogynecologist, with every provider marked by board
+pathway (ABU urology vs ABOG OB/GYN).
+
+- File: [`outputs/urps_module_d_access_map_2026-07-23.html`](outputs/urps_module_d_access_map_2026-07-23.html) — download and open in a browser for the interactive version
+- Rendered: [view online](https://htmlpreview.github.io/?https://github.com/mufflyt/cliff/blob/main/outputs/urps_module_d_access_map_2026-07-23.html) (via htmlpreview; may take a moment to load the ~2.4 MB widget)
+- Regenerate: `Rscript scripts/urps_module_d_map_2026-07-23.R`
+
 ---
 
 ## Data Sources
