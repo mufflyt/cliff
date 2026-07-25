@@ -11,16 +11,16 @@
 suppressPackageStartupMessages({library(data.table); library(digest)})
 h <- function(p){ for(r in c(".","..","../..")) if(file.exists(file.path(r,p))) return(file.path(r,p)); p }
 
-FROZEN <- fread(h("cliff/data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
-PROV   <- fread(h("cliff/data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
-CORR   <- fread(h("cliff/data/urps_module_bc_corrected_summary_2026-07-23.csv"), colClasses=list(character="code"))
-PROJ   <- fread(h("cliff/data/urps_module_bc_corrected_projection_2026-07-23.csv"), colClasses=list(character="code"))
-RECON  <- fread(h("cliff/data/urps_three_file_reconciliation_2026-07-23.csv"), colClasses=list(character="code"))
-PSPSA  <- fread(h("cliff/data/urps_psps_modifier_audit_2026-07-23.csv"), colClasses=list(character="code"))
-POP    <- fread(h("cliff/data/urps_supply_demand_national_2026-07-23.csv"))
-MANIFEST <- tryCatch(fread(h("cliff/data/urps_module_bc_INPUT_MANIFEST_2026-07-23.csv")), error=function(e) data.table())
-OBS      <- tryCatch(fread(h("cliff/data/urps_module_bc_observability_2026-07-23.csv")), error=function(e) data.table())
-SPARAMS  <- tryCatch(fread(h("cliff/data/urps_module_bc_scenario_params_2026-07-23.csv")), error=function(e) data.table())
+FROZEN <- fread(h("data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
+PROV   <- fread(h("data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
+CORR   <- fread(h("data/urps_module_bc_corrected_summary_2026-07-23.csv"), colClasses=list(character="code"))
+PROJ   <- fread(h("data/urps_module_bc_corrected_projection_2026-07-23.csv"), colClasses=list(character="code"))
+RECON  <- fread(h("data/urps_three_file_reconciliation_2026-07-23.csv"), colClasses=list(character="code"))
+PSPSA  <- fread(h("data/urps_psps_modifier_audit_2026-07-23.csv"), colClasses=list(character="code"))
+POP    <- fread(h("data/urps_supply_demand_national_2026-07-23.csv"))
+MANIFEST <- tryCatch(fread(h("data/urps_module_bc_INPUT_MANIFEST_2026-07-23.csv")), error=function(e) data.table())
+OBS      <- tryCatch(fread(h("data/urps_module_bc_observability_2026-07-23.csv")), error=function(e) data.table())
+SPARAMS  <- tryCatch(fread(h("data/urps_module_bc_scenario_params_2026-07-23.csv")), error=function(e) data.table())
 ANCHORS <- c("57288","57282","51728","52287")
 FUNC <- c("51728","52287"); SURG <- c("57288","57282")
 
@@ -33,9 +33,9 @@ G <- function(id, level, desc, pass, observed="", expected="", evidence=""){
 INFO <- function(id,desc,ok,obs="",ev="") G(id,"INFO",desc,ok,obs,"",ev)
 
 # ── A. Provenance & integrity ───────────────────────────────────────────────
-req_files <- c("cliff/data/urps_module_bc_FROZEN_2026-07-23.csv","cliff/data/urps_three_file_reconciliation_2026-07-23.csv",
-               "cliff/data/urps_psps_modifier_audit_2026-07-23.csv","cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",
-               "cliff/data/urps_supply_demand_national_2026-07-23.csv","config/subspecialty_hcpcs_codes.yml")
+req_files <- c("data/urps_module_bc_FROZEN_2026-07-23.csv","data/urps_three_file_reconciliation_2026-07-23.csv",
+               "data/urps_psps_modifier_audit_2026-07-23.csv","data/abog_all_urps_ENRICHED_2026-07-22.csv",
+               "data/urps_supply_demand_national_2026-07-23.csv","config/subspecialty_hcpcs_codes.yml")
 G(1,"FATAL","Required source files exist", all(file.exists(sapply(req_files,h))), sum(file.exists(sapply(req_files,h))), length(req_files))
 G(2,"FATAL","Inputs non-empty", all(sapply(list(FROZEN,PROV,CORR,PROJ,RECON,PSPSA,POP), nrow)>0), "", ">0 rows")
 G(3,"FATAL","SHA-256 recorded for every input", all(nchar(PROV$input_sha256)>0), all(nchar(PROV$input_sha256)>0), "populated")
@@ -54,7 +54,7 @@ need_frozen <- c("code","procedure","provider_visible_all","geography_national_a
 G(11,"FATAL","Required frozen columns present", all(need_frozen %in% names(FROZEN)), sum(need_frozen %in% names(FROZEN)), length(need_frozen))
 G(12,"FATAL","No schema drift (frozen col set superset of spec)", all(need_frozen %in% names(FROZEN)))
 G(13,"FATAL","HCPCS codes stored as character", is.character(FROZEN$code), class(FROZEN$code), "character")
-abog <- fread(h("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv"), colClasses=list(character="npi"))
+abog <- fread(h("data/abog_all_urps_ENRICHED_2026-07-22.csv"), colClasses=list(character="npi"))
 npi_ok <- all(grepl("^[0-9]{10}$", abog$npi[!is.na(abog$npi)&abog$npi!=""]))
 G(14,"FATAL","NPI format valid (10 digits)", npi_ok, "", "^[0-9]{10}$")
 G(15,"FATAL","Numeric fields numeric", all(sapply(FROZEN[,.(provider_visible_all,geography_national_all,psps_allowed_all)], is.numeric)))
@@ -110,7 +110,7 @@ G(51,"FATAL","No 'unsuppressed/complete/all-claims' label in outputs",
 G(52,"FATAL","Calibrated denominator label present", "national_calibrated_primary" %in% names(FROZEN))
 
 # ── F. Cohort integrity ─────────────────────────────────────────────────────
-abu <- fread(h("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv"), colClasses=list(character="npi"))
+abu <- fread(h("data/abu_all_urps_ENRICHED_2026-07-22.csv"), colClasses=list(character="npi"))
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 coh <- unique(c(abu$npi[inmodel(abu$in_model_baseline)], abog$npi[inmodel(abog$in_model_baseline)]))
 G(53,"FATAL","Cohort NPIs unique", length(coh)==length(unique(coh)))
@@ -213,7 +213,7 @@ A <- rbindlist(AUD)
 setorder(A, gate)
 fatal_fail  <- A[level=="FATAL" & !pass]
 review_open <- A[level=="REVIEW" & !pass]
-out <- h("cliff/data/urps_module_bc_GATE_AUDIT_2026-07-23.csv")
+out <- h("data/urps_module_bc_GATE_AUDIT_2026-07-23.csv")
 fwrite(A, out)
 audit_sha <- substr(digest(file=out, algo="sha256"),1,16)
 

@@ -7,8 +7,8 @@
 # figure is explicitly labeled as the worst-case tail, not the headline.
 suppressPackageStartupMessages({library(readr); library(dplyr); library(ggplot2); library(here)})
 
-grid <- read_csv(here("cliff","data","sensitivity_grid_summary.csv"), show_col_types = FALSE)
-wf   <- read_csv(here("cliff","data","workforce_projections_consolidated.csv"), show_col_types = FALSE)
+grid <- read_csv(here("data","sensitivity_grid_summary.csv"), show_col_types = FALSE)
+wf   <- read_csv(here("data","workforce_projections_consolidated.csv"), show_col_types = FALSE)
 wr   <- grid$worst_ratio[grid$subspecialty_abbrev == "URPS"]
 prim <- wf$replacement_ratio[wf$subspecialty_abbrev == "URPS"]
 unfilled <- round(100 * (1 - wr)); replaced <- 100 - unfilled

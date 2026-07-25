@@ -16,8 +16,8 @@
 # Computed entirely from committed inputs (no signals DB needed).
 #
 # OUTPUTS:
-#   cliff/data/hazard_by_band_pooled_vs_unpooled.csv   (events, PY, hazards by band)
-#   cliff/data/hazard_rate_pooled_vs_unpooled.csv      (weighted rate GO/URPS both ways)
+#   data/hazard_by_band_pooled_vs_unpooled.csv   (events, PY, hazards by band)
+#   data/hazard_rate_pooled_vs_unpooled.csv      (weighted rate GO/URPS both ways)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 suppressPackageStartupMessages({library(here); library(readr); library(dplyr)})
@@ -33,7 +33,7 @@ coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physicia
             cy=as.integer(cert_year), ry=suppressWarnings(as.integer(retirement_year)),
             ret=as.logical(is_retired_for_cohorting), age=as.integer(age_approx)) %>%
   distinct(npi,.keep_all=TRUE) %>% filter(!is.na(ab))
-.anch <- read_csv(here::here("cliff","data","departure_anchor.csv"), show_col_types=FALSE)
+.anch <- read_csv(here::here("data","departure_anchor.csv"), show_col_types=FALSE)
 coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry = ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
@@ -66,7 +66,7 @@ by_band <- data.frame(band=BL) %>% mutate(
   urps_hazard_unpooled = round(ifelse(urps_py>0, urps_events/urps_py, NA), 4),
   pooled_hazard        = round(ifelse(pooled_py>0, pooled_events/pooled_py, NA), 4),
   pooled_incl_migs_hazard = round(ifelse(pooled_incl_migs_py>0, pooled_incl_migs_events/pooled_incl_migs_py, NA), 4))
-write_csv(by_band, here::here("cliff","data","hazard_by_band_pooled_vs_unpooled.csv"))
+write_csv(by_band, here::here("data","hazard_by_band_pooled_vs_unpooled.csv"))
 
 # weighted 2025 static rate for GO/URPS under pooled vs each cohort's own hazard
 haz_for <- function(age, hz){ h<-hz[band_of(age)]; h[is.na(h)]<-max(hz,na.rm=TRUE); pmin(1,h) }
@@ -83,7 +83,7 @@ rate_tbl <- data.frame(
   rate_pooled_pct   = c(round(rate_of("GO",HZ_POOLED),2),   round(rate_of("URPS",HZ_POOLED),2)),
   rate_unpooled_pct = c(round(rate_of("GO",HZ_GO),2),       round(rate_of("URPS",HZ_URPS),2)),
   rate_pooled_incl_migs_pct = c(round(rate_of("GO",HZ_POOLED_MIGS),2), round(rate_of("URPS",HZ_POOLED_MIGS),2)))
-write_csv(rate_tbl, here::here("cliff","data","hazard_rate_pooled_vs_unpooled.csv"))
+write_csv(rate_tbl, here::here("data","hazard_rate_pooled_vs_unpooled.csv"))
 
 cat("=== Age-band events / person-years / hazards (pooled vs unpooled) ===\n")
 print(by_band, row.names=FALSE)

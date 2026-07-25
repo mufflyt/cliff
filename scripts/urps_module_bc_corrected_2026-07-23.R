@@ -24,8 +24,8 @@ inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 
 con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
-abu <- fread("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
-abog<- fread("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
+abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
+abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
 cohmap <- rbind(data.table(npi=as.character(abu$npi[inmodel(abu$in_model_baseline)]),  cohort="ABU"),
                 data.table(npi=as.character(abog$npi[inmodel(abog$in_model_baseline)]), cohort="ABOG"))
 cohmap <- unique(cohmap[!is.na(npi)&npi!=""], by="npi")
@@ -139,8 +139,8 @@ mt <- Reduce(function(a,b) merge(a,b,by="code"), list(mt, v[,.(code,vol_2030,vol
              flo[,.(code,req_fte_confirmed_2024,req_fte_confirmed_2050)], fmi[,.(code,req_fte_mid_2050)]))
 mt[, episode_flag := "single anchor; primary-physician; facility+APP excluded; no age-specific rate; PSPS-assistant not yet netted"]
 
-fwrite(mt,   "cliff/data/urps_module_bc_corrected_summary_2026-07-23.csv")
-fwrite(long, "cliff/data/urps_module_bc_corrected_projection_2026-07-23.csv")
+fwrite(mt,   "data/urps_module_bc_corrected_summary_2026-07-23.csv")
+fwrite(long, "data/urps_module_bc_corrected_projection_2026-07-23.csv")
 cat("== Minimum per-procedure table (corrected Module B+C) ==\n")
 print(mt[, .(family, natl=national_observable_2024, urps=confirmed_urps_2024, share=confirmed_share,
              attr_low_mid_high=sprintf("%.2f/%.2f/%.2f",attr_low,attr_mid,attr_high), n_active=active_urps_npis,

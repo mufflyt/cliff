@@ -1,6 +1,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Guards the single-authoritative-SSOT-writer invariant. rebuild_ssot_revised.R is
-# the ONLY script that may write cliff/data/workforce_projections_consolidated.csv;
+# the ONLY script that may write data/workforce_projections_consolidated.csv;
 # the other builders must fail closed unless WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE=1.
 # Prevents the silent headline (7.1/5.6) drift from a stale competing builder.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

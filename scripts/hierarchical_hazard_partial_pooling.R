@@ -17,7 +17,7 @@
 # hazards (matching the primary interval); partial-pooled via a parametric
 # bootstrap of the fitted model (bootMer). ABU-hazard uncertainty (0.5x-2x on the
 # URPS hazard) is reported as an additional envelope row.
-#   OUTPUT: cliff/data/hierarchical_hazard_comparison.csv
+#   OUTPUT: data/hierarchical_hazard_comparison.csv
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr); library(here); library(blme); library(lme4)})
 set.seed(20260720L)
@@ -37,7 +37,7 @@ coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physicia
             ry=suppressWarnings(as.integer(retirement_year)), ret=as.logical(is_retired_for_cohorting),
             age=as.integer(age_approx)) %>%
   distinct(npi,.keep_all=TRUE) %>% filter(!is.na(ab))
-.anch <- read_csv(here("cliff","data","departure_anchor.csv"), show_col_types=FALSE)
+.anch <- read_csv(here("data","departure_anchor.csv"), show_col_types=FALSE)
 coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry=ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
@@ -120,7 +120,7 @@ out <- do.call(rbind, c(
   list(mk("URPS","partial_pooled_abu_0.5x", abu_scaled_ratio(0.5)),
        mk("URPS","partial_pooled_abu_2x",   abu_scaled_ratio(2.0)))
 ))
-write_csv(out, here("cliff","data","hierarchical_hazard_comparison.csv"))
+write_csv(out, here("data","hierarchical_hazard_comparison.csv"))
 cat(sprintf("\nspecialty variance (bglmer): %.4f  | ABU share of URPS active: %.1f%%\n",
             as.numeric(VarCorr(fit)$subspecialty), 100*abu_frac))
 cat("\n#4 HIERARCHICAL PARTIAL-POOLING COMPARISON:\n"); print(out, row.names=FALSE)

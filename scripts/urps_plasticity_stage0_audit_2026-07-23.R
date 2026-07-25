@@ -11,8 +11,8 @@ inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
 
-abu <- fread("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
-abog<- fread("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
+abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
+abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
 cohmap <- rbind(data.table(npi=as.character(abu$npi[inmodel(abu$in_model_baseline)]),  cohort="ABU-URPS"),
                 data.table(npi=as.character(abog$npi[inmodel(abog$in_model_baseline)]), cohort="ABOG-URPS"))
 cohmap <- unique(cohmap[!is.na(npi)&npi!=""], by="npi")
@@ -59,6 +59,6 @@ mat <- rbindlist(lapply(names(anchors), function(cd){ x<-classify(cd); x[, code:
 w <- dcast(mat, code~factor(cat,levels=CATS), value.var="srv", fill=0)
 w[, procedure := anchors[code]]
 print(w)
-fwrite(out, "cliff/data/urps_plasticity_stage0_audit_2026-07-23.csv")
-fwrite(w,   "cliff/data/urps_plasticity_primary_clinician_matrix_2026-07-23.csv")
+fwrite(out, "data/urps_plasticity_stage0_audit_2026-07-23.csv")
+fwrite(w,   "data/urps_plasticity_primary_clinician_matrix_2026-07-23.csv")
 cat("\nWrote audit + primary-clinician matrix CSVs.\n")

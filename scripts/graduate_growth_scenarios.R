@@ -15,7 +15,7 @@
 #   conservative_70pct 70% graduate-to-practice conversion of the mean (reference)
 #   optimistic_nrmp    NRMP certified-position benchmark (reference)
 # Reuses verbatim rebuild_ssot_revised.R machinery.  OUTPUT:
-#   cliff/data/graduate_growth_scenarios.csv
+#   data/graduate_growth_scenarios.csv
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 suppressPackageStartupMessages({library(readr); library(dplyr); library(here)})
 
@@ -47,6 +47,6 @@ out <- do.call(rbind, lapply(PRIMARY, function(k){
                stringsAsFactors=FALSE)
   }))
 }))
-write_csv(out, here("cliff","data","graduate_growth_scenarios.csv"))
+write_csv(out, here("data","graduate_growth_scenarios.csv"))
 cat("\n#8 GRADUATE-GROWTH SCENARIOS:\n"); print(out[,c("subspecialty_abbrev","scenario","annual_graduates","replacement_ratio","assessment")], row.names=FALSE)
 cat("\nDONE\n")

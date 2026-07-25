@@ -7,10 +7,10 @@
 #   2025 workforce averages 1.0 => effective(2025) == headcount(2025).
 # Headcount overstates capacity because older urogynecologists operate less.
 suppressPackageStartupMessages({library(data.table)})
-source("/Users/tylermuffly/isochrones-workforce-cliff/cliff/shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV/PY, BAND_LABELS
+source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV/PY, BAND_LABELS
 
 ## ── age-productivity weight w(age), from Module A step 1 (clamped at ends) ───
-apc <- fread("cliff/data/urps_module_a_age_productivity_2026-07-23.csv")   # age, rel_to_peak
+apc <- fread("data/urps_module_a_age_productivity_2026-07-23.csv")   # age, rel_to_peak
 wfun <- function(a){ a <- pmin(pmax(a, min(apc$age)), max(apc$age)); apc$rel_to_peak[match(a, apc$age)] }
 
 ## ── age-tracked supply projection 2025-2050 (same engine as the SSOT) ───────
@@ -42,7 +42,7 @@ supObs <- project_eff(hz)
 sup[, `:=`(headcount_obshazard=supObs$headcount, effective_obshazard=supObs$effective, mean_age_obshazard=supObs$mean_age)]
 
 ## ── demand driver (women 65+) + adequacy ────────────────────────────────────
-dem <- fread("cliff/data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, women_65plus)]
+dem <- fread("data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, women_65plus)]
 d <- merge(sup, dem, by="YEAR")
 b <- d[YEAR==2025]
 d[, headcount_index := round(100*headcount/b$headcount,1)]
@@ -53,8 +53,8 @@ d[, head_per_100k_w65:= round(1e5*headcount/women_65plus,2)]
 # adequacy = growth of supply relative to growth of the aging-driven demand (2025=1.00)
 d[, adequacy_headcount := round((headcount/b$headcount)/(women_65plus/b$women_65plus),3)]
 d[, adequacy_effective := round((effective/b$effective)/(women_65plus/b$women_65plus),3)]
-fwrite(d, "cliff/data/urps_module_a_effective_supply_2026-07-23.csv")
-cat("Wrote cliff/data/urps_module_a_effective_supply_2026-07-23.csv\n\n")
+fwrite(d, "data/urps_module_a_effective_supply_2026-07-23.csv")
+cat("Wrote data/urps_module_a_effective_supply_2026-07-23.csv\n\n")
 print(d[YEAR %in% c(2025,2030,2035,2040,2045,2050),
         .(YEAR, headcount, effective, mean_age, eff_per_100k_w65,
           adeq_head=adequacy_headcount, adeq_eff=adequacy_effective)])

@@ -13,7 +13,7 @@
 #                          columns together, and that the accessor helpers
 #                          return domain-correct values.
 #
-# Source of truth under test: cliff/data/workforce_projections_consolidated.csv
+# Source of truth under test: data/workforce_projections_consolidated.csv
 # Contract under test:        manuscript/R/workforce_data_contract.R
 #
 # Author: Tyler Muffly / Claude Code

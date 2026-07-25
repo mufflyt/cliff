@@ -49,7 +49,7 @@ cat("[", as.character(Sys.time()), "] Loading Table 1 data...\n", sep = "")
 
 # The 'read_csv' function reads a comma-separated value (CSV) file into a tibble.
 table1_data <- read_csv(
-  here("cliff", "data", "table1_physicians.csv"),
+  here("data", "table1_physicians.csv"),
   show_col_types = FALSE
 )
 
@@ -338,7 +338,7 @@ for (var in significant_vars) {
 cat("[", as.character(Sys.time()), "] Saving results...\n", sep = "")
 
 # Create output directory
-output_dir <- here("cliff", "data")
+output_dir <- here("data")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Save overall significance results

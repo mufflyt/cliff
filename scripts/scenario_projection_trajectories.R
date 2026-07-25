@@ -9,7 +9,7 @@
 # departures + Normal graduate draws) yields per-year median and 95% bands. This
 # reuses the SSOT model inputs so the status-quo median lands on projected_2029.
 #
-# OUTPUT: cliff/data/scenario_projection_trajectories.csv
+# OUTPUT: data/scenario_projection_trajectories.csv
 #   subspecialty_abbrev, subspecialty, scenario, year, median, lo, hi, entrants
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -35,7 +35,7 @@ coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physicia
             ret=as.logical(is_retired_for_cohorting), age=as.integer(age_approx)) %>%
   distinct(npi,.keep_all=TRUE) %>% filter(!is.na(ab))
 # PRIMARY departure definition: require a non-Open-Payments corroborating source.
-.anch <- read_csv(here::here("cliff","data","departure_anchor.csv"), show_col_types=FALSE)
+.anch <- read_csv(here::here("data","departure_anchor.csv"), show_col_types=FALSE)
 coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry = ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
@@ -114,9 +114,9 @@ out <- do.call(rbind, lapply(names(SUBS), function(k){
   }))
 }))
 
-write_csv(out, here::here("cliff","data","scenario_projection_trajectories.csv"))
+write_csv(out, here::here("data","scenario_projection_trajectories.csv"))
 cat("=== scenario projection trajectories (2029 endpoints) ===\n")
 print(out %>% filter(year==2029) %>%
         transmute(subspecialty_abbrev, scenario, entrants,
                   y2029=round(median), lo=round(lo), hi=round(hi)) %>% as.data.frame(), row.names=FALSE)
-cat("\nWrote cliff/data/scenario_projection_trajectories.csv\n")
+cat("\nWrote data/scenario_projection_trajectories.csv\n")

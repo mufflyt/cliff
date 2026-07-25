@@ -4,12 +4,12 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Replaces the unsourced annual_entrants (URPS 60 / GO 50 / MIGS 45) with the
 # authoritative NRMP "positions filled" counts (URPS 70 / GO 86 / MIGS 47;
-# cliff/data/nrmp_fellowship_entrants.csv), keeps the baseline and retirement
+# data/nrmp_fellowship_entrants.csv), keeps the baseline and retirement
 # inputs unchanged, and recomputes every derived column via the SAME contract
 # formulas the manuscript loader enforces.
 #
-# Writes a CORRECTED CANDIDATE to cliff/data/workforce_projections_NRMP_corrected.csv.
-# It does NOT overwrite the live SSOT (cliff/data/workforce_projections_consolidated.csv)
+# Writes a CORRECTED CANDIDATE to data/workforce_projections_NRMP_corrected.csv.
+# It does NOT overwrite the live SSOT (data/workforce_projections_consolidated.csv)
 # — adopting it reverses the manuscript's GO finding and requires updating the
 # contract tests, so promotion is a deliberate, PI-sanctioned step.
 #

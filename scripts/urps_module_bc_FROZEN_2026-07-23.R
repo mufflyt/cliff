@@ -47,12 +47,12 @@ PROV <- data.table(
   suppression=c("<11-beneficiary provider-service redaction (PUBLIC, suppressed)",
                 "National row; public/redacted but high-volume unlikely redacted",
                 "PUBLIC small-cell suppression (unsuppressed = LDS/DUA, NOT held)"),
-  input_sha256=c(.sha("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv"),
-                 .sha("cliff/data/urps_three_file_reconciliation_2026-07-23.csv"),
-                 .sha("cliff/data/urps_psps_modifier_audit_2026-07-23.csv")),
+  input_sha256=c(.sha("data/abog_all_urps_ENRICHED_2026-07-22.csv"),
+                 .sha("data/urps_three_file_reconciliation_2026-07-23.csv"),
+                 .sha("data/urps_psps_modifier_audit_2026-07-23.csv")),
   extraction_date="2026-07-23")
 
-recon <- fread("cliff/data/urps_three_file_reconciliation_2026-07-23.csv", colClasses=list(character="code"))
+recon <- fread("data/urps_three_file_reconciliation_2026-07-23.csv", colClasses=list(character="code"))
 # PSPS all-modifier ALLOWED (denials ~1%; assigned ~= allowed) and assistant counts (2024)
 # PSPS 2024 ALLOWED services (= submitted - denied), decomposed by modifier bucket
 # so primary+assistant+cosurgeon+team+other == all EXACTLY (re-pulled 2026-07-23).
@@ -84,7 +84,7 @@ d[, suppression_recovery_fraction := round(1-provider_visible_all/geography_nati
 # transfer params (Gate 123: from a table, not inline) + field residuals (gen
 # OB/GYN for reconstructive, gen urology for functional) from the primary-clinician
 # matrix; scaled from the provider-visible to the calibrated denominator.
-PARAMS <- fread("cliff/data/urps_module_bc_scenario_params_2026-07-23.csv")
+PARAMS <- fread("data/urps_module_bc_scenario_params_2026-07-23.csv")
 fres <- data.table(code=c("57288","57282","51728","52287"), field_residual_obs=c(2312,530,47371,23937))
 d <- merge(d, fres, by="code"); d <- merge(d, PARAMS[,.(field,t_mid,t_hi)], by="field")
 d[, calib_field_residual := round(field_residual_obs * national_calibrated_primary/provider_visible_primary)]
@@ -99,19 +99,19 @@ d[, n_not_observable      := N_COHORT - n_active]     # billed 0 OR suppressed -
 d[, n_confirmed_zero      := 0L]                      # cannot independently establish zero -> none
 
 ## ── input manifest with SHA-256 (Gates 4/10) ────────────────────────────────
-.man_files <- c("cliff/data/urps_three_file_reconciliation_2026-07-23.csv",
-                "cliff/data/urps_plasticity_primary_clinician_matrix_2026-07-23.csv",
-                "cliff/data/urps_module_bc_scenario_params_2026-07-23.csv",
-                "cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",
-                "cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv",
-                "cliff/data/urps_supply_demand_national_2026-07-23.csv")
+.man_files <- c("data/urps_three_file_reconciliation_2026-07-23.csv",
+                "data/urps_plasticity_primary_clinician_matrix_2026-07-23.csv",
+                "data/urps_module_bc_scenario_params_2026-07-23.csv",
+                "data/abog_all_urps_ENRICHED_2026-07-22.csv",
+                "data/abu_all_urps_ENRICHED_2026-07-22.csv",
+                "data/urps_supply_demand_national_2026-07-23.csv")
 MANIFEST <- data.table(file=.man_files,
                        sha256=vapply(.man_files, function(f) if(file.exists(f)) digest::digest(file=f,algo="sha256") else "MISSING", character(1)),
                        recorded_at="2026-07-23")
-fwrite(MANIFEST, "cliff/data/urps_module_bc_INPUT_MANIFEST_2026-07-23.csv")
+fwrite(MANIFEST, "data/urps_module_bc_INPUT_MANIFEST_2026-07-23.csv")
 fwrite(d[,.(code,procedure,n_observable_positive,n_not_observable,n_confirmed_zero,
             note="absent NPI = not observable (billed 0 or suppressed, indistinguishable); NOT confirmed zero")],
-       "cliff/data/urps_module_bc_observability_2026-07-23.csv")
+       "data/urps_module_bc_observability_2026-07-23.csv")
 
 ## ── FREEZE GATES ────────────────────────────────────────────────────────────
 narrative <- character(0)
@@ -123,7 +123,7 @@ G(4,  all(d$geography_national_all >= d$provider_visible_all))                  
 G(5,  all(d$psps_primary_fraction>=0 & d$psps_primary_fraction<=1))
 G(6,  all(d$national_calibrated_primary <= d$geography_national_all))
 G(7,  all(d$calibrated_national_share <= d$observable_share))
-G(8,  { m<-fread("cliff/data/urps_module_bc_corrected_summary_2026-07-23.csv"); TRUE }) # low-FTE==active enforced in corrected module (gate 11 there)
+G(8,  { m<-fread("data/urps_module_bc_corrected_summary_2026-07-23.csv"); TRUE }) # low-FTE==active enforced in corrected module (gate 11 there)
 G(9,  TRUE)                                                                     # low<=mid<=high enforced in corrected module (gate 3 there)
 # gate 10: narrative generated from CSV (below). gates 11/12: string hygiene (below).
 G(13, all(vapply(list(PROV$dataset_uuid,PROV$version_uuid,PROV$distribution_title,PROV$api_query,
@@ -139,11 +139,11 @@ setcolorder(d, c("code","procedure","field","provider_visible_all","provider_vis
   "national_calibrated_primary","urps_visible_all","urps_visible_primary","urps_primary_assistadj",
   "assistant_fraction","observable_share","calibrated_national_share","calibrated_share_assistadj",
   "suppression_recovery_fraction","n_active"))
-fwrite(d,    "cliff/data/urps_module_bc_FROZEN_2026-07-23.csv")
-fwrite(PROV, "cliff/data/urps_module_bc_FROZEN_provenance_2026-07-23.csv")
+fwrite(d,    "data/urps_module_bc_FROZEN_2026-07-23.csv")
+fwrite(PROV, "data/urps_module_bc_FROZEN_provenance_2026-07-23.csv")
 
 ## ── narrative generated FROM the frozen CSV (gate 10) ───────────────────────
-fr <- fread("cliff/data/urps_module_bc_FROZEN_2026-07-23.csv")
+fr <- fread("data/urps_module_bc_FROZEN_2026-07-23.csv")
 line <- function(i) sprintf("  %-20s observable %.0f%% | calibrated-national %.0f%% (assist-adj %.0f%%) | suppression-recovery %.0f%%",
   fr$procedure[i], 100*fr$observable_share[i], 100*fr$calibrated_national_share[i],
   100*fr$calibrated_share_assistadj[i], 100*fr$suppression_recovery_fraction[i])

@@ -73,7 +73,7 @@ wc_load_cohort <- function(apply_anchor = TRUE, here_fn = here::here) {
               sex = dplyr::coalesce(.wc_norm_sex(abog_gender), .wc_norm_sex(npi_gender))) %>%
     distinct(npi, .keep_all = TRUE) %>% filter(!is.na(ab))
   if (apply_anchor) {
-    anch <- readr::read_csv(here_fn("cliff","data","departure_anchor.csv"), show_col_types = FALSE)
+    anch <- readr::read_csv(here_fn("data","departure_anchor.csv"), show_col_types = FALSE)
     coh <- coh %>% left_join(mutate(anch, npi = as.character(npi)), by = "npi") %>%
       mutate(ry = ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
   }

@@ -29,7 +29,7 @@
 # retirement_year is board-derived here (no federal backfill), so timing
 # independence is preserved.
 #
-# OUTPUT: cliff/data/classifier_validation_external.csv (metrics, overall + by
+# OUTPUT: data/classifier_validation_external.csv (metrics, overall + by
 #         subspecialty) and a console report.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -136,8 +136,8 @@ if(nrow(timtab)) print(as.data.frame(timtab[,c("subspec","n","mean_diff","median
 # ---- persist ---------------------------------------------------------------
 out <- mtab %>% mutate(reference="state_board_lifecycle_registry",
                        label_rule="active_vs_definitive_exit_inactive_excluded")
-write_csv(out, here::here("cliff","data","classifier_validation_external.csv"))
-cat("\nWrote cliff/data/classifier_validation_external.csv\n")
+write_csv(out, here::here("data","classifier_validation_external.csv"))
+cat("\nWrote data/classifier_validation_external.csv\n")
 cat("\nReference standard: independent state medical-board license lifecycle (",
     format(nrow(distinct(reg,npi)), big.mark=","), " NPIs). ",
     "License status is not derived from Medicare/NPPES/ABMS.\n", sep="")

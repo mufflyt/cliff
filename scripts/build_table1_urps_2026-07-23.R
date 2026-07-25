@@ -4,8 +4,8 @@
 # chi-square (Fisher when any expected cell < 5). Coverage = % non-missing.
 suppressPackageStartupMessages({ library(data.table) })
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
-a <- fread("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv",  colClasses=list(character="npi"))
-b <- fread("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
+a <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv",  colClasses=list(character="npi"))
+b <- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
 a <- a[inmodel(in_model_baseline)]; b <- b[inmodel(in_model_baseline)]
 
 # COHORT (2026-07-23, PI decision): the full identified active cohort is 1,339
@@ -106,7 +106,7 @@ addcont("Part D beneficiary age, years, median [IQR]", "partd_bene_avg_age_2023"
 tab <- rbindlist(rows)
 setnames(tab, c("ABU","ABOG","Overall"),
          c(sprintf("ABU (n=%d)",nA), sprintf("ABOG (n=%d)",nB), sprintf("Overall (n=%d)",nT)))
-out <- "cliff/data/table1_urps_characteristics_2026-07-23.csv"
+out <- "data/table1_urps_characteristics_2026-07-23.csv"
 fwrite(tab, out)
 cat("Wrote", out, "\n\n")
 print(tab, nrow=100)

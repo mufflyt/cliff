@@ -3,7 +3,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # Builds the workforce-projection trajectory figure DIRECTLY from the SSOT
-# (cliff/data/workforce_projections_consolidated.csv) via the data contract, so
+# (data/workforce_projections_consolidated.csv) via the data contract, so
 # the figure can never drift from Tables 1-2. Trust-a-number (CLAUDE.md #19):
 # the only inputs are the contract-validated columns; nothing is hand-entered.
 #

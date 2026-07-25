@@ -10,16 +10,16 @@
 library(testthat); suppressPackageStartupMessages(library(data.table))
 
 .here <- function(p) {
-  # Resolve under either the isochrones layout (cliff/data/...) or the standalone
+  # Resolve under either the isochrones layout (data/...) or the standalone
   # cliff repo layout (data/...), searched up to a few parent directories.
   cands <- unique(c(p, sub("^cliff/", "", p)))
   for (r in c(".", "..", "../..", "../../..")) for (q in cands)
     if (file.exists(file.path(r, q))) return(file.path(r, q))
   p
 }
-FROZEN <- fread(.here("cliff/data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
-PROV   <- fread(.here("cliff/data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
-CORR   <- fread(.here("cliff/data/urps_module_bc_corrected_summary_2026-07-23.csv"), colClasses=list(character="code"))
+FROZEN <- fread(.here("data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
+PROV   <- fread(.here("data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
+CORR   <- fread(.here("data/urps_module_bc_corrected_summary_2026-07-23.csv"), colClasses=list(character="code"))
 SCRIPT <- readLines(.here("scripts/urps_module_bc_FROZEN_2026-07-23.R"))
 
 # ---- reusable invariant checkers (shared by real + saboteur tests) ----------
