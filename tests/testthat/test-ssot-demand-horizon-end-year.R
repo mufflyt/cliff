@@ -45,3 +45,23 @@ test_that("[intentional differences preserved] literature anchors + data-column 
   # data-column schema identifiers keep their _2050 names (not the horizon value)
   expect_true(any(grepl("vol_2050|req_fte_confirmed_2050|req_fte_mid_2050", cr)))
 })
+
+test_that("[adversarial] supply_demand_national derives HORIZON; no bare 2050-2025 remains (iter35)", {
+  # iter35: supply_demand_national hardcoded HORIZON <- 2050-2025 while the SAME file already used
+  # PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR for its YEAR axis (line 62). The bare arithmetic is
+  # now derived from the same two endpoints, so the trajectory length can never desync from the year axis.
+  sd <- readLines(here::here("scripts", "urps_supply_demand_national_2026-07-23.R"), warn = FALSE)
+  expect_false(any(grepl("HORIZON\\s*<-\\s*2050\\s*-\\s*2025", sd)))                               # literal gone
+  expect_true(any(grepl("HORIZON <- DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR", sd)))     # derived
+  expect_true(any(grepl("PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR", sd)))                  # same axis endpoints
+})
+
+test_that("[semantic] the derived HORIZON length matches the YEAR-axis span (the invariant iter35 protects)", {
+  # trajectory has HORIZON+1 entries (traj[1]..traj[HORIZON+1]); supply$YEAR is the full endpoint span.
+  # These must have equal length or the supply table would be malformed — this is exactly the desync the
+  # refactor removes. Assert the algebra directly from the canonical endpoints.
+  horizon <- de$DEMAND_HORIZON_END_YEAR - de$PROJECTION_BASELINE_YEAR
+  span    <- de$PROJECTION_BASELINE_YEAR:de$DEMAND_HORIZON_END_YEAR
+  expect_identical(horizon + 1L, length(span))            # HORIZON+1 trajectory points == number of years
+  expect_identical(as.integer(horizon), 25L)              # behavior-preserving: same 25 as the old literal
+})

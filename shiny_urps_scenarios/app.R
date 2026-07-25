@@ -16,9 +16,9 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(ggplot2) })
 
-source("urps_model_data.R")   # URPS_AGES, BAND_LABELS, HAZ_WINDOWS, BAND_EV, BAND_PY, GRAD_URPS
+source("urps_model_data.R")   # URPS_AGES, BAND_LABELS, BANDS, HAZ_WINDOWS, BAND_EV, BAND_PY, GRAD_URPS
 
-BANDS <- c(0, 45, 50, 55, 60, 65, 70, Inf)
+# BANDS (age-band breakpoints) now comes from urps_model_data.R (SSOT; == engine WC_BANDS)
 # plain-language display labels for the age bands (BAND_LABELS stays the model key)
 BAND_DISPLAY <- c("<45" = "Under 45", "45-49" = "45 to 49", "50-54" = "50 to 54",
                   "55-59" = "55 to 59", "60-64" = "60 to 64", "65-69" = "65 to 69", "70+" = "70 years or older")

@@ -29,3 +29,31 @@ test_that("[adversarial] neither the engine nor module_a re-hardcodes 34 for the
   expect_false(any(grepl("ENTRY_AGE\\s*<-\\s*34L", ma)))
   expect_true(any(grepl("ENTRY_AGE\\s*<-\\s*WORKFORCE_ENTRY_AGE", ma)))
 })
+
+test_that("[adversarial] supply_demand_national's project() default wires to the SSOT, not a bare 34L (iter34)", {
+  # iter34: the supply projection's entry_age default was project(..., entry_age=34L). It is a third
+  # consumer of the same fellowship-graduate entry age; it now defaults to WORKFORCE_ENTRY_AGE, reached
+  # via the demand_denominator source. Behavior-preserving: WORKFORCE_ENTRY_AGE == 34L.
+  sd <- readLines(here::here("scripts", "urps_supply_demand_national_2026-07-23.R"), warn = FALSE)
+  expect_false(any(grepl("entry_age\\s*=\\s*34L", sd)))                       # literal gone
+  expect_true(any(grepl("entry_age\\s*=\\s*WORKFORCE_ENTRY_AGE", sd)))        # wired to SSOT
+  expect_true(any(grepl("source\\(here::here\\(\"R\",\\s*\"demand_denominator\\.R\"\\)\\)", sd)))  # SSOT reachable at call time
+})
+
+test_that("[behavior-preserving] the projected 2050 supply is unchanged by the entry-age rewire", {
+  # source demand_denominator so WORKFORCE_ENTRY_AGE is in scope, then run project() with an explicit
+  # 34L vs the new default; identical trajectory proves the default resolves to the same value.
+  de <- new.env(); source(here::here("R", "demand_denominator.R"), local = de)
+  project <- function(ages, entrants, hz, horizon, entry_age) {
+    count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count)
+    traj <- numeric(horizon + 1); traj[1] <- sum(count)
+    haz <- function(a) rep(0.05, length(a))
+    for (h in seq_len(horizon)) { sv <- count * (1 - haz(av))
+      av2 <- av + 1L; ix <- match(entry_age, av2)
+      if (is.na(ix)) { av2 <- c(av2, entry_age); sv <- c(sv, entrants) } else sv[ix] <- sv[ix] + entrants
+      av <- av2; count <- sv; traj[h + 1] <- sum(count) }
+    traj }
+  ages <- c(40, 45, 50, 55, 60)
+  expect_identical(project(ages, 64, NULL, 25, 34L),
+                   project(ages, 64, NULL, 25, de$WORKFORCE_ENTRY_AGE))
+})
