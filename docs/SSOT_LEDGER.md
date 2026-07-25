@@ -2166,3 +2166,102 @@ duplicated across both snapshots and derived in the engine/hazard CSV) — the n
 departure hazard, higher-stakes than the band edges and currently three parallel copies.
 
 **Status:** ✅ complete. Uncommitted (loop rule).
+
+---
+
+## Iteration 38 — per-band hazard inputs `BAND_EV` / `BAND_PY` (drift guard, no copy removed)
+
+**Candidate:** `BAND_EV` (event-count numerators) and `BAND_PY` (person-year denominators) of the URPS departure
+hazard, `urps_model_data.R:14-15`.
+
+**Why higher-risk than alternatives:** these are the **highest-stakes numbers in the supply projection** — the
+numerator/denominator of every band's departure hazard, which drives the entire 2025-2050 supply trajectory and
+the Monte-Carlo fan. They are defined **identically in two self-contained Shiny snapshots** and consumed from
+whichever snapshot each script sources; a silent drift between the two apps would make them display different
+hazards from the same "model data".
+
+**Audit / discrepancy adjudication:** the two snapshots (`shiny_urps_scenarios/urps_model_data.R`,
+`shiny_urps_adequacy/data/urps_model_data.R`) are **byte-identical**; all consumers (`urps_module_a:21`,
+`urps_supply_demand_national:38,54`, `shiny_urps_scenarios/app.R:85,123`) read from the snapshot they source, so
+there is **no third live copy** — the engine does NOT define these (unlike `WC_BANDS`). Origin: the hierarchical
+partial-pooling pipeline; `BAND_PY[["fully_obs"]] == c(3854,973,811,488,221,53,3)` **equals the frozen
+`data/hazard_by_band_pooled_vs_unpooled.csv` `urps_py` column exactly** (verified). **Intentional differences
+preserved:** the three windows differ by design — `fully_obs` = hierarchical partial-pooled *expected* events
+(non-integer, penalized; manuscript primary), `drop2`/`full` = raw integer counts under alternative observation
+windows; NOT collapsed.
+
+**Canonical:** a **frozen-artifact + parity** contract, not a new constant. No shared code home is possible (both
+snapshots must deploy standalone on shinyapps.io, so neither can source a repo-root file — the demand scripts
+already single-source from the scenarios snapshot). The SSOT mechanism is therefore a drift guard: the two
+snapshots must agree with each other, and `BAND_PY[fully_obs]` must agree with the frozen hazard CSV (its true
+origin). This mirrors iter36's FROZEN-parity choice.
+
+**Files changed:** none refactored (see below); new `tests/testthat/test-ssot-band-hazard-inputs.R`.
+
+**Hardcoded copies removed:** 0 — and this is the correct outcome, not a shortfall: the duplication is
+scenarios-snapshot vs adequacy-snapshot, two standalone Shiny apps that cannot share a code home without breaking
+deployment. The iteration converts an **unguarded** byte-identical duplication into a **guarded** one.
+
+**Validation guards / tests added (`test-ssot-band-hazard-inputs.R`, 24/0):** **cross-snapshot parity** (both
+snapshots' `BAND_EV`/`BAND_PY` identical, all windows); **structure** (shared window names; one value per band);
+**cross-artifact origin** (`BAND_PY[fully_obs]` == frozen CSV `urps_py`, band order matched); **intentional
+differences preserved** (`fully_obs` EV non-integer/pooled vs `full` EV integer/raw, and the two windows are not
+equal); **semantic** (hazards non-negative, events ≤ exposure, `HAZ_WINDOWS[fully_obs]` == EV/PY, hazard rises
+45-49 → 55-59 → 65-69); **adversarial** (no window dropped/reordered between EV and PY; zero-exposure bands carry
+zero events — no phantom hazard).
+
+**Initial failures:** none. **Final: band-hazard-inputs 24/0; all 35 SSOT guards 529/0.**
+
+**Remaining risks:** the whole `urps_model_data.R` file is duplicated between the two Shiny apps (an
+architectural item beyond one SSOT iteration — a shared generator/build-time copy would remove it but risks
+Shiny standalone deployment); the guard now catches any `BAND_EV`/`BAND_PY` drift. `BAND_EV[fully_obs]` is
+model-derived (partial-pooled) and has no simple frozen-artifact to parity-check against beyond cross-snapshot —
+if the pooling is re-fit, both snapshots must be regenerated together.
+
+**Recommended next candidate:** `GRAD_URPS <- c(61,66,63,66)` (`urps_model_data.R`, the ACGME AY2020-24 completer
+counts) — duplicated across both snapshots and the driver of `ENTRANTS <- mean(GRAD_URPS)` wired in iters 7/33;
+same two-snapshot cross-parity pattern, and it feeds a published entrant-inflow number.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 38 files only
+(`tests/testthat/test-ssot-band-hazard-inputs.R`, `docs/SSOT_LEDGER.md`).
+
+---
+
+## Iteration 39 — `GRAD_URPS` was already audited (iter3); closed its residual second-snapshot gap
+
+**Candidate selected:** `GRAD_URPS <- c(61,66,63,66)` (the ACGME AY2020-24 URPS completer counts), per iter38's
+recommendation.
+
+**Finding — already in the ledger:** this value is **Iteration 3** (`WC_GRAD`). It already has a canonical home
+(engine `R/workforce_cliff_engine.R:29` `WC_GRAD$URPS`), `WC_ENTRANTS <- sapply(WC_GRAD, mean)` derivation, a
+frozen-CSV drift guard against `workforce_projections_consolidated.csv`, and an adversarial re-hardcode scan, in
+`tests/testthat/test-ssot-graduate-counts.R`. Per the no-double-audit rule I did **not** re-audit it. (iter38's
+recommendation was mistaken — it did not check that GRAD_URPS was already covered.)
+
+**Residual gap closed (coverage-completion of iter3, not a new audit):** iter3's Shiny-copy parity test predated
+the `shiny_urps_adequacy` app, so it checked only the **scenarios** snapshot; the **adequacy** snapshot's
+`GRAD_URPS <- c(61,66,63,66)` (`shiny_urps_adequacy/data/urps_model_data.R:8`) was **unguarded** (verified ==
+canonical, 0 references in any guard). This is the identical second-snapshot gap closed for `BANDS` (iter37) and
+`BAND_EV/PY` (iter38). Extended the existing test's parity check to loop over **both** snapshots.
+
+**Files changed:** `tests/testthat/test-ssot-graduate-counts.R` (parity test now covers both snapshots).
+**No production/consumer code touched; no new value canonicalized** (the value was already canonical).
+
+**Hardcoded copies removed:** 0 (self-contained Shiny copies, cannot be removed; now both drift-guarded).
+
+**Tests:** existing guard extended; **graduate-counts 14/0; all 35 SSOT guards 530/0.**
+
+**Remaining risks:** none new. Same standing architectural item as iter38 (the two `urps_model_data.R` are
+duplicated whole; a shared generator would remove the family of second-snapshot gaps at once).
+
+**Process note:** before recommending a "next candidate", grep the ledger AND `tests/testthat/test-ssot-*` for an
+existing guard — three of the recent snapshot-lineage values already had partial iter3-era guards.
+
+**Recommended next candidate (genuinely fresh, ledger-checked):** `WORKFORCE_CONVERSION_FLOOR` usage vs the
+`optimistic_nrmp`/`cautious_trend` scenario multipliers in `scripts/graduate_growth_scenarios.R:33` — the
+scenario-conversion assumptions (e.g. the `0.70` floor is canonical in `workforce_constants.R`, but the sibling
+scenario factors around it may be bare literals). Verify none are already ledgered first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 38-39 files
+(`tests/testthat/test-ssot-band-hazard-inputs.R`, `tests/testthat/test-ssot-graduate-counts.R`,
+`docs/SSOT_LEDGER.md`) — iter38 remains validated/green and awaits the next "land" instruction.
