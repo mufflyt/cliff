@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-source(here::here("R", "wc_path.R"))
+source(here::here("R", "workforce_cliff_engine.R"))   # SSOT: study constants (WC_*) + wc_path()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Reviewer #4: hierarchical partial-pooling age-band hazard for GO + URPS.
 # A binomial discrete-time hazard model with a SHARED age-band shape (fixed band
@@ -23,12 +23,13 @@ source(here::here("R", "wc_path.R"))
 suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr); library(here); library(blme); library(lme4)})
 set.seed(20260720L)
 
-BANDS <- c(0,45,50,55,60,65,70,Inf); BAND_LABELS <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
-WIN <- c(2016L,2021L); AGE_AT_CERT <- 30L; HORIZON <- 4L; ENTRY_AGE <- 34L; REF_YEAR <- 2024L
+# Study constants: SSOT = R/workforce_cliff_engine.R (WC_*). N_MC/N_BOOT are script-specific.
+BANDS <- WC_BANDS; BAND_LABELS <- WC_BAND_LABELS
+WIN <- WC_WIN; AGE_AT_CERT <- WC_AGE_AT_CERT; HORIZON <- WC_HORIZON; ENTRY_AGE <- WC_ENTRY_AGE; REF_YEAR <- WC_REF_YEAR
 N_MC <- 4000L; N_BOOT <- 300L
 band_of <- function(age) as.character(cut(age, breaks=BANDS, labels=BAND_LABELS, right=FALSE))
-SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery", GO="Gynecologic Oncology", MIGS="MIGS")
-GRAD <- list(GO=c(70,73,78,79), URPS=c(61,66,63,66)); ENTRANTS <- sapply(GRAD, mean); PRIMARY <- c("GO","URPS")
+SUBS <- WC_SUBS
+GRAD <- WC_GRAD; ENTRANTS <- sapply(GRAD, mean); PRIMARY <- WC_PRIMARY
 
 # ---- cohort + anchored departure year (verbatim) ---------------------------
 coh <- read_csv(wc_path("cohort_csv"),

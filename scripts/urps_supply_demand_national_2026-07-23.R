@@ -15,7 +15,8 @@ source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV, BAND_PY,
 ## ── DEMAND: Census female population by age band, per year (mid + low/high) ──
 agecols <- sprintf("POP_%d", 0:100)
 # age-specific PFD prevalence (Nygaard 2008 JAMA, NHANES; >=1 symptomatic PFD)
-prev <- function(age) fifelse(age<20, 0, fifelse(age<40,0.097, fifelse(age<60,0.265, fifelse(age<80,0.368,0.497))))
+source(here::here("R","pfd_prevalence.R"))   # SSOT: age-specific PFD prevalence (Nygaard 2008)
+prev <- pfd_prevalence_by_age
 pw <- prev(0:100)
 demand_series <- function(file){
   fem <- fread(file)[SEX==2 & ORIGIN==0 & RACE==0]

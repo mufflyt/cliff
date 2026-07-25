@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-source(here::here("R", "wc_path.R"))
+source(here::here("R", "workforce_cliff_engine.R"))   # SSOT: study constants (WC_*) + wc_path()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # #10: model the ABU (urology-pathway) URPS component separately instead of
 # assigning it the ABOG hazard. Produces a supplement sensitivity table:
@@ -13,8 +13,9 @@ source(here::here("R", "wc_path.R"))
 
 suppressPackageStartupMessages({library(dplyr); library(readr); library(here)})
 
-BANDS <- c(0,45,50,55,60,65,70,Inf); BL <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
-WIN <- c(2016L,2021L); AGE_AT_CERT <- 30L; REF_YEAR <- 2024L; HORIZON <- 4L; ENTRY_AGE <- 34L
+# Study constants: SSOT = R/workforce_cliff_engine.R (WC_*).
+BANDS <- WC_BANDS; BL <- WC_BAND_LABELS
+WIN <- WC_WIN; AGE_AT_CERT <- WC_AGE_AT_CERT; REF_YEAR <- WC_REF_YEAR; HORIZON <- WC_HORIZON; ENTRY_AGE <- WC_ENTRY_AGE
 band_of <- function(age) as.character(cut(age, BANDS, labels=BL, right=FALSE))
 
 coh <- read_csv(wc_path("cohort_csv"),

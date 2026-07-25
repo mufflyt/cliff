@@ -43,22 +43,28 @@ main <- function() {
       ~baseline_2025, ~projected_2029, ~sd_2029,
       ~ci95_lower,    ~ci95_upper,     ~percent_change,
       ~annual_retirement_rate, ~avg_annual_retirements,  ~annual_entrants,
-      ~replacement_ratio,      ~replacement_assessment,
+      ~replacement_ratio,
       ~fellowship_total_4yr,   ~total_retirements_4yr,   ~ci95_lower_clamped,
 
       # Source CSV row order: subspecialty_abbrev = c("FPMRS", "GO", "MIG", ...)
       "Female Pelvic Medicine & Reconstructive Surgery", "FPMRS",
       1283L, 1519.0, 15.2, 1489.0, 1549.0, 18.4,
-      4.4, 55.6, 70L, 1.26, "Above replacement", 280L, 222L, FALSE,
+      4.4, 55.6, 70L, 1.26, 280L, 222L, FALSE,
 
       "Gynecologic Oncology", "GO",
       1052L, 1309.8, 16.1, 1278.0, 1341.0, 24.5,
-      1.0, 10.6, 75L, 7.11, "Above replacement", 300L, 42L, FALSE,
+      1.0, 10.6, 75L, 7.11, 300L, 42L, FALSE,
 
       "Minimally Invasive Gynecologic Surgery", "MIG",
       605L, 776.0, 11.0, 754.0, 798.0, 28.3,
-      0.7, 4.2, 47L, 11.06, "Above replacement", 188L, 17L, FALSE
-    )
+      0.7, 4.2, 47L, 11.06, 188L, 17L, FALSE
+    ) %>%
+      # replacement_assessment is a pure function of the ratio (SSOT: classify_replacement,
+      # manuscript/R/workforce_data_contract.R). Derive it here so the fixture cannot silently
+      # drift from its own ratios if a stub ratio is ever edited for a new test scenario, and
+      # so the stub is classified by the SAME function the production path (line ~209) uses.
+      dplyr::mutate(replacement_assessment = classify_replacement(replacement_ratio)) %>%
+      dplyr::relocate(replacement_assessment, .after = replacement_ratio)
     return(invisible(stub))
   }
 

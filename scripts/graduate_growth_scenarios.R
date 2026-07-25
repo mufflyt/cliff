@@ -20,7 +20,7 @@
 suppressPackageStartupMessages({library(readr); library(dplyr); library(here)})
 
 source(here("R","workforce_cliff_engine.R"))    # single source of truth (constants + machinery)
-SUBS <- WC_SUBS; GRAD <- WC_GRAD; ENTRANTS_NRMP <- c(GO=88, URPS=74); PRIMARY <- WC_PRIMARY; HORIZON <- WC_HORIZON
+SUBS <- WC_SUBS; GRAD <- WC_GRAD; ENTRANTS_NRMP <- WC_ENTRANTS_NRMP; PRIMARY <- WC_PRIMARY; HORIZON <- WC_HORIZON  # NRMP benchmark: SSOT = engine WC_ENTRANTS_NRMP
 coh  <- wc_load_cohort(apply_anchor = TRUE)
 ages <- wc_active_ages(coh)
 bc   <- wc_band_counts(coh); HAZ <- setNames(bc$ev/bc$py, bc$band)
@@ -30,7 +30,7 @@ grad_scenarios <- function(k){
   g <- GRAD[[k]]; m <- mean(g); slope <- coef(lm(g ~ seq_along(g)))[2]
   cautious <- min(max(g), m + 0.5*slope*(HORIZON/2))
   c(flat_recent_mean=m, cohort_accounting=g[length(g)], contraction=min(g),
-    cautious_trend=cautious, conservative_70pct=0.7*m, optimistic_nrmp=ENTRANTS_NRMP[[k]])
+    cautious_trend=cautious, conservative_70pct=WORKFORCE_CONVERSION_FLOOR*m, optimistic_nrmp=ENTRANTS_NRMP[[k]])
 }
 SC_LABELS <- c(flat_recent_mean="Flat recent mean (status-quo)", cohort_accounting="Cohort accounting (most recent year)",
                contraction="Contraction (recent low)", cautious_trend="Cautious trend",

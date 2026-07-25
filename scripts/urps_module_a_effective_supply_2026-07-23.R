@@ -18,7 +18,7 @@ BANDS <- c(0,45,50,55,60,65,70,Inf)
 band_of <- function(age) as.character(cut(age,breaks=BANDS,labels=BAND_LABELS,right=FALSE))
 hz <- {ev<-BAND_EV[["fully_obs"]]; py<-BAND_PY[["fully_obs"]]; hh<-ifelse(py>0,ev/py,NA); hh[is.na(hh)]<-max(hh,na.rm=T); hh<-pmin(1,hh); names(hh)<-BAND_LABELS; hh}
 haz_for <- function(age,hz){h<-hz[band_of(age)]; h[is.na(h)]<-max(hz,na.rm=T); pmin(1,h)}
-HORIZON <- 25L; ENTRANTS <- 64; ENTRY_AGE <- 34L
+HORIZON <- 25L; ENTRANTS <- mean(GRAD_URPS); ENTRY_AGE <- 34L   # ENTRANTS derived from the ACGME graduate counts (SSOT), not hardcoded; HORIZON=25 is the demand horizon (2025-2050), intentionally != WC_HORIZON
 count0 <- table(URPS_AGES); av0 <- as.integer(names(count0)); count0 <- as.numeric(count0)
 # normalize w so the 2025 distribution averages 1.0
 wbar <- sum(count0*wfun(av0))/sum(count0); w <- function(a) wfun(a)/wbar

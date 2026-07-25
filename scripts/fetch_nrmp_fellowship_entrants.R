@@ -28,6 +28,13 @@ if (nchar(Sys.which("pdftotext")) == 0) {
   stop("pdftotext (poppler) not found on PATH; install poppler to run this fetcher.")
 }
 
+# Canonical subspecialty DISPLAY names (single source of truth). The `subspecialty`
+# column of the emitted CSV is DERIVED from R/workforce_constants.R::WC_SUBS_FULL, not
+# re-typed here, so the NRMP entrants file can never drift from the frozen SSOT naming.
+# `nrmp_label` below is a DIFFERENT string (the label used to grep the NRMP PDF text)
+# and is intentionally NOT the display name -- it stays local.
+source(here::here("R", "workforce_constants.R"), local = TRUE)
+
 # --- Authoritative sources -------------------------------------------------
 SOURCES <- list(
   obgyn_2024 = list(
@@ -44,11 +51,11 @@ SOURCES <- list(
 # GO and MIGS confirmed in BOTH the OB/GYN report (per-specialty pages) and the
 # SMS aggregate; URPS (FPMRS matches on a separate NRMP track for AUGS/SUFU) is
 # taken from the SMS 2025 aggregate.
+.nrmp_abbrev <- c("URPS", "GO", "MIGS")
+stopifnot(all(.nrmp_abbrev %in% names(WC_SUBS_FULL)))   # fail loud if the SSOT drops a key
 VERIFIED <- data.frame(
-  subspecialty_abbrev = c("URPS", "GO", "MIGS"),
-  subspecialty        = c("Urogynecology and Reconstructive Pelvic Surgery",
-                          "Gynecologic Oncology",
-                          "Minimally Invasive Gynecologic Surgery"),
+  subspecialty_abbrev = .nrmp_abbrev,
+  subspecialty        = unname(WC_SUBS_FULL[.nrmp_abbrev]),   # SSOT display names (R/workforce_constants.R)
   nrmp_label          = c("Female Pelvic Medicine and Reconstructive",
                           "Gynecologic Oncology",
                           "Minimally Invasive Gynecologic Surgery"),
@@ -59,6 +66,7 @@ VERIFIED <- data.frame(
   source_key          = c("sms_2025", "sms_2025", "sms_2025"),
   stringsAsFactors = FALSE
 )
+stopifnot(!anyNA(VERIFIED$subspecialty), all(nzchar(VERIFIED$subspecialty)))
 
 cache_dir <- here::here("data", "nrmp_cache")
 dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
