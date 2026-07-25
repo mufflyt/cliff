@@ -31,7 +31,7 @@ NRMP <- WC_ENTRANTS_NRMP
 
 # ---- cohort (ABOG) + ABU net-new for URPS -------------------------------------
 coh <- read_csv(wc_path("cohort_csv"),
-                show_col_types=FALSE, guess_max=1e5) %>%
+                show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), ab=names(SUBS)[match(subspecialty,SUBS)],
             cert_year=as.integer(cert_year), ry=suppressWarnings(as.integer(retirement_year)),
@@ -55,7 +55,7 @@ bands_all <- BL
 active <- coh %>% filter(ret==FALSE, !is.na(age))
 ages_by <- split(active$age, active$ab)
 abu_cw <- read_csv(wc_path("abu_crosswalk"),
-                   show_col_types=FALSE, guess_max=1e5) %>%
+                   show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
 abu_nn <- trimws(gsub('"','', readLines(
   wc_path("abu_net_new"))))

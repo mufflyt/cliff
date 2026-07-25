@@ -25,11 +25,11 @@ suppressPackageStartupMessages({library(here); library(readr); library(dplyr)})
 # Study constants: SSOT = R/workforce_cliff_engine.R (WC_*).
 BANDS <- WC_BANDS; BL <- WC_BAND_LABELS
 band_of <- function(a) as.character(cut(a, BANDS, labels=BL, right=FALSE))
-AGE_AT_CERT <- WC_AGE_AT_CERT; REF_YEAR <- WC_REF_YEAR; WIN <- WC_WIN
+AGE_AT_CERT <- WC_AGE_AT_CERT; REF_YEAR <- WC_REF_YEAR; WIN <- WC_WIN; PRIMARY <- WC_PRIMARY   # SSOT: primary pooled subspecialties (GO+URPS)
 SUBS <- WC_SUBS
 
 coh <- read_csv(wc_path("cohort_csv"),
-                show_col_types=FALSE, guess_max=1e5) %>%
+                show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), ab=names(SUBS)[match(subspecialty,SUBS)],
             cy=as.integer(cert_year), ry=suppressWarnings(as.integer(retirement_year)),
@@ -51,7 +51,7 @@ band_counts <- function(rows){
 
 # PRIMARY pooled hazard = GO + ABOG-URPS ONLY (MIGS excluded 2026-07-19).
 # The MIGS-inclusive pool is reported only as a sensitivity (pooled_incl_migs_*).
-pooled <- band_counts(which(coh$ab %in% c("GO","URPS")))
+pooled <- band_counts(which(coh$ab %in% PRIMARY))
 pooled_incl_migs <- band_counts(seq_len(nrow(coh)))
 go   <- band_counts(which(coh$ab=="GO"))
 urps <- band_counts(which(coh$ab=="URPS"))
@@ -80,8 +80,11 @@ HZ_POOLED <- setNames(pooled$ev/pooled$py, pooled$band)
 HZ_POOLED_MIGS <- setNames(pooled_incl_migs$ev/pooled_incl_migs$py, pooled_incl_migs$band)
 HZ_GO     <- setNames(go$ev/go$py, go$band)
 HZ_URPS   <- setNames(urps$ev/urps$py, urps$band)
+# The rate_pooled/unpooled/incl_migs value columns below are hardcoded in GO-then-URPS order; guard that
+# the SSOT PRIMARY still matches that order so the labels can derive from it without misaligning the values.
+stopifnot("[build_hazard] rate_tbl value columns assume PRIMARY == c('GO','URPS')" = identical(PRIMARY, c("GO","URPS")))
 rate_tbl <- data.frame(
-  subspecialty_abbrev = c("GO","URPS"),
+  subspecialty_abbrev = PRIMARY,
   rate_pooled_pct   = c(round(rate_of("GO",HZ_POOLED),2),   round(rate_of("URPS",HZ_POOLED),2)),
   rate_unpooled_pct = c(round(rate_of("GO",HZ_GO),2),       round(rate_of("URPS",HZ_URPS),2)),
   rate_pooled_incl_migs_pct = c(round(rate_of("GO",HZ_POOLED_MIGS),2), round(rate_of("URPS",HZ_POOLED_MIGS),2)))

@@ -33,7 +33,7 @@ GRAD <- WC_GRAD; ENTRANTS <- sapply(GRAD, mean); PRIMARY <- WC_PRIMARY
 
 # ---- cohort + anchored departure year (verbatim) ---------------------------
 coh <- read_csv(wc_path("cohort_csv"),
-                show_col_types=FALSE, guess_max=1e5) %>%
+                show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), ab=names(SUBS)[match(subspecialty,SUBS)], cert_year=as.integer(cert_year),
             ry=suppressWarnings(as.integer(retirement_year)), ret=as.logical(is_retired_for_cohorting),
@@ -44,7 +44,7 @@ coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry=ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
 # ABU net-new active URPS ages
-abu_cw <- read_csv(wc_path("abu_crosswalk"), show_col_types=FALSE, guess_max=1e5) %>%
+abu_cw <- read_csv(wc_path("abu_crosswalk"), show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
 abu_nn <- trimws(gsub('"','', readLines(wc_path("abu_net_new"))))
 abu_nn <- abu_nn[abu_nn!="" & !grepl("npi", abu_nn, ignore.case=TRUE)]

@@ -23,7 +23,7 @@ suppressPackageStartupMessages({library(DBI); library(duckdb); library(dplyr); l
 SUBS <- c(GO="Gynecologic Oncology", URPS="Female Pelvic Medicine & Reconstructive Surgery", MIGS="MIGS")
 
 coh <- read_csv(wc_path("cohort_csv"),
-                show_col_types=FALSE, guess_max=1e5) %>%
+                show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi)) %>% distinct()
 
