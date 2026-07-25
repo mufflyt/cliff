@@ -1,1 +1,3 @@
-tests/
+tests
+DEPLOY.R
+render_and_run.sh
