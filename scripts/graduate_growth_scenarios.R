@@ -43,7 +43,7 @@ out <- do.call(rbind, lapply(PRIMARY, function(k){
     data.frame(subspecialty_abbrev=k, scenario=s, scenario_label=SC_LABELS[[s]],
                annual_graduates=round(E,1), replacement_ratio=round(ratio,2),
                projected_2029=round(length(ages[[k]]) + HORIZON*(E-avg)),
-               assessment=ifelse(ratio>=1.2,"Adequate",ifelse(ratio>=0.8,"Marginal","Insufficient")),
+               assessment=classify_workforce_outlook(ratio),   # SSOT: R/workforce_constants.R (cuts 0.8/1.2)
                stringsAsFactors=FALSE)
   }))
 }))

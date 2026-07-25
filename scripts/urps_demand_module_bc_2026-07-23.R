@@ -59,15 +59,24 @@ supply <- fread("data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, sup
 yrs <- PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR   # SSOT horizon span (R/demand_denominator.R)
 proj <- data.table(YEAR=yrs, women65=w65[match(yrs,YEAR)]$women65)
 proj[, growth := women65/w65_2024]
+# Module C attribution-plasticity SCENARIOS (SSOT for this file): multiply each service's observed urogyn
+# share by these factors. mid=1.0 (as-observed), low/high = +/-20% sensitivity on the attributable share.
+# ONE definition drives BOTH the procedure-count projection and the required-FTE loop below, so the two can
+# never disagree. The three values are distinct scenarios (do NOT collapse); the +/-0.2 is a deliberate band.
+URPS_ATTRIB_MULT <- c(mid = 1.0, low = 0.8, high = 1.2)
+stopifnot(identical(names(URPS_ATTRIB_MULT), c("mid","low","high")),
+          URPS_ATTRIB_MULT[["mid"]] == 1.0,
+          URPS_ATTRIB_MULT[["low"]] < URPS_ATTRIB_MULT[["mid"]],
+          URPS_ATTRIB_MULT[["high"]] > URPS_ATTRIB_MULT[["mid"]])
 # urogyn-attributable PROCEDURE COUNT (reporting) and WORK ($, for FTE), scaled by 65+ growth
 attr_proc <- function(mult) round(sum(vol$national_2024*pmin(vol$count_share*mult,1))*proj$growth)
 attr_work <- function(mult)       sum(vol$national_usd*pmin(vol$usd_share*mult,1))*proj$growth
-proj[, urogyn_procedures_mid := attr_proc(1.0)]
-proj[, urogyn_procedures_low := attr_proc(0.8)]
-proj[, urogyn_procedures_high:= attr_proc(1.2)]
+proj[, urogyn_procedures_mid := attr_proc(URPS_ATTRIB_MULT[["mid"]])]
+proj[, urogyn_procedures_low := attr_proc(URPS_ATTRIB_MULT[["low"]])]
+proj[, urogyn_procedures_high:= attr_proc(URPS_ATTRIB_MULT[["high"]])]
 # required FTE = attributable WORK ($) / work-per-FTE  (both Medicare $, so all-payer bias largely cancels)
 for (s in c("mid","low","high")){
-  m <- c(mid=1.0,low=0.8,high=1.2)[s]
+  m <- URPS_ATTRIB_MULT[[s]]
   proj[[paste0("required_fte_",s)]] <- round(attr_work(m)/usd_per_fte)
 }
 # adequacy = supply / required (mid supply vs mid demand; plus bounds)

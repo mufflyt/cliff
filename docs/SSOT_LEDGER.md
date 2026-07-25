@@ -2315,3 +2315,126 @@ changed, identically in both). Both apps load all constants unchanged; both dema
 model-data edits: change the canonical, run `Rscript scripts/sync_urps_model_data.R`, commit both.
 
 **Status:** ✅ complete. Uncommitted — awaits a "land it" instruction.
+
+---
+
+## Iteration 40 — "Workforce Outlook" classification (Adequate/Marginal/Insufficient, cuts 0.8/1.2)
+
+**Candidate:** the replacement-ratio → workforce-outlook classification: `Adequate` (RR≥1.2), `Marginal`
+(0.8≤RR<1.2), `Insufficient` (RR<0.8).
+
+**Why higher-risk than alternatives:** it produces a **published categorical claim** — the "Workforce Outlook"
+per subspecialty (a subspecialty is called "Insufficient" vs "Adequate"). Unlike the contract's replacement
+scheme (which HAS a canonical `classify_replacement()` + `WORKFORCE_REPLACEMENT_*` constants), this scheme had
+**no canonical home**: the cutpoints `0.8`/`1.2` were computed with bare inline literals in the one live-logic
+site (`graduate_growth_scenarios.R:46`) and independently re-stated in the published table caption
+(`create_workforce_table.R:279`), the appendix math (`appendix_workforce_replacement_ratio.Rmd:96-98`), and the
+manuscript text — four hand-synchronised copies of a classification with nothing tying them together. (The
+recommended candidate, the `graduate_growth_scenarios` conversion multipliers, was already done: iter10
+`WORKFORCE_CONVERSION_FLOOR`, iter7 NRMP — only a single-use `0.5` damping factor remained, too weak.)
+
+**Audit / discrepancy adjudication:** **two distinct classification schemes coexist and must not be merged** —
+Scheme 1 (contract) "Above/At/Below replacement" cuts 0.95/1.05, **already single-sourced (iter16, recorded)**;
+Scheme 2 (this) "Adequate/Marginal/Insufficient" cuts 0.8/1.2. Within Scheme 2 the cutpoints agree at every site
+(graduate_growth_scenarios.R:46, caption:279, appendix:96-98, manuscript txt) → authority clear. The manuscript
+table's outlook column is reviewed **data** (a tribble) + a caption, not computed; left as-is and guarded.
+
+**Canonical:** `R/workforce_constants.R` (the shared engine+manuscript constants home) — `WORKFORCE_OUTLOOK_ADEQUATE_MIN
+= 1.2`, `WORKFORCE_OUTLOOK_MARGINAL_MIN = 0.8` (fail-loud: ordered, positive) + a pure function
+`classify_workforce_outlook(ratio)`. Function (value depends on input) with the cutpoints as named constants.
+
+**Files changed:** `R/workforce_constants.R` (new constants + classifier); `scripts/graduate_growth_scenarios.R:46`
+(inline `ifelse` → `classify_workforce_outlook(ratio)`); new `tests/testthat/test-ssot-workforce-outlook.R`.
+
+**Hardcoded copies removed:** 1 live classifier (the inline `ifelse(ratio>=1.2,...,ratio>=0.8,...)`). The 3
+manuscript/appendix restatements stay literal (published prose/data) but are now **parity-guarded** against the
+canonical. Behavior-preserving (verified: identical to the old `ifelse` across a boundary grid, `NA` propagates).
+
+**Validation guards:** `stopifnot` (ordered, positive cutpoints); the guard's cross-doc parity test fails if the
+table caption or appendix math drifts from the constants.
+
+**Tests added (`test-ssot-workforce-outlook.R`, 20/0):** well-formed/ordered cutpoints; **behavior-preserving**
+(reproduces the inline `ifelse` exactly, incl. boundaries + `NA`); **semantic** (boundary-exact `>=`, monotone
+non-regression as RR rises); **intentional-difference** (outlook labels DISJOINT from the contract's Above/At/Below
+labels — schemes not collapsed); **adversarial** (graduate_growth_scenarios references the SSOT, no inline
+1.2/0.8 classifier remains); **cross-doc parity** (published caption + appendix math state the canonical cuts).
+
+**Initial failures:** none. **Final: workforce-outlook 20/0; all 36 SSOT guards 567/0; graduate_growth_scenarios parses.**
+
+**Remaining risks:** the manuscript prose/caption/appendix remain literal by design (they are published text); the
+parity guard catches drift but a deliberate cutpoint change must be mirrored into the paper by hand. The manuscript
+table's outlook values are a reviewed tribble, not computed from `classify_workforce_outlook` (a bigger wiring
+change, deferred — the caption parity guard is the interim protection).
+
+**Recommended next candidate:** the manuscript workforce table's per-row **data** in `create_workforce_table.R:90-91`
+(baseline/retirement/ratio numbers hardcoded in a tribble) vs the frozen consolidated CSV — verify whether the
+table reads the SSOT CSV or re-types the numbers (a re-typed published table would be a high-risk drift), and
+whether it's already covered by the contract validator. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 40 files only
+(`R/workforce_constants.R`, `scripts/graduate_growth_scenarios.R`, `tests/testthat/test-ssot-workforce-outlook.R`,
+`docs/SSOT_LEDGER.md`).
+
+---
+
+## Iteration 41 — Module C attribution-plasticity multipliers (mid=1.0/low=0.8/high=1.2)
+
+**Candidate considered first, STOPPED (already flagged, PI-gated): the manuscript workforce table tribble
+(`create_workforce_table.R:88`).** Thoroughly investigated: its hardcoded numbers (GO baseline 1352 vs SSOT
+1052; ratios 1.08/0.73/1.61 vs 5.61/7.11/11.06; Scheme-2 labels; `fellowship_total_5yr`) disagree with the
+frozen `workforce_projections_consolidated.csv` on nearly every field. Confirmed it is **dead/legacy** (sourced
+by NO live manuscript Rmd; the paper uses `get_baseline()` → `workforce_statistics.R` → the CSV; the tribble's
+labels would fail the contract validator). Already documented in `docs/FLAG_stale_workforce_table_hardcode.md`
+and **entangled with the off-limits URPS baseline reconciliation** → PI decision, not a loop refactor. Not
+touched; recorded so it isn't re-audited.
+
+**Candidate selected:** the Module C attribution scenario multipliers `c(mid=1.0, low=0.8, high=1.2)` in
+`scripts/urps_demand_module_bc_2026-07-23.R` — the ±20% sensitivity band on each service's urogyn-attributable
+share, feeding the low/mid/high procedure-count and required-FTE demand projections.
+
+**Why higher-risk than alternatives:** the triple was **duplicated within one file** — as literal args
+`attr_proc(1.0)/attr_proc(0.8)/attr_proc(1.2)` (lines 65-67) AND as `c(mid=1.0,low=0.8,high=1.2)` in the
+required-FTE loop (line 70). The two drive the *same* scenario columns; a change to the low/high band that
+updated one and missed the other would silently make the procedure-count and FTE scenarios inconsistent. Feeds
+published demand-adequacy bounds.
+
+**Audit / discrepancy adjudication:** the triple appears only in `module_bc` (not in `module_bc_corrected`,
+which uses the empirical field-residual attribution instead, nor in `FROZEN`) → intra-file duplication. The
+three values are **distinct scenarios (low/mid/high) — preserved, not collapsed**. Same-numbers-different-meaning
+vs iter40's outlook cutpoints (0.8/1.2): the attribution band is unrelated to the replacement-ratio
+classification and must never be merged (guarded).
+
+**Canonical:** file-local named vector `URPS_ATTRIB_MULT <- c(mid=1.0, low=0.8, high=1.2)` with fail-loud
+`stopifnot` (ordered, mid=1.0, low<mid<high). File-local (not a shared constant) because the value is used only
+in this one script — the right scope; a shared home would be over-engineering.
+
+**Files changed:** `scripts/urps_demand_module_bc_2026-07-23.R` (canonical vector + both consumers wired to it);
+new `tests/testthat/test-ssot-attribution-multipliers.R`.
+
+**Hardcoded copies removed:** the duplicated triple (3 literal args + 1 inline named vector) → 1 canonical
+vector. Behavior-preserving (values identical: 1.0/0.8/1.2).
+
+**Validation guards:** `stopifnot` in the file; the guard evaluates only the constant line (the script opens a
+DuckDB connection, so it cannot be sourced whole) and checks values + wiring.
+
+**Tests added (`test-ssot-attribution-multipliers.R`, 16/0):** well-formed/ordered; **behavior-preserving**
+(1.0/0.8/1.2); **semantic** (symmetric ±0.2 band); **adversarial** (both consumers reference `URPS_ATTRIB_MULT`,
+no bare `attr_proc(0.8)`/`attr_proc(1.2)`/inline named-vector remains); **intentional-difference** (the
+attribution band is file-local and did NOT leak into `workforce_constants.R`, keeping it distinct from the
+outlook cutpoints).
+
+**Initial failures:** none. **Final: attribution-multipliers 16/0; all 38 SSOT guards 583/0; module_bc parses.**
+
+**Remaining risks:** none for this value (single-file, fully wired). The stale workforce-table tribble remains an
+open PI-gated item (`docs/FLAG_stale_workforce_table_hardcode.md`), unrelated to this iteration.
+
+**Recommended next candidate:** the FPMRS supply **figure** hardcodes in `scripts/fig_fpmrs_supply_line.R`
+(1196/1283/1301/4.4/55.6/1.08/15.2/CI) — same class as the stale table but noted in the FLAG doc as PI-gated
+(baseline-entangled); verify which of its numbers are baseline-independent (e.g. the CI z was already iter15,
+the year axis iter14) and whether any remaining literal is safe to single-source without touching the baseline.
+Otherwise scan `code/` (the older pipeline) for an un-audited duplicated constant. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 40-41 files
+(`R/workforce_constants.R`, `scripts/graduate_growth_scenarios.R`, `scripts/urps_demand_module_bc_2026-07-23.R`,
+`tests/testthat/test-ssot-workforce-outlook.R`, `tests/testthat/test-ssot-attribution-multipliers.R`,
+`docs/SSOT_LEDGER.md`) — iter40 remains validated/green and awaits the next "land" instruction.
