@@ -176,7 +176,7 @@ Mean annual departures were `r get_avg_retirements("GO")` for Gynecologic Oncolo
 ## Four-Year Workforce Projections (2025-2029)
 
 ```{r table2}
-.tramp <- readr::read_csv(here::here("cliff","data","graduation_active_transition_projection.csv"), show_col_types = FALSE)
+.tramp <- readr::read_csv(here::here("data","graduation_active_transition_projection.csv"), show_col_types = FALSE)
 table2 <- workforce_summary %>%
   dplyr::left_join(dplyr::select(.tramp, subspecialty_abbrev, projected_2029_ramped), by = "subspecialty_abbrev") %>%
   transmute(
@@ -212,7 +212,7 @@ fig_robustness()
 ## Sensitivity Analyses
 
 ```{r age-departure-prose, results='asis'}
-.win <- readr::read_csv(here::here("cliff", "data", "departure_window_sensitivity.csv"),
+.win <- readr::read_csv(here::here("data", "departure_window_sensitivity.csv"),
                         show_col_types = FALSE)
 g <- function(df, ab, col, lbl=NULL) { d <- if(is.null(lbl)) df else df[df$label==lbl,]; d[[col]][d$subspecialty_abbrev == ab] }
 cat("Estimated age at classified departure is younger than the median age of about 64 years at which obstetrician-gynecologists customarily retire from clinical practice.[@rayburn2015retirement; @tucker2025retirement] Because voluntary retirement is only one route out of practice, distinct from forced (health, competency, or legal) exits, early retirement, and non-clinical career change,[@tucker2025retirement] the younger ages may reflect nonretirement workforce exits, but until the physician-level adjudication is complete may also reflect classification or administrative-ascertainment error. Because age is reconstructed from certification year and the departure endpoint remains provisional, and because a young estimated median age is sensitive to misclassification, the per-subspecialty age-at-departure estimates are reported in the Supplemental Digital Content (Appendix S3) rather than in the main text.\n\n")
