@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
+source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols() / DEMAND_AGE_MIN
 # ACS Module B (procedure-based demand) + C (empirical plasticity/attribution)
 # for urogynecology, national, 2025-2050.
 #   B: observed 2024 Medicare volume per core service -> per-capita rate on women
@@ -50,12 +51,12 @@ cat(sprintf("Procedurally-active urogyns: %d; work-units (allowed $) per FTE: $%
 
 ## ── Women 65+ per year (Census 2023 mid) + supply from prior model ──────────
 fem <- fread(file.path(SCR,"np2023_d1_mid.csv"))[SEX==2 & ORIGIN==0 & RACE==0]
-w65 <- fem[, .(women65 = rowSums(.SD)), by=YEAR, .SDcols=sprintf("POP_%d",65:100)]
-w65_2024 <- w65[YEAR==2024]$women65
+w65 <- fem[, .(women65 = rowSums(.SD)), by=YEAR, .SDcols=npp_women_65plus_cols()]
+w65_2024 <- w65[YEAR==DEMAND_REBASE_YEAR]$women65   # SSOT: demographic rebase year (R/demand_denominator.R)
 supply <- fread("data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, supply, supply_lo, supply_hi)]
 
 ## ── Module B: project each service, Module C: attribute + scenarios ─────────
-yrs <- 2025:2050
+yrs <- PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR   # SSOT horizon span (R/demand_denominator.R)
 proj <- data.table(YEAR=yrs, women65=w65[match(yrs,YEAR)]$women65)
 proj[, growth := women65/w65_2024]
 # urogyn-attributable PROCEDURE COUNT (reporting) and WORK ($, for FTE), scaled by 65+ growth
@@ -77,13 +78,13 @@ proj[, adequacy_high := round(supply_hi/required_fte_low,2)]    # best:  high su
 
 fwrite(proj, "data/urps_demand_module_bc_2026-07-23.csv")
 cat("Wrote data/urps_demand_module_bc_2026-07-23.csv\n\n")
-show <- proj[YEAR %in% c(2025,2030,2035,2040,2045,2050)]
+show <- proj[YEAR %in% seq(PROJECTION_BASELINE_YEAR, DEMAND_HORIZON_END_YEAR, 5L)]
 print(show[, .(YEAR, women65_M=round(women65/1e6,1), urogyn_procedures_mid, required_fte_mid, supply,
                adequacy=adequacy_mid, adeq_band=paste0(adequacy_low,"-",adequacy_high))])
 cat(sprintf("\nRequired urogyn FTEs (mid): %d (2025) -> %d (2050); supply %d -> %d\n",
-    proj[YEAR==2025]$required_fte_mid, proj[YEAR==2050]$required_fte_mid,
-    proj[YEAR==2025]$supply, proj[YEAR==2050]$supply))
+    proj[YEAR==2025]$required_fte_mid, proj[YEAR==DEMAND_HORIZON_END_YEAR]$required_fte_mid,
+    proj[YEAR==2025]$supply, proj[YEAR==DEMAND_HORIZON_END_YEAR]$supply))
 cat(sprintf("Adequacy (supply/required, mid): %.2f (2025) -> %.2f (2050); 2050 band %.2f-%.2f\n",
-    proj[YEAR==2025]$adequacy_mid, proj[YEAR==2050]$adequacy_mid,
-    proj[YEAR==2050]$adequacy_low, proj[YEAR==2050]$adequacy_high))
+    proj[YEAR==2025]$adequacy_mid, proj[YEAR==DEMAND_HORIZON_END_YEAR]$adequacy_mid,
+    proj[YEAR==DEMAND_HORIZON_END_YEAR]$adequacy_low, proj[YEAR==DEMAND_HORIZON_END_YEAR]$adequacy_high))
 saveRDS(list(vol=vol, usd_per_fte=usd_per_fte, n_proc=n_proc), "/tmp/module_bc_meta.rds")

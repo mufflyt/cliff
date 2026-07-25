@@ -20,9 +20,9 @@ WC_BAND_LABELS <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
 WC_WIN         <- c(2016L, 2021L)
 WC_AGE_AT_CERT <- 30L
 WC_HORIZON     <- WORKFORCE_PROJECTION_HORIZON_YEARS   # SSOT: shared with the data contract
-WC_ENTRY_AGE   <- 34L
+WC_ENTRY_AGE   <- WORKFORCE_ENTRY_AGE   # SSOT: shared entry age (workforce_constants.R)
 WC_REF_YEAR    <- 2024L
-WC_YEAR0       <- 2025L
+WC_YEAR0       <- PROJECTION_BASELINE_YEAR   # SSOT: shared projection baseline (workforce_constants.R)
 WC_OBS_END     <- 2023L
 # WC_SUBS / WC_SUBS_FULL are the canonical subspecialty mappings, now defined in
 # R/workforce_constants.R (sourced above) so both the engine and manuscript lineages share them.

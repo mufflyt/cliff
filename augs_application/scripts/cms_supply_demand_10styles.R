@@ -26,7 +26,8 @@ long_idx <- tibble(
 
 # ---- palettes ----
 CMS_DK<-"#112e51"; CMS_BL<-"#205493"; CMS_LT<-"#0071bc"; CMS_CY<-"#02bfe7"
-TEAL<-"#1b7f79"; ORANGE<-"#c77d1a"; RED<-"#d1495b"; GREEN<-"#2e8b57"; GREY<-"#8a97a8"
+source(here::here("R", "augs_palette.R"))   # SSOT: TEAL / ORANGE / RED / GREY
+GREEN<-"#2e8b57"   # file-specific (10styles only), not part of the shared palette
 save1 <- function(p, f, w=9, h=5.4) ggsave(file.path(OUT,f), p, width=w, height=h, dpi=200, bg="white")
 
 ## 1. CMS federal-blue clean line chart (USWDS style)

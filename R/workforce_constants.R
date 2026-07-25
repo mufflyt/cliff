@@ -27,6 +27,44 @@ stopifnot(
   WORKFORCE_PROJECTION_HORIZON_YEARS >= 1L
 )
 
+# PROJECTION_BASELINE_YEAR
+#   Meaning : the projection baseline / first projected year. The supply projection ages the cohort
+#             forward from here, and every reporting index is rebased to it (index(baseline)=100). With
+#             WORKFORCE_PROJECTION_HORIZON_YEARS this fixes the endpoint (2025 + 4 = 2029).
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year.
+#   Source  : study design (baseline year of the age-structured projection).
+#   Consumers: the SUPPLY engine (R/workforce_cliff_engine.R::WC_YEAR0) AND the DEMAND lineage
+#             (R/demand_denominator.R::DEMAND_INDEX_BASE_YEAR) both alias this, so the two lineages that
+#             previously each hardcoded 2025 now share ONE definition and cannot drift.
+PROJECTION_BASELINE_YEAR <- 2025L
+stopifnot(
+  is.integer(PROJECTION_BASELINE_YEAR),
+  length(PROJECTION_BASELINE_YEAR) == 1L,
+  !is.na(PROJECTION_BASELINE_YEAR),
+  PROJECTION_BASELINE_YEAR == 2025L   # pin the published baseline; a change must be deliberate
+)
+
+# WORKFORCE_ENTRY_AGE
+#   Meaning : the age at which a newly completed fellowship graduate ENTERS the active workforce and begins
+#             being exposed to age-band departure risk. Fellows certify ~age 30 (the engine's WC_AGE_AT_CERT)
+#             and enter practice a few years later; each projected annual entrant cohort is injected into the
+#             age-structured projection at this age.
+#   Units   : years (integer).
+#   Range   : a plausible physician entry age (25-45).
+#   Source  : study design (age-structured projection entry age).
+#   Consumers: the SUPPLY engine (R/workforce_cliff_engine.R::WC_ENTRY_AGE) AND the demand-side effective-supply
+#             projection (scripts/urps_module_a_effective_supply_*.R::ENTRY_AGE) both alias this, so the two
+#             lineages that previously each hardcoded 34 now share ONE definition and cannot drift.
+WORKFORCE_ENTRY_AGE <- 34L
+stopifnot(
+  is.integer(WORKFORCE_ENTRY_AGE),
+  length(WORKFORCE_ENTRY_AGE) == 1L,
+  !is.na(WORKFORCE_ENTRY_AGE),
+  WORKFORCE_ENTRY_AGE >= 25L, WORKFORCE_ENTRY_AGE <= 45L,
+  WORKFORCE_ENTRY_AGE == 34L   # pin the published entry age; a change must be deliberate
+)
+
 # WORKFORCE_CONVERSION_FLOOR
 #   Meaning : conservative graduate-to-practice conversion factor — the fraction of fellowship
 #             completers assumed to enter active U.S. clinical practice in the subspecialty. The

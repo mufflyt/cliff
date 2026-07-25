@@ -16,6 +16,8 @@ source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV, BAND_PY,
 agecols <- sprintf("POP_%d", 0:100)
 # age-specific PFD prevalence (Nygaard 2008 JAMA, NHANES; >=1 symptomatic PFD)
 source(here::here("R","pfd_prevalence.R"))   # SSOT: age-specific PFD prevalence (Nygaard 2008)
+source(here::here("R","demand_denominator.R"))   # SSOT: DEMAND_INDEX_BASE_YEAR (reporting index base)
+source(here::here("R","units.R"))                # SSOT: RATE_PER_100K
 prev <- pfd_prevalence_by_age
 pw <- prev(0:100)
 demand_series <- function(file){
@@ -56,18 +58,18 @@ for (i in seq_len(N)) {
   hb[py==0] <- max(hb[py>0], na.rm=TRUE); hb <- pmin(1,hb); names(hb) <- BAND_LABELS
   mc[i,] <- project(URPS_AGES, 64, hb, HORIZON)
 }
-supply <- data.table(YEAR=2025:2050, supply=round(supply_mid),
+supply <- data.table(YEAR=PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR, supply=round(supply_mid),
                      supply_lo=round(apply(mc,2,quantile,0.025)),
                      supply_hi=round(apply(mc,2,quantile,0.975)))
 
 ## ── Combine + metrics ───────────────────────────────────────────────────────
 sd <- merge(supply, demand, by="YEAR")
-sd[, urogyn_per_100k_w65    := round(1e5*supply/women_65plus, 2)]
-sd[, per100k_lo := round(1e5*supply_lo/w65_hi, 2)]     # worst case: low supply / high demand
-sd[, per100k_hi := round(1e5*supply_hi/w65_lo, 2)]     # best case:  high supply / low demand
+sd[, urogyn_per_100k_w65    := round(RATE_PER_100K*supply/women_65plus, 2)]
+sd[, per100k_lo := round(RATE_PER_100K*supply_lo/w65_hi, 2)]     # worst case: low supply / high demand
+sd[, per100k_hi := round(RATE_PER_100K*supply_hi/w65_lo, 2)]     # best case:  high supply / low demand
 sd[, women_pfd_per_urogyn   := round(women_with_pfd/supply)]
 # index vs mid-2025 baseline (bands share the same denominator so the fan is honest)
-b <- sd[YEAR==2025]
+b <- sd[YEAR==DEMAND_INDEX_BASE_YEAR]   # SSOT: reporting index base (R/demand_denominator.R)
 sd[, supply_index    := round(100*supply/b$supply,1)]
 sd[, supply_lo_index := round(100*supply_lo/b$supply,1)]
 sd[, supply_hi_index := round(100*supply_hi/b$supply,1)]
@@ -80,12 +82,12 @@ sd[, pfd_hi_index := round(100*pfd_hi/b$women_with_pfd,1)]
 
 fwrite(sd, "data/urps_supply_demand_national_2026-07-23.csv")
 cat("Wrote data/urps_supply_demand_national_2026-07-23.csv\n\n")
-show <- sd[YEAR %in% c(2025,2030,2035,2040,2045,2050)]
+show <- sd[YEAR %in% seq(PROJECTION_BASELINE_YEAR, DEMAND_HORIZON_END_YEAR, 5L)]
 print(show[, .(YEAR, supply, women_65plus=round(women_65plus/1e6,1),
                women_with_pfd=round(women_with_pfd/1e6,1),
                per_100k_w65=urogyn_per_100k_w65, pfd_per_urogyn=women_pfd_per_urogyn,
                supply_idx=supply_index, w65_idx=w65_index)])
 cat(sprintf("\n2025->2050: supply %+.0f%%, women 65+ %+.0f%%, women with PFD %+.0f%%\n",
-    sd[YEAR==2050]$supply_index-100, sd[YEAR==2050]$w65_index-100, sd[YEAR==2050]$pfd_index-100))
+    sd[YEAR==DEMAND_HORIZON_END_YEAR]$supply_index-100, sd[YEAR==DEMAND_HORIZON_END_YEAR]$w65_index-100, sd[YEAR==DEMAND_HORIZON_END_YEAR]$pfd_index-100))
 cat(sprintf("Urogynecologists per 100k women 65+: %.1f (2025) -> %.1f (2050)\n",
-    sd[YEAR==2025]$urogyn_per_100k_w65, sd[YEAR==2050]$urogyn_per_100k_w65))
+    sd[YEAR==DEMAND_INDEX_BASE_YEAR]$urogyn_per_100k_w65, sd[YEAR==DEMAND_HORIZON_END_YEAR]$urogyn_per_100k_w65))

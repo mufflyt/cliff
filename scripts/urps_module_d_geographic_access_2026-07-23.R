@@ -21,8 +21,8 @@ suppressPackageStartupMessages({
 })
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 sf::sf_use_s2(TRUE)
-MI <- 1609.344
-source("R/conus.R")   # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
+source("R/conus.R")    # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
+source("R/units.R")    # SSOT: meters_to_miles() / miles_to_meters() (METERS_PER_MILE)
 
 ## ── 1. urogynecologist point layer (active; ZIP centroid) ────────────────────
 cen <- fread("data/reference/zcta_centroids_2020.csv", colClasses=list(character="zcta5"))
@@ -70,8 +70,8 @@ sf_use_s2(FALSE); ctr <- suppressWarnings(st_centroid(st_geometry(cty))); sf_use
 
 ## ── 4. distance to nearest urogynecologist + catchment counts ────────────────
 idx  <- st_nearest_feature(ctr, uro_sf)
-dmin <- as.numeric(st_distance(ctr, uro_sf[idx,], by_element=TRUE)) / MI
-within <- function(mi) lengths(st_is_within_distance(ctr, uro_sf, dist=mi*MI))
+dmin <- meters_to_miles(as.numeric(st_distance(ctr, uro_sf[idx,], by_element=TRUE)))
+within <- function(mi) lengths(st_is_within_distance(ctr, uro_sf, dist=miles_to_meters(mi)))
 n50  <- within(50); n100 <- within(100)
 # which counties physically contain >=1 urogyn
 contain <- lengths(st_intersects(cty, uro_sf))
@@ -109,7 +109,7 @@ summ <- data.table(
              "% women 65+ >100 mi from nearest urogynecologist",
              "median county miles to nearest","90th-pctile county miles to nearest"),
   value = c(U, W, round(W/U),
-            round(1e5*U/W, 2),                                    # per-100k benchmark (per literature)
+            round(RATE_PER_100K*U/W, 2),                                    # per-100k benchmark (per literature)
             n_counties, n_desert, round(100*n_desert/n_counties,1),
             wt(out$n_urogyn_in_county==0),
             wt(out$miles_to_nearest<=25), wt(out$miles_to_nearest<=50), wt(out$miles_to_nearest<=100),
@@ -120,7 +120,7 @@ fwrite(summ, "data/urps_module_d_summary_2026-07-23.csv")
 
 ## per-100k urogynecologist density by state (geographic maldistribution, per Herb 2022)
 st <- out[, .(women_65plus=sum(women_65plus), n_urogyn=sum(n_urogyn_in_county)), by=state]
-st[, per_100k_w65 := round(1e5*n_urogyn/women_65plus, 2)]
+st[, per_100k_w65 := round(RATE_PER_100K*n_urogyn/women_65plus, 2)]
 setorder(st, per_100k_w65)
 fwrite(st, "data/urps_module_d_density_by_state_2026-07-23.csv")
 

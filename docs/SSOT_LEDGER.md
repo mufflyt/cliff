@@ -1041,3 +1041,581 @@ demand modules — verify one definition).
 
 **Status:** ✅ complete. Uncommitted (loop rule). Working tree = this iteration's files (+ the prior
 `docs/FLAG_stale_workforce_table_hardcode.md` note).
+**NOTE:** iteration 17 (+ the flag note) was committed & pushed to `origin/main` as `eb6862b`
+(2026-07-25, Tyler's instruction).
+
+---
+
+## Iteration 18 — metres-per-mile conversion (`MI <- 1609.344`) → `R/units.R`
+
+**Selected candidate: the metres↔miles conversion factor `1609.344`.** Defined as `MI <- 1609.344` in **2
+Module-D producer scripts** and used in both directions: `/ MI` (metres→miles) at
+`differential_distance.R:33` and `geographic_access.R:73`; `mi * MI` (miles→metres) at
+`geographic_access.R:74`. The map scripts (`differential_map`, `map`) read the precomputed `*_miles` columns
+and do not convert.
+
+**Why higher-risk than alternatives:** a duplicated **physical constant** that drives every published access
+distance (median 29 extra miles, 50/100-mile catchments, miles-to-nearest choropleth). Fewer copies than the
+CONUS list (2 vs 7), but it feeds headline numbers in BOTH directions, so a rounded copy in one script (1609
+or 1609.34) would silently skew one metric relative to the other. Cleaner/atomic vs the alternatives (stale
+doc comment = doc-only; ACS B01001 var set = a lookup needing its own iteration).
+
+**Provenance table:**
+| file:line | literal / use | direction | verdict |
+|---|---|---|---|
+| `differential_distance.R:20` def, `:33` `/MI` | `1609.344`; m→mi | convert | duplicated → canonical |
+| `geographic_access.R:24` def, `:73` `/MI`, `:74` `mi*MI` | `1609.344`; m→mi + mi→m | convert | duplicated → canonical |
+| `differential_map.R`, `map.R` | read `differential_miles`/`miles_to_nearest` cols | — | no conversion — not touched |
+| catchment radii `within(50)`, `within(100)` | 50 / 100 miles | threshold | **intentional — left** (catchment radii, not the factor) |
+
+**Discrepancies / adjudication:** both copies are the exact statute mile (`1609.344`), no drift today. The
+`50`/`100` in `within(50)/within(100)` are catchment **radii** (a different quantity) — not collapsed. No
+ambiguity.
+
+**Canonical contract:** new **`R/units.R`** (pure constant + functions, no path deps; units ≠ geographic
+scope, so a separate module from `conus.R`):
+- `METERS_PER_MILE <- 1609.344` — metres per international/statute mile, exact by the 1959 yard-and-pound
+  agreement (1 yd = 0.9144 m). Range: exactly 1609.344.
+- `meters_to_miles(m)`, `miles_to_meters(mi)` — pure, vectorised, NA-preserving.
+
+**Files changed:** new `R/units.R`; `scripts/urps_module_d_differential_distance.R` (+`source`, `/MI`→
+`meters_to_miles()`); `scripts/urps_module_d_geographic_access_2026-07-23.R` (+`source`, `/MI`→
+`meters_to_miles()`, `mi*MI`→`miles_to_meters()`); new `tests/testthat/test-ssot-meters-per-mile.R`.
+
+**Hardcoded copies removed:** 2 `MI <- 1609.344` definitions (+ 3 bare `MI` use-sites rerouted through the
+helpers). Behavior-preserving: `meters_to_miles(x) == x/MI` and `miles_to_meters(x) == x*MI` verified
+byte-identical incl NA; no bare `MI` symbol remains in either script.
+
+**Validation guard (fail-loud, in the module):** `METERS_PER_MILE == 1609.344` (exact self-check, rejects a
+rounded copy) AND `all.equal(., 5280*12*0.0254)` (proves it is THE statute mile; `all.equal` because the
+ft·in·m decomposition is `1609.3439999…` in double precision — an exact `==` would false-fail).
+
+**Tests added:** `test-ssot-meters-per-mile.R` (17 assertions): exact value + statute-mile decomposition +
+rejects rounded copies (1609 / 1609.34); conversion correctness + round-trip + NA; **behavior-preserving**
+(helpers == prior `/MI` and `*MI` incl NA); **adversarial** (neither converter redefines `MI` or hardcodes
+1609; both source `R/units.R` and use the helpers).
+
+**Initial failures:** 1 (caught pre-test) — the module's `METERS_PER_MILE == 5280*12*0.0254` guard would have
+failed because that product is `1609.3439999…998` in floating point, not exactly `1609.344`. Fixed by
+`isTRUE(all.equal(...))` before running any test.
+
+**Final results:** meters-per-mile 17/0; all **18 SSOT guards 233/0**. (Module-D inputs aren't vendored, so
+validation is parse + equivalence + guards, as in iter 17.)
+
+**Remaining risks:** none specific to this factor. As with iter 17, the Module-D scripts can't be run
+end-to-end here (their shapefile/roster inputs aren't in-tree), but every converted value is provably identical.
+
+**Recommended next candidate:** the ACS women-65+ variable set `B01001_%03d` `44:49` (in `geographic_access`
++ the demand modules — likely duplicated, defines the demand denominator age bands); OR the stale
+`calculate_retirement_cliff_statistics.R:35` "5-year projection window" doc comment; OR the next display-name
+hardcoder migration (`manuscript/R/create_workforce_table.R`, once the PI decides the stale-copy flag).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = this iteration's files only.
+
+---
+
+## Iteration 19 — temporal demand-denominator age range (women 65+, `POP_65:POP_100`) → `R/demand_denominator.R`
+
+**Candidate considered first (STOPPED, not duplicated): the ACS variable set `B01001_044:049`.** The queued
+candidate turned out to appear **only once** (`geographic_access.R:54`) — nothing to single-source — and it is
+*intentionally* a separate source from the temporal driver (the shiny app documents ACS B01001 as the
+cross-sectional access-map count, "not the temporal driver"). So it is neither duplicated nor collapsible →
+stopped, recorded.
+
+**Selected candidate: the temporal demand-denominator age range `sprintf("POP_%d", 65:100)`.** "Women 65+"
+(the pelvic-floor-disorder demand denominator) is summed from the Census 2023 NPP single-year-of-age columns
+POP_65..POP_100. That range was **hardcoded in 2 demand producers** and asserted as a bare string
+`"POP_65..POP_100"` in the freeze-gate audit.
+
+**Why higher-risk than alternatives:** it defines the **denominator of every demand and adequacy number** in
+the paper (women-65+ per urogyn, per-100k, supply-to-demand index, all growth factors). Two producers compute
+it independently; a change to `65:99` or `66:100` in one would silently desynchronise the demand series, and
+the audit's "definition-fixed" gate would still pass on a stale string. Cleanly single-sourceable.
+
+**Provenance table:**
+| file:line | literal | role | verdict |
+|---|---|---|---|
+| `urps_demand_module_bc:53` | `sprintf("POP_%d",65:100)` | women65 sum | duplicated → canonical |
+| `urps_module_bc_corrected:89` | `sprintf("POP_%d",65:100)` | w65 sum | duplicated → canonical |
+| `urps_module_bc_gate_audit:165` | `"POP_65..POP_100"` (label) | audit's stated 65+ definition | duplicated string → derived from constants |
+| `urps_supply_demand_national:16` | `sprintf("POP_%d", 0:100)` | ALL ages (full pop vector) | **different range/purpose — left** (only NPP_MAX_AGE=100 is shared; not wired this iter) |
+| `geographic_access:54` | `B01001_%03d`, `44:49` | ACS spatial county count | **intentional separate source — left** |
+
+**Discrepancies / adjudication:** the ACS `44:49` and NPP `65:100` are different sources (spatial vs temporal)
+and different encodings (band index vs single-year age) — NOT collapsed. `supply_demand_national`'s `0:100` is
+"all ages," a different range — left (a future iter could share `NPP_MAX_AGE`). Both producers use identical
+`65:100` today; no drift.
+
+**Canonical contract:** new **`R/demand_denominator.R`** — `DEMAND_AGE_MIN <- 65L` (inclusive lower age of the
+older-women demand denominator), `NPP_MAX_AGE <- 100L` (NPP top single-year bucket), and
+`npp_women_65plus_cols()` → `sprintf("POP_%d", DEMAND_AGE_MIN:NPP_MAX_AGE)`. Pure constants + function.
+
+**Files changed:** new `R/demand_denominator.R`; `urps_demand_module_bc` + `urps_module_bc_corrected` (source
+the module; `.SDcols=npp_women_65plus_cols()`); `urps_module_bc_gate_audit` (source via its own `h()` resolver;
+gate 98 label now `sprintf("POP_%d..POP_%d", DEMAND_AGE_MIN, NPP_MAX_AGE)`); new
+`tests/testthat/test-ssot-demand-age-denominator.R`.
+
+**Hardcoded copies removed:** 2 `sprintf("POP_%d",65:100)` computations + 1 `"POP_65..POP_100"` audit label.
+Behavior-preserving: `npp_women_65plus_cols()` == the prior literal (36 cols, POP_65..POP_100); gate label
+reproduces "POP_65..POP_100" exactly.
+
+**Validation guards (fail-loud, in the module):** integer, ordered `DEMAND_AGE_MIN < NPP_MAX_AGE`, and pinned
+`== 65L` / `== 100L` (a change to the published 65+ definition must be deliberate).
+
+**Tests added:** `test-ssot-demand-age-denominator.R` (24 assertions): constants pinned + reject 60/66;
+**behavior-preserving** (cols == prior literal, length 36, POP_65..POP_100); **semantic** (cols derived from
+the constants; gate label derived); **adversarial** (no producer/gate hardcodes 65:100 or the string; all
+reference the SSOT); **intentional-difference** (the ACS `44:49` spatial path is NOT wired to the NPP helper).
+
+**Initial failures:** none — narrow 24/0 first run.
+
+**Final results:** demand-age-denominator 24/0; all **19 SSOT guards 257/0**. (Demand modules read a Census NPP
+file + DuckDB not vendored in-tree, so validation is parse + equivalence + guards.)
+
+**Remaining risks:** `urps_supply_demand_national:16` still hardcodes `0:100` (all-ages vector); it shares only
+the `100` top-age with this denominator — a future iter could route its `100` through `NPP_MAX_AGE`. The demand
+modules can't be run end-to-end here (NPP/DuckDB inputs absent), but every value is provably identical.
+
+**Recommended next candidate:** share `NPP_MAX_AGE` into `urps_supply_demand_national:16`'s `0:100`; OR the
+stale `calculate_retirement_cliff_statistics.R:35` "5-year projection window" doc comment; OR the AUGS-app
+palette constants (`CMS_DK`/`CMS_CY`/`TEAL`/`ORANGE`/`RED`, repeated across `cms_supply_demand_10styles` +
+`make_supply_demand_figure`).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-19 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 20 — shared AUGS supply-demand figure palette (TEAL/ORANGE/RED/GREY) → `R/augs_palette.R`
+
+**Candidate considered first (STOPPED, not a dedup): the all-ages NPP vector `sprintf("POP_%d", 0:100)`.**
+The recommended `NPP_MAX_AGE`-share turned out to have only ONE site (`urps_supply_demand_national:16`) — a
+single tidy, not a duplication. Recorded, skipped.
+
+**Selected candidate: the shared AUGS supply-demand figure palette** — `TEAL="#1b7f79"`, `ORANGE="#c77d1a"`,
+`RED="#d1495b"`, `GREY="#8a97a8"`, copy-pasted **byte-identical with identical names in 2 AUGS scripts**
+(`make_supply_demand_figure.R:8`, `cms_supply_demand_10styles.R:29`), each mapping Supply=TEAL /
+Demand=ORANGE / PFD=RED / neutral=GREY.
+
+**Why higher-risk than alternatives:** a real verbatim cross-file duplication (vs the single-site NPP tidy),
+and the two figures are the SAME semantic family (supply-vs-demand), so a colour tweak in one would silently
+desynchronise the paired figures. iter 7 stopped *manuscript* palettes for having intentional themes; here
+the four values are identical copies, not themes, so this slice is safely collapsible.
+
+**Provenance table:**
+| file:line | literal | verdict |
+|---|---|---|
+| `make_supply_demand_figure.R:8` | `TEAL/ORANGE/RED/GREY` (+ `INK`) | dup → canonical; `INK` local |
+| `cms_supply_demand_10styles.R:29` | `TEAL/ORANGE/RED/GREY` (+ `GREEN`, `CMS_*`) | dup → canonical; `GREEN`/`CMS_*` local |
+| `shiny_urps_adequacy/app.R:22` | `TEAL/ORANGE/RED/GREY` inline | **intentional — LEFT** (self-contained app; pinned by test-guards-app.R:95) |
+| `workforce_figures.R:11` `.wf_URPS="#d1495b"` | same red hex, diff name/role | **intentional — LEFT** (separate figure family) |
+| `create_urps_taxonomy_*.R`, inline per-panel/dark-theme hex | per-figure | **intentional — LEFT** |
+
+**Discrepancies / adjudication:** the ONLY thing collapsed is four byte-identical, identically-named constants
+in the two AUGS supply-demand scripts. Everything else is a deliberate non-collapse: the Shiny app keeps its
+inline copy **by requirement** (a deployed app cannot source repo modules; the inline literal is a
+self-containment guard in `test-guards-app.R`); the workforce-figure/taxonomy `#d1495b` are separate families
+with their own names; `GREEN`/`INK`/`CMS_*`/inline dark-theme hex are file-specific. None collapsed.
+
+**Canonical contract:** new **`R/augs_palette.R`** — `AUGS_SD_PALETTE` (named 4-colour vector:
+supply/demand_statusquo/demand_pfd/neutral) plus the bare `TEAL/ORANGE/RED/GREY` constants derived from it
+(kept so the consumer call sites are byte-for-byte unchanged). Fail-loud validation: 4 unique named entries,
+all valid `#RRGGBB`.
+
+**Files changed:** new `R/augs_palette.R`; `make_supply_demand_figure.R` (source it; keep `INK`);
+`cms_supply_demand_10styles.R` (source it; keep `GREEN`, `CMS_*`); new `tests/testthat/test-ssot-augs-palette.R`.
+
+**Hardcoded copies removed:** 2 (the shared 4-colour block in each AUGS script). Behavior-preserving:
+`TEAL/ORANGE/RED/GREY` resolve to the exact prior hex; `GREEN`/`INK`/`CMS_*` and all inline hex untouched;
+both scripts parse.
+
+**Validation guards (fail-loud, in the module):** 4 entries, unique non-empty names, all valid hex.
+
+**Tests added:** `test-ssot-augs-palette.R` (19 assertions): palette well-formed; **behavior-preserving**
+(bare constants == prior literals + derived from the named vector); **adversarial** (neither AUGS script
+re-hardcodes the palette; both source the module); **intentional-difference preserved** (GREEN/INK/CMS_* stay
+local; the workforce-figure `.wf_URPS` and the self-contained Shiny app keep their own copies and are NOT
+wired to the module).
+
+**Initial failures:** none from tests. The step-10 re-grep DID surface a 3rd copy (`shiny app.R:22`); on
+inspection it is an intentional self-contained copy (guarded by `test-guards-app.R`), so it was documented +
+added as a preserved-difference guard rather than refactored (test grew 17→19 assertions).
+
+**Final results:** augs-palette 19/0; all **20 SSOT guards 276/0**. (AUGS figures need the demand CSV to
+render; validation is parse + value-equivalence + guards.)
+
+**Remaining risks:** the same 4 colours still live in the Shiny app inline — by deployment requirement, not
+drift; if the palette ever changes, both the module AND the guarded app copy must be updated together (the
+guard makes that explicit). `#d1495b` recurs across figure families by intent.
+
+**Recommended next candidate:** the AUGS `CMS_*` federal-brand ramp (`#112e51/#205493/#0071bc/#02bfe7`) if it
+recurs beyond `cms_supply_demand_10styles`; OR the stale `calculate_retirement_cliff_statistics.R:35` "5-year
+projection window" doc comment; OR the physician at-risk retirement-age threshold (65) in
+`calculate_retirement_cliff_statistics.R` — verify whether it is duplicated as a supply-side parameter.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-20 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 21 — demographic-growth rebase year (`w65[YEAR==2024]`) → `DEMAND_REBASE_YEAR`
+
+**Candidate considered first (STOPPED, parameterized): the physician at-risk retirement age (65).** In
+`calculate_retirement_cliff_statistics.R` the "65+/at-risk" appear only in DOCSTRINGS — the functions take
+`at_risk` COUNTS as parameters, so no age-65 threshold is hardcoded there; the projection engine uses age-BAND
+hazards (already SSOT'd, iter 5). Not a hardcoded value → stopped. Also checked CMS_* ramp (single file, not a
+dedup) and FTE weights (parameterized) — neither qualifies.
+
+**Selected candidate: the demographic-growth REBASE YEAR `2024`.** Both demand producers divide the projected
+women-65+ series by the base-year count to form the growth index — `urps_demand_module_bc:55`
+(`w65_2024 <- w65[YEAR==2024]`) and `urps_module_bc_corrected:91` (`base65 <- w65[YEAR==2024]`, "rebased to
+2024"), asserted by the audit's `g2024=1` gates.
+
+**Why higher-risk than alternatives:** it is the denominator of the demographic **growth factor** that scales
+ALL projected demand volume and required-FTE; the two modules rebase independently, so a change to 2025 in one
+would silently desynchronise the demand projections. A real duplicated modeling parameter (vs the stopped
+candidates).
+
+**Discrepancy investigation — `2024`/`2025` are heavily overloaded; only the two base-row sites are the
+rebase:**
+| site | literal | concept | verdict |
+|---|---|---|---|
+| `module_bc:55`, `module_bc_corrected:91` | `w65[YEAR==2024]` | demographic growth REBASE year | → canonical |
+| `medicare_part_b_by_service_2024`, `national_2024`, `cohort_2024`, `req_fte_confirmed_2024` | 2024 | Medicare-claims DATA VINTAGE (table/column names) | **intentional — LEFT** |
+| `module_a:47`, `supply_demand_national:70` (`YEAR==2025`) | 2025 | SUPPLY-side reporting INDEX base (=WC_YEAR0) | **intentional — LEFT** |
+| `gate_audit` `year==2024` checks + `g2024=1` label | 2024 | audit base-row (entangled with vintage) | **LEFT this iter** (too entangled to touch safely; residual) |
+
+**Adjudication:** the two `w65[YEAR==2024]` sites are unambiguously the demographic rebase (they filter the
+women-65+ population table to the base year) and cleanly separable from the same-literal Medicare vintage and
+the different-value 2025 supply index base. Those are NOT collapsed. The gate audit's `2024` is entangled with
+the vintage and the projection base row, so it was left literal (documented residual) rather than risk a FATAL
+audit refactor.
+
+**Canonical contract:** `R/demand_denominator.R::DEMAND_REBASE_YEAR <- 2024L` — the year at which the older-women
+demographic growth factor equals 1. Constant (fixed year). Consumers: the two demand producers. Doc block
+explicitly warns it is NEITHER the Medicare data vintage NOR the 2025 supply index base.
+
+**Files changed:** `R/demand_denominator.R` (+ constant + validation); `urps_demand_module_bc` +
+`urps_module_bc_corrected` (`YEAR==2024` → `YEAR==DEMAND_REBASE_YEAR`); new
+`tests/testthat/test-ssot-demand-rebase-year.R`.
+
+**Hardcoded copies removed:** 2 (`w65[YEAR==2024]` in each producer). Behavior-preserving: `2024L` (int) vs the
+prior `2024` (double) yields an identical row mask; both scripts parse and already source the module (iter 19).
+
+**Validation guard (fail-loud):** integer, 2000–2100, pinned `== 2024L`.
+
+**Tests added:** `test-ssot-demand-rebase-year.R` (17 assertions): pinned value + != 2025; **behavior-preserving**
+(YEAR==constant selects the same row as ==2024); **adversarial** (no producer hardcodes `w65[YEAR==2024]`; both
+use the constant + source the module); **intentional-difference** (the Medicare vintage `medicare_part_b_by_service_2024`
+and the module_a `YEAR==2025` index base are NOT wired to the constant).
+
+**Initial failures:** none — narrow 17/0 first run.
+
+**Final results:** demand-rebase-year 17/0; all **21 SSOT guards 293/0**.
+
+**Remaining risks:** the audit gate (`urps_module_bc_gate_audit`) still asserts "growth rebased to 2024" as a
+literal string/`g2024=1`, entangled with the Medicare vintage and base-row checks — left un-canonicalized to
+avoid a risky FATAL-audit refactor; if `DEMAND_REBASE_YEAR` ever changes, that gate must be updated by hand
+(documented). The demand modules can't be run end-to-end here (NPP/DuckDB inputs absent).
+
+**Recommended next candidate:** the AUGS `CMS_*` federal-brand ramp is single-file (not a dedup) — instead try
+the supply-side **index base year 2025** (`module_a:47`, `supply_demand_national:70`, = `WC_YEAR0`) if it can be
+shared with the engine's `WC_YEAR0` without crossing the self-contained-shiny boundary; OR the stale
+`calculate_retirement_cliff_statistics.R:35` "5-year projection window" doc comment (doc↔SSOT); OR the
+Medicare data-vintage year `2024` if it recurs as a bare literal beyond table names.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-21 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 22 — reporting index base year (`[YEAR==2025]`) → `DEMAND_INDEX_BASE_YEAR`
+
+**Candidates considered first (STOPPED):**
+- **FPMRS procedure code set.** A canonical `config/subspecialty_hcpcs_codes.yml` (89 "defining" codes) exists
+  and is read by `enrich_rosters` + `module_a_age_productivity`, but `urps_demand_module_bc:27-31` hardcodes
+  its own 22-code, procedure-**grouped** set (sling/prolapse/urodynamics/oab_botox/pessary). Compared the two:
+  they genuinely **differ** (module_bc includes `57284`, absent from the YAML; the YAML has `57280`, absent
+  from module_bc) because they serve different purposes — practitioner *identification* vs demand *volume
+  attribution*. Intentional difference → not collapsed. The sling anchor `57288` is also entangled with
+  FROZEN producers (`module_bc_FROZEN`) → not a clean atomic candidate.
+
+**Selected candidate: the reporting INDEX BASE year `2025`** — `[YEAR==2025]` used as the index/adequacy
+denominator (index 2025=100, adequacy 2025=1.00) and baseline endpoint: `module_a:47,72`,
+`supply_demand_national:70,91`.
+
+**Why higher-risk than alternatives:** it is the denominator of every supply/demand/adequacy INDEX in the
+paper; two modules pick "2025" independently, so a drift would desync the reported indices. A real
+demand-lineage dedup (4 sites → 1), parallel to iter 21's `DEMAND_REBASE_YEAR`.
+
+**Discrepancy / adjudication:** `2025` is overloaded — the index base (canonicalised) vs the `2025:2050`
+projection span and the `YEAR==2050` horizon-end endpoint reporting (a separate, iter-7-stopped value, LEFT
+literal). Only the index-base/baseline filters were touched. The **2024 growth rebase** (iter 21) stays
+distinct. **Cross-lineage note:** `DEMAND_INDEX_BASE_YEAR` EQUALS the supply engine's `WC_YEAR0` (the same 2025
+projection baseline), but the demand modules are a separate lineage that does not source the engine.
+Formalising the 4 demand copies into 1 does not create a NEW duplicate SSOT — it reduces an existing
+duplication and DOCUMENTS the residual (`WC_YEAR0` vs this) as the next step: a shared `PROJECTION_BASELINE_YEAR`
+in `workforce_constants.R` that both alias. A **cross-lineage test guard** now asserts `WC_YEAR0 ==
+DEMAND_INDEX_BASE_YEAR` so they cannot silently diverge before that unification.
+
+**Canonical contract:** `R/demand_denominator.R::DEMAND_INDEX_BASE_YEAR <- 2025L` — the projection baseline to
+which reporting indices are rebased. Constant. Validated `> DEMAND_REBASE_YEAR` and pinned `== 2025L`.
+
+**Files changed:** `R/demand_denominator.R` (+ constant + validation); `urps_module_a_effective_supply`
+(source + 2 sites); `urps_supply_demand_national` (source + 2 sites); new
+`tests/testthat/test-ssot-demand-index-base-year.R`; **updated** `tests/testthat/test-ssot-demand-rebase-year.R`
+(one obsolete assertion — see failures).
+
+**Hardcoded copies removed:** 4 (`[YEAR==2025]` index-base/baseline filters). Behavior-preserving: `2025L`
+(int) vs `2025` (double) yields an identical row mask; both scripts parse and now source the module; the
+`YEAR==2050` horizon-end literals are intentionally retained.
+
+**Validation guard (fail-loud):** integer, `> DEMAND_REBASE_YEAR`, pinned `== 2025L`; plus the cross-lineage
+`WC_YEAR0 ==` guard in the test.
+
+**Tests added:** `test-ssot-demand-index-base-year.R` (15 assertions): pinned value + != 2050 + >
+rebase-year; **behavior-preserving** (mask == ==2025); **adversarial** (both consumers use the constant, no bare
+`[YEAR==2025]`, source the module, keep the 2050 endpoint literal); **cross-lineage guard** (engine `WC_YEAR0`
+== this — the engine sourced cleanly, guard ran, not skipped).
+
+**Initial failures:** 1 — `test-ssot-demand-rebase-year.R` (iter 21) asserted module_a still contained a
+literal `YEAR==2025` (its supply index base). Classified as **obsolete test tied to the old duplication**: iter
+22 correctly canonicalised that literal. Updated the assertion to `grepl("YEAR==DEMAND_INDEX_BASE_YEAR", ma)`
+while KEEPING `expect_false(grepl("DEMAND_REBASE_YEAR", ma))` (the two demand base years stay distinct). No
+production behavior changed.
+
+**Final results:** demand-index-base-year 15/0; all **22 SSOT guards 308/0** (after the obsolete-assertion fix).
+
+**Remaining risks:** the cross-lineage duplication `WC_YEAR0` (engine) vs `DEMAND_INDEX_BASE_YEAR` (demand) is
+real but now GUARDED (they must stay equal) — the proper fix is a single `PROJECTION_BASELINE_YEAR` in
+`workforce_constants.R` aliased by both (needs an engine + demand-module edit done together, verified; deferred
+as its own iteration). Demand modules can't be run end-to-end here (NPP/DuckDB absent).
+
+**Recommended next candidate:** the cross-lineage `PROJECTION_BASELINE_YEAR` unification (move 2025 into
+`workforce_constants.R`; alias `WC_YEAR0` and `DEMAND_INDEX_BASE_YEAR` to it) — the guarded next step; OR the
+`config/subspecialty_hcpcs_codes.yml` FPMRS set if a consumer is found that SHOULD read it but reimplements it
+(module_bc's grouped set is intentional, so look elsewhere); OR the per-100k rate multiplier `1e5` if it
+recurs across producers (low drift risk).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-22 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 23 — cross-lineage projection baseline year → shared `PROJECTION_BASELINE_YEAR`
+
+**Selected candidate: the 2025 projection baseline, unified across the supply and demand lineages.** This is
+the guarded next step recorded in iter 22: the SAME 2025 baseline was defined independently as the supply
+engine's `WC_YEAR0` (`workforce_cliff_engine.R`) and the demand `DEMAND_INDEX_BASE_YEAR` (`demand_denominator.R`).
+iter 22 only *guarded* that they were equal; iter 23 makes them the SAME source.
+
+**Why higher-risk than alternatives:** it is the most fundamental temporal anchor of the whole projection
+(supply ages forward from it; every reporting index rebases to it; baseline + horizon fixes the 2029 endpoint).
+Two independent literals in two lineages = a latent cross-lineage drift the earlier guard could only *detect*,
+not *prevent*. Eliminating it is strictly better than any remaining fresh candidate.
+
+**Discrepancy / adjudication:** no discrepancy (both were 2025); the risk was structural (two definitions).
+The proper home is `R/workforce_constants.R` — the shared study-design module BOTH lineages already reach (the
+engine sources it since iter 1; the demand lineage now sources it too). No intentional difference exists to
+preserve.
+
+**Canonical contract:** `R/workforce_constants.R::PROJECTION_BASELINE_YEAR <- 2025L` — the projection
+baseline / first projected year. Constant, integer, pinned `== 2025L`. Consumers: `WC_YEAR0` (engine) and
+`DEMAND_INDEX_BASE_YEAR` (demand) both ALIAS it.
+
+**Files changed:** `R/workforce_constants.R` (+ constant + validation); `R/workforce_cliff_engine.R`
+(`WC_YEAR0 <- PROJECTION_BASELINE_YEAR`); `R/demand_denominator.R` (sources workforce_constants with
+`local = TRUE`; `DEMAND_INDEX_BASE_YEAR <- PROJECTION_BASELINE_YEAR` + an `identical(...)` guard); new
+`tests/testthat/test-ssot-projection-baseline-year.R`.
+
+**Hardcoded copies removed:** 2 (`WC_YEAR0 <- 2025L` and `DEMAND_INDEX_BASE_YEAR <- 2025L` are now aliases).
+After this, `2025L`-the-baseline has EXACTLY ONE definition (`workforce_constants.R:40`). Behavior-preserving:
+`WC_YEAR0` and `DEMAND_INDEX_BASE_YEAR` both still resolve to `2025L`; the engine and every engine-consuming
+test are unchanged. Env-isolation verified: `demand_denominator`'s nested `source(..., local = TRUE)` places
+`PROJECTION_BASELINE_YEAR` in the caller's scope (so test `new.env()` sourcing still sees it).
+
+**Validation guards (fail-loud):** the module pins `PROJECTION_BASELINE_YEAR == 2025L`; `demand_denominator`
+adds `identical(DEMAND_INDEX_BASE_YEAR, PROJECTION_BASELINE_YEAR)` (it IS the shared baseline, not a parallel
+copy).
+
+**Tests added:** `test-ssot-projection-baseline-year.R` (11 assertions): constant pinned; demand alias ===
+shared; **engine alias === shared (cross-lineage, ran not skipped)**; both lineages equal by construction;
+**semantic** (baseline + horizon = 2029); **adversarial** (neither lineage re-hardcodes 2025 for the baseline;
+both alias the constant).
+
+**Initial failures:** none — narrow 11/0 first run; the engine sourced cleanly so the cross-lineage assertion
+ran (not skipped); all 23 SSOT guards + contract (63/0) + horizon/obs-window/age-bands engine-consumers green.
+
+**Final results:** projection-baseline-year 11/0; all **23 SSOT guards 319/0**; engine-consuming suites
+unchanged.
+
+**Remaining risks:** none for this value — the cross-lineage duplication is gone (single definition, two
+aliases, guarded). The demand modules still can't be run end-to-end here (NPP/DuckDB absent), but the aliasing
+is value-identical and structurally verified.
+
+**Recommended next candidate:** the per-100k rate multiplier `1e5` if it recurs across ≥2 producers (low drift
+risk); OR the demand horizon END year `2050` (`2025:2050`, `YEAR==2050`) — iter 7 stopped it for "three
+meanings", but if all active uses are the single demographic-projection horizon end it may now be cleanly
+canonicalisable as `DEMAND_HORIZON_END_YEAR`; OR the stale `calculate_retirement_cliff_statistics.R:35`
+"5-year projection window" doc comment IF its horizon is confirmed to be the 4-year canonical (currently
+ambiguous — may be an intentional 2024-2029 5-year at-risk window).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-23 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 24 — demand/supply projection HORIZON END year (`2050`) → `DEMAND_HORIZON_END_YEAR`
+
+**Selected candidate: the projection horizon END year `2050`** (iter 7 stopped it for "three meanings"; a fuller
+audit found the study-horizon uses ARE cleanly separable from the overloaded ones). Canonicalised in
+`R/demand_denominator.R::DEMAND_HORIZON_END_YEAR`, and the demand horizon LENGTH (`HORIZON <- 25L`) is now
+DERIVED from it (`DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR`).
+
+**Why higher-risk than alternatives:** it bounds every long-horizon supply/demand/adequacy number (through
+2050); it was hardcoded as spans, the horizon length (25L), `YEAR==2050` endpoint filters, `gf(2050)`, and
+milestone sets across **6** scripts — a change would desync them, and the length (25) could drift from the
+endpoints independently. Making the length derived removes that whole class of drift.
+
+**Discrepancy / adjudication (the "three meanings"):**
+| use | verdict |
+|---|---|
+| spans `2025:2050`, `seq(2025,2050,5)`, `HORIZON<-25L`, `YEAR==2050` filters, `gf(2050)`, milestone sets | study horizon → **canonical** |
+| `anchor_index(..., 2050, WU2011_SURG_2050)` (Wu-2011) and `..., 2030, ...` (Kirby) | **LEFT** — literature projection target years, fixed by the SOURCE data (coincide numerically, different concept) |
+| `vol_2050`, `req_fte_confirmed_2050`, `req_fte_mid_2050` | **LEFT** — data-COLUMN schema identifiers, not the year value |
+| `cov_2050` variable name, "2050" display strings, `end <- filter(YEAR==max(YEAR))` | **LEFT** — labels / already dynamic |
+
+**Canonical contract:** `DEMAND_HORIZON_END_YEAR <- 2050L` — final projection year; `> DEMAND_INDEX_BASE_YEAR`;
+pinned `== 2050L`. The horizon length and all spans/endpoints derive from it + `PROJECTION_BASELINE_YEAR`.
+
+**Files changed:** `R/demand_denominator.R` (+ constant + validation); `urps_module_a_effective_supply`
+(HORIZON derived; `YEAR==2050`→const ×6; milestone→`seq`); `urps_demand_module_bc` (span; `YEAR==2050`→const
+×4; milestone); `urps_module_bc_corrected` (`YRS` end; `gf(2050)`→const); `urps_supply_demand_national` (span;
+`YEAR==2050`→const ×3; milestone); `urps_module_bc_gate_audit` (span in gate 95); new
+`tests/testthat/test-ssot-demand-horizon-end-year.R`; **updated 2 obsolete prior tests** (see failures).
+
+**Hardcoded copies removed:** ~16 horizon-end value literals across 6 scripts → 0 (fully single-sourced).
+Behavior-preserving: HORIZON=25, span `2025:2050`, and milestone `seq(...,5)` all verified byte-identical to
+the prior literals; `2050L` (int) vs `2050` (double) is the same row mask; all scripts parse.
+
+**Validation guards:** module pins `== 2050L` and `> DEMAND_INDEX_BASE_YEAR`.
+
+**Tests added:** `test-ssot-demand-horizon-end-year.R` (17): pinned value; **behavior-preserving** (length/span/
+milestone == prior literals); **adversarial** (consumers derive it, no bare `YEAR==2050`/`2025:2050`/`HORIZON<-25L`);
+**intentional-difference** (Wu-2011 anchor + `_2050` column identifiers stay literal).
+
+**Initial failures:** 2 — **obsolete assertions in prior tests** invalidated by this refactor: (1)
+`test-ssot-demand-index-base-year.R` (iter 22) asserted module_a keeps a literal `YEAR==2050` — updated to
+accept the canonical form; (2) `test-ssot-urps-entrants-derived.R` (iter 7) pinned the literal `HORIZON <- 25L`
+— updated to assert the DERIVED length (`== 25L`, still != WC_HORIZON). Both preserved the original intent
+(horizon-end distinct from index base; demand horizon 25 not collapsed to 4). No production behavior changed.
+
+**Final results:** demand-horizon-end-year 17/0; all **24 SSOT guards 337/0** (after the 2 obsolete-assertion fixes).
+
+**Remaining risks:** none for this value — fully single-sourced across all 6 scripts, length derived. Demand
+modules still can't be run end-to-end here (NPP/DuckDB absent); value-equivalence + parse + guards verified.
+
+**Recommended next candidate:** the per-100k rate multiplier `1e5` if it recurs across ≥2 producers (low drift
+risk); OR the `2024` demographic base year in the remaining display milestone `c(2024,...)` (could alias
+`DEMAND_REBASE_YEAR`); OR the ambiguous `calculate_retirement_cliff_statistics.R:35` "5-year projection window"
+doc comment (verify whether its 2024-2029 window is an intentional 5-year at-risk horizon before touching).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-24 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 25 — per-100,000 population rate base (`1e5`) → `R/units.R::RATE_PER_100K`
+
+**Selected candidate: the per-100k rate multiplier `1e5`** — `1e5 * numer / denom`, duplicated across **3
+producers / 7 sites** (`module_a:53,54`; `geographic_access:112,123`; `supply_demand_national:66,67,68`) to
+report "urogynecologists per 100,000 women 65+" and the per-capita coverage benchmarks.
+
+**Why higher-risk than alternatives:** it drives every published per-100k rate in the paper and is duplicated
+across 3 files; naming it ALSO disambiguates it from the identical literal `1e5` used as a `guess_max` row hint
+(a different concept in ~7 other scripts). The `c(2024,...)` milestone alternative is now a single site (not a
+dedup); the "5-year projection window" doc comment has unclear authority.
+
+**Discrepancy / adjudication (same literal, two concepts):**
+| use | verdict |
+|---|---|
+| `1e5 * x / denom` (rate) in module_a / geographic_access / supply_demand_national | → **canonical** `RATE_PER_100K` |
+| `guess_max = 1e5` in read_csv/fread (abu_pathway_sensitivity, build_hazard_comparison, departure_anchor, hierarchical_hazard, scenario_projection, validate_departure_classifier) | **LEFT** — a data-loading row-count hint, NOT a rate base |
+
+The 3 rate-producer files contain ONLY rate `1e5*` uses (verified — no `guess_max` in them), so the
+`replace_all "1e5*"` was surgical (the `*` distinguishes the rate multiply from `guess_max=1e5)`).
+
+**Canonical contract:** `R/units.R::RATE_PER_100K <- 1e5` — the per-100,000 population rate normalisation base
+(rate = RATE_PER_100K * numer / denom). Named constant; validated `== 1e5`. Home = `units.R` (the rate/units
+module, already sourced by `geographic_access` since iter 18). Doc explicitly excludes the `guess_max` hint.
+
+**Files changed:** `R/units.R` (+ constant + validation); `urps_module_a_effective_supply` (source units;
+`1e5*`→`RATE_PER_100K*` ×2); `urps_module_d_geographic_access` (`1e5*`→const ×2; already sourced units);
+`urps_supply_demand_national` (source units; `1e5*`→const ×3); new `tests/testthat/test-ssot-rate-per-100k.R`.
+
+**Hardcoded copies removed:** 7 (`1e5*` rate multipliers) → 0 (fully single-sourced). Behavior-preserving:
+`RATE_PER_100K == 1e5`, so every rate is numerically identical; all 3 scripts parse.
+
+**Validation guards (fail-loud):** numeric scalar, `== 1e5`.
+
+**Tests added:** `test-ssot-rate-per-100k.R` (15): value pinned; **behavior-preserving** (rate with the constant
+== the prior `1e5` literal); **adversarial** (all 3 producers use `RATE_PER_100K`, no bare `1e5*`, source units);
+**intentional-difference** (a `guess_max=1e5` script keeps the literal and does NOT reroute through the constant).
+
+**Initial failures:** none — narrow 15/0 first run.
+
+**Final results:** rate-per-100k 15/0; all **25 SSOT guards 352/0**.
+
+**Remaining risks:** low — per-100k is a fixed epidemiological convention (near-zero drift); the value of this
+iteration is the dedup + disambiguation from `guess_max=1e5`. Demand modules can't be run end-to-end here.
+
+**Recommended next candidate:** the `guess_max = 1e5` row-count hint itself (recurs in ~6 read scripts — a
+`READ_GUESS_MAX_ROWS` constant if worth the churn); OR the `c(2024,...)` display milestone aliasing
+`DEMAND_REBASE_YEAR` (single site, tiny); OR the ACGME graduate-count window / any remaining hardcoded
+literature anchor (Kirby 2010/2030, Wu 2010/2050) if a second consumer of the same anchor appears. The clean
+in-repo candidate pool is now largely exhausted; consider a pass to VERIFY prior SSOTs still hold (re-run all
+25 guards) rather than force low-value new ones.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-25 files (uncommitted since
+the `eb6862b` push).
+
+---
+
+## Iteration 26 — fellowship-graduate ENTRY AGE (34) cross-lineage unification → `WORKFORCE_ENTRY_AGE`
+
+**Candidate: the entry age `34`.** iter 6 wired the engine-sourcing scripts to `WC_ENTRY_AGE`, but
+`urps_module_a_effective_supply:23` (demand lineage, does NOT source the engine) still hardcoded
+`ENTRY_AGE <- 34L` — the one un-wired copy. Same iter-23 baseline-year pattern.
+
+**Why higher-risk than alternatives (`guess_max=1e5`, `c(2024,...)` alias):** entry age drives the
+age-structured effective-supply projection (each annual entrant cohort is injected at this age); a divergence
+between module_a's 34 and the engine's 34 would silently make the demand-side projection age its entrants
+differently from the supply projection. `guess_max` affects no published number.
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_ENTRY_AGE <- 34L` (the shared module both lineages reach:
+the engine sources it; module_a reaches it via `demand_denominator → workforce_constants`, exactly as it
+already reaches `PROJECTION_BASELINE_YEAR`). `WC_ENTRY_AGE` and module_a's `ENTRY_AGE` both alias it.
+
+**Files changed:** `R/workforce_constants.R` (+ constant + validation); `R/workforce_cliff_engine.R`
+(`WC_ENTRY_AGE <- WORKFORCE_ENTRY_AGE`); `urps_module_a_effective_supply` (`ENTRY_AGE <- WORKFORCE_ENTRY_AGE`);
+new `tests/testthat/test-ssot-entry-age.R`.
+
+**Hardcoded copies removed:** 2 → `34`-the-entry-age now has ONE definition (`workforce_constants.R`).
+Behavior-preserving (both resolve to 34L); engine + all engine-consuming tests unchanged.
+
+**Guards:** pinned `== 34L`, range 25-45; cross-lineage test asserts `WC_ENTRY_AGE == WORKFORCE_ENTRY_AGE` and
+`> WC_AGE_AT_CERT` (graduates enter after certification).
+
+**Tests added:** `test-ssot-entry-age.R` (10): pinned value; **cross-lineage** (engine aliases + entry > cert,
+ran not skipped); **adversarial** (neither engine nor module_a re-hardcodes 34).
+
+**Final results:** entry-age 10/0; all **26 SSOT guards 362/0**. No initial failures.
+
+**Remaining risks:** none for this value. Note `WC_AGE_AT_CERT` (30) is engine-only (not duplicated in the
+demand lineage) so it stays `WC_*`; if a demand consumer of age-at-cert ever appears, unify it the same way.
+
+**Recommended next candidate:** the `guess_max = 1e5` read hint (`READ_GUESS_MAX_ROWS`, ~9 sites, low drift);
+OR a verification/commit pass — the clean in-repo pool is now essentially exhausted (26 iterations).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 18-26 files (uncommitted since
+the `eb6862b` push).

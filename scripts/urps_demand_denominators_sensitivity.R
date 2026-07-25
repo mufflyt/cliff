@@ -163,7 +163,7 @@ if (fig_ok) {
     geom_text(data = ends, aes(label = sprintf("%.0f", idx)), hjust = -0.25,
               size = 12, size.unit = "pt", fontface = "bold", show.legend = FALSE) +
     scale_color_manual(values = pal) +
-    scale_x_continuous(breaks = seq(2025, 2050, 5), expand = expansion(mult = c(0.02, 0.12))) +
+    scale_x_continuous(breaks = seq(PROJECTION_BASELINE_YEAR, DEMAND_HORIZON_END_YEAR, 5L), expand = expansion(mult = c(0.02, 0.12))) +
     labs(title = "URPS supply outpaces demand under all three demand definitions, 2025-2050",
          subtitle = "Indexed to 2025 = 100. Three independent demand estimands, reported by concordance (never averaged).",
          x = NULL, y = "Index (2025 = 100)", color = NULL,
