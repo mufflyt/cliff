@@ -37,8 +37,33 @@ stopifnot(
 )
 
 #' Census-NPP single-year-of-age column names that sum to the women-65+ demand denominator.
-#' Returns c("POP_65", ..., "POP_100"). The female-row filter (SEX==2) is the caller's job.
+#' Returns c("POP_65", ..., "POP_100"). Apply npp_total_female() first to select the female rows.
 npp_women_65plus_cols <- function() sprintf("POP_%d", DEMAND_AGE_MIN:NPP_MAX_AGE)
+
+#' Select the TOTAL United States female population rows from the Census 2023 National Population
+#' Projections file (np2023_d1_mid.csv) — the demand population base BEFORE the women-65+ age selection.
+#'   Filter : SEX == 2 (female), ORIGIN == 0 (all origins), RACE == 0 (all races combined).
+#'   Why SSOT: a wrong ORIGIN or RACE code (e.g. ORIGIN==1 Hispanic-only, RACE==1 White-only) would silently
+#'            narrow the demand denominator to a subgroup and corrupt every downstream demand number.
+#'   Codes per the Census NPP file layout. Consumers: scripts/urps_{demand_module_bc,module_bc_corrected,
+#'            supply_demand_national}.R (all pass a data.table with integer SEX/ORIGIN/RACE columns).
+#' @param dt a data.table with SEX, ORIGIN, RACE columns.
+#' @return the total-female (all-origins, all-races) rows.
+npp_total_female <- function(dt) {
+  stopifnot(all(c("SEX", "ORIGIN", "RACE") %in% names(dt)))
+  dt[SEX == 2 & ORIGIN == 0 & RACE == 0]
+}
+
+#' Path to a Census 2023 National Population Projections series file under data/census.
+#'   Naming contract : data/census/np2023_d1_<series>.csv, resolved from the repo root via here::here().
+#'   series : "mid" (the primary projection; default), "low", or "hi" (the NPP low/mid/high variants used
+#'            for the demand uncertainty bands). Single-sourced so the demand producers cannot read the
+#'            population base from different files or directories, and a vintage change (np2024_...) is one edit.
+#'   Consumers: scripts/urps_{demand_module_bc,module_bc_corrected,supply_demand_national}.R.
+npp_projection_path <- function(series = c("mid", "low", "hi")) {
+  series <- match.arg(series)
+  here::here("data", "census", sprintf("np2023_d1_%s.csv", series))
+}
 
 # DEMAND_REBASE_YEAR
 #   Meaning : the year to which the projected older-women population is REBASED so the demographic
