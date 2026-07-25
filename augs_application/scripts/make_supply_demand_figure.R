@@ -11,7 +11,7 @@ ft <- tryCatch({
   if ("Inter" %in% fams) "Inter" else "sans"
 }, error = function(e) "sans")
 
-d <- read_csv("data/urps_supply_demand_national_2026-07-23.csv", show_col_types = FALSE)
+d <- read_csv(here::here("data","urps_supply_demand_national_2026-07-23.csv"), show_col_types = FALSE)
 
 series <- tibble(
   YEAR = rep(d$YEAR, 3),
@@ -61,7 +61,7 @@ p <- ggplot(series, aes(YEAR, idx, color = what, fill = what)) +
     plot.margin = margin(14, 18, 10, 14)
   )
 
-out <- "figures/urps_supply_demand_figure.png"
+out <- here::here("augs_application","figures","urps_supply_demand_figure.png")
 ggsave(out, p, width = 9.5, height = 5.6, dpi = 300, bg = "white")
 cat("wrote", out, "|", round(file.info(out)$size/1e3), "KB\n")
 cat(sprintf("2050 endpoints -> supply=%.0f  demand(w65)=%.0f  demand(pfd)=%.0f\n",
