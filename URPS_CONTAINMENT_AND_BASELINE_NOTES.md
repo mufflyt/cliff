@@ -40,9 +40,20 @@ standalone repo:
 
 **So:** cliff is fully self-contained for RENDERING and RUNNING the analysis from the
 committed artifacts. It is NOT self-contained for RE-DERIVING those artifacts from raw
-sources; that requires the isochrones monorepo. (Future option: parameterize these five
-paths via a `ISOCHRONES_ROOT` env var so they are machine-independent, or migrate the
-de-identified subset they need.)
+sources; that requires the isochrones monorepo raw data plus two large public downloads.
+
+**Resolved (2026-07-24):** these external paths are no longer hardcoded — every upstream
+script resolves them through `wc_path()` / `config/cliff_paths.yml` (env override >
+path > fallback), so they are machine-independent (`WORKFORCE_*` env vars or
+`config/cliff_paths.local.yml`). The two large PUBLIC inputs are re-downloadable to their
+registered locations with `Rscript scripts/fetch_raw_inputs.R`:
+
+- `medicare_prov_svc` — CMS Provider-and-Service 2024 (3.25 GB CSV; the source behind
+  `signals_duckdb`), and
+- `hpsa_shp` — HRSA HPSA primary-care shapefile (~271 MB).
+
+The isochrones-monorepo cohort/ABU inputs remain external by design (identifiable);
+point at them via the config or env.
 
 ---
 
