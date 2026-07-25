@@ -113,15 +113,18 @@ CLIFF_FORCE_REBUILD=1 Rscript code/00_RUN_ALL.R
 
 ---
 
-## Shiny App
+## Shiny Apps
 
-Interactive retirement cliff simulator:
+Interactive explorers built from this repo's model:
 
-```r
-shiny::runApp("app")
-```
+| App | What it does | Launch |
+|---|---|---|
+| **Urogynecology Workforce Replacement Explorer** | Projects active urogynecologist headcount under adjustable fellowship-inflow, departure-rate, and graduate-conversion scenarios | **[▶ Live app](https://tyler-muffly.shinyapps.io/urps-workforce-explorer/)** · `shiny::runApp("shiny_urps_scenarios")` |
+| **Urogynecology Effective-Adequacy Explorer** | Supply-vs-demand adequacy and capacity margin, with a slider for urologists' share of clinical time in urogynecology — productivity-adjusted capacity, "beyond the head count" | `shiny::runApp("shiny_urps_adequacy")` *(run locally)* |
+| Retirement Cliff Simulator | Population coverage drop as the oldest physicians retire first, with rural/urban equity breakdown | `shiny::runApp("app")` *(run locally)* |
 
-Shows population coverage drop as the oldest physicians retire first, with rural/urban equity breakdown.
+Only the Workforce Replacement Explorer is currently deployed to shinyapps.io; the
+other two run locally from a clone.
 
 ---
 
@@ -140,6 +143,33 @@ Shows population coverage drop as the oldest physicians retire first, with rural
 | ACGME program data | 2022–2024 | Fellowship pipeline |
 
 All sources are publicly available and de-identified. IRB review not required.
+
+---
+
+## Provenance & upstream (`isochrones` monorepo)
+
+This repository was extracted from the private **[`isochrones`](https://github.com/mufflyt/isochrones)** monorepo, which is where the raw
+physician-level data (identifiable NPPES/ABOG/ABU/Medicare records) is assembled and
+where many of the committed artifacts in `data/` are first produced. **cliff vends the
+derived, de-identified artifacts** (departure hazards, roster crosswalks, workforce
+projections, the supply-demand tables) — not the raw inputs.
+
+Practically, this means:
+
+- **Self-contained for analysis.** Rendering the manuscript and running the model from
+  the committed artifacts needs only this repo (paths resolve through `here()` at the
+  repo root; package versions are pinned in `renv.lock`).
+- **Not self-contained for re-derivation.** A handful of *upstream* regeneration scripts
+  (`scripts/departure_anchor.R`, `scripts/hierarchical_hazard_partial_pooling.R`,
+  `scripts/build_hazard_comparison.R`, `scripts/abu_pathway_sensitivity.R`,
+  `scripts/scenario_projection_trajectories.R`) read raw data from the isochrones
+  monorepo (e.g. `<isochrones>/manuscript/tables/table1_physician_characteristics.csv`,
+  `<isochrones>/data/abu_urology/…`). To rebuild the vended artifacts from scratch you
+  need that monorepo; the raw identifiable data intentionally does not live here.
+
+See [`URPS_CONTAINMENT_AND_BASELINE_NOTES.md`](URPS_CONTAINMENT_AND_BASELINE_NOTES.md)
+for the exact boundary and the one open reconciliation item (the 1,295 vs 1,339
+both-pathway baseline).
 
 ---
 
