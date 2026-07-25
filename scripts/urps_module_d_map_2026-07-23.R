@@ -10,9 +10,9 @@ suppressPackageStartupMessages({
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 NONCONUS <- c("02","15","72","60","66","69","78")
 
-acc <- fread("cliff/data/urps_module_d_county_access_2026-07-23.csv",
+acc <- fread("data/urps_module_d_county_access_2026-07-23.csv",
              colClasses=list(character=c("GEOID","state")))
-pts <- fread("cliff/data/urps_module_d_points_2026-07-23.csv")
+pts <- fread("data/urps_module_d_points_2026-07-23.csv")
 
 cty <- counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE)
 cty <- st_transform(cty, 4326)

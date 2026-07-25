@@ -6,7 +6,7 @@ suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr)
   library(ggplot2); library(here); library(scales)})
 
 URPS <- "#d1495b"
-D <- here("cliff","data"); OUT <- here("cliff","figures","urps_only")
+D <- here("data"); OUT <- here("cliff","figures","urps_only")
 dir.create(OUT, recursive=TRUE, showWarnings=FALSE)
 rd <- function(f) read_csv(file.path(D,f), show_col_types=FALSE)
 house <- function(base=13) theme_minimal(base_size=base) +

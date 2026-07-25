@@ -35,7 +35,7 @@
 # Runtime: ~3 seconds
 #
 # Outputs:
-#   - cliff/data/workforce_projections_consolidated.csv
+#   - data/workforce_projections_consolidated.csv
 #   - cliff/figures/ (4 files: PNG and TIFF for 2 figures)
 #   - cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html
 #   - cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx
@@ -203,7 +203,7 @@ cat("\n")
 cat(sprintf("Total runtime: %.1f seconds\n", total_duration))
 cat("\n")
 cat("Outputs created:\n")
-cat("  ✓ Data: cliff/data/workforce_projections_consolidated.csv\n")
+cat("  ✓ Data: data/workforce_projections_consolidated.csv\n")
 cat("  ✓ Figures: cliff/figures/ (6 files)\n")
 cat("    - figure1_workforce_trajectories.png/tiff\n")
 cat("    - figure2_replacement_gap.png/tiff\n")

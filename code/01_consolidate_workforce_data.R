@@ -18,7 +18,7 @@
 # Inputs:  - enhanced_comparison_table_20250928_030546.csv (archived results)
 #          - Updated fellowship assumptions (2026 data)
 #
-# Outputs: - cliff/data/workforce_projections_consolidated.csv
+# Outputs: - data/workforce_projections_consolidated.csv
 #
 # Author: Tyler Muffly, MD / Claude Code
 # Date: 2026-01-12

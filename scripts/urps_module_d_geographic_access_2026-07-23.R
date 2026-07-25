@@ -9,13 +9,13 @@
 # the project's Valhalla isochrone pipeline is the natural Module D v2; this v1
 # gives the first defensible national picture of geographic concentration.
 #
-# Inputs : cliff/data/{abu,abog}_all_urps_ENRICHED_2026-07-22.csv (active only)
+# Inputs : data/{abu,abog}_all_urps_ENRICHED_2026-07-22.csv (active only)
 #          data/reference/zcta_centroids_2020.csv  (ZIP -> lat/lon)
 #          ACS 2019-2023 5-yr B01001 female 65+ by county (tidycensus)
 #          tigris county cartographic boundaries (2023)
-# Outputs: cliff/data/urps_module_d_county_access_2026-07-23.csv
-#          cliff/data/urps_module_d_points_2026-07-23.csv  (map layer)
-#          cliff/data/urps_module_d_summary_2026-07-23.csv
+# Outputs: data/urps_module_d_county_access_2026-07-23.csv
+#          data/urps_module_d_points_2026-07-23.csv  (map layer)
+#          data/urps_module_d_summary_2026-07-23.csv
 suppressPackageStartupMessages({
   library(data.table); library(tidycensus); library(tigris); library(sf); library(dplyr)
 })
@@ -34,8 +34,8 @@ load_roster <- function(f, pathway){
   d[, .(npi, pathway=pathway, state, county_fips, zip5)]
 }
 uro <- rbindlist(list(
-  load_roster("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv",  "ABU (urology)"),
-  load_roster("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv", "ABOG (OB/GYN)")))
+  load_roster("data/abu_all_urps_ENRICHED_2026-07-22.csv",  "ABU (urology)"),
+  load_roster("data/abog_all_urps_ENRICHED_2026-07-22.csv", "ABOG (OB/GYN)")))
 n_active <- nrow(uro)
 uro <- merge(uro, cen, by="zip5", all.x=TRUE)
 n_geo <- uro[!is.na(lat), .N]
@@ -47,7 +47,7 @@ message(sprintf("Urogynecologists: %d active, %d ZIP-geocoded, %d non-CONUS drop
 uro_sf <- st_as_sf(uro, coords=c("lon","lat"), crs=4326, remove=FALSE)
 
 ## ── 2. county women 65+ (ACS 2019-2023) with cache ───────────────────────────
-acs_cache <- "cliff/data/_cache_acs_county_women65_2023.csv"
+acs_cache <- "data/_cache_acs_county_women65_2023.csv"
 if (file.exists(acs_cache)) {
   w65 <- fread(acs_cache)
 } else {
@@ -89,9 +89,9 @@ out[, women65_per_urogyn_100mi := ifelse(n_urogyn_within_100mi>0,
 lon <- st_coordinates(ctr)[,1]; lat <- st_coordinates(ctr)[,2]
 out[, `:=`(centroid_lon=round(lon,4), centroid_lat=round(lat,4))]
 setorder(out, -miles_to_nearest)
-fwrite(out, "cliff/data/urps_module_d_county_access_2026-07-23.csv")
+fwrite(out, "data/urps_module_d_county_access_2026-07-23.csv")
 fwrite(uro[, .(npi, pathway, state, zip5, lat, lon)],
-       "cliff/data/urps_module_d_points_2026-07-23.csv")
+       "data/urps_module_d_points_2026-07-23.csv")
 
 ## ── 5. national summary ──────────────────────────────────────────────────────
 W  <- sum(out$women_65plus); U <- nrow(uro)
@@ -116,17 +116,17 @@ summ <- data.table(
             wt(out$miles_to_nearest>100),
             round(median(out$miles_to_nearest),1),
             round(quantile(out$miles_to_nearest,0.9),1)))
-fwrite(summ, "cliff/data/urps_module_d_summary_2026-07-23.csv")
+fwrite(summ, "data/urps_module_d_summary_2026-07-23.csv")
 
 ## per-100k urogynecologist density by state (geographic maldistribution, per Herb 2022)
 st <- out[, .(women_65plus=sum(women_65plus), n_urogyn=sum(n_urogyn_in_county)), by=state]
 st[, per_100k_w65 := round(1e5*n_urogyn/women_65plus, 2)]
 setorder(st, per_100k_w65)
-fwrite(st, "cliff/data/urps_module_d_density_by_state_2026-07-23.csv")
+fwrite(st, "data/urps_module_d_density_by_state_2026-07-23.csv")
 
 cat("\n=== MODULE D: geographic access summary ===\n")
 print(summ, nrow=99)
 cat("\n--- 10 most access-poor counties (highest women 65+ furthest from a urogyn) ---\n")
 print(out[miles_to_nearest>60][order(-women_65plus)][1:10,
          .(county, state, women_65plus, miles_to_nearest, n_urogyn_within_100mi)])
-cat("\nWrote county / points / summary CSVs to cliff/data/urps_module_d_*_2026-07-23.csv\n")
+cat("\nWrote county / points / summary CSVs to data/urps_module_d_*_2026-07-23.csv\n")

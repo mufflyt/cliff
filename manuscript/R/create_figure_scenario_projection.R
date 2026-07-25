@@ -3,7 +3,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Shah-style fixed-entrant scenario forecast: per subspecialty, three graduate-
 # inflow scenarios (conservative / status-quo / optimistic) with individual-level
-# Monte Carlo 95% bands. Reads cliff/data/scenario_projection_trajectories.csv
+# Monte Carlo 95% bands. Reads data/scenario_projection_trajectories.csv
 # (producer: scripts/scenario_projection_trajectories.R); the status-quo 2029
 # median matches projected_2029 in the SSOT, so the figure cannot drift from Table 2.
 #
@@ -22,7 +22,7 @@ source(here::here("R", "theme_publication.R"))
 #' @param show_title Draw an in-figure title (default FALSE for journal submission).
 #' @return A ggplot object.
 create_figure_scenario_projection <- function(
-    traj_path = here::here("cliff", "data", "scenario_projection_trajectories.csv"),
+    traj_path = here::here("data", "scenario_projection_trajectories.csv"),
     show_title = FALSE) {
 
   # Plot PERCENT CHANGE from the 2025 baseline on a COMMON y-axis (review point

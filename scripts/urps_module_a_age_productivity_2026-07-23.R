@@ -13,8 +13,8 @@ codes <- vapply(yaml::read_yaml("config/subspecialty_hcpcs_codes.yml")$
 
 con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
-abu <- fread("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
-abog<- fread("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
+abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
+abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
 # age in 2024 (graduation-year age; certification-proxy fallback) -> birth year
 ages <- rbind(abu[inmodel(in_model_baseline), .(npi=as.character(npi), age24=fifelse(!is.na(age_from_grad_year),as.numeric(age_from_grad_year),as.numeric(age_proxy_from_cert)))],
               abog[inmodel(in_model_baseline),.(npi=as.character(npi), age24=fifelse(!is.na(age_from_grad_year),as.numeric(age_from_grad_year),as.numeric(age_proxy_from_cert)))])
@@ -54,5 +54,5 @@ for (a in c(35,40,45,50,55,60,65,70,75)) cat(sprintf("  age %d: %.2f\n", a, grid
 ye <- data.table(year=yrs); ye[, eff := c(0, fixef(m)[grep("factor\\(year\\)", names(fixef(m)))])]
 cat(sprintf("\n2020 (COVID) calendar effect vs 2013: %.2f log-points (%.0f%% workload)\n",
             ye[year==2020]$eff, 100*exp(ye[year==2020]$eff)))
-fwrite(grid[,.(age,rel_to_peak,work_usd=round(work_usd))], "cliff/data/urps_module_a_age_productivity_2026-07-23.csv")
-cat("\nWrote cliff/data/urps_module_a_age_productivity_2026-07-23.csv\n")
+fwrite(grid[,.(age,rel_to_peak,work_usd=round(work_usd))], "data/urps_module_a_age_productivity_2026-07-23.csv")
+cat("\nWrote data/urps_module_a_age_productivity_2026-07-23.csv\n")

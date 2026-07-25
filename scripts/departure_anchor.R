@@ -15,7 +15,7 @@
 # removing those likely-false-positive events from the life table. The baseline
 # active workforce (is_retired_for_cohorting) is a separate gate and is unchanged.
 #
-# OUTPUT: cliff/data/departure_anchor.csv (npi, has_nonop_anchor)
+# OUTPUT: data/departure_anchor.csv (npi, has_nonop_anchor)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(dplyr); library(readr); library(here)})
@@ -39,7 +39,7 @@ dbDisconnect(con, shutdown=TRUE)
 
 out <- coh %>% left_join(sig, by="npi") %>%
   mutate(has_nonop_anchor = tidyr::replace_na(as.logical(has_nonop_anchor), FALSE))
-write_csv(out, here::here("cliff","data","departure_anchor.csv"))
+write_csv(out, here::here("data","departure_anchor.csv"))
 cat(sprintf("Departure anchor: %d cohort NPIs; %d (%.0f%%) have a non-Open-Payments anchor.\n",
             nrow(out), sum(out$has_nonop_anchor), 100*mean(out$has_nonop_anchor)))
-cat("Wrote cliff/data/departure_anchor.csv\n")
+cat("Wrote data/departure_anchor.csv\n")

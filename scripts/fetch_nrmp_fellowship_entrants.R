@@ -19,7 +19,7 @@
 # from the source PDFs on 2026-07-15. Any NRMP format/number change fails loud.
 #
 # Requires: pdftotext (poppler) on PATH.
-# Output:  cliff/data/nrmp_fellowship_entrants.csv (with full provenance).
+# Output:  data/nrmp_fellowship_entrants.csv (with full provenance).
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 suppressPackageStartupMessages({library(here)})
@@ -122,7 +122,7 @@ rows <- lapply(seq_len(nrow(VERIFIED)), function(i) {
 })
 out <- do.call(rbind, rows)
 
-out_path <- here::here("cliff", "data", "nrmp_fellowship_entrants.csv")
+out_path <- here::here("data", "nrmp_fellowship_entrants.csv")
 utils::write.csv(out, out_path, row.names = FALSE)
 
 cat("\nNRMP fellowship entrants (positions filled), all confirmed in source:\n")

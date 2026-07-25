@@ -7,7 +7,7 @@
 #   (C-E) both-pathway with the ABU subset's departure hazard scaled x0.5 / x1 / x2
 # ABU-only standalone hazards are NOT independently estimable from this cohort
 # (no linked ABU departure signals), so we bracket the ABU hazard rather than
-# assert it. OUTPUT: cliff/data/abu_pathway_sensitivity.csv
+# assert it. OUTPUT: data/abu_pathway_sensitivity.csv
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 suppressPackageStartupMessages({library(dplyr); library(readr); library(here)})
@@ -24,7 +24,7 @@ coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physicia
             ret=as.logical(is_retired_for_cohorting), age=as.integer(age_approx)) %>%
   distinct(npi,.keep_all=TRUE)
 # PRIMARY departure definition: require a non-Open-Payments corroborating source.
-.anch <- read_csv(here::here("cliff","data","departure_anchor.csv"), show_col_types=FALSE)
+.anch <- read_csv(here::here("data","departure_anchor.csv"), show_col_types=FALSE)
 coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry = ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
@@ -101,8 +101,8 @@ out <- bind_rows(
        list(list(ages=abog_ages, mult=1), list(ages=abu_ages, mult=2.0)), 64,
        length(abog_ages)+length(abu_ages)))
 
-write_csv(out, here::here("cliff","data","abu_pathway_sensitivity.csv"))
+write_csv(out, here::here("data","abu_pathway_sensitivity.csv"))
 cat("=== #10 ABU-pathway sensitivity (URPS) ===\n"); print(as.data.frame(out), row.names=FALSE)
 cat(sprintf("\nABOG active URPS=%d, ABU net-new active=%d, both-pathway=%d\n",
             length(abog_ages), length(abu_ages), length(abog_ages)+length(abu_ages)))
-cat("Wrote cliff/data/abu_pathway_sensitivity.csv\n")
+cat("Wrote data/abu_pathway_sensitivity.csv\n")

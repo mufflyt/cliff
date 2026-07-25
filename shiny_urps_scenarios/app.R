@@ -29,7 +29,7 @@ MORTALITY_ALL_MISSED <- 7.8
 MC_SEED <- 20260718L                       # matches manuscript_WORKFORCE_CLIFF.Rmd bootstrap seed
 
 # ---- canonical published figures (ONE source of truth) ---------------------
-# Read the manuscript's own transition CSVs (cliff/data/) so the app's ramp curve
+# Read the manuscript's own transition CSVs (data/) so the app's ramp curve
 # and the exact numbers shown at the default scenario come from the SAME files the
 # paper renders from. A frozen fallback (from manuscript_WORKFORCE_CLIFF.docx dated
 # 2026-07-21) keeps the app self-contained if the CSVs are not shipped alongside it.
@@ -38,7 +38,7 @@ MC_SEED <- 20260718L                       # matches manuscript_WORKFORCE_CLIFF.
 .load_canon <- function() {
   imm <- rmp <- defer <- NA_real_; curve <- NULL
   # Prefer the copy bundled INSIDE the app (data/), which is what ships to shinyapps.io;
-  # fall back to the repo's cliff/data/ for local development. Either resolves to the same
+  # fall back to the repo's data/ for local development. Either resolves to the same
   # source-of-truth CSVs; a frozen fallback below keeps the app self-contained if neither ships.
   find_csv <- function(name) {
     for (p in c(file.path("data", name), file.path("..", "data", name))) if (file.exists(p)) return(p)

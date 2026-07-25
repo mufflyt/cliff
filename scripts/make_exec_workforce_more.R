@@ -7,8 +7,8 @@
 #   A disappearing-team flow   B replacement gauge   C leaking-pipeline funnel   D risk card
 suppressPackageStartupMessages({library(readr); library(dplyr); library(ggplot2); library(here)})
 
-g  <- read_csv(here("cliff","data","sensitivity_grid_summary.csv"), show_col_types = FALSE)
-wf <- read_csv(here("cliff","data","workforce_projections_consolidated.csv"), show_col_types = FALSE)
+g  <- read_csv(here("data","sensitivity_grid_summary.csv"), show_col_types = FALSE)
+wf <- read_csv(here("data","workforce_projections_consolidated.csv"), show_col_types = FALSE)
 wr   <- g$worst_ratio[g$subspecialty_abbrev == "URPS"]
 prim <- wf$replacement_ratio[wf$subspecialty_abbrev == "URPS"]
 ent  <- wf$annual_entrants[wf$subspecialty_abbrev == "URPS"]

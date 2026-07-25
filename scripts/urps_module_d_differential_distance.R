@@ -39,8 +39,8 @@ compute_differential_distance <- function(centroids_sf, geoid, urogyn_sf, obgyn_
 }
 
 ## ── inputs ───────────────────────────────────────────────────────────────────
-URO_F   <- "cliff/data/urps_module_d_points_2026-07-23.csv"          # from Module D
-OBGYN_F <- Sys.getenv("URPS_OBGYN_POINTS", "cliff/data/all_obgyn_geocoded.csv")
+URO_F   <- "data/urps_module_d_points_2026-07-23.csv"          # from Module D
+OBGYN_F <- Sys.getenv("URPS_OBGYN_POINTS", "data/all_obgyn_geocoded.csv")
 if (!file.exists(URO_F))  stop("Run scripts/urps_module_d_geographic_access_2026-07-23.R first (need URPS points).")
 if (!file.exists(OBGYN_F)) {
   message("STOP: general-OB/GYN comparator layer not found at '", OBGYN_F, "'.")
@@ -57,10 +57,10 @@ cty <- cty[!(cty$STATEFP %in% NONCONUS), ]
 sf_use_s2(FALSE); ctr <- suppressWarnings(st_centroid(st_geometry(cty))); sf_use_s2(TRUE)
 
 dd <- compute_differential_distance(ctr, cty$GEOID, uro_sf, obgyn_sf)
-acc <- fread("cliff/data/urps_module_d_county_access_2026-07-23.csv", colClasses=list(character="GEOID"))
+acc <- fread("data/urps_module_d_county_access_2026-07-23.csv", colClasses=list(character="GEOID"))
 out <- merge(acc[, .(GEOID, county, state, women_65plus)], dd, by="GEOID")
 setorder(out, -differential_miles)
-fwrite(out, "cliff/data/urps_module_d_differential_distance_2026-07-23.csv")
+fwrite(out, "data/urps_module_d_differential_distance_2026-07-23.csv")
 
 W <- sum(out$women_65plus)
 cat(sprintf("Differential distance computed for %d CONUS counties.\n", nrow(out)))
@@ -68,4 +68,4 @@ cat(sprintf("Median extra travel to a urogynecologist beyond the nearest OB/GYN:
             median(out$differential_miles)))
 cat(sprintf("%% of women 65+ facing >30 extra miles for subspecialty care: %.1f%%\n",
             100*sum(out$women_65plus[out$differential_miles > 30])/W))
-cat("Wrote cliff/data/urps_module_d_differential_distance_2026-07-23.csv\n")
+cat("Wrote data/urps_module_d_differential_distance_2026-07-23.csv\n")

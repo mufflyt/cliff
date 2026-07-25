@@ -9,7 +9,7 @@
 #     forward from the 1,339 active baseline.
 suppressPackageStartupMessages({library(data.table)})
 SCR <- "/Users/tylermuffly/Library/Caches/claude-code-tmp/claude-501/-Users-tylermuffly-isochrones/5b8acb2f-8ebf-4a3f-b93c-042bbf0bc68c/scratchpad"
-source("/Users/tylermuffly/isochrones-workforce-cliff/cliff/shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV, BAND_PY, BAND_LABELS
+source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV, BAND_PY, BAND_LABELS
 
 ## ── DEMAND: Census female population by age band, per year (mid + low/high) ──
 agecols <- sprintf("POP_%d", 0:100)
@@ -76,8 +76,8 @@ sd[, pfd_index    := round(100*women_with_pfd/b$women_with_pfd,1)]
 sd[, pfd_lo_index := round(100*pfd_lo/b$women_with_pfd,1)]
 sd[, pfd_hi_index := round(100*pfd_hi/b$women_with_pfd,1)]
 
-fwrite(sd, "cliff/data/urps_supply_demand_national_2026-07-23.csv")
-cat("Wrote cliff/data/urps_supply_demand_national_2026-07-23.csv\n\n")
+fwrite(sd, "data/urps_supply_demand_national_2026-07-23.csv")
+cat("Wrote data/urps_supply_demand_national_2026-07-23.csv\n\n")
 show <- sd[YEAR %in% c(2025,2030,2035,2040,2045,2050)]
 print(show[, .(YEAR, supply, women_65plus=round(women_65plus/1e6,1),
                women_with_pfd=round(women_with_pfd/1e6,1),

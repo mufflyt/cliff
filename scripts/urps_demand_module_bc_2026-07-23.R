@@ -15,8 +15,8 @@ sq <- function(v) paste0("(", paste0("'", v, "'", collapse=","), ")")
 
 con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
-abu <- fread("cliff/data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
-abog<- fread("cliff/data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
+abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
+abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))
 coh <- unique(c(as.character(abu$npi[inmodel(abu$in_model_baseline)]),
                 as.character(abog$npi[inmodel(abog$in_model_baseline)])))
 dbWriteTable(con, "coh", data.frame(npi=coh), temporary=TRUE, overwrite=TRUE)
@@ -51,7 +51,7 @@ cat(sprintf("Procedurally-active urogyns: %d; work-units (allowed $) per FTE: $%
 fem <- fread(file.path(SCR,"np2023_d1_mid.csv"))[SEX==2 & ORIGIN==0 & RACE==0]
 w65 <- fem[, .(women65 = rowSums(.SD)), by=YEAR, .SDcols=sprintf("POP_%d",65:100)]
 w65_2024 <- w65[YEAR==2024]$women65
-supply <- fread("cliff/data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, supply, supply_lo, supply_hi)]
+supply <- fread("data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, supply, supply_lo, supply_hi)]
 
 ## ── Module B: project each service, Module C: attribute + scenarios ─────────
 yrs <- 2025:2050
@@ -74,8 +74,8 @@ proj[, adequacy_mid  := round(supply/required_fte_mid,2)]
 proj[, adequacy_low  := round(supply_lo/required_fte_high,2)]   # worst: low supply / high demand
 proj[, adequacy_high := round(supply_hi/required_fte_low,2)]    # best:  high supply / low demand
 
-fwrite(proj, "cliff/data/urps_demand_module_bc_2026-07-23.csv")
-cat("Wrote cliff/data/urps_demand_module_bc_2026-07-23.csv\n\n")
+fwrite(proj, "data/urps_demand_module_bc_2026-07-23.csv")
+cat("Wrote data/urps_demand_module_bc_2026-07-23.csv\n\n")
 show <- proj[YEAR %in% c(2025,2030,2035,2040,2045,2050)]
 print(show[, .(YEAR, women65_M=round(women65/1e6,1), urogyn_procedures_mid, required_fte_mid, supply,
                adequacy=adequacy_mid, adeq_band=paste0(adequacy_low,"-",adequacy_high))])
