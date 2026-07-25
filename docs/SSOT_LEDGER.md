@@ -962,3 +962,82 @@ strings that appear as literals in `workforce_statistics.R` docstrings (449-453)
 migration (`manuscript/R/create_workforce_table.R`).
 
 **Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 1-16 files only.
+**NOTE:** iterations 1-16 + the reframed manuscript were committed & pushed to `origin/main` as `2380210`
+(2026-07-25, at Tyler's explicit instruction). The loop otherwise never commits; this was a one-off sync.
+
+---
+
+## Iteration 17 — CONUS geographic scope (non-CONUS FIPS list + lon/lat bounding box) → `R/conus.R`
+
+**Selected candidate: the CONUS (contiguous-US) geographic scope.** Confirmed with Tyler as the next
+iteration. Two representations, both previously copy-pasted per script:
+- **non-CONUS FIPS list** `c("02","15","72","60","66","69","78")` (AK, HI, PR, AS, GU, MP, VI) — **4 verbatim
+  copies** + a variant positive encoding `setdiff(1:56, c(2,15))`.
+- **CONUS lon/lat bounding box** `lon ∈ (-125,-66), lat ∈ (24,50)` — **3 copies** (keep + De-Morgan negation).
+
+**Why higher-risk than alternatives:** the highest raw duplication remaining in the repo (7 literal copies
+across 4 files), it defines the **study's geographic denominator** for every Module-D access map/metric, and
+it is *not* baseline-entangled (unlike the workforce-size numbers) — so it is both high-impact and cleanly
+refactorable. Fix a territory in one copy and the maps silently disagree.
+
+**Provenance table:**
+| file:line | literal | mechanism | verdict |
+|---|---|---|---|
+| `differential_distance.R:19,56,27` | NONCONUS list; STATEFP filter; bbox | both | duplicated → canonical |
+| `differential_map.R:9,13,15` | NONCONUS list; STATEFP ×2 | FIPS | duplicated → canonical |
+| `geographic_access.R:25,61,66,43,44` | NONCONUS; GEOID-prefix; `setdiff(1:56,c(2,15))`; bbox ×2 | both | duplicated + variant → canonical |
+| `map.R:11,19` | NONCONUS list; STATEFP | FIPS | duplicated → canonical |
+| `test-yoy-...saboteurs.R:456` | latitude `[24,50]` | coord-repair heuristic | **intentional — left** (geocoding lon-sign fix oracle, not CONUS scope) |
+| parent isochrones repo `NON_CONTIGUOUS_CODES` | — | — | separate repo, cannot source; cliff needs its own |
+
+**Discrepancies / adjudication:** the FIPS list and the bbox are *different mechanisms* (administrative
+geography vs raw coordinates) for the same scope — kept as two named canonicals in one module, not collapsed.
+The `setdiff(1:56, c(2,15))` at `geographic_access:66` is a redundant positive encoding: combined with the
+NONCONUS exclusion it selects the 48 states + DC; on the tigris `counties(cb=TRUE)` STATEFP domain
+(`{01..56 real, 60,66,69,72,78}`) `is_conus_fips()` alone yields the **identical** set, so the two conditions
+were replaced by the single canonical call (the only FORM change; documented, equivalence proven by the known
+STATEFP domain). The yoy-saboteur test's `[24,50]` latitude is a coordinate-repair heuristic, not the CONUS
+box — left untouched.
+
+**Canonical contract:** new **`R/conus.R`** (pure constants + functions, no path deps):
+- `CONUS_EXCLUDE_FIPS` — 7 zero-padded 2-digit FIPS; `is_conus_fips(fips)` (works on STATEFP and GEOID prefix).
+- `CONUS_LON = c(-125,-66)`, `CONUS_LAT = c(24,50)`; `in_conus_bbox(lon,lat)` (open box, 3-valued: NA→NA, so
+  De Morgan holds and `!in_conus_bbox()` is the exact prior "outside" test).
+
+**Files changed:** new `R/conus.R`; `scripts/urps_module_d_{differential_distance,differential_map,
+geographic_access,map}.R` (source the module; use `is_conus_fips()` / `in_conus_bbox()`); new
+`tests/testthat/test-ssot-conus-scope.R`.
+
+**Hardcoded copies removed:** 4 NONCONUS list literals + 3 bbox literal expressions + 1 `setdiff(1:56,c(2,15))`
+variant. Behavior-preserving: FIPS-filter, bbox-keep, De-Morgan negation, and the explicit-`is.na` keep form
+all verified byte-identical to the prior literals (including NA edge cases) over a test grid.
+
+**Validation guards (fail-loud, in the module):** exactly 7 two-digit FIPS incl 02+15, no dups; bbox
+west<east / south<north within a sane North-American window.
+
+**Tests added:** `test-ssot-conus-scope.R` (28 assertions): FIPS list well-formed; `is_conus_fips` semantics
+(STATEFP + GEOID prefix, AK/HI/PR/DC); `in_conus_bbox` semantics (interior/exterior/open-boundary/NA);
+**behavior-preserving** (helpers == prior literal expressions incl NA + De Morgan); **adversarial** (no
+Module-D script re-defines NONCONUS, re-hardcodes a bbox coordinate literal, or fails to source `R/conus.R`);
+**consistency** (every Module-D script references a canonical helper).
+
+**Initial failures:** 1 — the adversarial bbox-literal grep false-matched `-66` inside the age-band comment
+`65-66,67-69` (`geographic_access:54`). Cause: too-loose regex. Fix: require the minus not be preceded by a
+digit (`(?<![0-9])-66`, perl), so coordinate literals match but age ranges don't. Re-ran green.
+
+**Final results:** conus-scope 28/0; all **17 SSOT guards 216/0**. (Module-D scripts are standalone geographic
+producers — no contract/integration suite consumes them; the geo data files needed to fully *run* them aren't
+in-tree, so validation is parse + equivalence + guards.)
+
+**Remaining risks:** the module-D scripts can only be parsed + unit-checked here (their ACS/roster/shapefile
+inputs aren't vendored), so a full end-to-end render wasn't exercised — but every value is provably identical.
+The parent isochrones repo has its own `NON_CONTIGUOUS_CODES`; the two canonicals are intentionally separate
+(different repos) and could theoretically drift from each other — acceptable, documented.
+
+**Recommended next candidate:** the `MI <- 1609.344` metres-per-mile constant (duplicated in
+`differential_distance` + `geographic_access`, likely more); OR the stale `calculate_retirement_cliff_statistics.R:35`
+"5-year projection window" doc comment; OR the ACS women-65+ variable set `B01001_044:049` (appears in the
+demand modules — verify one definition).
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = this iteration's files (+ the prior
+`docs/FLAG_stale_workforce_table_hardcode.md` note).

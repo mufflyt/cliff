@@ -6,13 +6,13 @@
 # nearest generalist (dense metros).
 suppressPackageStartupMessages({ library(data.table); library(sf); library(tigris); library(ggplot2) })
 options(tigris_use_cache=TRUE, tigris_class="sf"); sf::sf_use_s2(TRUE)
-NONCONUS <- c("02","15","72","60","66","69","78")
+source("R/conus.R")   # SSOT: is_conus_fips()
 
 dd  <- fread("data/urps_module_d_differential_distance_2026-07-23.csv", colClasses=list(character="GEOID"))
 cty <- st_transform(counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE), 4326)
-cty <- cty[!(cty$STATEFP %in% NONCONUS), ]
+cty <- cty[is_conus_fips(cty$STATEFP), ]
 sta <- st_transform(states(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE), 4326)
-sta <- sta[!(sta$STATEFP %in% NONCONUS), ]
+sta <- sta[is_conus_fips(sta$STATEFP), ]
 m <- merge(cty, dd[, .(GEOID, differential_miles)], by="GEOID", all.x=TRUE)
 
 brk <- c(-Inf, 0, 15, 30, 60, 120, Inf)

@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
   library(data.table); library(tigris); library(sf); library(leaflet); library(htmlwidgets)
 })
 options(tigris_use_cache = TRUE, tigris_class = "sf")
-NONCONUS <- c("02","15","72","60","66","69","78")
+source("R/conus.R")   # SSOT: is_conus_fips()
 
 acc <- fread("data/urps_module_d_county_access_2026-07-23.csv",
              colClasses=list(character=c("GEOID","state")))
@@ -16,7 +16,7 @@ pts <- fread("data/urps_module_d_points_2026-07-23.csv")
 
 cty <- counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE)
 cty <- st_transform(cty, 4326)
-cty <- cty[!(cty$STATEFP %in% NONCONUS), ]
+cty <- cty[is_conus_fips(cty$STATEFP), ]
 cty <- merge(cty, acc[, .(GEOID, county, state, women_65plus, n_urogyn_in_county,
                           miles_to_nearest, n_urogyn_within_100mi, women65_per_urogyn_100mi)],
              by="GEOID", all.x=TRUE)

@@ -22,7 +22,7 @@ suppressPackageStartupMessages({
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 sf::sf_use_s2(TRUE)
 MI <- 1609.344
-NONCONUS <- c("02","15","72","60","66","69","78")  # AK, HI, PR, territories
+source("R/conus.R")   # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
 
 ## ── 1. urogynecologist point layer (active; ZIP centroid) ────────────────────
 cen <- fread("data/reference/zcta_centroids_2020.csv", colClasses=list(character="zcta5"))
@@ -40,8 +40,8 @@ n_active <- nrow(uro)
 uro <- merge(uro, cen, by="zip5", all.x=TRUE)
 n_geo <- uro[!is.na(lat), .N]
 uro <- uro[!is.na(lat) & !is.na(lon)]
-n_ncon <- uro[lon <= -125 | lon >= -66 | lat <= 24 | lat >= 50, .N]  # AK/HI/PR/territory ZIPs
-uro <- uro[lon > -125 & lon < -66 & lat > 24 & lat < 50]
+n_ncon <- uro[!in_conus_bbox(lon, lat), .N]  # AK/HI/PR/territory ZIPs (SSOT: R/conus.R)
+uro <- uro[in_conus_bbox(lon, lat)]
 message(sprintf("Urogynecologists: %d active, %d ZIP-geocoded, %d non-CONUS dropped, %d on CONUS map",
                 n_active, n_geo, n_ncon, nrow(uro)))
 uro_sf <- st_as_sf(uro, coords=c("lon","lat"), crs=4326, remove=FALSE)
@@ -58,12 +58,12 @@ if (file.exists(acs_cache)) {
                  moe=tidycensus::moe_sum(moe, estimate)), by=.(GEOID)]
   fwrite(w65, acs_cache)
 }
-w65 <- w65[!(substr(GEOID,1,2) %in% NONCONUS)]
+w65 <- w65[is_conus_fips(GEOID)]
 
 ## ── 3. county geometry + centroids (CONUS) ───────────────────────────────────
 cty <- counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE)
 cty <- st_transform(cty, 4326)
-cty <- cty[cty$STATEFP %in% sprintf("%02d", setdiff(1:56, c(2,15))) & !(cty$STATEFP %in% NONCONUS), ]
+cty <- cty[is_conus_fips(cty$STATEFP), ]   # SSOT (R/conus.R); drops AK/HI + territories = 48 states + DC
 cty <- merge(cty, w65, by="GEOID", all.x=TRUE)
 cty$women_65plus[is.na(cty$women_65plus)] <- 0
 sf_use_s2(FALSE); ctr <- suppressWarnings(st_centroid(st_geometry(cty))); sf_use_s2(TRUE)
