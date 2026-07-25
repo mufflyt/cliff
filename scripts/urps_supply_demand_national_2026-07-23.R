@@ -9,7 +9,7 @@ source(here::here("R", "wc_path.R"))
 #     pooled age-band departure hazard + 64 entrants/yr at age 34), projected
 #     forward from the 1,339 active baseline.
 suppressPackageStartupMessages({library(data.table)})
-SCR <- here::here("data", "census")
+# census NPP files resolved via npp_projection_path() (R/demand_denominator.R)
 source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV, BAND_PY, BAND_LABELS
 
 ## ── DEMAND: Census female population by age band, per year (mid + low/high) ──
@@ -21,14 +21,14 @@ source(here::here("R","units.R"))                # SSOT: RATE_PER_100K
 prev <- pfd_prevalence_by_age
 pw <- prev(0:100)
 demand_series <- function(file){
-  fem <- fread(file)[SEX==2 & ORIGIN==0 & RACE==0]
+  fem <- npp_total_female(fread(file))   # SSOT: total-female NPP rows (R/demand_denominator.R)
   fem[, {pop <- as.numeric(.SD)
     list(women_65plus=sum(pop[66:101]), women_40plus=sum(pop[41:101]), women_with_pfd=sum(pop*pw))},
     by=YEAR, .SDcols=agecols]
 }
-dm <- demand_series(file.path(SCR,"np2023_d1_mid.csv"))
-dl <- demand_series(file.path(SCR,"np2023_d1_low.csv"))
-dh <- demand_series(file.path(SCR,"np2023_d1_hi.csv"))
+dm <- demand_series(npp_projection_path("mid"))
+dl <- demand_series(npp_projection_path("low"))
+dh <- demand_series(npp_projection_path("hi"))
 demand <- dm[dl[,.(YEAR,w65_lo=women_65plus,pfd_lo=women_with_pfd)], on="YEAR"][
               dh[,.(YEAR,w65_hi=women_65plus,pfd_hi=women_with_pfd)], on="YEAR"]
 
@@ -46,7 +46,8 @@ project <- function(ages, entrants, hz, horizon, entry_age=34L){
     av<-av2; count<-sv; traj[h+1]<-sum(count) }
   traj }
 HORIZON <- 2050-2025
-supply_mid <- project(URPS_AGES, 64, hz, HORIZON)
+ENTRANTS <- mean(GRAD_URPS)   # SSOT: URPS entrant inflow = mean of the ACGME graduate counts (matches module_a, iter7); never hardcode 64
+supply_mid <- project(URPS_AGES, ENTRANTS, hz, HORIZON)
 # Monte Carlo the departure hazard (Beta posterior on the age-band events/PY,
 # matching the app's interval method) -> a distribution of supply trajectories.
 set.seed(20260723L)
@@ -56,7 +57,7 @@ mc <- matrix(NA_real_, nrow=N, ncol=HORIZON+1)
 for (i in seq_len(N)) {
   hb <- stats::rbeta(length(ev), ev+0.5, pmax(py-ev,0)+0.5)
   hb[py==0] <- max(hb[py>0], na.rm=TRUE); hb <- pmin(1,hb); names(hb) <- BAND_LABELS
-  mc[i,] <- project(URPS_AGES, 64, hb, HORIZON)
+  mc[i,] <- project(URPS_AGES, ENTRANTS, hb, HORIZON)
 }
 supply <- data.table(YEAR=PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR, supply=round(supply_mid),
                      supply_lo=round(apply(mc,2,quantile,0.025)),

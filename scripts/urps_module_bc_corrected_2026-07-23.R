@@ -20,7 +20,7 @@ source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols(
 # (extracted 2026-07-23); Census 2023 National Population Projections (mid).
 
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
-SCR <- here::here("data", "census")
+# census NPP files resolved via npp_projection_path() (R/demand_denominator.R)
 EXTRACT_DATE <- "2024 PUF (PHY_R26...D24), extracted 2026-07-23"
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 
@@ -86,7 +86,7 @@ D[, pi_mid  := (urps + t_mid*field_residual)/primary_physician]
 D[, pi_high := (urps + t_hi *field_residual)/primary_physician]
 
 ## ── Module B: Census 65+ growth, projected volume, workload, FTE ────────────
-fem <- fread(file.path(SCR,"np2023_d1_mid.csv"))[SEX==2 & ORIGIN==0 & RACE==0]
+fem <- npp_total_female(fread(npp_projection_path("mid")))   # SSOT: total-female NPP rows + path (R/demand_denominator.R)
 w65 <- fem[, .(w65=rowSums(.SD)), by=YEAR, .SDcols=npp_women_65plus_cols()]
 base65 <- w65[YEAR==DEMAND_REBASE_YEAR]$w65   # SSOT: demographic rebase year (R/demand_denominator.R)
 gf <- function(t) w65[YEAR==t]$w65/base65                            # demographic growth factor (rebased to 2024)

@@ -1805,3 +1805,133 @@ introduces a second CRS worth naming. Otherwise: verify + commit cadence.
 
 **Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 29-30 files (uncommitted since
 the `7f2a6ac` push).
+**NOTE:** iterations 29-30 committed & pushed as `8550b70` (rebased onto the other window's `02637e5`); tip `90dc7dc`.
+
+---
+
+## Iteration 31 — Census-NPP total-female row filter (SEX==2 & ORIGIN==0 & RACE==0) → `npp_total_female()`
+
+**Candidate: the NPP total-female row filter `[SEX==2 & ORIGIN==0 & RACE==0]`** — the demand population base
+(total US females, all origins, all races) BEFORE the women-65+ age selection, copy-pasted across **3 demand
+producers** (`urps_demand_module_bc:53`, `urps_module_bc_corrected:89`, `urps_supply_demand_national:24`). iter
+19 canonicalised the age COLUMNS (`POP_65:100`) but left this ROW filter untouched.
+
+**Why higher-risk than alternatives (`crs=4326`):** it defines WHICH population is the demand denominator; a
+wrong ORIGIN or RACE code (ORIGIN==1 Hispanic-only, RACE==1 White-only) would silently narrow it to a subgroup
+and corrupt every downstream demand/adequacy number — a silent, high-impact drift. `crs=4326` is a universal
+WGS84 standard with ~zero drift (deliberately left).
+
+**Canonical:** `R/demand_denominator.R::npp_total_female(dt)` — a **function** (the filter applies to a
+data.table), returning `dt[SEX==2 & ORIGIN==0 & RACE==0]` with a fail-loud column-existence `stopifnot`. Codes
+documented per the Census 2023 NPP file layout. All 3 producers already source the module (zero new source lines).
+
+**Files changed:** `R/demand_denominator.R` (+ helper + guard); the 3 producers (`fread(...)[filter]` →
+`npp_total_female(fread(...))`); new `tests/testthat/test-ssot-npp-total-female.R`.
+
+**Hardcoded copies removed:** 3 → 0. Behavior-preserving: `npp_total_female(dt)` returns the identical rows to
+the literal filter (verified on a synthetic data.table); all 3 scripts parse and use the helper.
+
+**Validation guard:** `stopifnot(all(c("SEX","ORIGIN","RACE") %in% names(dt)))` — fail loud if the NPP schema
+changes.
+
+**Tests added:** `test-ssot-npp-total-female.R` (16): behavior-preserving (== literal filter); **semantic**
+(keeps only total-female/all-origins/all-races, excludes males/Hispanic-only/race-specific); **fail-loud**
+(missing column errors); **adversarial** (all 3 producers use the helper, no bare filter, source the module).
+
+**Initial failures:** none. **Final: npp-total-female 16/0; all 31 SSOT guards 442/0.**
+
+**Remaining risks:** none for this value. `crs=4326` remains (universal standard, intentionally not
+canonicalised). The pool is otherwise exhausted; verification cadence recommended.
+
+**Recommended next candidate:** none clean/high-value remaining — verify + commit cadence. If pressed: the ACS
+`survey="acs5"` string (single site, not a dedup) or `crs=4326` (universal, over-engineering) — both likely STOP.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 31 files only.
+
+---
+
+## Iteration 32 — Census NPP projection file path (`SCR` + `np2023_d1_<series>.csv`) → `npp_projection_path()`
+
+**Candidate: the NPP projection file path.** `SCR <- here::here("data", "census")` was duplicated identically
+in **3 demand producers**, and `file.path(SCR, "np2023_d1_<series>.csv")` referenced the NPP mid file in all 3
+(plus low/hi in `supply_demand_national`). It is the demand DATA SOURCE — a wrong dir or file would silently
+swap the population base.
+
+**Why higher-risk than alternatives:** it selects which population-projection file feeds the entire demand
+model; a drift (different dir, different NPP vintage) corrupts every demand/adequacy number silently. The
+remaining `crs=4326` / `survey="acs5"` are universal-standard / single-site (STOP).
+
+**Discrepancy / adjudication:** `SCR` is used ONLY for NPP files (mid in all 3 producers; low/hi additionally in
+`supply_demand_national`) — verified. So a single **function** capturing the whole path contract (dir +
+`np2023_d1_<series>.csv`) subsumes both the dir and the filename pattern and lets the now-unused `SCR` be
+removed. Not the isochrone/Medicare paths (those go through `wc_path()`; the NPP file is in-repo `data/census/`).
+
+**Canonical:** `R/demand_denominator.R::npp_projection_path(series = c("mid","low","hi"))` — returns
+`here::here("data","census", sprintf("np2023_d1_%s.csv", series))` with a `match.arg` guard. Function (the path
+depends on the series input). The module already uses `here::here` (iter 23), so no new dependency.
+
+**Files changed:** `R/demand_denominator.R` (+ function); the 3 producers (`file.path(SCR,"np2023_d1_*.csv")` →
+`npp_projection_path(...)`; the 3 unused `SCR <- here::here("data","census")` lines removed); new
+`tests/testthat/test-ssot-npp-projection-path.R`.
+
+**Hardcoded copies removed:** 3 `SCR` dir literals + 5 NPP filename references → 0. Behavior-preserving:
+`npp_projection_path("mid"/"low"/"hi")` resolves to the same `data/census/np2023_d1_*.csv` files; all 3 scripts
+parse. Residual: the `gate_audit` documents `"np2023_d1_mid.csv"` as a descriptive audit string (left, like the
+iter-19 gate label).
+
+**Validation guard:** `match.arg(series)` rejects any series other than mid/low/hi; the semantic test asserts the
+canonical mid path resolves to the real in-repo file.
+
+**Tests added:** `test-ssot-npp-projection-path.R` (15): path resolves per series + default=mid; **semantic**
+(mid file exists at the canonical path); **fail-loud** (unknown series errors); **adversarial** (all 3 producers
+use the helper, no `SCR` / `file.path(SCR` literal remains).
+
+**Initial failures:** none. **Final: npp-projection-path 15/0; all 32 SSOT guards 457/0.**
+
+**Remaining risks:** none for this value. The clean pool is exhausted; `crs=4326`/`acs5` are deliberate STOPs.
+Verification cadence recommended.
+
+**Recommended next candidate:** none clean/high-value — verify + commit cadence.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 31-32 files only.
+
+---
+
+## Iteration 33 — URPS entrant inflow in supply_demand_national (hardcoded 64) → `mean(GRAD_URPS)`
+
+**Candidate: the entrant inflow `64`** hardcoded TWICE in `supply_demand_national`'s `project()` calls (lines
+49, 59). iter 7 established `ENTRANTS <- mean(GRAD_URPS)` (module_a); this producer bypassed it with a literal
+64. `mean(GRAD_URPS) = mean(c(61,66,63,66)) = 64`, and `GRAD_URPS` is already in scope (sourced from
+`shiny_urps_scenarios/urps_model_data.R`).
+
+**Why higher-risk than alternatives (`entry_age=34L`, `HORIZON<-2050-2025` in the same script):** the entrant
+count is the INFLOW driving the entire supply projection (and the Monte Carlo band); a change to the graduate
+counts would leave this stale 64 and silently mis-project supply. The entry-age (single-site default) and the
+2050-2025 horizon length (iter-24-adjacent) are lower-value follow-ons in the same file.
+
+**Canonical:** `mean(GRAD_URPS)` (the ACGME graduate SSOT already in scope), aliased once as
+`ENTRANTS <- mean(GRAD_URPS)` — matching module_a's pattern.
+
+**Files changed:** `scripts/urps_supply_demand_national_2026-07-23.R` (+ `ENTRANTS <- mean(GRAD_URPS)`; both
+`project(URPS_AGES, 64, ...)` → `project(URPS_AGES, ENTRANTS, ...)`); new
+`tests/testthat/test-ssot-supply-demand-entrants.R`.
+
+**Hardcoded copies removed:** 2 (`64` ×2) → 0. Behavior-preserving: `mean(GRAD_URPS) == 64` (verified); parses.
+
+**Validation guard:** the derivation is the guard (entrants can no longer disagree with the graduate counts);
+the test pins `mean(GRAD_URPS) == 64` and cross-checks the module_a pattern.
+
+**Tests added:** `test-ssot-supply-demand-entrants.R` (8): behavior-preserving (`mean(GRAD_URPS) == 64`);
+**semantic** (derived from the counts, tracks a change); **adversarial** (ENTRANTS derived, no bare
+`project(..., 64)`); **consistency** (matches module_a's `ENTRANTS <- mean(GRAD_URPS)`).
+
+**Initial failures:** none. **Final: supply-demand-entrants 8/0; all 33 SSOT guards 465/0.**
+
+**Remaining risks:** none for this value. Same-file follow-ons: `entry_age=34L` → `WORKFORCE_ENTRY_AGE`
+(reachable) and `HORIZON <- 2050-2025` → `DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR` (both in scope) —
+the last un-wired duplicates, recommended next.
+
+**Recommended next candidate:** `supply_demand_national`'s `entry_age=34L` (wire to `WORKFORCE_ENTRY_AGE`) or
+`HORIZON <- 2050-2025` (wire to the demand-horizon endpoints) — both established SSOTs, single-site each.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 31-33 files only.

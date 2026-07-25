@@ -11,7 +11,7 @@ source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols(
 #      (demand and productivity both on the Medicare basis, so the all-payer
 #      undercount largely cancels in the adequacy ratio).
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
-SCR <- here::here("data", "census")
+# census NPP files resolved via npp_projection_path() (R/demand_denominator.R)
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 sq <- function(v) paste0("(", paste0("'", v, "'", collapse=","), ")")
 
@@ -50,7 +50,7 @@ cat(sprintf("Procedurally-active urogyns: %d; work-units (allowed $) per FTE: $%
     n_proc, format(round(usd_per_fte), big.mark=",")))
 
 ## ── Women 65+ per year (Census 2023 mid) + supply from prior model ──────────
-fem <- fread(file.path(SCR,"np2023_d1_mid.csv"))[SEX==2 & ORIGIN==0 & RACE==0]
+fem <- npp_total_female(fread(npp_projection_path("mid")))   # SSOT: total-female NPP rows + path (R/demand_denominator.R)
 w65 <- fem[, .(women65 = rowSums(.SD)), by=YEAR, .SDcols=npp_women_65plus_cols()]
 w65_2024 <- w65[YEAR==DEMAND_REBASE_YEAR]$women65   # SSOT: demographic rebase year (R/demand_denominator.R)
 supply <- fread("data/urps_supply_demand_national_2026-07-23.csv")[, .(YEAR, supply, supply_lo, supply_hi)]
@@ -87,4 +87,4 @@ cat(sprintf("\nRequired urogyn FTEs (mid): %d (2025) -> %d (2050); supply %d -> 
 cat(sprintf("Adequacy (supply/required, mid): %.2f (2025) -> %.2f (2050); 2050 band %.2f-%.2f\n",
     proj[YEAR==2025]$adequacy_mid, proj[YEAR==DEMAND_HORIZON_END_YEAR]$adequacy_mid,
     proj[YEAR==DEMAND_HORIZON_END_YEAR]$adequacy_low, proj[YEAR==DEMAND_HORIZON_END_YEAR]$adequacy_high))
-saveRDS(list(vol=vol, usd_per_fte=usd_per_fte, n_proc=n_proc), "/tmp/module_bc_meta.rds")
+saveRDS(list(vol=vol, usd_per_fte=usd_per_fte, n_proc=n_proc), "data/urps_module_bc_meta_2026-07-23.rds")
