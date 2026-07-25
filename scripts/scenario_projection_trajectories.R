@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Scenario-based workforce projection trajectories (2025-2029) for Figure 1A,
 # following the fixed-entrant scenario design of Shah et al. (uveitis forecast):
@@ -27,7 +28,7 @@ GRAD <- list(GO=c(70,73,78,79), URPS=c(61,66,63,66), MIGS=c(47,50,45,47))
 NRMP <- c(GO=88, URPS=74, MIGS=51)
 
 # ---- cohort (ABOG) + ABU net-new for URPS -------------------------------------
-coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv",
+coh <- read_csv(wc_path("cohort_csv"),
                 show_col_types=FALSE, guess_max=1e5) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), ab=names(SUBS)[match(subspecialty,SUBS)],
@@ -51,11 +52,11 @@ bands_all <- BL
 
 active <- coh %>% filter(ret==FALSE, !is.na(age))
 ages_by <- split(active$age, active$ab)
-abu_cw <- read_csv("/Users/tylermuffly/isochrones/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv",
+abu_cw <- read_csv(wc_path("abu_crosswalk"),
                    show_col_types=FALSE, guess_max=1e5) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
 abu_nn <- trimws(gsub('"','', readLines(
-  "/Users/tylermuffly/isochrones/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-14.txt")))
+  wc_path("abu_net_new"))))
 abu_nn <- abu_nn[abu_nn!="" & !grepl("npi", abu_nn, ignore.case=TRUE)]
 abu_ages <- abu_cw %>% filter(npi %in% abu_nn, !is.na(cert_year)) %>%
   mutate(age=REF_YEAR-cert_year+AGE_AT_CERT) %>% distinct(npi,.keep_all=TRUE) %>% pull(age)

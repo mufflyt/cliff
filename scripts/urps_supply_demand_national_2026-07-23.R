@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # URPS national SUPPLY vs DEMAND projection, 2025-2050.
 #   DEMAND: U.S. Census 2023 National Population Projections (mid series), female
 #     population by age x year, x age-specific PFD prevalence (Nygaard 2008,

@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ACS Module B (procedure-based demand) + C (empirical plasticity/attribution)
 # for urogynecology, national, 2025-2050.
 #   B: observed 2024 Medicare volume per core service -> per-capita rate on women
@@ -13,7 +14,7 @@ SCR <- here::here("data", "census")
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 sq <- function(v) paste0("(", paste0("'", v, "'", collapse=","), ")")
 
-con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
+con <- dbConnect(duckdb(), wc_duckdb_path(), read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
 abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
 abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))

@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # Module A, step 1: within-physician AGE-PRODUCTIVITY curve for URPS, 2013-2024.
 # Panel: each cohort NPI x year -> urogyn procedure WORKLOAD (allowed $, a work
 # proxy) across the 89 FPMRS-defining codes. Model:
@@ -11,7 +12,7 @@ inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 codes <- vapply(yaml::read_yaml("config/subspecialty_hcpcs_codes.yml")$
                 female_pelvic_medicine_reconstructive_surgery$codes, function(x) as.character(x$code), character(1))
 
-con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
+con <- dbConnect(duckdb(), wc_duckdb_path(), read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
 abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
 abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))

@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Reviewer #4: hierarchical partial-pooling age-band hazard for GO + URPS.
 # A binomial discrete-time hazard model with a SHARED age-band shape (fixed band
@@ -30,7 +31,7 @@ SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery", GO="Gynecologi
 GRAD <- list(GO=c(70,73,78,79), URPS=c(61,66,63,66)); ENTRANTS <- sapply(GRAD, mean); PRIMARY <- c("GO","URPS")
 
 # ---- cohort + anchored departure year (verbatim) ---------------------------
-coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv",
+coh <- read_csv(wc_path("cohort_csv"),
                 show_col_types=FALSE, guess_max=1e5) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), ab=names(SUBS)[match(subspecialty,SUBS)], cert_year=as.integer(cert_year),
@@ -42,9 +43,9 @@ coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry=ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
 # ABU net-new active URPS ages
-abu_cw <- read_csv("/Users/tylermuffly/isochrones/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv", show_col_types=FALSE, guess_max=1e5) %>%
+abu_cw <- read_csv(wc_path("abu_crosswalk"), show_col_types=FALSE, guess_max=1e5) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
-abu_nn <- trimws(gsub('"','', readLines("/Users/tylermuffly/isochrones/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-14.txt")))
+abu_nn <- trimws(gsub('"','', readLines(wc_path("abu_net_new"))))
 abu_nn <- abu_nn[abu_nn!="" & !grepl("npi", abu_nn, ignore.case=TRUE)]
 abu_age <- (abu_cw %>% filter(npi %in% abu_nn, !is.na(cert_year)) %>% mutate(age=REF_YEAR-cert_year+AGE_AT_CERT) %>% distinct(npi,.keep_all=TRUE))$age
 n_abu <- length(abu_age)
