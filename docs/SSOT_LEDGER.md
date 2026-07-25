@@ -1934,4 +1934,235 @@ the last un-wired duplicates, recommended next.
 **Recommended next candidate:** `supply_demand_national`'s `entry_age=34L` (wire to `WORKFORCE_ENTRY_AGE`) or
 `HORIZON <- 2050-2025` (wire to the demand-horizon endpoints) — both established SSOTs, single-site each.
 
-**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 31-33 files only.
+**Status:** ✅ complete. Committed `bdb62a4` (iterations 31-33 + ephemeral-formalization fixes).
+
+---
+
+## Iteration 34 — supply projection entry age (`entry_age=34L` → `WORKFORCE_ENTRY_AGE`)
+
+**Candidate:** `scripts/urps_supply_demand_national_2026-07-23.R:40`, `project(ages, entrants, hz, horizon, entry_age=34L)`.
+
+**Why higher-risk than alternatives:** the entry age is the cohort-injection age that reshapes the age
+structure every projected year (both `supply_mid` and the 2000-draw Monte Carlo band call `project()` with the
+default). It is a **third consumer** of the fellowship-graduate entry age already canonicalized in iter6/iter26
+as `R/workforce_constants.R::WORKFORCE_ENTRY_AGE` (the engine's `WC_ENTRY_AGE` and module_a's `ENTRY_AGE` both
+alias it); this site was the last un-wired copy, so a future change to the entry age would silently leave this
+supply projection stale at 34. The `HORIZON <- 2050-2025` follow-on is lower-value (a length that already ties
+to two pinned endpoints and is not itself a drift risk).
+
+**Audit:** literal `34L` appears once, as the `entry_age` default (line 40); both call sites (lines 50, 60)
+omit the argument and rely on the default. The comment at line 9 ("64 entrants/yr at age 34") is accurate
+descriptive prose, not a used literal — left as-is (it still matches the canonical 34).
+
+**Discrepancy adjudication:** none — same meaning, same value (`WORKFORCE_ENTRY_AGE == 34L`) as the engine and
+module_a; no intentional scenario difference. Not an alias collision: reached at call time via the existing
+`source(R/demand_denominator.R)` (line 19, before `project()` is defined), which sources `workforce_constants.R`.
+
+**Canonical:** `WORKFORCE_ENTRY_AGE` (`R/workforce_constants.R`, iter26), the shared fellowship-graduate entry
+age; the `project()` default now reads `entry_age = WORKFORCE_ENTRY_AGE` (lazy default resolves in globalenv at
+call time).
+
+**Files changed:** `scripts/urps_supply_demand_national_2026-07-23.R` (default `34L` → `WORKFORCE_ENTRY_AGE`);
+`tests/testthat/test-ssot-entry-age.R` (extended — no new duplicate guard file).
+
+**Hardcoded copies removed:** 1 (`entry_age=34L`) → 0. Behavior-preserving.
+
+**Validation guard:** the existing `test-ssot-entry-age.R` pins `WORKFORCE_ENTRY_AGE == 34L` (integer, range
+25-45); the new blocks fail loudly if this site re-hardcodes 34 or un-wires from the SSOT.
+
+**Tests added (extended existing guard, +4 → 14/0):** **adversarial** (no `entry_age=34L`; default wired to
+`WORKFORCE_ENTRY_AGE`; demand_denominator sourced so the SSOT is reachable); **behavior-preserving** (a local
+re-implementation of `project()` yields an identical 2050 trajectory with explicit `34L` vs the new default,
+proving the default resolves to the same value).
+
+**Initial failures:** none. **Final: entry-age guard 14/0; all 33 SSOT guards 469/0.** Script parses; final grep
+finds no bare `entry_age=34L` in `scripts/` or `R/`.
+
+**Remaining risks:** none for this value. One un-wired duplicate remains: `HORIZON <- 2050-2025` (line 48) →
+`DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR` (both in scope via demand_denominator).
+
+**Recommended next candidate:** `supply_demand_national`'s `HORIZON <- 2050-2025` (line 48) → wire to
+`DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR` — removes two hardcoded years (2050, 2025) by tying the
+horizon length to the two canonical endpoints; last known cross-copy of a pinned SSOT.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 34 files only
+(`scripts/urps_supply_demand_national_2026-07-23.R`, `tests/testthat/test-ssot-entry-age.R`).
+
+---
+
+## Iteration 35 — supply projection horizon length (`HORIZON <- 2050-2025` → derived endpoints)
+
+**Candidate:** `scripts/urps_supply_demand_national_2026-07-23.R:48`, `HORIZON <- 2050-2025`.
+
+**Why higher-risk than alternatives:** this is an **internal inconsistency within a single file** — the same
+producer already uses the named endpoints `PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR` for its `YEAR`
+axis (line 62) and `DEMAND_HORIZON_END_YEAR` for its endpoint filters (lines 86, 92), yet line 48 recomputed the
+horizon *length* from bare literals. The trajectory has `HORIZON+1` points and is bound 1:1 to the `YEAR` axis in
+the `supply` data.table (line 62); if someone revised the horizon via the constants (as iter24 set up for the
+four demand scripts) but missed this bare arithmetic, the trajectory length would silently desync from the year
+axis and malform the supply table. Last un-wired cross-copy of the iter24 endpoints. (The remaining literals in
+the file — the line-3/91 "2025-2050" strings — are descriptive prose.)
+
+**Audit:** `2050-2025` appears once as live code (line 48). Lines 3, 91 are accurate display/prose strings; the
+year axis (62), milestone `seq` (86), and endpoint filters (92, 94) already use the named constants.
+
+**Discrepancy adjudication:** none — `DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR == 25L`, identical to
+the old `2050-2025`. Integer-vs-double is behaviorally inert (HORIZON is used only as a length / `seq_len` /
+`ncol`). No intentional difference (the Wu-2011 literature anchor `2050` and `_2050` column identifiers, called
+out in iter24, live in other files and stay literal).
+
+**Canonical:** `DEMAND_HORIZON_END_YEAR` (`R/demand_denominator.R`, iter24) and `PROJECTION_BASELINE_YEAR`
+(`R/workforce_constants.R`), both in scope via the line-19 `demand_denominator.R` source; line 48 now reads
+`HORIZON <- DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR`.
+
+**Files changed:** `scripts/urps_supply_demand_national_2026-07-23.R` (line 48);
+`tests/testthat/test-ssot-demand-horizon-end-year.R` (extended — no new duplicate guard file).
+
+**Hardcoded copies removed:** 2 literal years (`2050`, `2025`) in one expression → 0. Behavior-preserving.
+
+**Validation guard:** the existing horizon-end-year guard already pins `DEMAND_HORIZON_END_YEAR == 2050L` and the
+`- PROJECTION_BASELINE_YEAR == 25L` algebra; the new blocks fail loudly if this site re-hardcodes `2050-2025` or
+if the derived length ever stops matching the `YEAR`-axis span.
+
+**Tests added (extended existing guard, +5 → 22/0):** **adversarial** (no bare `2050-2025`; `HORIZON` derived
+from the endpoints; same file uses `PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR`); **semantic invariant**
+(`HORIZON+1 == length(PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR)` — the trajectory-length/year-axis tie
+this refactor protects; plus the behavior-preserving `== 25L`).
+
+**Initial failures:** none. **Final: horizon-end-year guard 22/0; all 33 SSOT guards 474/0.** Script parses;
+final grep finds no live bare `2050-2025` in `scripts/`/`R/` (only a descriptive `2050-2025=25` comment in
+module_a, already SSOT-derived since iter24).
+
+**Remaining risks:** none for this value. The clean cross-file duplicate pool of pinned SSOTs is now exhausted —
+subsequent iterations must open a genuinely new candidate (see below) rather than wire a known cross-copy.
+
+**Recommended next candidate:** a *fresh* audit target, since the known cross-copies are done. Strong options:
+(a) the six CPT/HCPCS procedure code lists in `urps_demand_module_bc_2026-07-23.R:26-32` (`grp`) — duplicated
+across module_bc, module_bc_corrected, and any figure/table that reports per-service volume; a code drifting
+between copies would silently mis-attribute Medicare volume. (b) the age-band cut breakpoints
+`BANDS <- c(0,45,50,55,60,65,70,Inf)` + `BAND_LABELS` (line 36) vs the engine's own band definition — a
+classic two-lineage band-edge drift risk.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 34-35 files
+(`scripts/urps_supply_demand_national_2026-07-23.R`, `tests/testthat/test-ssot-entry-age.R`,
+`tests/testthat/test-ssot-demand-horizon-end-year.R`, `docs/SSOT_LEDGER.md`) — iter34 remains validated/green
+and awaits the next "land" instruction; both iterations are cleanly separated in this ledger.
+
+---
+
+## Iteration 36 — URPS anchor procedure codes (`c("57288","57282","51728","52287")` + surg/func split)
+
+**Candidate:** the four "anchor" pelvic-floor HCPCS codes (one representative per procedure family) and their
+surgical/functional (OBG/URO field) classification, used by the Module B+C plasticity/attribution audit.
+
+**Why higher-risk than alternatives:** the *codes* were duplicated across **four files / eight sites** —
+`module_bc_corrected` (line 39 + a **self-referential GATE-7 check** at 116 that re-lists the same four to
+validate them against themselves), `gate_audit` (`ANCHORS` 25, `FUNC`/`SURG` 26, `DICT field` 64), and
+`plasticity_stage0` (named-vector keys 22-23) — plus the `FROZEN` snapshot (59, 88). `gate_audit` even carried a
+manual FATAL gate (`G(24)` "Identical HCPCS universe across files") whose whole job was to detect the drift this
+SSOT structurally prevents. A code drifting between copies would silently mis-attribute Medicare procedure
+volume to the urogyn cohort — a published-number risk. (The original recommendation named the full six-group
+`grp` list, but the audit showed `grp` is **single-source** in `module_bc` and not a duplication; the anchor set
+is the real one.)
+
+**Audit / discrepancy adjudication:** the **codes are byte-identical and order-stable** across all sites → one
+SSOT. The **surg/func split** recurs in three vocabularies (`FUNC`/`SURG`, `field=OBG/URO`) → canonicalized with
+a 1:1 class↔field lockstep. The **family LABELS drift by design** — "Sling for SUI" (corrected) vs "Sling"
+(gate_audit) vs "Sling (SUI)" (plasticity) — these are per-output display strings; **left literal, not
+collapsed** (documented intentional difference). The `FROZEN` file is a reproducibility snapshot → **not wired**;
+guarded by a parity check instead.
+
+**Canonical:** `R/urps_procedure_codes.R` — a validated 4-row lookup `URPS_ANCHOR_PROCEDURES` (code, class,
+field) with fail-loud `stopifnot` (4 unique codes, closed class/field vocab, class↔field lockstep) + accessors
+`urps_anchor_codes(class=all/surgical/functional)` and `urps_anchor_field(codes)`. Chose a **lookup table +
+accessors** over a bare vector because consumers need the split and the field, not just the codes.
+
+**Files changed:** new `R/urps_procedure_codes.R`; wired `scripts/urps_module_bc_corrected_2026-07-23.R`
+(source + line 39 + GATE-7 116), `scripts/urps_module_bc_gate_audit_2026-07-23.R` (source + ANCHORS 25 +
+FUNC/SURG 26 + DICT field 64), `scripts/urps_plasticity_stage0_audit_2026-07-23.R` (source + named-vector 22-23);
+new `tests/testthat/test-ssot-urps-anchor-procedures.R`. **FROZEN not touched.**
+
+**Hardcoded copies removed:** 6 live literal copies across 3 non-frozen files (the full 4-code vector ×3, the
+FUNC/SURG split, the OBG/URO field, the GATE-7 self-check) → 0. Behavior-preserving (accessors == prior
+literals, order preserved; verified).
+
+**Validation guards:** `stopifnot` in the canonical file; the guard's frozen-parity test catches the FROZEN
+snapshot diverging from canonical without editing the freeze.
+
+**Tests added (`test-ssot-urps-anchor-procedures.R`, 25/0):** well-formedness; **behavior-preserving** (accessors
+reproduce every prior literal, in order); **semantic** (surg/func partition — disjoint + exhaustive; order
+contract); **adversarial** (all 3 non-frozen consumers reference the accessor, no bare 4-code / FUNC / field
+literal remains); **frozen-parity** (FROZEN literal still equals canonical); **adversarial malformed** (duplicate
+code and broken class↔field lockstep both fail the validation).
+
+**Initial failures:** none. **Final: anchor-procedures 25/0; all 34 SSOT guards 499/0; all 3 consumers parse.**
+
+**Remaining risks:** the FROZEN snapshot stays a hand-maintained copy by design; the parity guard flags drift but
+a deliberate re-bake requires updating the guard expectation (documented in the test). The three family-label
+vocabularies remain intentionally distinct.
+
+**Recommended next candidate:** iteration 37 (b) — the age-band breakpoints
+`BANDS <- c(0,45,50,55,60,65,70,Inf)` + `BAND_LABELS` in `supply_demand_national` vs the engine's band
+definition (two-lineage band-edge drift).
+
+**Status:** ✅ complete. Uncommitted (loop rule).
+
+---
+
+## Iteration 37 — age-band breakpoints (`BANDS <- c(0,45,50,55,60,65,70,Inf)`, demand/app lineage)
+
+**Candidate:** the numeric age-band breakpoints `c(0,45,50,55,60,65,70,Inf)` used with `cut()` to bucket
+physician ages into the seven hazard bands.
+
+**Why higher-risk than alternatives:** the band edges are the **axis of the entire hazard model** — an off-by-one
+edge silently re-buckets every physician and shifts every projected departure. `BANDS` was hardcoded in **four**
+demand/app files (`supply_demand_national:36`, `module_a:19`, `shiny_urps_scenarios/app.R:21`,
+`shiny_urps_adequacy/model.R:30`), all of which already sourced `urps_model_data.R` for the *paired*
+`BAND_LABELS` — so the labels were single-sourced but the numeric edges they pair with were not. The engine
+lineage (`WC_BANDS`) was already canonical and guarded, and its adversarial grep only scans *engine-sourcing*
+scripts, leaving these four (which source the snapshot, not the engine) unguarded — a real blind spot.
+
+**Audit / discrepancy adjudication:** all four literals + both `WC_BANDS` + both snapshot copies are
+byte-identical `c(0,45,50,55,60,65,70,Inf)` — no intentional difference. Two lineages by design: the engine
+`WC_BANDS`/`WC_BAND_LABELS` (canonical) and the self-contained Shiny/demand snapshot `urps_model_data.R` (carries
+`BAND_LABELS`, **parity-guarded** to the engine, not wired — so the apps deploy standalone). The snapshot files
+carry an *"Auto-generated ... do not hand-edit"* header, but **no generator exists in the repo** and they already
+hold hand-edits (the "+6 PI decision" block), so they are effectively the hand-maintained standalone snapshot;
+`BANDS` was simply missing from them, forcing the four hardcodes.
+
+**Canonical:** unchanged — `WC_BANDS` (`R/workforce_cliff_engine.R`) stays the one SSOT. The fix mirrors the
+existing `BAND_LABELS` pattern: add `BANDS` to both `urps_model_data.R` snapshots (the demand/app lineage's local
+mirror), parity-guarded to `WC_BANDS`, so the four consumers read it from the snapshot they already source. Chose
+**snapshot constant + parity guard** (not wiring the apps to the engine) to preserve standalone Shiny
+deployability.
+
+**Files changed:** `shiny_urps_scenarios/urps_model_data.R` + `shiny_urps_adequacy/data/urps_model_data.R` (added
+`BANDS`); removed the hardcoded copy from `scripts/urps_supply_demand_national_2026-07-23.R`,
+`scripts/urps_module_a_effective_supply_2026-07-23.R`, `shiny_urps_scenarios/app.R`,
+`shiny_urps_adequacy/model.R`; extended `tests/testthat/test-ssot-age-bands.R`.
+
+**Hardcoded copies removed:** 4 (one per consumer) → 0. `BANDS` now lives in the 2 snapshots (parity-guarded) +
+the engine (canonical). Behavior-preserving.
+
+**Validation guards:** extended the Shiny parity test to assert snapshot `BANDS == WC_BANDS` and
+`length(BANDS) == length(BAND_LABELS)+1` in *both* snapshot files; the engine's `WC_BANDS` well-formedness gate
+is unchanged.
+
+**Tests added (extended existing guard, +7 → 17/0):** parity (both snapshots' `BANDS` == canonical + length
+invariant); **adversarial** (all four consumers still source the snapshot and none re-hardcode `BANDS`, snapshots
+exempt); **semantic end-to-end** (`cut()` with the snapshot's own `BANDS`/`BAND_LABELS` assigns every test age to
+the same band as the engine — wiring cannot change any assignment).
+
+**Initial failures:** none. **Final: age-bands guard 17/0; all 34 SSOT guards 505/0; all 6 touched files parse.**
+Final grep: no `BANDS <- c(...)` remains in any consumer (only the 2 snapshots + engine keep the literal).
+
+**Remaining risks:** the two snapshots remain hand-maintained copies (the "auto-generated" header has no backing
+generator); the parity guard catches any drift from `WC_BANDS`. If a generator is ever introduced it must emit
+`BANDS` too. `BAND_EV`/`BAND_PY` (the per-band event/person-year vectors in the snapshots) are a *separate*
+not-yet-audited quantity — candidate below.
+
+**Recommended next candidate:** the per-band hazard inputs `BAND_EV` / `BAND_PY` (`urps_model_data.R:13-14`,
+duplicated across both snapshots and derived in the engine/hazard CSV) — the numerators/denominators of the
+departure hazard, higher-stakes than the band edges and currently three parallel copies.
+
+**Status:** ✅ complete. Uncommitted (loop rule).

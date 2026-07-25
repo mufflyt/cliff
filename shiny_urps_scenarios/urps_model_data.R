@@ -4,6 +4,7 @@ URPS_AGES <- c(29,30,30,30,30,30,31,31,31,31,31,31,31,31,31,31,31,31,31,32,32,32
 # are retained, not dropped, aged from the enriched roster (graduation-year age
 # 40,47,52,63; certification-proxy fallback 36,55). URPS baseline now 1,339 (was 1,333).
 BAND_LABELS <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")
+BANDS <- c(0, 45, 50, 55, 60, 65, 70, Inf)  # age-band breakpoints (== engine WC_BANDS; parity-guarded in test-ssot-age-bands.R); length == BAND_LABELS + 1
 GRAD_URPS <- c(61,66,63,66)  # OB/GYN+urology completers AY2020-24
 # Age-band event / person-year counts per observation window (for the Beta-posterior MC).
 # PRIMARY window (fully_obs) uses the URPS-specific HIERARCHICAL PARTIAL-POOLED hazard

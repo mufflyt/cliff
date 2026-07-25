@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
 source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols() / DEMAND_AGE_MIN
+source(here::here("R", "urps_procedure_codes.R")) # SSOT: anchor procedure codes (family labels below stay per-output)
 
 # Module B+C (CORRECTED): procedure-based utilization & plasticity attribution
 #
@@ -36,7 +37,7 @@ dbWriteTable(con, "cohmap", cohmap, temporary=TRUE, overwrite=TRUE)
 
 # single anchor code per family; field = specialty pool where unmatched urogyns most plausibly hide
 anchors <- data.table(
-  code   =c("57288","57282","51728","52287"),
+  code   =urps_anchor_codes(),                        # SSOT: R/urps_procedure_codes.R (order-stable)
   family =c("Sling for SUI","Apical suspension","Complex urodynamics","Bladder BOTOX"),
   field  =c("OBG","OBG","URO","URO"))
 APP <- c("Physician Assistant","Nurse Practitioner","Clinical Nurse Specialist",
@@ -113,7 +114,7 @@ stopifnot(
   "GATE 4: 2024 volume == observed"  = all(long[year==2024 & scenario=="low"]$national_volume == D$primary_physician),
   "GATE 5: population positive"      = all(sapply(YRS,gf)>0),
   "GATE 6: no facility/APP in num"   = TRUE,   # by construction: urps excludes facility(O)+APP
-  "GATE 7: episode-interpretable"    = all(anchors$code %in% c("57288","57282","51728","52287")),
+  "GATE 7: episode-interpretable"    = all(anchors$code %in% urps_anchor_codes()),
   "GATE 8: unique cohort NPIs"       = !any(duplicated(cohmap$npi)),
   "GATE 9: no dup proc-year-scenario"= !any(duplicated(long[,.(code,year,scenario)])),
   "GATE 10: extraction recorded"     = nchar(EXTRACT_DATE)>0,

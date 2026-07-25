@@ -27,7 +27,7 @@ DEMAND <- fread(dpath("urps_supply_demand_national_2026-07-23.csv"))
 N_OBGYN <- 1031; N_URO <- 308; N_TOT <- N_OBGYN + N_URO             # baseline 1,339
 OB_BASE_SHARE <- N_OBGYN / N_TOT                                    # 0.770
 BASE_YEAR <- 2025L
-BANDS <- c(0,45,50,55,60,65,70,Inf)
+# BANDS + BAND_LABELS come from the sourced urps_model_data.R snapshot (SSOT; == engine WC_BANDS)
 band_of <- function(age) as.character(cut(age, breaks=BANDS, labels=BAND_LABELS, right=FALSE))
 HZ  <- HAZ_WINDOWS[["fully_obs"]]; HZ[is.na(HZ)] <- max(HZ, na.rm=TRUE)
 HZ  <- pmin(1, HZ); names(HZ) <- BAND_LABELS   # pmin() strips names -> must re-apply
