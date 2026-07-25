@@ -1,0 +1,10 @@
+name: urps-adequacy-explorer
+title: Urogynecology Effective-Adequacy Explorer
+username: tyler-muffly
+account: tyler-muffly
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 17639951
+bundleId: 12317923
+url: https://tyler-muffly.shinyapps.io/urps-adequacy-explorer/
+version: 1
