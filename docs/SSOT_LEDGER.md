@@ -2265,3 +2265,53 @@ scenario factors around it may be bare literals). Verify none are already ledger
 **Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 38-39 files
 (`tests/testthat/test-ssot-band-hazard-inputs.R`, `tests/testthat/test-ssot-graduate-counts.R`,
 `docs/SSOT_LEDGER.md`) — iter38 remains validated/green and awaits the next "land" instruction.
+
+---
+
+## Architectural task — canonical `urps_model_data.R` + sync generator + whole-file drift guard
+
+**Not a numbered SSOT iteration** — the structural fix for the family of second-snapshot gaps that iters 37, 38,
+39 each patched constant-by-constant (`BANDS`, `BAND_EV/PY`, `GRAD_URPS`). Authorized by the user as a dedicated
+task.
+
+**Problem:** the whole `urps_model_data.R` file was duplicated as two independently hand-maintained copies —
+`shiny_urps_scenarios/urps_model_data.R` and `shiny_urps_adequacy/data/urps_model_data.R` (byte-identical, but
+nothing enforced it; each new constant added to one could silently miss the other).
+
+**Why the duplication is unavoidable (not a smell to delete):** both apps deploy to shinyapps.io via
+`rsconnect::deployApp(appDir=".", appFiles=<app-dir-relative list>)`. The bundle contains only those files, so
+neither app can `source()` a repo-root file at runtime — each app dir must physically contain its own copy.
+Confirmed by reading both `DEPLOY.R` bundles. So the fix is not de-duplication but **one canonical + synced
+replicas + a drift guard**.
+
+**Design chosen:**
+- **Canonical:** `shiny_urps_scenarios/urps_model_data.R` (already sourced by the repo demand scripts
+  `urps_supply_demand_national` / `urps_module_a`, and already the reference for every SSOT guard).
+- **Replica:** `shiny_urps_adequacy/data/urps_model_data.R`, kept **byte-identical**.
+- **Generator:** `scripts/sync_urps_model_data.R` — copies canonical → replicas and verifies by hash; `--check`
+  mode verifies only and exits non-zero on drift (CI / deploy preflight). Fails loudly on any bad copy.
+- **Whole-file drift guard:** `tests/testthat/test-ssot-urps-model-data-sync.R` — asserts every replica is
+  byte-identical (line-for-line + md5) to canonical, plus a sourced-constant equality check and an adversarial
+  one-byte-drift detection. This is a **superset** of the per-constant guards: any future drift — audited
+  constant or not — now fails here.
+- **Deploy fail-loud:** `shiny_urps_adequacy/DEPLOY.R` preflight now refuses to ship a replica that has drifted
+  from canonical (guarded so it only checks when the canonical is reachable, i.e. deploying from the repo).
+- **Header:** replaced the misleading "Auto-generated ... from R/workforce_cliff_engine.R" line (no such
+  generator ever existed) with an accurate provenance header naming the canonical, the sync script, and the
+  guard; propagated to the replica by the sync so both stay byte-identical.
+
+**Files:** new `scripts/sync_urps_model_data.R`, new `tests/testthat/test-ssot-urps-model-data-sync.R`; edited
+`shiny_urps_scenarios/urps_model_data.R` (header) + `shiny_urps_adequacy/data/urps_model_data.R` (synced) +
+`shiny_urps_adequacy/DEPLOY.R` (preflight drift check).
+
+**Behavior:** zero runtime change — the replica content is byte-identical to before (only the header comment
+changed, identically in both). Both apps load all constants unchanged; both demand scripts unaffected.
+
+**Validation:** sync guard 17/0; drift round-trip proven (tamper a replica → `--check` exits 1 → re-sync → exits
+0 → byte-identity restored); all touched files parse; **all SSOT guards 547/0**.
+
+**Residual:** the per-constant guards (iters 37-39 + iter3) are now redundant with the whole-file guard but kept
+— they give human-readable, value-specific failure messages and check the engine-lineage canonical too. Future
+model-data edits: change the canonical, run `Rscript scripts/sync_urps_model_data.R`, commit both.
+
+**Status:** ✅ complete. Uncommitted — awaits a "land it" instruction.
