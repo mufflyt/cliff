@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 
 # Module B+C (CORRECTED): procedure-based utilization & plasticity attribution
 #
@@ -22,7 +23,7 @@ SCR <- here::here("data", "census")
 EXTRACT_DATE <- "2024 PUF (PHY_R26...D24), extracted 2026-07-23"
 inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 
-con <- dbConnect(duckdb(), "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb", read_only=TRUE)
+con <- dbConnect(duckdb(), wc_duckdb_path(), read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
 abu <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
 abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(character="npi"))

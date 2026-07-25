@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # #10: model the ABU (urology-pathway) URPS component separately instead of
 # assigning it the ABOG hazard. Produces a supplement sensitivity table:
@@ -16,7 +17,7 @@ BANDS <- c(0,45,50,55,60,65,70,Inf); BL <- c("<45","45-49","50-54","55-59","60-6
 WIN <- c(2016L,2021L); AGE_AT_CERT <- 30L; REF_YEAR <- 2024L; HORIZON <- 4L; ENTRY_AGE <- 34L
 band_of <- function(age) as.character(cut(age, BANDS, labels=BL, right=FALSE))
 
-coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv",
+coh <- read_csv(wc_path("cohort_csv"),
                 show_col_types=FALSE, guess_max=1e5) %>%
   filter(subspecialty=="Female Pelvic Medicine & Reconstructive Surgery", !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), cert_year=as.integer(cert_year),
@@ -39,11 +40,11 @@ HAZ <- setNames(bc$ev/bc$py, bc$band)
 haz_for <- function(age, mult=1){ h<-HAZ[band_of(age)]*mult; h[is.na(h)]<-max(HAZ,na.rm=TRUE)*mult; pmin(1,h) }
 
 abog_ages <- coh %>% filter(ret==FALSE, !is.na(age)) %>% pull(age)
-abu_cw <- read_csv("/Users/tylermuffly/isochrones/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv",
+abu_cw <- read_csv(wc_path("abu_crosswalk"),
                    show_col_types=FALSE, guess_max=1e5) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
 abu_nn <- trimws(gsub('"','', readLines(
-  "/Users/tylermuffly/isochrones/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-14.txt")))
+  wc_path("abu_net_new"))))
 abu_nn <- abu_nn[abu_nn!="" & !grepl("npi", abu_nn, ignore.case=TRUE)]
 abu_ages <- abu_cw %>% filter(npi %in% abu_nn, !is.na(cert_year)) %>%
   mutate(age=REF_YEAR-cert_year+AGE_AT_CERT) %>% distinct(npi,.keep_all=TRUE) %>% pull(age)

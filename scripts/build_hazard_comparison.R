@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Pooled vs unpooled age-band departure hazards (peer review #4 + pooling concern).
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,7 +27,7 @@ band_of <- function(a) as.character(cut(a, BANDS, labels=BL, right=FALSE))
 AGE_AT_CERT <- 30L; REF_YEAR <- 2024L; WIN <- c(2016L,2021L)
 SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery", GO="Gynecologic Oncology", MIGS="MIGS")
 
-coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv",
+coh <- read_csv(wc_path("cohort_csv"),
                 show_col_types=FALSE, guess_max=1e5) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi), ab=names(SUBS)[match(subspecialty,SUBS)],

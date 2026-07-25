@@ -25,3 +25,21 @@ signals_duckdb:
   path: /Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb
   fallback: /Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb
   env: WORKFORCE_SIGNALS_DUCKDB
+
+state_registry:
+  # State medical-board lifecycle registry (classifier external validation).
+  path: /Users/tylermuffly/isochrones/data/state_licenses/state_board_lifecycle_registry.csv
+  env: WORKFORCE_STATE_REGISTRY
+
+medicare_prov_svc:
+  # CMS Medicare Physician & Other Practitioners, by Provider and Service, 2024
+  # (raw ~3.25 GB CMS download, re-downloadable). This is the source imported into
+  # signals_duckdb; scripts query the DuckDB, not this CSV. Registered for lineage.
+  # Set the real location via the env var or cliff_paths.local.yml.
+  path: /Volumes/MufflySamsung 1/medicare/medicare_prov_svc_2024.csv
+  env: WORKFORCE_MEDICARE_PROV_SVC
+
+hpsa_shp:
+  # HRSA Health Professional Shortage Area shapefile (public; ~270 MB .shp bundle).
+  path: /Volumes/MufflySamsung 1/hrsa/HPSA_CMPPC_SHP_DET_CUR_VX.shp
+  env: WORKFORCE_HPSA_SHP

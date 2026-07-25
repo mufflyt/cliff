@@ -30,25 +30,11 @@ WC_ENTRANTS  <- sapply(WC_GRAD, mean)
 WC_ENTRANTS_NRMP <- c(URPS = 74L, GO = 88L, MIGS = 51L)
 WC_PRIMARY   <- c("GO", "URPS")
 
-# ---- input paths: resolved via cliff/config/cliff_paths.yml (#5) ------------
+# ---- input paths: resolved via config/cliff_paths.yml (#5) ------------------
 # ONE config entry per input (env override > path > fallback). Replaces the
-# 29-42 hardcoded absolute paths that were scattered across scripts.
-.wc_paths_cfg <- NULL
-wc_path <- function(key, must_exist = FALSE) {
-  if (is.null(.wc_paths_cfg)) {
-    cfg <- yaml::read_yaml(here::here("cliff", "config", "cliff_paths.yml"))
-    lf  <- here::here("cliff", "config", "cliff_paths.local.yml")
-    if (file.exists(lf)) cfg <- utils::modifyList(cfg, yaml::read_yaml(lf))
-    .wc_paths_cfg <<- cfg
-  }
-  e <- .wc_paths_cfg[[key]]
-  if (is.null(e)) stop("wc_path(): unknown key '", key, "'", call. = FALSE)
-  if (!is.null(e$env)) { v <- Sys.getenv(e$env, ""); if (nzchar(v)) return(v) }   # env override wins
-  p <- e$path
-  if (!file.exists(p) && !is.null(e$fallback) && file.exists(e$fallback)) p <- e$fallback
-  if (must_exist && !file.exists(p)) stop("wc_path('", key, "'): file not found: ", p, call. = FALSE)
-  p
-}
+# 29-42 hardcoded absolute paths that were scattered across scripts. The resolver
+# now lives in R/wc_path.R so the upstream scripts can source it standalone.
+source(here::here("R", "wc_path.R"))
 WC_COHORT_CSV  <- wc_path("cohort_csv")
 WC_ABU_CW      <- wc_path("abu_crosswalk")
 WC_ABU_NN      <- wc_path("abu_net_new")

@@ -1,3 +1,4 @@
+source(here::here("R", "wc_path.R"))
 library(dplyr)
 library(DBI)
 library(duckdb)
@@ -14,7 +15,7 @@ abog_urps <- readr::read_csv(abog_file, show_col_types = FALSE) %>%
 cat("Found", nrow(abog_urps), "ABOG physicians with URPS/FPMRS subspecialty\n")
 
 # Connect to NBER database
-con <- DBI::dbConnect(duckdb::duckdb(), "/Volumes/MufflySamsung 1/nber_my_duckdb.duckdb", read_only = TRUE)
+con <- DBI::dbConnect(duckdb::duckdb(), wc_duckdb_path(), read_only = TRUE)
 
 # Get their NPPES taxonomy codes - ALL positions
 if(nrow(abog_urps) > 0) {

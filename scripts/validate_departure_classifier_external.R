@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # TIER-3: EXTERNAL validation of the clinical-practice DEPARTURE classifier
 # against an INDEPENDENT state-medical-board reference standard.
@@ -35,8 +36,8 @@
 
 suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr); library(here)})
 
-COHORT <- "/Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv"
-REG    <- "/Users/tylermuffly/isochrones/data/state_licenses/state_board_lifecycle_registry.csv"
+COHORT <- wc_path("cohort_csv")
+REG    <- wc_path("state_registry")
 stopifnot(file.exists(COHORT), file.exists(REG))
 
 SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery",

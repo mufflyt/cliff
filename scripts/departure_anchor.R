@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+source(here::here("R", "wc_path.R"))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Non-Open-Payments departure anchor (reviewer #2 construct-validity fix).
 # The published classifier let a single Open Payments (industry-payment)
@@ -21,13 +22,12 @@
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(dplyr); library(readr); library(here)})
 SUBS <- c(GO="Gynecologic Oncology", URPS="Female Pelvic Medicine & Reconstructive Surgery", MIGS="MIGS")
 
-coh <- read_csv("/Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv",
+coh <- read_csv(wc_path("cohort_csv"),
                 show_col_types=FALSE, guess_max=1e5) %>%
   filter(subspecialty %in% unname(SUBS), !is.na(cert_year)) %>%
   transmute(npi=as.character(npi)) %>% distinct()
 
-db <- "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb"
-if(!file.exists(db)) db <- "/Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb"
+db <- wc_duckdb_path()   # primary + fallback resolved inside wc_path()
 con <- dbConnect(duckdb::duckdb(), db, read_only=TRUE)
 duckdb::duckdb_register(con, "coh_npi", data.frame(npi=coh$npi))
 sig <- dbGetQuery(con, "SELECT CAST(p.npi AS VARCHAR) npi,
