@@ -19,7 +19,10 @@ test_that("URPS annual entrants == mean(GRAD_URPS) == 64, consistent across all 
 
 test_that("the demand horizon in the supply-demand producer stays 25 (2025-2050), NOT collapsed to WC_HORIZON", {
   ls <- readLines(here::here("scripts", "urps_module_a_effective_supply_2026-07-23.R"), warn = FALSE)
-  expect_true(any(grepl("HORIZON\\s*<-\\s*25L", ls)))             # intentional difference preserved
+  # HORIZON is now DERIVED from the SSOT demand horizon endpoints (2050-2025=25), still != WC_HORIZON (iter24)
+  de <- new.env(); source(here::here("R", "demand_denominator.R"), local = de)
+  expect_identical(de$DEMAND_HORIZON_END_YEAR - de$PROJECTION_BASELINE_YEAR, 25L)   # demand horizon length
+  expect_true(any(grepl("HORIZON <- DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR", ls)))
   expect_false(ee$WC_HORIZON == 25L)                             # sanity: the two horizons differ
 })
 

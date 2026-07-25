@@ -5,7 +5,8 @@
 # ribbons, dashed 2025 reference. Inter font, plot-width title, white background.
 suppressPackageStartupMessages({ library(readr); library(dplyr); library(tidyr); library(ggplot2) })
 
-TEAL <- "#1b7f79"; ORANGE <- "#c77d1a"; RED <- "#d1495b"; GREY <- "#8a97a8"; INK <- "#2b2f36"
+source(here::here("R", "augs_palette.R"))   # SSOT: TEAL / ORANGE / RED / GREY
+INK <- "#2b2f36"   # file-specific (axis ink), not part of the shared palette
 ft <- tryCatch({
   fams <- systemfonts::system_fonts()$family
   if ("Inter" %in% fams) "Inter" else "sans"

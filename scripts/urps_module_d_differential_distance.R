@@ -16,8 +16,8 @@
 # Run:  URPS_OBGYN_POINTS=path/to/all_obgyn_geocoded.csv Rscript scripts/urps_module_d_differential_distance.R
 suppressPackageStartupMessages({ library(data.table); library(sf); library(tigris) })
 options(tigris_use_cache=TRUE, tigris_class="sf"); sf::sf_use_s2(TRUE)
-source("R/conus.R")   # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()
-MI <- 1609.344
+source("R/conus.R")    # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()
+source("R/units.R")    # SSOT: meters_to_miles() / miles_to_meters() (METERS_PER_MILE)
 
 read_points <- function(f) {
   d <- fread(f)
@@ -30,7 +30,7 @@ read_points <- function(f) {
 }
 
 # nearest-feature great-circle distance (miles) from each point in A to layer B
-nearest_mi <- function(A, B) as.numeric(st_distance(A, B[st_nearest_feature(A, B),], by_element=TRUE)) / MI
+nearest_mi <- function(A, B) meters_to_miles(as.numeric(st_distance(A, B[st_nearest_feature(A, B),], by_element=TRUE)))
 
 compute_differential_distance <- function(centroids_sf, geoid, urogyn_sf, obgyn_sf) {
   du <- nearest_mi(centroids_sf, urogyn_sf)

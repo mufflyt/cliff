@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
+source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols() / DEMAND_AGE_MIN
 
 # Module B+C (CORRECTED): procedure-based utilization & plasticity attribution
 #
@@ -86,10 +87,10 @@ D[, pi_high := (urps + t_hi *field_residual)/primary_physician]
 
 ## ── Module B: Census 65+ growth, projected volume, workload, FTE ────────────
 fem <- fread(file.path(SCR,"np2023_d1_mid.csv"))[SEX==2 & ORIGIN==0 & RACE==0]
-w65 <- fem[, .(w65=rowSums(.SD)), by=YEAR, .SDcols=sprintf("POP_%d",65:100)]
-base65 <- w65[YEAR==2024]$w65
+w65 <- fem[, .(w65=rowSums(.SD)), by=YEAR, .SDcols=npp_women_65plus_cols()]
+base65 <- w65[YEAR==DEMAND_REBASE_YEAR]$w65   # SSOT: demographic rebase year (R/demand_denominator.R)
 gf <- function(t) w65[YEAR==t]$w65/base65                            # demographic growth factor (rebased to 2024)
-YRS <- c(2024,2030,2040,2050)
+YRS <- c(2024,2030,2040,DEMAND_HORIZON_END_YEAR)   # horizon end via SSOT (R/demand_denominator.R)
 
 long <- rbindlist(lapply(seq_len(nrow(D)), function(i){
   r <- D[i]; q <- r$mean_pp                                          # procedures per active URPS FTE (current avg)
@@ -147,5 +148,5 @@ print(mt[, .(family, natl=national_observable_2024, urps=confirmed_urps_2024, sh
              attr_low_mid_high=sprintf("%.2f/%.2f/%.2f",attr_low,attr_mid,attr_high), n_active=active_urps_npis,
              per_npi=median_iqr, fte_confirmed_2024=req_fte_confirmed_2024,
              fte_confirmed_2050=req_fte_confirmed_2050, fte_mid_2050=req_fte_mid_2050)])
-cat("\n2024->2050 demographic growth (women 65+):", round(100*(gf(2050)-1)),"%\n")
+cat("\n2024->2050 demographic growth (women 65+):", round(100*(gf(DEMAND_HORIZON_END_YEAR)-1)),"%\n")
 cat("Interpretation: capacity to MAINTAIN 2024 realized Medicare FFS utilization; baseline FTE ~= current active by construction.\n")

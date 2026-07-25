@@ -10,6 +10,7 @@
 # ============================================================================
 suppressPackageStartupMessages({library(data.table); library(digest)})
 h <- function(p){ for(r in c(".","..","../..")) if(file.exists(file.path(r,p))) return(file.path(r,p)); p }
+source(h("R/demand_denominator.R"))   # SSOT: DEMAND_AGE_MIN / NPP_MAX_AGE for the 65+ definition gate
 
 FROZEN <- fread(h("data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
 PROV   <- fread(h("data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
@@ -160,9 +161,9 @@ G(93,"FATAL","FTEs nonnegative", all(PROJ$required_fte>=0))
 G(94,"FATAL","FTE denominators positive", all(CORR$active_urps_npis>0))
 
 # ── J. Population & projection ──────────────────────────────────────────────
-G(95,"FATAL","Requested years complete", all(2025:2050 %in% POP$YEAR))
+G(95,"FATAL","Requested years complete", all(PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR %in% POP$YEAR))
 G(96,"FATAL","2024/base row unique", TRUE, "growth rebased to 2024", "unique base")
-G(98,"FATAL","65+ age definition fixed", TRUE, "POP_65..POP_100", "listed")
+G(98,"FATAL","65+ age definition fixed", TRUE, sprintf("POP_%d..POP_%d", DEMAND_AGE_MIN, NPP_MAX_AGE), "listed")
 G(99,"FATAL","No double-counted age groups", TRUE, "single-year-of-age sum", "no overlap")
 G(100,"FATAL","Population positive", all(POP$women_65plus>0))
 G(101,"FATAL","Growth factor identity g2024=1", TRUE, "rebased", "1.0")
