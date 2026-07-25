@@ -14,7 +14,7 @@ acc <- fread("data/urps_module_d_county_access_2026-07-23.csv",
              colClasses=list(character=c("GEOID","state")))
 pts <- fread("data/urps_module_d_points_2026-07-23.csv")
 
-cty <- counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE)
+cty <- counties(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE)
 cty <- st_transform(cty, 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]
 cty <- merge(cty, acc[, .(GEOID, county, state, women_65plus, n_urogyn_in_county,

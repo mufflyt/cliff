@@ -9,9 +9,9 @@ options(tigris_use_cache=TRUE, tigris_class="sf"); sf::sf_use_s2(TRUE)
 source("R/conus.R")   # SSOT: is_conus_fips()
 
 dd  <- fread("data/urps_module_d_differential_distance_2026-07-23.csv", colClasses=list(character="GEOID"))
-cty <- st_transform(counties(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE), 4326)
+cty <- st_transform(counties(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE), 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]
-sta <- st_transform(states(cb=TRUE, resolution="20m", year=2023, progress_bar=FALSE), 4326)
+sta <- st_transform(states(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE), 4326)
 sta <- sta[is_conus_fips(sta$STATEFP), ]
 m <- merge(cty, dd[, .(GEOID, differential_miles)], by="GEOID", all.x=TRUE)
 
