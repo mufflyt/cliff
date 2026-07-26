@@ -21,9 +21,9 @@ WC_WIN         <- c(2016L, 2021L)
 WC_AGE_AT_CERT <- 30L
 WC_HORIZON     <- WORKFORCE_PROJECTION_HORIZON_YEARS   # SSOT: shared with the data contract
 WC_ENTRY_AGE   <- WORKFORCE_ENTRY_AGE   # SSOT: shared entry age (workforce_constants.R)
-WC_REF_YEAR    <- 2024L
+WC_REF_YEAR    <- WORKFORCE_REFERENCE_YEAR   # SSOT: shared reference / latest-data year (workforce_constants.R)
 WC_YEAR0       <- PROJECTION_BASELINE_YEAR   # SSOT: shared projection baseline (workforce_constants.R)
-WC_OBS_END     <- 2023L
+WC_OBS_END     <- WORKFORCE_OBSERVED_END_YEAR   # SSOT: shared observation-confirmable end (workforce_constants.R)
 # WC_SUBS / WC_SUBS_FULL are the canonical subspecialty mappings, now defined in
 # R/workforce_constants.R (sourced above) so both the engine and manuscript lineages share them.
 WC_GRAD      <- list(GO = c(70,73,78,79), URPS = c(61,66,63,66), MIGS = c(47,50,45,47))

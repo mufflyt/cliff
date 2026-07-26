@@ -13,7 +13,7 @@ PROJ_YEAR0   <- 2025L                               # projection baseline (the 2
 PROJ_HORIZON <- WORKFORCE_PROJECTION_HORIZON_YEARS  # SSOT: annual transitions (4)
 PROJ_END     <- PROJ_YEAR0 + PROJ_HORIZON           # derived projection endpoint (2029)
 PROJ_YEARS   <- PROJ_YEAR0 + 0:PROJ_HORIZON         # 2025..2029
-OBS_START    <- 2013L                               # observed-series start (NOT horizon-derived)
+OBS_START    <- WORKFORCE_OBSERVED_START_YEAR       # SSOT: study observed-window start (R/workforce_constants.R)
 OBS_END      <- PROJ_YEAR0 - 1L                     # last observed year / observed-projected boundary (2024)
 # Fail loud if the horizon SSOT drifts: the FROZEN supply endpoints (1,283 -> 1,301)
 # and the [1,271, 1,330] CI below are a published FOUR-year result. If the horizon

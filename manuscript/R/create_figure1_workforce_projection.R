@@ -41,7 +41,7 @@ source(here::here("R", "theme_publication.R"))
 #'   `subspecialty`, `subspecialty_abbrev`, `year`, `workforce`, `lower`, `upper`.
 build_projection_trajectory <- function(workforce_summary) {
   horizon <- WORKFORCE_PROJECTION_HORIZON_YEARS
-  base_year <- 2025L
+  base_year <- PROJECTION_BASELINE_YEAR   # SSOT: shared projection baseline (R/workforce_constants.R via the contract)
 
   workforce_summary %>%
     dplyr::mutate(

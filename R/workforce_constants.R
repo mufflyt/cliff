@@ -150,3 +150,70 @@ classify_workforce_outlook <- function(ratio) {
   ifelse(ratio >= WORKFORCE_OUTLOOK_ADEQUATE_MIN, "Adequate",
          ifelse(ratio >= WORKFORCE_OUTLOOK_MARGINAL_MIN, "Marginal", "Insufficient"))
 }
+
+# WORKFORCE_OBSERVED_START_YEAR
+#   Meaning : the FIRST year of the study's observed administrative data window (the earliest Medicare
+#             fee-for-service year used for the panel / observed supply series / truth-contract year bound).
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year.
+#   Source  : study design (observed data begins 2013).
+#   Consumers: scripts/urps_module_a_age_productivity_2026-07-23.R (panel `yrs`), scripts/fig_fpmrs_supply_line.R
+#             (`OBS_START`), R/validators/validate_workforce_truth_contract.R (`year_min_allowed`).
+#   NOT the window END: the observed window END differs by context and is DELIBERATELY separate — the
+#             truth-contract study scope ends 2023, while the Medicare panel / observed supply series run to the
+#             latest available year 2024. This constant is ONLY the shared start; do not fold an end year into it.
+WORKFORCE_OBSERVED_START_YEAR <- 2013L
+stopifnot(
+  is.integer(WORKFORCE_OBSERVED_START_YEAR),
+  length(WORKFORCE_OBSERVED_START_YEAR) == 1L,
+  !is.na(WORKFORCE_OBSERVED_START_YEAR),
+  WORKFORCE_OBSERVED_START_YEAR == 2013L,               # pin the published observed-window start
+  WORKFORCE_OBSERVED_START_YEAR < PROJECTION_BASELINE_YEAR   # observation precedes the projection baseline
+)
+
+# WORKFORCE_OBSERVED_END_YEAR
+#   Meaning : the LAST fully-observable / confirmable year of the study window — the 3-year-administrative-
+#             follow-up boundary through which a departure can be confirmed (departures dated after this are
+#             right-censored). It is the upper bound of the truth-contract study scope (2013-2023) and the end
+#             of the hazard-observation window's fully-observable range.
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year, after the observed start, at/before the reference year.
+#   Source  : study design (data end 2023-2024 minus the 3-year confirmation rule -> 2023).
+#   Consumers: the engine (R/workforce_cliff_engine.R::WC_OBS_END aliases this) AND
+#             R/validators/validate_workforce_truth_contract.R (`year_max_allowed`).
+#   DISTINCT FROM: the reference / latest-data year 2024 (engine WC_REF_YEAR; the Medicare panel and observed
+#             supply series in scripts/urps_module_a_age_productivity_* and fig_fpmrs_supply_line run to 2024).
+#             The confirmable-observation end (2023) and the latest-available-data year (2024) are separate
+#             concepts and must NOT be collapsed.
+WORKFORCE_OBSERVED_END_YEAR <- 2023L
+stopifnot(
+  is.integer(WORKFORCE_OBSERVED_END_YEAR),
+  length(WORKFORCE_OBSERVED_END_YEAR) == 1L,
+  !is.na(WORKFORCE_OBSERVED_END_YEAR),
+  WORKFORCE_OBSERVED_END_YEAR == 2023L,                          # pin the published observation-confirmable end
+  WORKFORCE_OBSERVED_END_YEAR > WORKFORCE_OBSERVED_START_YEAR    # end follows start
+)
+
+# WORKFORCE_REFERENCE_YEAR
+#   Meaning : the reference / latest-available-data year — the year the cohort's ages are reckoned as-of and the
+#             most recent Medicare fee-for-service year in the panel. Physician age is reconstructed as
+#             (reference year − certification year + age-at-certification), and the age-productivity panel runs
+#             through this year.
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year, after the observation-confirmable end, before the projection baseline.
+#   Source  : study design (latest available Medicare data = 2024).
+#   Consumers: the engine (R/workforce_cliff_engine.R::WC_REF_YEAR aliases this; the 4 engine-sourcing scripts
+#             alias WC_REF_YEAR) AND scripts/urps_module_a_age_productivity_2026-07-23.R (age-as-of year + panel end).
+#   DISTINCT FROM: the observation-confirmable end 2023 (WORKFORCE_OBSERVED_END_YEAR; 3-yr follow-up boundary).
+#             The latest-data year (2024) is one year past the last confirmable-departure year (2023); they are
+#             separate concepts and must NOT be collapsed. Also distinct from the module_bc Medicare *table/column*
+#             identifiers `medicare_part_b_by_service_2024` / `national_2024` (schema names, left literal).
+WORKFORCE_REFERENCE_YEAR <- 2024L
+stopifnot(
+  is.integer(WORKFORCE_REFERENCE_YEAR),
+  length(WORKFORCE_REFERENCE_YEAR) == 1L,
+  !is.na(WORKFORCE_REFERENCE_YEAR),
+  WORKFORCE_REFERENCE_YEAR == 2024L,                             # pin the published reference / latest-data year
+  WORKFORCE_REFERENCE_YEAR > WORKFORCE_OBSERVED_END_YEAR,        # latest data is past the confirmable-observation end
+  WORKFORCE_REFERENCE_YEAR < PROJECTION_BASELINE_YEAR           # reference precedes the projection baseline
+)
