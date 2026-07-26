@@ -34,7 +34,7 @@ test_that("G57: KPI boxes contain values recomputed from the canonical project()
 test_that("G28/G29: changing the horizon updates KPIs and bounds the lowest-adequacy search", {
   testServer(shiny::shinyAppDir(APP_DIR), {
     do.call(session$setInputs, modifyList(DEF_INPUTS, list(end_year=2040)))
-    d <- project(65,64,34,0.90,0.77,0.70,1.0,1.0,TRUE,2040)
+    d <- project(65,64,34,0.90,0.77,URO_FTE_DEFAULT,1.0,1.0,TRUE,2040)   # SSOT: reference urology FTE (model.R)
     e <- d[YEAR==2040]
     expect_true(grepl(formatC(round(e$effective), big.mark=",", format="d"), flat(output$kpi_eff), fixed=TRUE))
     yr <- as.integer(regmatches(flat(output$kpi_trough), regexpr("20[0-9]{2}", flat(output$kpi_trough))))

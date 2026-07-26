@@ -52,7 +52,7 @@ bslider <- function(id, ...) div(class=paste0("band-", id), sliderInput(id, ...)
 
 ## ── scenario presets (each applies on top of Reference) ──────────────────────
 PRESETS <- list(
-  Reference         = list(retire=65, entrants=64, fte_new=90, ob_share=round(100*OB_BASE_SHARE), uro_fte=70, haz_mult=1.0, demand_mult=1.0),
+  Reference         = list(retire=65, entrants=ENTRANTS_DEFAULT, fte_new=90, ob_share=round(100*OB_BASE_SHARE), uro_fte=round(100*URO_FTE_DEFAULT), haz_mult=1.0, demand_mult=1.0),
   `Retire early`    = list(retire=63),
   `Retire late`     = list(retire=67),
   `Lower entrants`  = list(entrants=48),
@@ -164,8 +164,8 @@ ui <- function(request) page_sidebar(
         bslider("haz_mult", slab("Pre-retirement departure rate (× observed)"), 0.5, 2.0, 1.0, step=0.1),
         shelp("Even before the retirement age, a steady fraction of physicians leaves each year (career change, disability, relocation, death). This multiplies that observed early-departure rate: 1.0 = as observed, 1.5 = 50% faster, 0.5 = half as fast. The retirement age is the single age everyone still practicing stops; this slider is the ongoing trickle of exits at every earlier age."),
         bslider("demand_mult", slab("Demand growth (× women-65+ population trend)"), 0.5, 2.0, 1.0, step=0.1),
-        sliderInput("entry_age", slab("Physician entry age (years)"), 30, 45, 34, step=1),
-        sliderInput("end_year", slab("Projection horizon (year)"), 2035, 2050, 2050, step=5, sep=""),
+        sliderInput("entry_age", slab("Physician entry age (years)"), 30, 45, ENTRY_AGE_DEFAULT, step=1),
+        sliderInput("end_year", slab("Projection horizon (year)"), 2035, PROJECTION_END_YEAR, PROJECTION_END_YEAR, step=5, sep=""),
         selectInput("band_var", slab("Uncertainty band on the capacity-gap chart varies"),
           choices=c("Retirement timing (±2 yr)"="retire", "Annual entrants (±20)"="entrants",
                     "New-physician FTE (±10 pts)"="fte", "Demand growth (±20%)"="demand",
@@ -219,10 +219,10 @@ server <- function(input, output, session) {
 
   observeEvent(input$reset, {
     updateSliderInput(session,"retire",value=65); updateSliderInput(session,"fte_new",value=90)
-    updateSliderInput(session,"ob_share",value=round(100*OB_BASE_SHARE)); updateSliderInput(session,"uro_fte",value=70)
-    updateSliderInput(session,"entrants",value=64); updateSliderInput(session,"haz_mult",value=1.0)
-    updateSliderInput(session,"demand_mult",value=1.0); updateSliderInput(session,"entry_age",value=34)
-    updateCheckboxInput(session,"weight_on",value=TRUE); updateSliderInput(session,"end_year",value=2050)
+    updateSliderInput(session,"ob_share",value=round(100*OB_BASE_SHARE)); updateSliderInput(session,"uro_fte",value=round(100*URO_FTE_DEFAULT))
+    updateSliderInput(session,"entrants",value=ENTRANTS_DEFAULT); updateSliderInput(session,"haz_mult",value=1.0)
+    updateSliderInput(session,"demand_mult",value=1.0); updateSliderInput(session,"entry_age",value=ENTRY_AGE_DEFAULT)
+    updateCheckboxInput(session,"weight_on",value=TRUE); updateSliderInput(session,"end_year",value=PROJECTION_END_YEAR)
     updateSelectInput(session,"band_var",selected="retire")
   })
 

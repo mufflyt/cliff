@@ -2438,3 +2438,657 @@ Otherwise scan `code/` (the older pipeline) for an un-audited duplicated constan
 (`R/workforce_constants.R`, `scripts/graduate_growth_scenarios.R`, `scripts/urps_demand_module_bc_2026-07-23.R`,
 `tests/testthat/test-ssot-workforce-outlook.R`, `tests/testthat/test-ssot-attribution-multipliers.R`,
 `docs/SSOT_LEDGER.md`) — iter40 remains validated/green and awaits the next "land" instruction.
+
+---
+
+## Iteration 42 — study observed-window START year (`2013`) → `WORKFORCE_OBSERVED_START_YEAR`
+
+**Candidate considered first, REJECTED: the FPMRS supply-figure hardcodes** (1196/1283/1301/4.4/55.6/15.2/1.08).
+Same old-era supply numbers as the stale table, PI-gated + baseline-entangled per
+`docs/FLAG_stale_workforce_table_hardcode.md`; horizon/CI-z/axis already single-sourced (iters 1/14/15). Not
+touched.
+
+**Candidate selected:** the study observed-administrative-data-window START year `2013` — a baseline-independent
+design constant.
+
+**Why higher-risk than alternatives:** it fixes the lower bound of the *observed* data the whole analysis rests
+on (the Medicare panel, the observed supply series, and the truth-contract year gate), yet was a bare literal in
+three code files across three lineages. A change to the study start that updated one and missed another would
+silently mis-scope the age-productivity panel or let the validator admit/reject the wrong years — and unlike the
+supply numbers it is NOT baseline-entangled, so it is safe to unify now.
+
+**Audit / provenance:** `scripts/urps_module_a_age_productivity_2026-07-23.R:27` (`yrs <- 2013:2024`),
+`scripts/fig_fpmrs_supply_line.R:16` (`OBS_START <- 2013L`), `R/validators/validate_workforce_truth_contract.R:98`
+(`year_min_allowed <- 2013L`), and `config/expected_workforce_counts.yml:74` (`test_years` begins 2013).
+
+**Discrepancy adjudication:** the START `2013` is consistent at every site → one SSOT. The window END is
+**intentionally different and NOT collapsed**: the truth-contract study scope ends `2023` (`year_max_allowed`),
+while the Medicare panel and observed supply series run to `2024` (latest available). Only the shared start is
+unified; no end constant was introduced.
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_OBSERVED_START_YEAR <- 2013L` (constant; fail-loud: integer,
+pinned 2013, `< PROJECTION_BASELINE_YEAR`). Constant (a fixed study-design year), not a function.
+
+**Files changed:** `R/workforce_constants.R` (new constant); `scripts/fig_fpmrs_supply_line.R:16`;
+`scripts/urps_module_a_age_productivity_2026-07-23.R` (added `source(workforce_constants)` + wired `yrs`);
+`R/validators/validate_workforce_truth_contract.R` (guarded top-of-file source + wired `year_min_allowed`); new
+`tests/testthat/test-ssot-observed-start-year.R`. Config YAML left as data, parity-guarded.
+
+**Hardcoded copies removed:** 3 live literals (age-productivity, figure, validator) → 0. Behavior-preserving
+(`WORKFORCE_OBSERVED_START_YEAR == 2013L`; sequences identical; validator's own test 31/0, no regression).
+
+**Validation guards:** `stopifnot` in the constant; the guard's cross-config parity test ties
+`config/expected_workforce_counts.yml`'s `test_years[1]` to the constant.
+
+**Tests added (`test-ssot-observed-start-year.R`, 17/0):** well-formed (precedes projection baseline);
+**adversarial** (all 3 consumers reference the SSOT, no bare `2013` remains); **intentional-difference** (the 2023
+study-scope end and 2024 panel end stay distinct, no end constant folded in); **cross-config parity** (config
+`test_years` begins at the constant, contiguous); **behavior-preserving** (wired sequences equal the literals).
+
+**Initial failures:** none. **Final: observed-start 17/0; validator test 31/0 (no regression); all 39 SSOT guards
+600/0; all 4 touched files parse.**
+
+**Remaining risks:** the FPMRS figure remains PI-gated for its supply numbers (unrelated to this year constant).
+The study-scope END `2023` (validator `year_max_allowed` + config `test_years` end) is a *separate* value that may
+also duplicate `WC_OBS_END` (iter5) — a candidate below.
+
+**Recommended next candidate:** the study-scope END year `2023` — `validate_workforce_truth_contract.R`
+`year_max_allowed <- 2023L` and `config/expected_workforce_counts.yml` `test_years` end; check whether it
+duplicates the engine's `WC_OBS_END` (iter5's observation window) and can be unified without collapsing the
+Medicare-panel 2024 end. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 42 files only
+(`R/workforce_constants.R`, `scripts/fig_fpmrs_supply_line.R`,
+`scripts/urps_module_a_age_productivity_2026-07-23.R`, `R/validators/validate_workforce_truth_contract.R`,
+`tests/testthat/test-ssot-observed-start-year.R`, `docs/SSOT_LEDGER.md`). Iterations 40-41 already landed in
+`a72726c`.
+
+---
+
+## Iteration 43 — study observation-confirmable END year (`2023`) → `WORKFORCE_OBSERVED_END_YEAR`
+
+**Candidate:** the study observation-confirmable END year `2023` — the 3-year-follow-up boundary through which a
+departure can be confirmed; the upper bound of the truth-contract study scope (2013-2023).
+
+**Why higher-risk than alternatives:** it defines which departures the analysis can confirm (right-censoring
+boundary) and which panel years the truth contract admits. `WC_OBS_END <- 2023L` was the engine's authoritative
+constant, but the truth-contract validator **re-hardcoded** the same 2023 as `year_max_allowed <- 2023L` — an
+un-wired duplicate that could silently disagree if one changed (e.g. when 2024 becomes confirmable). The ledger
+(line 374) had explicitly noted `WC_OBS_END` was "not yet individually guarded."
+
+**Audit / provenance:** `R/workforce_cliff_engine.R:26` (`WC_OBS_END <- 2023L`, authoritative),
+`R/validators/validate_workforce_truth_contract.R:103` (`year_max_allowed <- 2023L`, duplicate),
+`config/expected_workforce_counts.yml:74` (`test_years` ends 2023, YAML data).
+
+**Discrepancy adjudication:** both `2023` sites mean the last confirmable observed year → one SSOT. **NOT
+collapsed:** the reference / latest-data year `2024` (engine `WC_REF_YEAR`; the Medicare panel + observed supply
+series run to 2024, iter42) is a *separate* concept — the confirmable-observation end (2023) precedes the
+latest-available-data year (2024) by the 3-year follow-up rule; they must stay distinct.
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_OBSERVED_END_YEAR <- 2023L` (constant; fail-loud: integer,
+pinned 2023, `> WORKFORCE_OBSERVED_START_YEAR`). Homed in the shared constants file (reachable by both the engine
+and the validator) and the engine **aliases** `WC_OBS_END <- WORKFORCE_OBSERVED_END_YEAR` — matching the existing
+`WC_YEAR0 <- PROJECTION_BASELINE_YEAR` / `WC_HORIZON` / `WC_ENTRY_AGE` engine-alias pattern. Pairs with iter42's
+`WORKFORCE_OBSERVED_START_YEAR`.
+
+**Files changed:** `R/workforce_constants.R` (new constant); `R/workforce_cliff_engine.R:26` (alias);
+`R/validators/validate_workforce_truth_contract.R:103` (wired `year_max_allowed`); new
+`tests/testthat/test-ssot-observed-end-year.R`. Config YAML left as data, parity-guarded.
+
+**Hardcoded copies removed:** 2 live literals (engine + validator) → 0 (engine now aliases; validator references).
+Behavior-preserving (`WC_OBS_END == 2023L` unchanged; the alias resolves at engine load).
+
+**Validation guards:** `stopifnot` in the constant; the guard checks the engine alias + cross-config parity.
+
+**Tests added (`test-ssot-observed-end-year.R`, 18/0):** well-formed + ordered (start < end < baseline);
+**cross-lineage alias** (engine `WC_OBS_END` == constant, and `WC_WIN[2]=2021 <= WC_OBS_END`); **adversarial**
+(engine + validator reference the SSOT, no bare 2023L); **intentional-difference** (2023 end never shares a symbol
+with the 2024 latest-data year; `WC_REF_YEAR` stays 2024, panel stays `:2024`); **cross-config parity**
+(`test_years` last == observation end, first == observed start).
+
+**Initial failures:** 1 — `test-ssot-observed-start-year.R` (iter42) asserted the validator KEEPS
+`year_max_allowed <- 2023L` as a bare literal (to prove the end wasn't folded into the START constant).
+**Classification: obsolete-test-tied-to-old-literal** — iter43 legitimately gave the end its own constant.
+**Fix:** updated that assertion to the canonical form (`year_max_allowed <- WORKFORCE_OBSERVED_END_YEAR`, and
+`!= WORKFORCE_OBSERVED_START_YEAR`); the test's intent (end distinct from start) is preserved and strengthened.
+
+**Final results:** observed-end 18/0; observed-start 18/0 (fixed); obs-window 9/0 + truth-contract 31/0 (no
+regression); **all 40 SSOT guards 619/0**; all touched files parse; engine alias resolves to 2023.
+
+**Remaining risks:** none for this value. `WC_REF_YEAR <- 2024L` (engine reference / latest-data year) remains a
+bare literal that likely duplicates the age-productivity / fig panel end 2024 — a candidate below.
+
+**Recommended next candidate:** the reference / latest-data year `2024` — engine `WC_REF_YEAR <- 2024L` vs the
+`:2024` panel end in `urps_module_a_age_productivity` and `OBS_END`(=2024) in `fig_fpmrs_supply_line`; verify
+they are the same "latest available Medicare year" concept and can be unified as `WORKFORCE_REFERENCE_YEAR`
+without collapsing the 2023 observation end. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-43 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 44 — reference / latest-data year (`2024`) → `WORKFORCE_REFERENCE_YEAR`
+
+**Candidate:** the reference / latest-available-data year `2024` — the year cohort ages are reckoned as-of, and
+the most recent Medicare panel year.
+
+**Why higher-risk than alternatives:** it anchors age reconstruction (`age = reference − cert_year + age-at-cert`)
+and the age-productivity panel extent — a wrong reference year shifts every reconstructed age and therefore the
+age-structured hazard. `WC_REF_YEAR <- 2024L` was authoritative and already aliased by 4 engine-sourcing scripts,
+but the age-productivity script **re-hardcoded** the same reference year as bare `2024` (`birth := 2024-age24`,
+panel end `:2024`) — un-wired duplicates outside the engine lineage.
+
+**Audit / provenance:** `R/workforce_cliff_engine.R:24` (`WC_REF_YEAR <- 2024L`, authoritative; used at :77 for
+age reconstruction; aliased by hierarchical_hazard / abu_pathway / scenario_projection / build_hazard_comparison),
+`scripts/urps_module_a_age_productivity_2026-07-23.R:23` (`birth := 2024-age24`) + `:28` (panel end `:2024`).
+Schema identifiers `medicare_part_b_by_service_2024` / `national_2024` / `w65_2024` in module_bc are Medicare
+TABLE/COLUMN names — **intentional, left literal** (cf. iter24's `_2050` columns).
+
+**Discrepancy adjudication:** the engine reference year and the age-productivity `2024`s are the SAME concept
+(latest Medicare year / age-as-of year) → one SSOT. **NOT collapsed:** the observation-confirmable end `2023`
+(`WORKFORCE_OBSERVED_END_YEAR`, iter43) is one year earlier by the 3-yr follow-up rule; and the module_bc Medicare
+table/column identifiers stay literal (schema, not the value).
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_REFERENCE_YEAR <- 2024L` (constant; fail-loud: integer, pinned
+2024, `> WORKFORCE_OBSERVED_END_YEAR`, `< PROJECTION_BASELINE_YEAR`). Engine **aliases**
+`WC_REF_YEAR <- WORKFORCE_REFERENCE_YEAR` (matching WC_OBS_END/WC_YEAR0). Completes the year-constants family:
+START 2013 < END 2023 < REFERENCE 2024 < BASELINE 2025 (a `stopifnot` in the guard checks strict monotonicity).
+
+**Files changed:** `R/workforce_constants.R` (new constant); `R/workforce_cliff_engine.R:24` (alias);
+`scripts/urps_module_a_age_productivity_2026-07-23.R` (`birth`, panel end); new
+`tests/testthat/test-ssot-reference-year.R`.
+
+**Hardcoded copies removed:** 3 live literals (engine + 2 in age-productivity) → 0. Behavior-preserving
+(`WC_REF_YEAR == 2024L`; age reconstruction identical; alias resolves at load).
+
+**Validation guards:** `stopifnot` in the constant (ordering vs the neighbouring year constants); the guard checks
+the engine alias, age-reconstruction invariance, and that the Medicare schema names stay literal.
+
+**Tests added (`test-ssot-reference-year.R`, 18/0):** well-formed + full-family monotonicity; **cross-lineage alias**
+(engine `WC_REF_YEAR` == constant, `WC_WIN[2] < WC_REF_YEAR`); **behavior-preserving** (age reconstruction
+unchanged); **adversarial** (engine + age-productivity reference the SSOT, no bare `2024`); **intentional-difference**
+(module_bc `medicare_part_b_by_service_2024` schema name stays literal; the constant did not leak into SQL).
+
+**Initial failures:** 1 — the iter42 start-year guard (uncommitted) asserted the panel end reads literally
+`WORKFORCE_OBSERVED_START_YEAR:2024`, in two blocks (adversarial + intentional-difference). Iter44 wired the panel
+end to `:WORKFORCE_REFERENCE_YEAR`. Also the iter43 end-year guard asserted `WC_REF_YEAR <- 2024L` + the `:2024`
+panel end. **Classification: obsolete-tests-tied-to-old-literals** (cascading from iter44's alias, exactly like the
+iter42→43 cascade). **Fix:** updated all three assertions to the canonical `WORKFORCE_REFERENCE_YEAR` form;
+intent preserved (reference year is still 2024, still one past the 2023 end).
+
+**Final results:** reference-year 18/0; observed-start 18/0 + observed-end 19/0 (both fixed); age-at-cert 10/0 +
+obs-window 9/0 (no regression — both consume `WC_REF_YEAR`); **all 41 SSOT guards 638/0**; engine alias resolves
+to 2024; no bare reference-year literal remains.
+
+**Remaining risks:** none for this value. The workforce year-constants family is now complete (START/END/REFERENCE/
+BASELINE all single-sourced). The module_bc Medicare data-year schema identifiers remain intentional literals
+(guarded).
+
+**Recommended next candidate:** with the year constants exhausted, scan a fresh area — e.g. the older `code/`
+pipeline for an un-audited duplicated constant, or the age-productivity model's spline `df`/age-range bounds
+(`age>=30 & age<=80`, `ns(age, df=4)`) if those bounds are duplicated across the Module-A scripts. Ledger-check
+first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-44 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 45 — reference urology-pathway FTE default (`0.70`) → `URO_FTE_DEFAULT`
+
+**Candidates considered first, STOPPED:** (a) the `1.96` CI z-multiplier in the live `code/` pipeline — already
+ledgered (iter15), and iter15 **explicitly declared** `code/`'s copy "intentionally literal" (its adversarial
+grep scopes to `scripts/`); re-wiring would reverse a recorded decision, so left as-is (iter15 stands). (b) the
+age-productivity `30/80` age bounds + `ns(age, df=4)` — single-site, no duplication. (c) the "2025 averages 1.0"
+normalization — a runtime-computed method (`WBAR`), not a duplicated constant. (d) `OB_BASE_SHARE` — already
+derived (`N_OBGYN/N_TOT`) and single-sourced.
+
+**Candidate selected:** the reference urology-pathway FTE default `0.70` (fraction of a urology-pathway
+urogynecologist's clinical time spent in urogynecology, in the Reference scenario).
+
+**Why higher-risk than alternatives:** it sets the reference/frozen-manuscript pathway blend that the adequacy
+app's headline capacity index keys off. It was duplicated 5× — `model.R` DEFAULTS (`0.70`), `app.R` Reference
+preset (`70`), `app.R` reset handler (`70`), and two guard tests (`0.70`) — while its **sibling `ob_share` was
+already single-sourced** via `round(100*OB_BASE_SHARE)`. That asymmetry (one blend term single-sourced, the other
+hardcoded) is the exact drift trap: a reference-blend change would update `OB_BASE_SHARE` consumers but silently
+leave the `uro_fte` copies stale.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:42` (DEFAULTS `uro_fte=0.70`); `app.R:55` (Reference preset
+`uro_fte=70`); `app.R:222` (reset handler `value=70`); `tests/testthat/test-guards-consistency.R:81`
+(reset_target); `tests/testthat/test-guards-app.R:37` (positional in `project()`). All within the self-contained
+adequacy app; `app.R` + both tests already `source(model.R)`.
+
+**Discrepancy adjudication:** all five are the same reference value (fraction 0.70 = percent 70) → one SSOT.
+**NOT collapsed:** (1) the slider RANGE `uro_fte=list(ref=c(55,85),...)` and the `±0.15` sensitivity perturbation
+are distinct scenario knobs, left literal; (2) same number `0.70` as `WORKFORCE_CONVERSION_FLOOR` (iter10) but a
+DIFFERENT concept (urology clinical-time vs graduate-to-practice conversion) — kept in separate homes, guarded;
+(3) the independent-oracle test fixtures (`DEF_INPUTS`, the fingerprint `reference`/`higher_entr` lists) are
+all-literal input snapshots (`retire=65, ob_share=77, uro_fte=70, …`) that serve as independent checks — left
+literal per iter15's "test-oracle fixtures intentionally literal" precedent.
+
+**Canonical:** `shiny_urps_adequacy/model.R::URO_FTE_DEFAULT <- 0.70` (constant; app-local, next to
+`OB_BASE_SHARE`/`BASE_YEAR`). App-local (self-contained deployment; used only in this app) — the right scope.
+
+**Files changed:** `model.R` (new constant + DEFAULTS); `app.R` (Reference preset + reset handler, now
+`round(100*URO_FTE_DEFAULT)` mirroring `ob_share`); the two DEFAULTS-comparison guard tests; new
+`tests/testthat/test-ssot-uro-fte-default.R`.
+
+**Hardcoded copies removed:** 4 live copies (DEFAULTS + preset + reset + 2 comparison fixtures) → 0. The 3
+independent-oracle fixtures stay literal by design. Behavior-preserving (`0.70` unchanged; `round(100*0.70)==70`).
+
+**Validation guards:** the guard evaluates the constant line (model.R reads data, can't be sourced whole) and
+checks value + wiring + that it did not leak into `workforce_constants.R`.
+
+**Tests added (`test-ssot-uro-fte-default.R`, 19/0):** well-formed proportion; **behavior-preserving** (percent
+form == 70); **adversarial** (model + app reference the SSOT, no bare `uro_fte=0.70`/`=70` preset);
+**intentional-difference** (range `c(55,85)` + `±0.15` preserved; app-local, not in shared constants — same value
+as `WORKFORCE_CONVERSION_FLOOR` but separate home); **consistency** (both adequacy guard tests key off the constant).
+
+**Initial failures:** none. **Final: uro-fte 19/0; all 42 SSOT guards 657/0; adequacy own tests
+(consistency 73/0, model 293/0) — no regression; all touched files parse.**
+
+**Remaining risks:** none for this value. Sibling note: `test-guards-app.R:37`'s positional `0.77` (obgyn_share)
+is a rounded literal of `OB_BASE_SHARE` (0.770) — a separate small test-fixture item, flagged as follow-on.
+
+**Recommended next candidate:** the `test-guards-app.R:37` / fixture `0.77` obgyn_share literal vs the derived
+`OB_BASE_SHARE` (0.770) — a rounded-copy test-fixture gap; OR the adequacy app's `end_year=2050L` default vs
+`DEMAND_HORIZON_END_YEAR` (iter24, self-contained-app parity like BANDS). Both modest, app-local. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-45 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 46 — adequacy app projection horizon END year (`2050`) → `PROJECTION_END_YEAR`
+
+**Candidate:** the adequacy app's projection horizon end year `2050` (the default + maximum of the `end_year`
+slider).
+
+**Why higher-risk than alternatives (vs the `0.77` obgyn fixture):** `2050` is the horizon over which the app's
+entire supply-vs-demand adequacy trajectory is computed, and it is the app-local copy of the **published**
+manuscript horizon end (`DEMAND_HORIZON_END_YEAR`, iter24). It was duplicated 4× within the app (DEFAULTS end,
+slider MAX, slider DEFAULT, reset handler); a drift from the manuscript horizon (or between these copies) would
+make the app project a different window than the paper. The `0.77` alternative is a rounded literal in
+independent-oracle test fixtures (iter15 precedent → leave literal), lower value.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:50` (DEFAULTS `end_year=2050L`); `app.R:168`
+(`sliderInput("end_year", …, 2035, 2050, 2050, …)` — min/max/default); `app.R:225` (reset `value=2050`). Prose
+"2025-2050" comments (app.R:5,81) and the fingerprint fixtures (`end_year=2050` in test-guards-consistency:18-19)
+are narrative / independent-oracle literals, left as-is.
+
+**Discrepancy adjudication:** all four live copies are the same horizon end → one SSOT, and it must equal the
+manuscript `DEMAND_HORIZON_END_YEAR` (parity-guarded). **NOT collapsed:** the slider MINIMUM `2035` (shortest
+selectable horizon) and `BASE_YEAR 2025` (projection START, the app-local copy of `PROJECTION_BASELINE_YEAR`) are
+distinct values, left literal.
+
+**Canonical:** `shiny_urps_adequacy/model.R::PROJECTION_END_YEAR <- 2050L` (constant; app-local, next to
+`BASE_YEAR`). App-local + parity-guarded because the app deploys standalone (cannot source R/), the same
+mechanism used for `URO_FTE_DEFAULT` (iter45) and the `BANDS` snapshot (iter37).
+
+**Files changed:** `model.R` (new constant + DEFAULTS); `app.R` (slider max/default + reset handler); new
+`tests/testthat/test-ssot-adequacy-end-year.R`.
+
+**Hardcoded copies removed:** 4 live copies → 0. Behavior-preserving (`2050` unchanged; `BASE_YEAR:end_year`
+loop bound identical, 26 projected years).
+
+**Validation guards:** the guard evaluates the constant line (model.R can't be sourced whole) and adds a
+**cross-lineage parity** check that `PROJECTION_END_YEAR == DEMAND_HORIZON_END_YEAR` (sources
+`R/demand_denominator.R`), so the app horizon can't silently drift from the manuscript.
+
+**Tests added (`test-ssot-adequacy-end-year.R`, 15/0):** well-formed (end after start); **cross-lineage parity**
+(== manuscript horizon end); **adversarial** (model + app reference the SSOT, no bare `2050` horizon literal);
+**intentional-difference** (slider min `2035` + `BASE_YEAR 2025` distinct, left literal); **behavior-preserving**
+(2025..2050 span + 26-year count unchanged).
+
+**Initial failures:** none. **Final: adequacy-end-year 15/0; all 43 SSOT guards 672/0; adequacy own tests
+(consistency 73/0, model 293/0) — no regression; both touched files parse.**
+
+**Remaining risks:** none for this value. `BASE_YEAR 2025` in the adequacy app is a parallel app-local copy of
+`PROJECTION_BASELINE_YEAR` (iter23) that could get the same parity treatment — a candidate below.
+
+**Recommended next candidate:** the adequacy app's `BASE_YEAR <- 2025L` — the app-local projection START, a
+copy of `PROJECTION_BASELINE_YEAR` (iter23); give it the same app-local-constant + parity-guard treatment as
+`PROJECTION_END_YEAR`, or verify it's already covered. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-46 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 47 — adequacy app per-100k rate base (`1e5`) → app-local `RATE_PER_100K`
+
+**Candidate:** the per-100,000-population rate base `1e5` in the adequacy app (the "urogynecologists per 100k
+women 65+" headline metric).
+
+**Why higher-risk than alternatives (vs `BASE_YEAR` parity-only):** `BASE_YEAR` is already single-sourced within
+the app (defined once, referenced by name) — only a parity gap. The `1e5` was a genuine **within-app
+duplication** (hardcoded twice, `per100k_2025` + `per100k_end`), and it is the same rate base iter25 canonicalized
+as `R/units.R::RATE_PER_100K` — which the active scripts already reference but the self-contained app never wired.
+So this is both a real refactor AND a coverage-completion of iter25 for the standalone app.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:172` (`per100k_2025 = 1e5 * headcount / w65`) + `:173`
+(`per100k_end = 1e5 * …`). Only two `1e5` in the whole app; no `guess_max=1e5` (verified).
+
+**Discrepancy adjudication:** both are the same rate base → one SSOT, and it must equal `R/units.R::RATE_PER_100K`
+(parity-guarded). **NOT collapsed (iter25):** the identical literal `1e5` used as a read_csv/fread `guess_max`
+row hint is a data-loading parameter, not a rate base — the app has none, so nothing to disambiguate here.
+
+**Canonical:** `shiny_urps_adequacy/model.R::RATE_PER_100K <- 1e5` (constant; app-local, same NAME as the R/units.R
+SSOT to make the parity relationship explicit — no collision since the app never sources R/). App-local +
+parity-guarded because the app deploys standalone (cannot source R/), the mechanism used for
+`URO_FTE_DEFAULT`/`PROJECTION_END_YEAR` (iters 45-46).
+
+**Files changed:** `shiny_urps_adequacy/model.R` (new constant + both consumers); new
+`tests/testthat/test-ssot-adequacy-rate-per-100k.R`.
+
+**Hardcoded copies removed:** 2 live copies → 0. Behavior-preserving (`1e5` unchanged).
+
+**Validation guards:** the guard evaluates the constant line (model.R can't be sourced whole) and adds a
+**cross-lineage parity** check that the app `RATE_PER_100K == R/units.R::RATE_PER_100K`.
+
+**Tests added (`test-ssot-adequacy-rate-per-100k.R`, 12/0):** well-formed (1e5); **cross-lineage parity** (==
+R/units.R); **adversarial** (both consumers reference the constant, no bare `1e5 *`); **intentional-difference**
+(no `guess_max=` argument, no other live `1e5`); **behavior-preserving** (per-100k computation identical).
+
+**Initial failures:** 1 — the intentional-difference test `expect_false(any(grepl("guess_max", src)))` matched my
+own **documentation comment** (which mentions "guess_max row hint"), not any code. **Classification:
+test-authoring bug (over-broad literal match), not a refactor issue.** **Fix:** tightened the pattern to
+`guess_max\\s*=` (matches the argument usage, not the prose). Re-ran green.
+
+**Final results:** adequacy-rate 12/0; all 44 SSOT guards 684/0; adequacy own tests (consistency 73/0, model
+293/0) — no regression; model.R parses; no bare `1e5 *` remains.
+
+**Remaining risks:** none for this value. The adequacy app still holds an app-local `BASE_YEAR 2025` (already
+single-sourced, but un-parity-guarded vs `PROJECTION_BASELINE_YEAR`) — a guard-only follow-on.
+
+**Recommended next candidate:** a parity-only guard for the adequacy `BASE_YEAR <- 2025L` vs
+`PROJECTION_BASELINE_YEAR` (iter23) — BASE_YEAR is already single-sourced in the app, so this is a guard-only
+drift check completing the app's year-constant parity set (start + end). Or scan a fresh non-app area. Ledger-check
+first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-47 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 48 — adequacy app reference entrant inflow (`entrants=64`) → derived `ENTRANTS_DEFAULT`
+
+**Candidate:** the adequacy app's reference annual entrant inflow `64` (the `entrants/yr` slider default).
+
+**Why higher-risk than alternatives (vs `BASE_YEAR` parity-only):** it is duplicated 3× AND, unlike a fixed
+parity constant, it is **derivable** — `64 = mean(GRAD_URPS)`, and the app already sources `GRAD_URPS` (its
+`urps_model_data.R` snapshot). Hardcoding `64` means a change to the ACGME graduate counts would update the
+scripts' `ENTRANTS <- mean(GRAD_URPS)` (iter7/33) and the engine `WC_ENTRANTS[["URPS"]]` but silently leave the
+app's reference stale. Deriving it closes that gap with a true SSOT link (not just a parity check).
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:57` (DEFAULTS `entrants=64L`); `app.R:55` (Reference preset
+`entrants=64`); `app.R:223` (reset handler `value=64`). `GRAD_URPS` is in scope (snapshot sourced at model.R:22);
+`mean(GRAD_URPS)=64`.
+
+**Discrepancy adjudication:** the three reference copies are the same value → derive once. **NOT collapsed:** the
+`Lower entrants=48` / `Higher entrants=80` scenario presets (and the `Stress test` `entrants=48`) are intentional
+scenario values, left literal; the slider range and the independent-oracle test fixtures (`entrants=64`) stay
+literal (iter15 precedent).
+
+**Canonical:** `shiny_urps_adequacy/model.R::ENTRANTS_DEFAULT <- as.integer(round(mean(GRAD_URPS)))` — a **derived
+value** (function of the sourced graduate counts), not a constant, so it tracks `GRAD_URPS`. Fail-loud
+`stopifnot` (positive integer, plausible range). No `==64` pin — pinning would defeat the derivation.
+
+**Files changed:** `shiny_urps_adequacy/model.R` (derived constant + DEFAULTS); `app.R` (Reference preset + reset
+handler); new `tests/testthat/test-ssot-adequacy-entrants.R`.
+
+**Hardcoded copies removed:** 3 live copies → 0 (now derived). Behavior-preserving (`round(mean(GRAD_URPS))==64`).
+
+**Validation guards:** `stopifnot`; the guard sources the snapshot for `GRAD_URPS`, evaluates the derived line in
+that scope, and cross-checks it equals the engine `WC_ENTRANTS[["URPS"]]`.
+
+**Tests added (`test-ssot-adequacy-entrants.R`, 17/0):** derives to 64 (== `round(mean(GRAD_URPS))`); **semantic**
+(derived from `GRAD_URPS`, not a bare 64 — a different cohort derives to a different value); **cross-lineage
+consistency** (== engine URPS entrant mean); **adversarial** (model + app reference `ENTRANTS_DEFAULT`, no bare
+`entrants=64`); **intentional-difference** (`entrants=48`/`80` scenario presets preserved).
+
+**Initial failures:** 1 — the semantic test used `mean(c(60,66,63,66)) = 63.75`, which **rounds back to 64**, so
+the "different vector differs from 64" assertion failed. **Classification: test-authoring bug (bad example
+vector), not a refactor issue.** **Fix:** used `c(60,60,60,60) -> 60` as the clearly-different cohort. Re-ran green.
+
+**Final results:** entrants 17/0; all 45 SSOT guards 701/0; adequacy own tests (consistency 73/0, model 293/0) —
+no regression; model.R + app.R parse; no bare `entrants=64` remains outside the oracle fixtures.
+
+**Remaining risks:** none for this value. The adequacy app still has app-local `entry_age=34` (== `WORKFORCE_ENTRY_AGE`,
+iter26/34) and `BASE_YEAR=2025` (== `PROJECTION_BASELINE_YEAR`) that remain parity-eligible follow-ons.
+
+**Recommended next candidate:** the adequacy app's `entry_age=34L` in DEFAULTS (== `WORKFORCE_ENTRY_AGE`, iter26/34)
+— a self-contained-app parity/constant follow-on like this one; OR `BASE_YEAR` parity. Both app-local. Given 7
+iterations (42-48) are now accumulated uncommitted, a **land** is recommended before continuing. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-48 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 7 iterations (42-48) accumulated uncommitted — recommend landing.**
+
+---
+
+## Iteration 49 — adequacy app physician entry-age default (`entry_age=34`) → `ENTRY_AGE_DEFAULT`
+
+**Candidate:** the adequacy app's physician entry-age default `34` (the `entry_age` slider default).
+
+**Why higher-risk than alternatives:** the entry age is where each annual entrant cohort is injected into the
+age-structured projection — it shapes the whole supply trajectory. It was duplicated 3× in the app (DEFAULTS,
+slider default, reset handler) and is an app-local copy of the study entry age `WORKFORCE_ENTRY_AGE` (iter26/34,
+unified across the engine + demand scripts); a drift between the app and the study value would make the app
+project a different entry cohort than the manuscript.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:64` (DEFAULTS `entry_age=34L`); `app.R:167`
+(`sliderInput("entry_age", …, 30, 45, 34, …)` — default); `app.R:224` (reset `value=34`). Not derivable (fixed
+study-design value), and the app is self-contained (cannot source R/).
+
+**Discrepancy adjudication:** the three copies are the same value → one SSOT, parity-guarded against
+`WORKFORCE_ENTRY_AGE`. **NOT collapsed:** the slider RANGE `30, 45` (selectable entry-age bounds) is a distinct
+scenario knob, left literal; the independent-oracle test fixtures (`entry_age=34`) stay literal (iter15).
+
+**Canonical:** `shiny_urps_adequacy/model.R::ENTRY_AGE_DEFAULT <- 34L` (constant; app-local, next to
+`ENTRANTS_DEFAULT`; fail-loud `stopifnot` in [30,45]). App-local + parity-guarded, the mechanism used for
+`URO_FTE_DEFAULT`/`PROJECTION_END_YEAR`/`RATE_PER_100K` (iters 45-47).
+
+**Files changed:** `shiny_urps_adequacy/model.R` (new constant + DEFAULTS); `app.R` (slider default + reset
+handler); new `tests/testthat/test-ssot-adequacy-entry-age.R`.
+
+**Hardcoded copies removed:** 3 live copies → 0. Behavior-preserving (`34` unchanged, integer-typed).
+
+**Validation guards:** `stopifnot`; the guard adds a **cross-lineage parity** check that
+`ENTRY_AGE_DEFAULT == WORKFORCE_ENTRY_AGE`.
+
+**Tests added (`test-ssot-adequacy-entry-age.R`, 15/0):** well-formed (in [30,45]); **cross-lineage parity**
+(== `WORKFORCE_ENTRY_AGE`); **adversarial** (model + app reference the SSOT, no bare `entry_age=34`);
+**intentional-difference** (slider range `30, 45` literal, default strictly inside); **behavior-preserving**
+(34, integer).
+
+**Initial failures:** none. **Final: entry-age 15/0; all 46 SSOT guards 716/0; adequacy own tests (consistency
+73/0, model 293/0) — no regression; both touched files parse.**
+
+**Remaining risks:** none for this value. The adequacy app's DEFAULTS/scenario parameters are now largely
+single-sourced (uro_fte, entrants, entry_age, end_year, rate, bands, grad); the remaining raw defaults
+(`retire=65`, `fte_new=0.90`, `haz_mult=1.0`, `demand_mult=1.0`) are app-specific scenario knobs with no external
+canonical, and `BASE_YEAR 2025` is already single-sourced (parity-only follow-on).
+
+**Recommended next candidate:** given the adequacy app is now heavily single-sourced and 8 iterations (42-49) are
+accumulated uncommitted, **LAND first**, then either the `BASE_YEAR` parity guard (guard-only) or pivot to a fresh
+non-app area (e.g. an un-audited duplicated value in `manuscript/R/` figure builders). Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-49 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 8 iterations (42-49) accumulated uncommitted — landing strongly recommended.**
+
+---
+
+## Iteration 50 — manuscript Figure 1 baseline year (`base_year <- 2025L`) → `PROJECTION_BASELINE_YEAR`
+
+**Candidate:** the projection baseline year `2025` in the manuscript Figure 1 trajectory builder
+(`manuscript/R/create_figure1_workforce_projection.R:44`). Fresh non-app area (pivoted off the adequacy app).
+
+**Why higher-risk than alternatives:** it is the x-axis start of the **published** workforce-projection figure,
+and it is a bare copy of the shared `PROJECTION_BASELINE_YEAR` (iter23) — while the SAME function already wires
+`horizon <- WORKFORCE_PROJECTION_HORIZON_YEARS` (iter1). So one half of the figure's `year = base_year + 0:horizon`
+axis tracked the SSOT and the other half was hardcoded; a baseline change would move the horizon end but leave the
+figure's start at 2025, silently mis-labelling the axis.
+
+**Audit / provenance:** `create_figure1_workforce_projection.R:43` (`horizon <- WORKFORCE_PROJECTION_HORIZON_YEARS`,
+already wired) + `:44` (`base_year <- 2025L`, the bare copy), used at `:56` (`year = base_year + 0:horizon`). The
+`baseline_2025` COLUMN identifiers (`:57`, create_workforce_table, the contract) are schema names, left literal.
+
+**Discrepancy adjudication:** `base_year` is the same 2025 as `PROJECTION_BASELINE_YEAR` (verified: `2025 + 4 =
+2029`, the figure endpoint) → one SSOT. **NOT collapsed:** the `baseline_2025` column-name identifiers keep the
+year baked in (schema, cf. iter24's `_2050`).
+
+**Canonical:** `R/workforce_constants.R::PROJECTION_BASELINE_YEAR` (iter23), reachable in this figure builder via
+the contract it already sources (`workforce_data_contract.R` → `workforce_constants.R`), the identical path that
+already delivers `WORKFORCE_PROJECTION_HORIZON_YEARS`. Constant (fixed study year), no new home needed.
+
+**Files changed:** `manuscript/R/create_figure1_workforce_projection.R:44` (bare `2025L` → `PROJECTION_BASELINE_YEAR`);
+new `tests/testthat/test-ssot-figure1-base-year.R`.
+
+**Hardcoded copies removed:** 1 → 0. Behavior-preserving (`PROJECTION_BASELINE_YEAR == 2025L`; axis 2025-2029
+unchanged).
+
+**Validation guards:** the guard confirms reachability via the contract and checks the axis algebra + cross-lineage
+consistency.
+
+**Tests added (`test-ssot-figure1-base-year.R`, 9/0):** **adversarial** (references the SSOT, no bare `base_year <-
+2025L`); reachability (`PROJECTION_BASELINE_YEAR == 2025` via the contract, shares the horizon env);
+**behavior-preserving** (`base_year + 0:horizon == 2025:2029`, endpoint 2029); **cross-lineage consistency**
+(== the demand-lineage `DEMAND_INDEX_BASE_YEAR`, iter22); **intentional-difference** (`baseline_2025` column names
+stay literal, the base_year assignment carries no `2025` literal).
+
+**Initial failures:** none. **Final: figure1-base-year 9/0; all 47 SSOT guards 725/0; file parses; no bare
+`base_year <- 2025L` remains.**
+
+**Remaining risks:** none for this value. The stale `create_workforce_table.R` tribble (dead/PI-gated,
+`docs/FLAG_stale_workforce_table_hardcode.md`) still carries `baseline_2025` data literals — out of scope.
+
+**Recommended next candidate:** other manuscript figure builders (`workforce_figures.R`,
+`create_figure_scenario_projection.R`) for a bare baseline/horizon/ratio-axis literal that duplicates a canonical;
+OR the `BASE_YEAR` adequacy parity guard. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-50 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 9 iterations (42-50) accumulated uncommitted — landing strongly recommended before
+continuing.**
+
+---
+
+## Iteration 51 — adequacy app projection START `BASE_YEAR` parity guard (guard-only)
+
+**Candidates surveyed + stopped:** the remaining manuscript figure builders (`create_figure_scenario_projection.R`,
+`workforce_figures.R`) carry `2025/2029` only as prose axis labels + `projected_2029` schema column names — no
+computed-literal duplication. The live hardcoded hex colors (`workforce_figures.R:11`) are single-use (no
+duplication); the table cell colors are in the dead/PI-gated `create_workforce_table.R`. `palette_green_journal`
+is a single-sourced function. **The clean, genuinely-duplicated, un-audited SSOT vein is largely exhausted after
+50 iterations.**
+
+**Candidate selected (guard-only drift protection):** the adequacy app's projection START `BASE_YEAR <- 2025L`.
+
+**Why:** `BASE_YEAR` is already single-sourced within the app (defined once at `model.R:36`, referenced 9× by
+name), so there is no refactor — but nothing tied it to the study baseline `PROJECTION_BASELINE_YEAR` (iter23),
+so the self-contained-app copy could silently drift. This completes the app's projection-window parity set:
+`BASE_YEAR` (start) + `PROJECTION_END_YEAR` (end, iter46). A guard-only iteration, like iter38 (band-hazard
+inputs) and iter39 (GRAD_URPS gap).
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:36` (`BASE_YEAR <- 2025L`, the sole definition). The only
+other `2025` in non-comment code is the `"SSOT: 2025 index != 100"` error string (message, not a value) and the
+`per100k_2025` / `women_per_efte_2025` output column identifiers (schema).
+
+**Discrepancy adjudication:** none — `BASE_YEAR == PROJECTION_BASELINE_YEAR == 2025`. **NOT collapsed:** the
+`_2025` column-name identifiers (schema) and the diagnostic string stay literal.
+
+**Canonical:** unchanged — `R/workforce_constants.R::PROJECTION_BASELINE_YEAR` (iter23) is the study SSOT;
+`BASE_YEAR` is the app-local copy, now parity-guarded (the app cannot source R/). Added a provenance comment
+only; no code behavior change.
+
+**Files changed:** `shiny_urps_adequacy/model.R` (comment on `BASE_YEAR`); new
+`tests/testthat/test-ssot-adequacy-base-year.R`. **No copies removed** (already single-sourced) — the iteration
+converts an unguarded app-local copy into a guarded one.
+
+**Validation guards / tests added (`test-ssot-adequacy-base-year.R`, 11/0):** well-formed (2025, before the
+horizon end); **cross-lineage parity** (`== PROJECTION_BASELINE_YEAR`); **single-source** (one definition, no
+bare `2025` value in live code beyond it — schema columns + error string excluded); **intentional-difference**
+(`_2025` column names stay literal); **behavior-preserving** (`BASE_YEAR:PROJECTION_END_YEAR == 2025:2050`, 26
+years).
+
+**Initial failures:** none. **Final: base-year 11/0; all 48 SSOT guards 736/0; adequacy own tests (consistency
+73/0, model 293/0) — no regression; model.R parses.**
+
+**Remaining risks:** none for this value. **Strategic note: after 50 substantive refactors, the clean
+duplicated-value vein is exhausted.** Remaining literals are prose labels, schema identifiers, single-site plot
+params, PI-gated numbers, or dead code — none are clean SSOT refactors, and forcing them risks the loop's
+"avoid unrelated cleanup" guardrail.
+
+**Recommended next candidate:** none clean remains for a mechanical refactor. Next best moves are strategic, not
+loop-mechanical: (a) **LAND** the 10 accumulated iterations (42-51) first; (b) resolve a PI-gated item (stale
+workforce table, FPMRS figure supply numbers) with PI input; or (c) tackle the URPS baseline reconciliation
+(explicitly out of loop scope). A further loop iteration would likely produce only marginal guard-only or
+schema-adjacent work.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-51 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 10 iterations (42-51) accumulated uncommitted — landing strongly recommended; clean
+SSOT vein now exhausted.**
+
+---
+
+## Iteration 52 — geographic-access distance bands: investigated, STOPPED (no clean SSOT); vein confirmed exhausted
+
+**Candidate investigated:** the urogyn geographic-access distance bands (`25` / `50` / `100` miles; the `>60`-mile
+underserved-county cutoff) in `scripts/urps_module_d_geographic_access_2026-07-23.R` and
+`scripts/urps_module_d_map_2026-07-23.R` — the last plausible cross-file duplication after the fresh
+demand-module sweep.
+
+**Why STOPPED (loop step 3 — authority unclear + intentional differences + display-coupled):**
+- The two files use **different band schemes**: `geographic_access` reports `≤25 / ≤50 / ≤100 / >100` (a coarse
+  summary table), while `map` uses finer bins `<25 / 25-50 / 50-100 / 100-150 / >150 mi (desert)` with a
+  map-only 150-mi "desert" cutoff. They share `25/50/100` but embed them in **different structures for different
+  outputs** — collapsing them would erase intentional per-output granularity.
+- The shared values live inside **hand-written display-label strings** ("% women 65+ within 25 mi", "25-50 mi",
+  "> 150 mi (desert)") tightly coupled to each file's bins; a constant cannot drive the labels without a larger
+  string-templating refactor.
+- The `>60`-mile underserved cutoff is single-site (`geographic_access:130`) — no duplication.
+- `module_d` already single-sources what it can: `meters_to_miles`/`miles_to_meters` (iter18) and
+  `RATE_PER_100K` (iter25).
+- Authority for "the canonical access-band scheme" cannot be established (table vs map are legitimately
+  different), so per the loop this candidate is stopped, not forced.
+
+**Files changed:** none (ledger note only — records the distance-band investigation so it is not re-audited).
+
+**Conclusion — the clean SSOT vein is exhausted (confirmed twice, iters 51-52).** After **50 substantive
+single-source-of-truth refactors** (iters 1-50) plus guard-completions (iters 38/39/51), every remaining
+hardcoded literal in the active codebase falls into a non-refactorable class:
+- **prose / narrative labels** (figure titles "2025-2029", "Change from 2025 baseline");
+- **schema identifiers** (`baseline_2025`, `_2050`, `medicare_part_b_by_service_2024`, `per100k_2025` column and
+  table names);
+- **single-site plot/model params** (spline `df=4`, age bounds `30/80`, axis padding `1.12`, line colors);
+- **per-output display granularities** (the distance bands above);
+- **PI-gated numbers** (the stale workforce-table tribble + FPMRS-figure supply numbers, both baseline-entangled,
+  `docs/FLAG_stale_workforce_table_hardcode.md`);
+- **deliberately-literal legacy/test-oracle fixtures** (iter15's `code/` scoping; the adequacy fingerprint
+  fixtures);
+- **dead code** (`create_workforce_table.R`).
+Forcing any of these would violate the loop's own "avoid unrelated cleanup / broad architectural refactoring"
+and "never collapse intentional differences" guardrails.
+
+**Recommended next action (NOT a further loop iteration):**
+1. **LAND** the 10 accumulated iterations (42-51) — strongly recommended before anything else.
+2. Then **pause the mechanical SSOT loop** — the clean vein is worked out. Genuinely valuable remaining work is
+   PI-gated (stale table / FPMRS figure) or the out-of-scope URPS baseline reconciliation, none of which is a
+   mechanical single-value refactor.
+
+**Status:** ✅ documented stop (no refactor). Working tree unchanged except this ledger note (iterations 42-51 +
+this entry). Iterations 40-41 already landed in `a72726c`. **NOTE: landing recommended; loop vein exhausted.**
+
+### Iteration 53 addendum — config-vs-code class swept, no clean candidate (exhaustion re-confirmed)
+
+Swept the last un-checked SSOT class — **config YAML values duplicated in code**:
+- `config/fellowship_assumptions.yml` (default `FPMRS:60 / GO:50 / MIG:45`) is **config-single-sourced**: read by
+  the legacy `code/` pipeline (`code/01,04,06`); no `.R` script re-hardcodes it. Its only duplicate is stale
+  legacy manuscript prose (`manuscript/Surgical_workforce_cliff_REVISED.txt`, a pre-reframe `.txt` that also
+  carries the dead fixed retirement rates `4.4/5.2/3.4%`) — not code-refactorable, same PI-gated/legacy class as
+  the stale workforce table. It is a **different lineage** from the current-scripts `WC_GRAD` (iter3;
+  70/73/78/79 · 61/66/63/66 · 47/50/45/47) — legacy config-driven vs current pipeline, intentionally separate.
+- `config/expected_workforce_counts.yml`: regression test-threshold RANGES (intentionally approximate bounds) +
+  `test_years` (already parity-guarded, iters 42/43).
+No refactor. **Every SSOT class is now swept; the clean vein is exhausted.** Firm recommendation: LAND iters
+42-51 and pause the mechanical loop.

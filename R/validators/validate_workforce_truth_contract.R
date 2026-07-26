@@ -1,3 +1,7 @@
+# SSOT: the study observed-window start year (year_min_allowed below). Sourced once; guarded so a caller that
+# already loaded the constants is not re-sourced.
+if (!exists("WORKFORCE_OBSERVED_START_YEAR")) source(here::here("R", "workforce_constants.R"))
+
 #' @title Validate Workforce Truth Contract
 #'
 #' @description
@@ -95,8 +99,8 @@ validate_workforce_truth_contract <- function(
     )
 
   # ── Year-bounds guard (study scope 2013–2023) ─────────────────────────────
-  year_min_allowed <- 2013L
-  year_max_allowed <- 2023L
+  year_min_allowed <- WORKFORCE_OBSERVED_START_YEAR   # SSOT: R/workforce_constants.R
+  year_max_allowed <- WORKFORCE_OBSERVED_END_YEAR     # SSOT: observation-confirmable end 2023 (distinct from latest-data 2024)
   out_of_range_years <- tbl$truth_year[
     !is.na(tbl$truth_year) &
       (tbl$truth_year < year_min_allowed | tbl$truth_year > year_max_allowed)
