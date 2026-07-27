@@ -41,6 +41,19 @@ WC_ABU_CW      <- wc_path("abu_crosswalk")
 WC_ABU_NN      <- wc_path("abu_net_new")
 wc_duckdb_path <- function() wc_path("signals_duckdb")
 
+#' Assign an age to its workforce age-band label
+#'
+#' Bucket one or more physician ages into the study age bands using the canonical
+#' breakpoints `WC_BANDS` and labels `WC_BAND_LABELS` (right-open intervals, so an
+#' age equal to a breakpoint falls in the upper band).
+#'
+#' @param age Numeric vector of ages in years.
+#' @return A character vector of `WC_BAND_LABELS` values the same length as `age`
+#'   (`"<45"`, `"45-49"`, ..., `"70+"`); `NA` for ages outside the band range.
+#' @seealso `WC_BANDS`, `WC_BAND_LABELS`; guarded by
+#'   `tests/testthat/test-ssot-age-bands.R`.
+#' @examples
+#' \dontrun{ wc_band_of(c(42, 47, 71)) }   # "<45" "45-49" "70+"
 wc_band_of <- function(age) as.character(cut(age, breaks = WC_BANDS, labels = WC_BAND_LABELS, right = FALSE))
 
 .wc_norm_sex <- function(x) { x <- toupper(trimws(as.character(x)))
