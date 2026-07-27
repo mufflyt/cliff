@@ -1,6 +1,6 @@
 Package: cliff
 Title: Gynecologic Surgical Subspecialty Workforce Cliff Analysis
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: person("Tyler", "Muffly", role = c("aut", "cre"), email = "tyler.muffly@dhha.org")
 Description: Reproducible analysis and manuscript for near-term fellowship-completion
     versus clinical-practice-departure balance in gynecologic oncology and
