@@ -46,17 +46,50 @@ local({
   )
 })
 
-# Accessor: the anchor codes, optionally restricted to one class. Returns codes
-# in canonical order. `all` -> the full four; `surgical`/`functional` -> the
-# SURG/FUNC split (== gate_audit's FUNC/SURG, == field URO/OBG).
+#' URPS anchor procedure codes, optionally restricted to one class
+#'
+#' Return the four "anchor" pelvic-floor HCPCS/CPT codes used by the Module B+C
+#' plasticity/attribution audit, in their canonical order (sling, apical
+#' suspension, complex urodynamics, bladder BOTOX), optionally filtered to a
+#' single procedure class.
+#'
+#' @param class One of:
+#'   \describe{
+#'     \item{`"all"`}{(default) all four anchor codes.}
+#'     \item{`"surgical"`}{the reconstructive / OB-GYN-field codes (sling, apical suspension).}
+#'     \item{`"functional"`}{the urodynamic / urology-field codes (complex urodynamics, bladder BOTOX).}
+#'   }
+#'   Matched with [match.arg()].
+#' @return A character vector of HCPCS codes in canonical order. `"surgical"`
+#'   and `"functional"` together partition the full set and are exactly the
+#'   gate-audit SURG/FUNC split (equivalently the OBG/URO field split).
+#' @seealso [urps_anchor_field()] for a code's OBG/URO field; the underlying
+#'   `URPS_ANCHOR_PROCEDURES` lookup table. Guarded by
+#'   `tests/testthat/test-ssot-urps-anchor-procedures.R`.
+#' @examples
+#' urps_anchor_codes()             # c("57288", "57282", "51728", "52287")
+#' urps_anchor_codes("surgical")   # c("57288", "57282")
+#' urps_anchor_codes("functional") # c("51728", "52287")
 urps_anchor_codes <- function(class = c("all", "surgical", "functional")) {
   class <- match.arg(class)
   d <- URPS_ANCHOR_PROCEDURES
   if (class == "all") d$code else d$code[d$class == class]
 }
 
-# Accessor: the OBG/URO specialty field for a vector of codes (canonical
-# classification, so consumers never re-hardcode c("OBG","OBG","URO","URO")).
+#' Specialty field (OBG / URO) for URPS anchor procedure codes
+#'
+#' Look up the canonical OB-GYN-field vs urology-field classification for a
+#' vector of anchor procedure codes, so consumers never re-hardcode the
+#' `c("OBG", "OBG", "URO", "URO")` field vector.
+#'
+#' @param codes Character vector of HCPCS codes (typically a subset of
+#'   [urps_anchor_codes()]).
+#' @return A character vector the same length as `codes`: `"OBG"` for the
+#'   surgical / reconstructive anchors, `"URO"` for the functional / urodynamic
+#'   anchors, and `NA` for any code not present in `URPS_ANCHOR_PROCEDURES`.
+#' @seealso [urps_anchor_codes()]; the `URPS_ANCHOR_PROCEDURES` lookup table.
+#' @examples
+#' urps_anchor_field(c("57288", "51728"))   # c("OBG", "URO")
 urps_anchor_field <- function(codes) {
   URPS_ANCHOR_PROCEDURES$field[match(codes, URPS_ANCHOR_PROCEDURES$code)]
 }

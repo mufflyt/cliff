@@ -143,9 +143,28 @@ stopifnot(
   WORKFORCE_OUTLOOK_MARGINAL_MIN < WORKFORCE_OUTLOOK_ADEQUATE_MIN   # ordered bands
 )
 
-#' Classify a replacement ratio into a workforce-outlook label (Adequate / Marginal / Insufficient).
-#' @param ratio Numeric vector of replacement ratios (graduates / retirements).
-#' @return Character vector of "Adequate" / "Marginal" / "Insufficient".
+#' Classify a replacement ratio into a workforce-outlook label
+#'
+#' Map a fellowship-replacement ratio (annual graduates / annual retirements) to
+#' the manuscript "Workforce Outlook" category, using the shared cutpoints
+#' `WORKFORCE_OUTLOOK_ADEQUATE_MIN` (>= 1.2) and `WORKFORCE_OUTLOOK_MARGINAL_MIN`
+#' (>= 0.8).
+#'
+#' @details This is the manuscript workforce-table scheme
+#'   (Adequate / Marginal / Insufficient). It is INTENTIONALLY DISTINCT from the
+#'   data contract's replacement classifier `classify_replacement()`
+#'   (Above / At / Below replacement, cutpoints 0.95 / 1.05, in
+#'   `manuscript/R/workforce_data_contract.R`): different labels, different
+#'   cutpoints, different tables. The two must not be merged.
+#' @param ratio Numeric vector of replacement ratios (graduates / retirements);
+#'   `NA` propagates.
+#' @return A character vector the same length as `ratio`, each `"Adequate"`
+#'   (ratio >= 1.2), `"Marginal"` (0.8 <= ratio < 1.2), or `"Insufficient"`
+#'   (ratio < 0.8).
+#' @seealso `WORKFORCE_OUTLOOK_ADEQUATE_MIN`, `WORKFORCE_OUTLOOK_MARGINAL_MIN`.
+#'   Guarded by `tests/testthat/test-ssot-workforce-outlook.R`.
+#' @examples
+#' classify_workforce_outlook(c(0.7, 1.0, 1.3))  # "Insufficient" "Marginal" "Adequate"
 classify_workforce_outlook <- function(ratio) {
   ifelse(ratio >= WORKFORCE_OUTLOOK_ADEQUATE_MIN, "Adequate",
          ifelse(ratio >= WORKFORCE_OUTLOOK_MARGINAL_MIN, "Marginal", "Insufficient"))
