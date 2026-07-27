@@ -39,7 +39,7 @@ source(here::here("R", "wc_path.R"))
 WC_COHORT_CSV  <- wc_path("cohort_csv")
 WC_ABU_CW      <- wc_path("abu_crosswalk")
 WC_ABU_NN      <- wc_path("abu_net_new")
-wc_duckdb_path <- function() wc_path("signals_duckdb")
+# wc_duckdb_path() is provided by the sourced R/wc_path.R (line above) — do not redefine it here.
 
 #' Assign an age to its workforce age-band label
 #'
