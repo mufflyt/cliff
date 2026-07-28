@@ -1,8 +1,17 @@
-# The URPS baseline SSOT: reconciling 1,295 vs 1,339
+> # ⚠ ARCHIVAL — NON-AUTHORITATIVE
+> **Superseded 2026-07-27 by the three-repo SSOT charter (see [`docs/CHARTER_cliff.md`](CHARTER_cliff.md)).**
+> This document records the historical 1,295-vs-1,339 diagnosis. It is **not** the source of truth and must
+> **not** be read to establish a baseline. Under the charter the national URPS baseline is owned by the
+> isochrones provider snapshot, validated and served by `mufflyaccess::urps_count()`, and consumed by cliff
+> only through `R/urps_baseline.R`. cliff cannot redefine the baseline. Kept for provenance/history only.
+
+# The URPS baseline SSOT: reconciling 1,295 vs 1,339  *(ARCHIVAL)*
 
 **Status (2026-07-24):** diagnosed and computed; **not yet applied** to the frozen
 analysis. The frozen SSOT still reads **1,295**; the correct current value is **1,339**.
 Applying it is a scoped re-run (see [§7 Blast radius](#7-blast-radius)).
+**(2026-07-27: reconciliation is now owned by the isochrones -> mufflyaccess chain; cliff consumes the served
+value via `R/urps_baseline.R`. See the archival banner above.)**
 
 ---
 
