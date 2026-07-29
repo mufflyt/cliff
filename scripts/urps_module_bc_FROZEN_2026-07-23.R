@@ -93,7 +93,7 @@ d[, pi_mid_calib  := round((urps_visible_primary + t_mid*calib_field_residual)/n
 d[, pi_high_calib := round((urps_visible_primary + t_hi *calib_field_residual)/national_calibrated_primary,3)]
 
 ## ── observability classification (Gates 61/62/85): absent NPI = NOT observable, never silent zero ──
-N_COHORT <- 1339L
+N_COHORT <- 1339L  # ssot-ok: frozen 2025 roster_snapshot reproduction (module_bc FROZEN)
 d[, n_observable_positive := n_active]
 d[, n_not_observable      := N_COHORT - n_active]     # billed 0 OR suppressed - indistinguishable
 d[, n_confirmed_zero      := 0L]                      # cannot independently establish zero -> none
