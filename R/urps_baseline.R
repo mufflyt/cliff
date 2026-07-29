@@ -57,3 +57,57 @@ urps_baseline <- function(year = 2023L, include_urology = FALSE) {
   }
   mufflyaccess::urps_count(year = year, include_urology = include_urology)
 }
+
+#' Load the cliff workforce baseline from the mufflyaccess SSOT
+#'
+#' The interface cliff's models call to obtain the baseline. Delegates to
+#' [urps_baseline()] (hence to `mufflyaccess::urps_count()`) and attaches the
+#' provenance that keeps the three time attributes distinct.
+#'
+#' @param year Measure year (default `2023L`).
+#' @param include_urology Whether to include the ABU net-new cohort.
+#' @return A list with `n_providers` (the SSOT count), `source_package`
+#'   (`"mufflyaccess"`), `measure_year`, and `model_start_year` — the projection
+#'   baseline year, which is DELIBERATELY separate from the measure year.
+#' @seealso [urps_baseline()], [project_urps_workforce()].
+load_workforce_baseline <- function(year = 2023L, include_urology = FALSE) {
+  n <- urps_baseline(year = year, include_urology = include_urology)
+  list(
+    n_providers      = n,
+    source_package   = "mufflyaccess",
+    measure_year     = as.integer(year),
+    model_start_year = 2025L   # projection start; NEVER conflated with the measure year
+  )
+}
+
+#' Project the URPS workforce forward from the SSOT baseline
+#'
+#' A minimal net-flow projection seeded from the mufflyaccess baseline: the value
+#' at `baseline_year` equals the SSOT count, and each subsequent year adds the net
+#' of `entrants` minus `retirements`. cliff transforms the baseline into a
+#' trajectory; it never redefines the baseline.
+#'
+#' @param baseline_year Measure year of the baseline (default `2023L`).
+#' @param include_urology Whether to include the ABU net-new cohort.
+#' @param projection_years Integer vector of years to project; defaults to
+#'   `baseline_year` through `baseline_year + 12`.
+#' @param entrants,retirements Annual counts entering/leaving the workforce.
+#' @return A data frame with `year` and `n_providers`, where the `baseline_year`
+#'   row equals `urps_baseline(baseline_year, include_urology)`.
+#' @seealso [load_workforce_baseline()], [urps_baseline()].
+project_urps_workforce <- function(baseline_year = 2023L,
+                                   include_urology = FALSE,
+                                   projection_years = NULL,
+                                   entrants = 0,
+                                   retirements = 0) {
+  base <- urps_baseline(year = baseline_year, include_urology = include_urology)
+  if (is.null(projection_years)) {
+    projection_years <- baseline_year:(baseline_year + 12L)
+  }
+  years <- as.integer(projection_years)
+  net   <- entrants - retirements
+  data.frame(
+    year        = years,
+    n_providers = as.numeric(base) + net * (years - as.integer(baseline_year))
+  )
+}

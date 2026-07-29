@@ -4522,7 +4522,8 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "mufflyaccess",
       "RemoteUsername": "mufflyt",
-      "RemoteRef": "v0.1.4"
+      "RemoteRef": "v0.1.4",
+      "RemoteSha": "bf60af62a6bccbc77587e7f96f4aa4439d31efb9"
     },
     "nlme": {
       "Package": "nlme",
