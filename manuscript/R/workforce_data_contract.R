@@ -77,7 +77,25 @@ WORKFORCE_SUBSPECIALTIES <- c("URPS", "GO", "MIGS")
 # value change (e.g. after a rerun) touches one place instead of many test files.
 # Raw SSOT values (display rounds ratios to 1 decimal in the manuscript).
 WORKFORCE_HEADLINE_RATIO    <- c(URPS = 5.61,  GO = 7.11,  MIGS = 11.06)   # completion-to-departure
-WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1295L, GO = 1052L, MIGS = 605L)    # 2025 active baseline
+# -- URPS baseline: LEGACY FROZEN PROJECTION COHORT (not a mufflyaccess cell) --
+# URPS = 1295 is the legacy reconciliation cohort (1031 ABOG + 264 model-included
+# ABU net-new) that the frozen, published SGS-deck Monte Carlo projection was run
+# on. It is a projection-cohort baseline, NOT an "active-workforce" count and NOT
+# a mufflyaccess v2.1.0 canonical cell. It is intentionally preserved unchanged:
+# re-baselining onto the current SSOT would require re-running that frozen
+# projection (a separate, deliberate task -- do NOT do it in a plumbing migration).
+# The current SSOT cohorts are different and are sourced via mufflyaccess::urps_count():
+#   2023 board_certified_active / national / +urology = 1332 (ABU 301)  <- 2023 active
+#   2025 roster_snapshot        / national / +urology = 1339 (ABU 308)  <- 2025 roster
+# 1295 is a legacy projection cohort, not a current active-workforce count, and
+# 1339 (the 2025 roster) is not the 2023 board-certified active count.
+URPS_LEGACY_PROJECTION_BASELINE <- 1295L  # ssot-ok: legacy frozen SGS projection cohort
+attr(URPS_LEGACY_PROJECTION_BASELINE, "metadata") <- list(
+  measure         = "legacy_projection_cohort",
+  cohort          = "1031 ABOG + 264 ABU net-new",
+  purpose         = "reproduce frozen SGS projection",
+  contract_status = "not a mufflyaccess v2.1.0 canonical cell")
+WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1295L, GO = 1052L, MIGS = 605L)    # ssot-ok: legacy frozen SGS projection cohort (URPS); see URPS_LEGACY_PROJECTION_BASELINE
 
 # The only legal workforce-outlook labels (headcount replacement balance).
 # "Unknown" is a red flag for a placeholder/zero scaffold and is rejected.
