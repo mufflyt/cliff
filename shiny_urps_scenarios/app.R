@@ -60,7 +60,7 @@ MC_SEED <- 20260718L                       # matches manuscript_WORKFORCE_CLIFF.
   if (is.na(rmp))     rmp   <- 1466
   if (is.na(defer))   defer <- 38
   if (is.null(curve)) curve <- c(0.329, 0.595, 0.881, 0.956, 0.972, 0.984)
-  list(baseline = 1339L, completions = 64L, ratio = 5.02, proj_immediate = round(imm),
+  list(baseline = 1339L, completions = 64L, ratio = 5.02, proj_immediate = round(imm),  # ssot-ok: frozen reproduction of mufflyaccess urps_count(2025,"roster_snapshot","national") = 1,339; self-contained deployed app
        proj_ramped = round(rmp), deferred_pct = round(defer), ramp_cum = curve,
        source = if (file.exists(proj_f)) "graduation_active_transition CSVs" else "frozen docx 2026-07-21")
 }
@@ -169,7 +169,7 @@ validate_model <- function() {
   chk <- function(cond, msg) if (!isTRUE(cond)) f <<- c(f, msg)
   hz <- adjusted_haz("fully_obs", 1, "obs")
   bands_used <- unique(band_of(sort(unique(URPS_AGES))))
-  chk(length(BASELINE) == 1 && BASELINE == 1339, sprintf("Baseline workforce is %s, expected 1,339.", BASELINE))
+  chk(length(BASELINE) == 1 && BASELINE == 1339, sprintf("Baseline workforce is %s, expected 1,339.", BASELINE))  # ssot-ok: expected value is mufflyaccess urps_count(2025,"roster_snapshot","national") = 1,339
   chk(!any(is.na(hz)) && all(BAND_LABELS %in% names(hz)), "Age-band hazard vector has missing names or NA values.")
   chk(sum(is.na(hz[bands_used])) == 0, "Some age bands do not join to a hazard (by-name lookup failed).")
   pr <- project_traj(URPS_AGES, 64, hz, 4)
