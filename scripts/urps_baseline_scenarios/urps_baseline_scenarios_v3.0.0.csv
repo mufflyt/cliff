@@ -1,0 +1,4 @@
+"scenario","cohort_basis","source","baseline_2023","projected_2029","ci95_lower","ci95_upper","sd_2029","pct_change","avg_annual_retirements","replacement_ratio"
+"A_legacy","primary-cert reconciliation (1031 ABOG + 264 ABU)","PUBLISHED frozen SGS projection (not re-run)",1295,1505.4,1476,1535,15.2,16.24,11.41,5.61
+"B_active_2023","URPS-subspecialty-cert active (mufflyaccess v3.0.0)","engine re-run on the real 2023-active age distribution",1306,1510.1,1496,1523,6.78,15.62,12.98,4.93
+"C_roster_2025","2025 roster snapshot (full identified cohort)","engine re-run on the real roster age distribution",1339,1542.6,1528,1556,7.02,15.21,13.1,4.89
