@@ -1,0 +1,115 @@
+{
+  "schema": "cliff-urps-scenario-provenance/1",
+  "generated_at": "2026-07-30T14:24:15-0600",
+  "producer": {
+    "script": "scripts/urps_baseline_scenarios/urps_baseline_scenarios_v3_hardened.R",
+    "script_sha256": "4e54258ad434a0295228289879a830de3335a2743ff08dbb4c71341c05909a14",
+    "git_commit": "d5d61008232385e390b7e0296c4ea30269dc6738",
+    "git_tree_dirty": true
+  },
+  "engine": {
+    "file": "R/workforce_cliff_engine.R",
+    "file_sha256": "90bfbfbf2c7bfcd22c8777bb4342cecb68d4a51994fb04884d0d958f2f7b9320",
+    "fn": "wc_project",
+    "loader": "wc_engine_loader.R (pure projection defs only)",
+    "version": "wc_project @ R/workforce_cliff_engine.R",
+    "equivalence_vs_reimplementation": {
+      "max_abs": 0,
+      "max_rel": 0
+    }
+  },
+  "ssot": {
+    "package": "mufflyaccess",
+    "installed_version": "0.6.0",
+    "contract_version": "2.1.0",
+    "artifact_source_commit": "565755b2a9e2295855edae541db47516c973b27b",
+    "analysis_cells": {
+      "active_2023_national": 1306,
+      "roster_2025_national": 1339
+    },
+    "ssot_tie_verified": false,
+    "note": "installed mufflyaccess serves 1332 (pre-v3.0.0); analysis cells taken from the v3.0.0 provider-snapshot age file, verified once 0.7.x installs"
+  },
+  "parameters": {
+    "entrants_per_year": 64,
+    "entry_age": 34,
+    "horizon": 4,
+    "age_proxy_reference_year": 2024,
+    "mc_seed": 20260718,
+    "mc_draws": 4000,
+    "hazard_version": "pooled GO+URPS age-band, events/PY 2016-2021 (primary-cert basis)",
+    "band_labels": ["<45", "45-49", "50-54", "55-59", "60-64", "65-69", "70+"],
+    "band_events": [13.058, 2.853, 3.508, 4.002, 5.192, 4.388, 0],
+    "band_person_years": [3854, 973, 811, 488, 221, 53, 3],
+    "band_hazard": [0.003388168137, 0.0029321685509, 0.0043255240444, 0.0082008196721, 0.02349321267, 0.08279245283, 0]
+  },
+  "cohorts": {
+    "legacy_primarycert_rerun": {
+      "n": 1301,
+      "age_basis": "age_proxy_from_cert (estimated proxy)",
+      "rule": "ABOG in_model_baseline (1031) + ABU status=='net-new (in model)' (270)",
+      "source": "data/{abog,abu}_all_urps_ENRICHED_2026-07-22.csv",
+      "caveat": "best-effort reconstruction; +6 vs published 1295 (old scrape's 6 non-datable exclusions not encoded in the tracked rosters); authoritative legacy result is the frozen published row"
+    },
+    "active_2023_1306": {
+      "n": 1306,
+      "age_basis": "age_proxy_from_cert (estimated proxy)",
+      "rule": "isochrones v3.0.0 provider snapshot, active_2023 == TRUE",
+      "source": "mufflyaccess urps_count(2023, board_certified_active, national, TRUE)"
+    },
+    "roster_2025_1339": {
+      "n": 1339,
+      "age_basis": "age_proxy_from_cert (estimated proxy)",
+      "rule": "isochrones v3.0.0 provider snapshot, 2025 roster (in_model_baseline)",
+      "source": "mufflyaccess urps_count(2025, roster_snapshot, national, TRUE)"
+    }
+  },
+  "inputs": [
+    {
+      "name": "cohort_ages",
+      "path": "scripts/urps_baseline_scenarios/urps_cohort_ages_v3.0.0.csv",
+      "sha256": "9ef7dc67d9d4ab9f8e93ec02d2afcb6dda0ba5568f796cc1f3775db75941deee"
+    },
+    {
+      "name": "frozen_projection",
+      "path": "data/workforce_projections_consolidated.csv",
+      "sha256": "a2c388d4bf6f5c3222ec33836f7b0a276f16acfd39e0c114bcd02e27773ab310"
+    },
+    {
+      "name": "abog_roster",
+      "path": "data/abog_all_urps_ENRICHED_2026-07-22.csv",
+      "sha256": "96a9be0bfc73ceaac2226fa146d3b2446b6d86535e0729850724344dc650e4c9"
+    },
+    {
+      "name": "abu_roster",
+      "path": "data/abu_all_urps_ENRICHED_2026-07-22.csv",
+      "sha256": "5ad396280f28992ff22f0d500938f2f3425e14fff186120d0d316c262e9165d0"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "table1_published_preservation.csv",
+      "sha256": "64b7d3d4fed896c334b7b0dad61f4309daf81a22e2dea0404d738caca58da00e"
+    },
+    {
+      "file": "table2_controlled_sensitivity.csv",
+      "sha256": "e2f9d6db42ad3d9ffe2fec5048967bb5139e95e7057e1efb551595a45a42d575"
+    },
+    {
+      "file": "decomposition_count_vs_age.csv",
+      "sha256": "1fdfa835e88718202616d962e74e2da31ff33959914ee318648949d7e2b06aeb"
+    },
+    {
+      "file": "scenario_trajectories.csv",
+      "sha256": "4075d3e66ab4404cd5e76eb522e164e71db1ddbb1fc47f8b445a06b754140cb2"
+    },
+    {
+      "file": "engine_equivalence.csv",
+      "sha256": "3be536c098ee3e0c4ca1f7591cc00a6b27906f723dabe0cd9e9cce53267714ca"
+    },
+    {
+      "file": "table_evidence_supporting_scenarios.csv",
+      "sha256": "559e076f30840265b7879c5fa8bc7efaadcf18d6f954af4a7b51a4230c9a6475"
+    }
+  ]
+}

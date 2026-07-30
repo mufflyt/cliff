@@ -118,6 +118,32 @@ scenario_comparison_server <- function(id, data_dir = NULL) {
       "nearly the same baseline, so the 5.61→~4.9 shift is driven by the engine/hazard ",
       "parameterization, not the baseline count.</p>",
       "<p style='color:#5f6673;font-size:12px;'>Source: cliff scenario-validity hardening, ",
-      "urps_baseline_scenarios_v3_hardened.R. Accessed ", as.character(Sys.Date()), ".</p>")))
+      "urps_baseline_scenarios_v3_hardened.R. Accessed ", as.character(Sys.Date()), ".</p>",
+      .sc_provenance_html())))
   })
+}
+
+# Compact data-lineage footer read from the bundled provenance record, so the app
+# always displays the exact code/engine/SSOT/input hashes the tables were built from.
+.sc_provenance_html <- function(dir = .sc_data_dir()) {
+  p <- file.path(dir, "scenario_provenance.json")
+  if (!file.exists(p) || !requireNamespace("jsonlite", quietly = TRUE)) return("")
+  pv <- tryCatch(jsonlite::read_json(p, simplifyVector = TRUE), error = function(e) NULL)
+  if (is.null(pv)) return("")
+  short <- function(x) if (is.null(x) || is.na(x)) "n/a" else substr(x, 1, 12)
+  paste0(
+    "<details style='margin-top:8px;'><summary style='color:#5f6673;font-size:12px;cursor:pointer;'>",
+    "Data lineage (provenance)</summary>",
+    "<div style='color:#5f6673;font-size:11px;font-family:monospace;line-height:1.5;'>",
+    "generated: ", pv$generated_at, "<br>",
+    "code sha256: ", short(pv$producer$script_sha256), " | git ", short(pv$producer$git_commit), "<br>",
+    "engine: ", pv$engine$fn, " sha256 ", short(pv$engine$file_sha256),
+    " | wc_project equivalence max_abs ", pv$engine$equivalence_vs_reimplementation$max_abs, "<br>",
+    "SSOT: mufflyaccess ", pv$ssot$installed_version, " contract ", pv$ssot$contract_version,
+    " | cells active_2023=", pv$ssot$analysis_cells$active_2023_national,
+    " roster_2025=", pv$ssot$analysis_cells$roster_2025_national,
+    " | tie_verified ", pv$ssot$ssot_tie_verified, "<br>",
+    "seed ", pv$parameters$mc_seed, " | draws ", pv$parameters$mc_draws,
+    " | horizon ", pv$parameters$horizon,
+    "</div></details>")
 }

@@ -1250,6 +1250,13 @@ Carlo 95% interval at a fixed seed, so a change in the projected workforce refle
 the stated input rather than the model. The detailed results for each scenario
 appear in the preceding appendices.
 
+Full data lineage for the scenario analysis (producing-code SHA-256, engine SHA-256
+and `wc_project` equivalence, the mufflyaccess SSOT contract version and source
+commit, input and output file hashes, the exact cohort-definition rules, and all run
+parameters including the fixed Monte Carlo seed) is recorded in a machine-readable
+provenance record, `scripts/urps_baseline_scenarios/scenario_provenance.json`,
+regenerated with the tables so it can never silently drift from them.
+
 ```{r table-s32-evidence-supporting-scenarios}
 sc <- readr::read_csv(here::here("data", "table_evidence_supporting_scenarios.csv"),
                       show_col_types = FALSE)
