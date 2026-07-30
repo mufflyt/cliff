@@ -17,6 +17,7 @@
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(ggplot2) })
 
 source("urps_model_data.R")   # URPS_AGES, BAND_LABELS, HAZ_WINDOWS, BAND_EV, BAND_PY, GRAD_URPS
+source("scenario_comparison.R")   # UNC-style multi-scenario comparison module (contract v3.0.0)
 
 # National URPS baseline from the SSOT, never a hardcoded literal. This app
 # models the 2025 status-quo roster, so the baseline is the 2025 roster_snapshot
@@ -382,6 +383,9 @@ main_ui <- bslib::page_sidebar(
             shiny::uiOutput("sv_note"),
             bslib::card(bslib::card_header("Which assumptions change the projected number of physicians most?"), bslib::card_body(shiny::plotOutput("tornado", height = "320px"))))))),
 
+    # ===== 2b. SCENARIO COMPARISON (contract v3.0.0) =====================
+    bslib::nav_panel("Scenario comparison", scenario_comparison_ui("cmp")),
+
     # ===== 3. RESEARCH DETAILS ===========================================
     bslib::nav_panel("Research details",
       bslib::navset_pill(
@@ -417,6 +421,7 @@ main_ui <- bslib::page_sidebar(
 
 # ---- server ----------------------------------------------------------------
 main_server <- function(input, output, session) {
+  scenario_comparison_server("cmp")   # UNC-style contract-v3.0.0 comparison tab
   st <- reactiveValues(base = PRIMARY_PRESET)
   apply_preset <- function(p) {
     updateSliderInput(session, "comp", value = p$comp); updateSliderInput(session, "conv", value = p$conv)

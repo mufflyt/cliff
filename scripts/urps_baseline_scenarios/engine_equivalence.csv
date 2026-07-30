@@ -1,0 +1,13 @@
+"case","horizon","wc_project","reimpl","abs_diff","rel_diff"
+"zero-hazard",1,164,164,0,0
+"zero-hazard",4,356,356,0,0
+"zero-entrants",1,97.928718,97.928718,0,0
+"zero-entrants",4,95.179137,95.179137,0,0
+"age-band-boundary",1,76.753123,76.753123,0,0
+"age-band-boundary",4,266.795293,266.795293,0,0
+"one-age-band",1,163.706783,163.706783,0,0
+"one-age-band",4,353.258127,353.258127,0,0
+"active-2023-cohort",1,1358.589422,1358.589422,0,0
+"active-2023-cohort",4,1510.061431,1510.061431,0,0
+"roster-cohort",1,1391.477613,1391.477613,0,0
+"roster-cohort",4,1542.61646,1542.61646,0,0

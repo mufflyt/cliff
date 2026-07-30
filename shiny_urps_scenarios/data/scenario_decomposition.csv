@@ -1,0 +1,5 @@
+"effect","count","age_mix","avg_annual_retirements","projected"
+"reference (active count, active ages)",1306,"active_2023",12.985,1510.1
+"count-only (roster count, active ages)",1339,"active_2023",13.266,1540.9
+"age-only (active count, roster ages)",1306,"roster_2025",12.826,1513.7
+"combined (roster count, roster ages)",1339,"roster_2025",13.096,1542.6
