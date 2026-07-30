@@ -29,9 +29,14 @@ test_that("frozen SSOT annual_entrants matches the WC_GRAD graduate means (drift
   expect_equal(ae[["MIGS"]], round(mean(GRAD$MIGS)))   # 47.25 -> 47
 })
 
-test_that("Shiny GRAD_URPS (self-contained deployment copy) matches canonical WC_GRAD$URPS", {
-  se <- new.env(); source(here::here("shiny_urps_scenarios", "urps_model_data.R"), local = se)
-  expect_identical(se$GRAD_URPS, GRAD$URPS)
+test_that("Shiny GRAD_URPS (both self-contained deployment copies) match canonical WC_GRAD$URPS", {
+  # both standalone Shiny snapshots carry their own GRAD_URPS; the adequacy copy was added after iter3's
+  # original guard, so it went unchecked — cover both so neither app can drift from the engine's WC_GRAD.
+  for (p in c("shiny_urps_scenarios/urps_model_data.R",
+              "shiny_urps_adequacy/data/urps_model_data.R")) {
+    se <- new.env(); source(here::here(p), local = se)
+    expect_identical(se$GRAD_URPS, GRAD$URPS, info = p)
+  }
 })
 
 test_that("[adversarial] no engine-sourcing script re-hardcodes WC_GRAD as a list literal", {

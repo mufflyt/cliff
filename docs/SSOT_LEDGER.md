@@ -1934,4 +1934,1161 @@ the last un-wired duplicates, recommended next.
 **Recommended next candidate:** `supply_demand_national`'s `entry_age=34L` (wire to `WORKFORCE_ENTRY_AGE`) or
 `HORIZON <- 2050-2025` (wire to the demand-horizon endpoints) — both established SSOTs, single-site each.
 
-**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 31-33 files only.
+**Status:** ✅ complete. Committed `bdb62a4` (iterations 31-33 + ephemeral-formalization fixes).
+
+---
+
+## Iteration 34 — supply projection entry age (`entry_age=34L` → `WORKFORCE_ENTRY_AGE`)
+
+**Candidate:** `scripts/urps_supply_demand_national_2026-07-23.R:40`, `project(ages, entrants, hz, horizon, entry_age=34L)`.
+
+**Why higher-risk than alternatives:** the entry age is the cohort-injection age that reshapes the age
+structure every projected year (both `supply_mid` and the 2000-draw Monte Carlo band call `project()` with the
+default). It is a **third consumer** of the fellowship-graduate entry age already canonicalized in iter6/iter26
+as `R/workforce_constants.R::WORKFORCE_ENTRY_AGE` (the engine's `WC_ENTRY_AGE` and module_a's `ENTRY_AGE` both
+alias it); this site was the last un-wired copy, so a future change to the entry age would silently leave this
+supply projection stale at 34. The `HORIZON <- 2050-2025` follow-on is lower-value (a length that already ties
+to two pinned endpoints and is not itself a drift risk).
+
+**Audit:** literal `34L` appears once, as the `entry_age` default (line 40); both call sites (lines 50, 60)
+omit the argument and rely on the default. The comment at line 9 ("64 entrants/yr at age 34") is accurate
+descriptive prose, not a used literal — left as-is (it still matches the canonical 34).
+
+**Discrepancy adjudication:** none — same meaning, same value (`WORKFORCE_ENTRY_AGE == 34L`) as the engine and
+module_a; no intentional scenario difference. Not an alias collision: reached at call time via the existing
+`source(R/demand_denominator.R)` (line 19, before `project()` is defined), which sources `workforce_constants.R`.
+
+**Canonical:** `WORKFORCE_ENTRY_AGE` (`R/workforce_constants.R`, iter26), the shared fellowship-graduate entry
+age; the `project()` default now reads `entry_age = WORKFORCE_ENTRY_AGE` (lazy default resolves in globalenv at
+call time).
+
+**Files changed:** `scripts/urps_supply_demand_national_2026-07-23.R` (default `34L` → `WORKFORCE_ENTRY_AGE`);
+`tests/testthat/test-ssot-entry-age.R` (extended — no new duplicate guard file).
+
+**Hardcoded copies removed:** 1 (`entry_age=34L`) → 0. Behavior-preserving.
+
+**Validation guard:** the existing `test-ssot-entry-age.R` pins `WORKFORCE_ENTRY_AGE == 34L` (integer, range
+25-45); the new blocks fail loudly if this site re-hardcodes 34 or un-wires from the SSOT.
+
+**Tests added (extended existing guard, +4 → 14/0):** **adversarial** (no `entry_age=34L`; default wired to
+`WORKFORCE_ENTRY_AGE`; demand_denominator sourced so the SSOT is reachable); **behavior-preserving** (a local
+re-implementation of `project()` yields an identical 2050 trajectory with explicit `34L` vs the new default,
+proving the default resolves to the same value).
+
+**Initial failures:** none. **Final: entry-age guard 14/0; all 33 SSOT guards 469/0.** Script parses; final grep
+finds no bare `entry_age=34L` in `scripts/` or `R/`.
+
+**Remaining risks:** none for this value. One un-wired duplicate remains: `HORIZON <- 2050-2025` (line 48) →
+`DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR` (both in scope via demand_denominator).
+
+**Recommended next candidate:** `supply_demand_national`'s `HORIZON <- 2050-2025` (line 48) → wire to
+`DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR` — removes two hardcoded years (2050, 2025) by tying the
+horizon length to the two canonical endpoints; last known cross-copy of a pinned SSOT.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 34 files only
+(`scripts/urps_supply_demand_national_2026-07-23.R`, `tests/testthat/test-ssot-entry-age.R`).
+
+---
+
+## Iteration 35 — supply projection horizon length (`HORIZON <- 2050-2025` → derived endpoints)
+
+**Candidate:** `scripts/urps_supply_demand_national_2026-07-23.R:48`, `HORIZON <- 2050-2025`.
+
+**Why higher-risk than alternatives:** this is an **internal inconsistency within a single file** — the same
+producer already uses the named endpoints `PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR` for its `YEAR`
+axis (line 62) and `DEMAND_HORIZON_END_YEAR` for its endpoint filters (lines 86, 92), yet line 48 recomputed the
+horizon *length* from bare literals. The trajectory has `HORIZON+1` points and is bound 1:1 to the `YEAR` axis in
+the `supply` data.table (line 62); if someone revised the horizon via the constants (as iter24 set up for the
+four demand scripts) but missed this bare arithmetic, the trajectory length would silently desync from the year
+axis and malform the supply table. Last un-wired cross-copy of the iter24 endpoints. (The remaining literals in
+the file — the line-3/91 "2025-2050" strings — are descriptive prose.)
+
+**Audit:** `2050-2025` appears once as live code (line 48). Lines 3, 91 are accurate display/prose strings; the
+year axis (62), milestone `seq` (86), and endpoint filters (92, 94) already use the named constants.
+
+**Discrepancy adjudication:** none — `DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR == 25L`, identical to
+the old `2050-2025`. Integer-vs-double is behaviorally inert (HORIZON is used only as a length / `seq_len` /
+`ncol`). No intentional difference (the Wu-2011 literature anchor `2050` and `_2050` column identifiers, called
+out in iter24, live in other files and stay literal).
+
+**Canonical:** `DEMAND_HORIZON_END_YEAR` (`R/demand_denominator.R`, iter24) and `PROJECTION_BASELINE_YEAR`
+(`R/workforce_constants.R`), both in scope via the line-19 `demand_denominator.R` source; line 48 now reads
+`HORIZON <- DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR`.
+
+**Files changed:** `scripts/urps_supply_demand_national_2026-07-23.R` (line 48);
+`tests/testthat/test-ssot-demand-horizon-end-year.R` (extended — no new duplicate guard file).
+
+**Hardcoded copies removed:** 2 literal years (`2050`, `2025`) in one expression → 0. Behavior-preserving.
+
+**Validation guard:** the existing horizon-end-year guard already pins `DEMAND_HORIZON_END_YEAR == 2050L` and the
+`- PROJECTION_BASELINE_YEAR == 25L` algebra; the new blocks fail loudly if this site re-hardcodes `2050-2025` or
+if the derived length ever stops matching the `YEAR`-axis span.
+
+**Tests added (extended existing guard, +5 → 22/0):** **adversarial** (no bare `2050-2025`; `HORIZON` derived
+from the endpoints; same file uses `PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR`); **semantic invariant**
+(`HORIZON+1 == length(PROJECTION_BASELINE_YEAR:DEMAND_HORIZON_END_YEAR)` — the trajectory-length/year-axis tie
+this refactor protects; plus the behavior-preserving `== 25L`).
+
+**Initial failures:** none. **Final: horizon-end-year guard 22/0; all 33 SSOT guards 474/0.** Script parses;
+final grep finds no live bare `2050-2025` in `scripts/`/`R/` (only a descriptive `2050-2025=25` comment in
+module_a, already SSOT-derived since iter24).
+
+**Remaining risks:** none for this value. The clean cross-file duplicate pool of pinned SSOTs is now exhausted —
+subsequent iterations must open a genuinely new candidate (see below) rather than wire a known cross-copy.
+
+**Recommended next candidate:** a *fresh* audit target, since the known cross-copies are done. Strong options:
+(a) the six CPT/HCPCS procedure code lists in `urps_demand_module_bc_2026-07-23.R:26-32` (`grp`) — duplicated
+across module_bc, module_bc_corrected, and any figure/table that reports per-service volume; a code drifting
+between copies would silently mis-attribute Medicare volume. (b) the age-band cut breakpoints
+`BANDS <- c(0,45,50,55,60,65,70,Inf)` + `BAND_LABELS` (line 36) vs the engine's own band definition — a
+classic two-lineage band-edge drift risk.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 34-35 files
+(`scripts/urps_supply_demand_national_2026-07-23.R`, `tests/testthat/test-ssot-entry-age.R`,
+`tests/testthat/test-ssot-demand-horizon-end-year.R`, `docs/SSOT_LEDGER.md`) — iter34 remains validated/green
+and awaits the next "land" instruction; both iterations are cleanly separated in this ledger.
+
+---
+
+## Iteration 36 — URPS anchor procedure codes (`c("57288","57282","51728","52287")` + surg/func split)
+
+**Candidate:** the four "anchor" pelvic-floor HCPCS codes (one representative per procedure family) and their
+surgical/functional (OBG/URO field) classification, used by the Module B+C plasticity/attribution audit.
+
+**Why higher-risk than alternatives:** the *codes* were duplicated across **four files / eight sites** —
+`module_bc_corrected` (line 39 + a **self-referential GATE-7 check** at 116 that re-lists the same four to
+validate them against themselves), `gate_audit` (`ANCHORS` 25, `FUNC`/`SURG` 26, `DICT field` 64), and
+`plasticity_stage0` (named-vector keys 22-23) — plus the `FROZEN` snapshot (59, 88). `gate_audit` even carried a
+manual FATAL gate (`G(24)` "Identical HCPCS universe across files") whose whole job was to detect the drift this
+SSOT structurally prevents. A code drifting between copies would silently mis-attribute Medicare procedure
+volume to the urogyn cohort — a published-number risk. (The original recommendation named the full six-group
+`grp` list, but the audit showed `grp` is **single-source** in `module_bc` and not a duplication; the anchor set
+is the real one.)
+
+**Audit / discrepancy adjudication:** the **codes are byte-identical and order-stable** across all sites → one
+SSOT. The **surg/func split** recurs in three vocabularies (`FUNC`/`SURG`, `field=OBG/URO`) → canonicalized with
+a 1:1 class↔field lockstep. The **family LABELS drift by design** — "Sling for SUI" (corrected) vs "Sling"
+(gate_audit) vs "Sling (SUI)" (plasticity) — these are per-output display strings; **left literal, not
+collapsed** (documented intentional difference). The `FROZEN` file is a reproducibility snapshot → **not wired**;
+guarded by a parity check instead.
+
+**Canonical:** `R/urps_procedure_codes.R` — a validated 4-row lookup `URPS_ANCHOR_PROCEDURES` (code, class,
+field) with fail-loud `stopifnot` (4 unique codes, closed class/field vocab, class↔field lockstep) + accessors
+`urps_anchor_codes(class=all/surgical/functional)` and `urps_anchor_field(codes)`. Chose a **lookup table +
+accessors** over a bare vector because consumers need the split and the field, not just the codes.
+
+**Files changed:** new `R/urps_procedure_codes.R`; wired `scripts/urps_module_bc_corrected_2026-07-23.R`
+(source + line 39 + GATE-7 116), `scripts/urps_module_bc_gate_audit_2026-07-23.R` (source + ANCHORS 25 +
+FUNC/SURG 26 + DICT field 64), `scripts/urps_plasticity_stage0_audit_2026-07-23.R` (source + named-vector 22-23);
+new `tests/testthat/test-ssot-urps-anchor-procedures.R`. **FROZEN not touched.**
+
+**Hardcoded copies removed:** 6 live literal copies across 3 non-frozen files (the full 4-code vector ×3, the
+FUNC/SURG split, the OBG/URO field, the GATE-7 self-check) → 0. Behavior-preserving (accessors == prior
+literals, order preserved; verified).
+
+**Validation guards:** `stopifnot` in the canonical file; the guard's frozen-parity test catches the FROZEN
+snapshot diverging from canonical without editing the freeze.
+
+**Tests added (`test-ssot-urps-anchor-procedures.R`, 25/0):** well-formedness; **behavior-preserving** (accessors
+reproduce every prior literal, in order); **semantic** (surg/func partition — disjoint + exhaustive; order
+contract); **adversarial** (all 3 non-frozen consumers reference the accessor, no bare 4-code / FUNC / field
+literal remains); **frozen-parity** (FROZEN literal still equals canonical); **adversarial malformed** (duplicate
+code and broken class↔field lockstep both fail the validation).
+
+**Initial failures:** none. **Final: anchor-procedures 25/0; all 34 SSOT guards 499/0; all 3 consumers parse.**
+
+**Remaining risks:** the FROZEN snapshot stays a hand-maintained copy by design; the parity guard flags drift but
+a deliberate re-bake requires updating the guard expectation (documented in the test). The three family-label
+vocabularies remain intentionally distinct.
+
+**Recommended next candidate:** iteration 37 (b) — the age-band breakpoints
+`BANDS <- c(0,45,50,55,60,65,70,Inf)` + `BAND_LABELS` in `supply_demand_national` vs the engine's band
+definition (two-lineage band-edge drift).
+
+**Status:** ✅ complete. Uncommitted (loop rule).
+
+---
+
+## Iteration 37 — age-band breakpoints (`BANDS <- c(0,45,50,55,60,65,70,Inf)`, demand/app lineage)
+
+**Candidate:** the numeric age-band breakpoints `c(0,45,50,55,60,65,70,Inf)` used with `cut()` to bucket
+physician ages into the seven hazard bands.
+
+**Why higher-risk than alternatives:** the band edges are the **axis of the entire hazard model** — an off-by-one
+edge silently re-buckets every physician and shifts every projected departure. `BANDS` was hardcoded in **four**
+demand/app files (`supply_demand_national:36`, `module_a:19`, `shiny_urps_scenarios/app.R:21`,
+`shiny_urps_adequacy/model.R:30`), all of which already sourced `urps_model_data.R` for the *paired*
+`BAND_LABELS` — so the labels were single-sourced but the numeric edges they pair with were not. The engine
+lineage (`WC_BANDS`) was already canonical and guarded, and its adversarial grep only scans *engine-sourcing*
+scripts, leaving these four (which source the snapshot, not the engine) unguarded — a real blind spot.
+
+**Audit / discrepancy adjudication:** all four literals + both `WC_BANDS` + both snapshot copies are
+byte-identical `c(0,45,50,55,60,65,70,Inf)` — no intentional difference. Two lineages by design: the engine
+`WC_BANDS`/`WC_BAND_LABELS` (canonical) and the self-contained Shiny/demand snapshot `urps_model_data.R` (carries
+`BAND_LABELS`, **parity-guarded** to the engine, not wired — so the apps deploy standalone). The snapshot files
+carry an *"Auto-generated ... do not hand-edit"* header, but **no generator exists in the repo** and they already
+hold hand-edits (the "+6 PI decision" block), so they are effectively the hand-maintained standalone snapshot;
+`BANDS` was simply missing from them, forcing the four hardcodes.
+
+**Canonical:** unchanged — `WC_BANDS` (`R/workforce_cliff_engine.R`) stays the one SSOT. The fix mirrors the
+existing `BAND_LABELS` pattern: add `BANDS` to both `urps_model_data.R` snapshots (the demand/app lineage's local
+mirror), parity-guarded to `WC_BANDS`, so the four consumers read it from the snapshot they already source. Chose
+**snapshot constant + parity guard** (not wiring the apps to the engine) to preserve standalone Shiny
+deployability.
+
+**Files changed:** `shiny_urps_scenarios/urps_model_data.R` + `shiny_urps_adequacy/data/urps_model_data.R` (added
+`BANDS`); removed the hardcoded copy from `scripts/urps_supply_demand_national_2026-07-23.R`,
+`scripts/urps_module_a_effective_supply_2026-07-23.R`, `shiny_urps_scenarios/app.R`,
+`shiny_urps_adequacy/model.R`; extended `tests/testthat/test-ssot-age-bands.R`.
+
+**Hardcoded copies removed:** 4 (one per consumer) → 0. `BANDS` now lives in the 2 snapshots (parity-guarded) +
+the engine (canonical). Behavior-preserving.
+
+**Validation guards:** extended the Shiny parity test to assert snapshot `BANDS == WC_BANDS` and
+`length(BANDS) == length(BAND_LABELS)+1` in *both* snapshot files; the engine's `WC_BANDS` well-formedness gate
+is unchanged.
+
+**Tests added (extended existing guard, +7 → 17/0):** parity (both snapshots' `BANDS` == canonical + length
+invariant); **adversarial** (all four consumers still source the snapshot and none re-hardcode `BANDS`, snapshots
+exempt); **semantic end-to-end** (`cut()` with the snapshot's own `BANDS`/`BAND_LABELS` assigns every test age to
+the same band as the engine — wiring cannot change any assignment).
+
+**Initial failures:** none. **Final: age-bands guard 17/0; all 34 SSOT guards 505/0; all 6 touched files parse.**
+Final grep: no `BANDS <- c(...)` remains in any consumer (only the 2 snapshots + engine keep the literal).
+
+**Remaining risks:** the two snapshots remain hand-maintained copies (the "auto-generated" header has no backing
+generator); the parity guard catches any drift from `WC_BANDS`. If a generator is ever introduced it must emit
+`BANDS` too. `BAND_EV`/`BAND_PY` (the per-band event/person-year vectors in the snapshots) are a *separate*
+not-yet-audited quantity — candidate below.
+
+**Recommended next candidate:** the per-band hazard inputs `BAND_EV` / `BAND_PY` (`urps_model_data.R:13-14`,
+duplicated across both snapshots and derived in the engine/hazard CSV) — the numerators/denominators of the
+departure hazard, higher-stakes than the band edges and currently three parallel copies.
+
+**Status:** ✅ complete. Uncommitted (loop rule).
+
+---
+
+## Iteration 38 — per-band hazard inputs `BAND_EV` / `BAND_PY` (drift guard, no copy removed)
+
+**Candidate:** `BAND_EV` (event-count numerators) and `BAND_PY` (person-year denominators) of the URPS departure
+hazard, `urps_model_data.R:14-15`.
+
+**Why higher-risk than alternatives:** these are the **highest-stakes numbers in the supply projection** — the
+numerator/denominator of every band's departure hazard, which drives the entire 2025-2050 supply trajectory and
+the Monte-Carlo fan. They are defined **identically in two self-contained Shiny snapshots** and consumed from
+whichever snapshot each script sources; a silent drift between the two apps would make them display different
+hazards from the same "model data".
+
+**Audit / discrepancy adjudication:** the two snapshots (`shiny_urps_scenarios/urps_model_data.R`,
+`shiny_urps_adequacy/data/urps_model_data.R`) are **byte-identical**; all consumers (`urps_module_a:21`,
+`urps_supply_demand_national:38,54`, `shiny_urps_scenarios/app.R:85,123`) read from the snapshot they source, so
+there is **no third live copy** — the engine does NOT define these (unlike `WC_BANDS`). Origin: the hierarchical
+partial-pooling pipeline; `BAND_PY[["fully_obs"]] == c(3854,973,811,488,221,53,3)` **equals the frozen
+`data/hazard_by_band_pooled_vs_unpooled.csv` `urps_py` column exactly** (verified). **Intentional differences
+preserved:** the three windows differ by design — `fully_obs` = hierarchical partial-pooled *expected* events
+(non-integer, penalized; manuscript primary), `drop2`/`full` = raw integer counts under alternative observation
+windows; NOT collapsed.
+
+**Canonical:** a **frozen-artifact + parity** contract, not a new constant. No shared code home is possible (both
+snapshots must deploy standalone on shinyapps.io, so neither can source a repo-root file — the demand scripts
+already single-source from the scenarios snapshot). The SSOT mechanism is therefore a drift guard: the two
+snapshots must agree with each other, and `BAND_PY[fully_obs]` must agree with the frozen hazard CSV (its true
+origin). This mirrors iter36's FROZEN-parity choice.
+
+**Files changed:** none refactored (see below); new `tests/testthat/test-ssot-band-hazard-inputs.R`.
+
+**Hardcoded copies removed:** 0 — and this is the correct outcome, not a shortfall: the duplication is
+scenarios-snapshot vs adequacy-snapshot, two standalone Shiny apps that cannot share a code home without breaking
+deployment. The iteration converts an **unguarded** byte-identical duplication into a **guarded** one.
+
+**Validation guards / tests added (`test-ssot-band-hazard-inputs.R`, 24/0):** **cross-snapshot parity** (both
+snapshots' `BAND_EV`/`BAND_PY` identical, all windows); **structure** (shared window names; one value per band);
+**cross-artifact origin** (`BAND_PY[fully_obs]` == frozen CSV `urps_py`, band order matched); **intentional
+differences preserved** (`fully_obs` EV non-integer/pooled vs `full` EV integer/raw, and the two windows are not
+equal); **semantic** (hazards non-negative, events ≤ exposure, `HAZ_WINDOWS[fully_obs]` == EV/PY, hazard rises
+45-49 → 55-59 → 65-69); **adversarial** (no window dropped/reordered between EV and PY; zero-exposure bands carry
+zero events — no phantom hazard).
+
+**Initial failures:** none. **Final: band-hazard-inputs 24/0; all 35 SSOT guards 529/0.**
+
+**Remaining risks:** the whole `urps_model_data.R` file is duplicated between the two Shiny apps (an
+architectural item beyond one SSOT iteration — a shared generator/build-time copy would remove it but risks
+Shiny standalone deployment); the guard now catches any `BAND_EV`/`BAND_PY` drift. `BAND_EV[fully_obs]` is
+model-derived (partial-pooled) and has no simple frozen-artifact to parity-check against beyond cross-snapshot —
+if the pooling is re-fit, both snapshots must be regenerated together.
+
+**Recommended next candidate:** `GRAD_URPS <- c(61,66,63,66)` (`urps_model_data.R`, the ACGME AY2020-24 completer
+counts) — duplicated across both snapshots and the driver of `ENTRANTS <- mean(GRAD_URPS)` wired in iters 7/33;
+same two-snapshot cross-parity pattern, and it feeds a published entrant-inflow number.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 38 files only
+(`tests/testthat/test-ssot-band-hazard-inputs.R`, `docs/SSOT_LEDGER.md`).
+
+---
+
+## Iteration 39 — `GRAD_URPS` was already audited (iter3); closed its residual second-snapshot gap
+
+**Candidate selected:** `GRAD_URPS <- c(61,66,63,66)` (the ACGME AY2020-24 URPS completer counts), per iter38's
+recommendation.
+
+**Finding — already in the ledger:** this value is **Iteration 3** (`WC_GRAD`). It already has a canonical home
+(engine `R/workforce_cliff_engine.R:29` `WC_GRAD$URPS`), `WC_ENTRANTS <- sapply(WC_GRAD, mean)` derivation, a
+frozen-CSV drift guard against `workforce_projections_consolidated.csv`, and an adversarial re-hardcode scan, in
+`tests/testthat/test-ssot-graduate-counts.R`. Per the no-double-audit rule I did **not** re-audit it. (iter38's
+recommendation was mistaken — it did not check that GRAD_URPS was already covered.)
+
+**Residual gap closed (coverage-completion of iter3, not a new audit):** iter3's Shiny-copy parity test predated
+the `shiny_urps_adequacy` app, so it checked only the **scenarios** snapshot; the **adequacy** snapshot's
+`GRAD_URPS <- c(61,66,63,66)` (`shiny_urps_adequacy/data/urps_model_data.R:8`) was **unguarded** (verified ==
+canonical, 0 references in any guard). This is the identical second-snapshot gap closed for `BANDS` (iter37) and
+`BAND_EV/PY` (iter38). Extended the existing test's parity check to loop over **both** snapshots.
+
+**Files changed:** `tests/testthat/test-ssot-graduate-counts.R` (parity test now covers both snapshots).
+**No production/consumer code touched; no new value canonicalized** (the value was already canonical).
+
+**Hardcoded copies removed:** 0 (self-contained Shiny copies, cannot be removed; now both drift-guarded).
+
+**Tests:** existing guard extended; **graduate-counts 14/0; all 35 SSOT guards 530/0.**
+
+**Remaining risks:** none new. Same standing architectural item as iter38 (the two `urps_model_data.R` are
+duplicated whole; a shared generator would remove the family of second-snapshot gaps at once).
+
+**Process note:** before recommending a "next candidate", grep the ledger AND `tests/testthat/test-ssot-*` for an
+existing guard — three of the recent snapshot-lineage values already had partial iter3-era guards.
+
+**Recommended next candidate (genuinely fresh, ledger-checked):** `WORKFORCE_CONVERSION_FLOOR` usage vs the
+`optimistic_nrmp`/`cautious_trend` scenario multipliers in `scripts/graduate_growth_scenarios.R:33` — the
+scenario-conversion assumptions (e.g. the `0.70` floor is canonical in `workforce_constants.R`, but the sibling
+scenario factors around it may be bare literals). Verify none are already ledgered first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 38-39 files
+(`tests/testthat/test-ssot-band-hazard-inputs.R`, `tests/testthat/test-ssot-graduate-counts.R`,
+`docs/SSOT_LEDGER.md`) — iter38 remains validated/green and awaits the next "land" instruction.
+
+---
+
+## Architectural task — canonical `urps_model_data.R` + sync generator + whole-file drift guard
+
+**Not a numbered SSOT iteration** — the structural fix for the family of second-snapshot gaps that iters 37, 38,
+39 each patched constant-by-constant (`BANDS`, `BAND_EV/PY`, `GRAD_URPS`). Authorized by the user as a dedicated
+task.
+
+**Problem:** the whole `urps_model_data.R` file was duplicated as two independently hand-maintained copies —
+`shiny_urps_scenarios/urps_model_data.R` and `shiny_urps_adequacy/data/urps_model_data.R` (byte-identical, but
+nothing enforced it; each new constant added to one could silently miss the other).
+
+**Why the duplication is unavoidable (not a smell to delete):** both apps deploy to shinyapps.io via
+`rsconnect::deployApp(appDir=".", appFiles=<app-dir-relative list>)`. The bundle contains only those files, so
+neither app can `source()` a repo-root file at runtime — each app dir must physically contain its own copy.
+Confirmed by reading both `DEPLOY.R` bundles. So the fix is not de-duplication but **one canonical + synced
+replicas + a drift guard**.
+
+**Design chosen:**
+- **Canonical:** `shiny_urps_scenarios/urps_model_data.R` (already sourced by the repo demand scripts
+  `urps_supply_demand_national` / `urps_module_a`, and already the reference for every SSOT guard).
+- **Replica:** `shiny_urps_adequacy/data/urps_model_data.R`, kept **byte-identical**.
+- **Generator:** `scripts/sync_urps_model_data.R` — copies canonical → replicas and verifies by hash; `--check`
+  mode verifies only and exits non-zero on drift (CI / deploy preflight). Fails loudly on any bad copy.
+- **Whole-file drift guard:** `tests/testthat/test-ssot-urps-model-data-sync.R` — asserts every replica is
+  byte-identical (line-for-line + md5) to canonical, plus a sourced-constant equality check and an adversarial
+  one-byte-drift detection. This is a **superset** of the per-constant guards: any future drift — audited
+  constant or not — now fails here.
+- **Deploy fail-loud:** `shiny_urps_adequacy/DEPLOY.R` preflight now refuses to ship a replica that has drifted
+  from canonical (guarded so it only checks when the canonical is reachable, i.e. deploying from the repo).
+- **Header:** replaced the misleading "Auto-generated ... from R/workforce_cliff_engine.R" line (no such
+  generator ever existed) with an accurate provenance header naming the canonical, the sync script, and the
+  guard; propagated to the replica by the sync so both stay byte-identical.
+
+**Files:** new `scripts/sync_urps_model_data.R`, new `tests/testthat/test-ssot-urps-model-data-sync.R`; edited
+`shiny_urps_scenarios/urps_model_data.R` (header) + `shiny_urps_adequacy/data/urps_model_data.R` (synced) +
+`shiny_urps_adequacy/DEPLOY.R` (preflight drift check).
+
+**Behavior:** zero runtime change — the replica content is byte-identical to before (only the header comment
+changed, identically in both). Both apps load all constants unchanged; both demand scripts unaffected.
+
+**Validation:** sync guard 17/0; drift round-trip proven (tamper a replica → `--check` exits 1 → re-sync → exits
+0 → byte-identity restored); all touched files parse; **all SSOT guards 547/0**.
+
+**Residual:** the per-constant guards (iters 37-39 + iter3) are now redundant with the whole-file guard but kept
+— they give human-readable, value-specific failure messages and check the engine-lineage canonical too. Future
+model-data edits: change the canonical, run `Rscript scripts/sync_urps_model_data.R`, commit both.
+
+**Status:** ✅ complete. Uncommitted — awaits a "land it" instruction.
+
+---
+
+## Iteration 40 — "Workforce Outlook" classification (Adequate/Marginal/Insufficient, cuts 0.8/1.2)
+
+**Candidate:** the replacement-ratio → workforce-outlook classification: `Adequate` (RR≥1.2), `Marginal`
+(0.8≤RR<1.2), `Insufficient` (RR<0.8).
+
+**Why higher-risk than alternatives:** it produces a **published categorical claim** — the "Workforce Outlook"
+per subspecialty (a subspecialty is called "Insufficient" vs "Adequate"). Unlike the contract's replacement
+scheme (which HAS a canonical `classify_replacement()` + `WORKFORCE_REPLACEMENT_*` constants), this scheme had
+**no canonical home**: the cutpoints `0.8`/`1.2` were computed with bare inline literals in the one live-logic
+site (`graduate_growth_scenarios.R:46`) and independently re-stated in the published table caption
+(`create_workforce_table.R:279`), the appendix math (`appendix_workforce_replacement_ratio.Rmd:96-98`), and the
+manuscript text — four hand-synchronised copies of a classification with nothing tying them together. (The
+recommended candidate, the `graduate_growth_scenarios` conversion multipliers, was already done: iter10
+`WORKFORCE_CONVERSION_FLOOR`, iter7 NRMP — only a single-use `0.5` damping factor remained, too weak.)
+
+**Audit / discrepancy adjudication:** **two distinct classification schemes coexist and must not be merged** —
+Scheme 1 (contract) "Above/At/Below replacement" cuts 0.95/1.05, **already single-sourced (iter16, recorded)**;
+Scheme 2 (this) "Adequate/Marginal/Insufficient" cuts 0.8/1.2. Within Scheme 2 the cutpoints agree at every site
+(graduate_growth_scenarios.R:46, caption:279, appendix:96-98, manuscript txt) → authority clear. The manuscript
+table's outlook column is reviewed **data** (a tribble) + a caption, not computed; left as-is and guarded.
+
+**Canonical:** `R/workforce_constants.R` (the shared engine+manuscript constants home) — `WORKFORCE_OUTLOOK_ADEQUATE_MIN
+= 1.2`, `WORKFORCE_OUTLOOK_MARGINAL_MIN = 0.8` (fail-loud: ordered, positive) + a pure function
+`classify_workforce_outlook(ratio)`. Function (value depends on input) with the cutpoints as named constants.
+
+**Files changed:** `R/workforce_constants.R` (new constants + classifier); `scripts/graduate_growth_scenarios.R:46`
+(inline `ifelse` → `classify_workforce_outlook(ratio)`); new `tests/testthat/test-ssot-workforce-outlook.R`.
+
+**Hardcoded copies removed:** 1 live classifier (the inline `ifelse(ratio>=1.2,...,ratio>=0.8,...)`). The 3
+manuscript/appendix restatements stay literal (published prose/data) but are now **parity-guarded** against the
+canonical. Behavior-preserving (verified: identical to the old `ifelse` across a boundary grid, `NA` propagates).
+
+**Validation guards:** `stopifnot` (ordered, positive cutpoints); the guard's cross-doc parity test fails if the
+table caption or appendix math drifts from the constants.
+
+**Tests added (`test-ssot-workforce-outlook.R`, 20/0):** well-formed/ordered cutpoints; **behavior-preserving**
+(reproduces the inline `ifelse` exactly, incl. boundaries + `NA`); **semantic** (boundary-exact `>=`, monotone
+non-regression as RR rises); **intentional-difference** (outlook labels DISJOINT from the contract's Above/At/Below
+labels — schemes not collapsed); **adversarial** (graduate_growth_scenarios references the SSOT, no inline
+1.2/0.8 classifier remains); **cross-doc parity** (published caption + appendix math state the canonical cuts).
+
+**Initial failures:** none. **Final: workforce-outlook 20/0; all 36 SSOT guards 567/0; graduate_growth_scenarios parses.**
+
+**Remaining risks:** the manuscript prose/caption/appendix remain literal by design (they are published text); the
+parity guard catches drift but a deliberate cutpoint change must be mirrored into the paper by hand. The manuscript
+table's outlook values are a reviewed tribble, not computed from `classify_workforce_outlook` (a bigger wiring
+change, deferred — the caption parity guard is the interim protection).
+
+**Recommended next candidate:** the manuscript workforce table's per-row **data** in `create_workforce_table.R:90-91`
+(baseline/retirement/ratio numbers hardcoded in a tribble) vs the frozen consolidated CSV — verify whether the
+table reads the SSOT CSV or re-types the numbers (a re-typed published table would be a high-risk drift), and
+whether it's already covered by the contract validator. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 40 files only
+(`R/workforce_constants.R`, `scripts/graduate_growth_scenarios.R`, `tests/testthat/test-ssot-workforce-outlook.R`,
+`docs/SSOT_LEDGER.md`).
+
+---
+
+## Iteration 41 — Module C attribution-plasticity multipliers (mid=1.0/low=0.8/high=1.2)
+
+**Candidate considered first, STOPPED (already flagged, PI-gated): the manuscript workforce table tribble
+(`create_workforce_table.R:88`).** Thoroughly investigated: its hardcoded numbers (GO baseline 1352 vs SSOT
+1052; ratios 1.08/0.73/1.61 vs 5.61/7.11/11.06; Scheme-2 labels; `fellowship_total_5yr`) disagree with the
+frozen `workforce_projections_consolidated.csv` on nearly every field. Confirmed it is **dead/legacy** (sourced
+by NO live manuscript Rmd; the paper uses `get_baseline()` → `workforce_statistics.R` → the CSV; the tribble's
+labels would fail the contract validator). Already documented in `docs/FLAG_stale_workforce_table_hardcode.md`
+and **entangled with the off-limits URPS baseline reconciliation** → PI decision, not a loop refactor. Not
+touched; recorded so it isn't re-audited.
+
+**Candidate selected:** the Module C attribution scenario multipliers `c(mid=1.0, low=0.8, high=1.2)` in
+`scripts/urps_demand_module_bc_2026-07-23.R` — the ±20% sensitivity band on each service's urogyn-attributable
+share, feeding the low/mid/high procedure-count and required-FTE demand projections.
+
+**Why higher-risk than alternatives:** the triple was **duplicated within one file** — as literal args
+`attr_proc(1.0)/attr_proc(0.8)/attr_proc(1.2)` (lines 65-67) AND as `c(mid=1.0,low=0.8,high=1.2)` in the
+required-FTE loop (line 70). The two drive the *same* scenario columns; a change to the low/high band that
+updated one and missed the other would silently make the procedure-count and FTE scenarios inconsistent. Feeds
+published demand-adequacy bounds.
+
+**Audit / discrepancy adjudication:** the triple appears only in `module_bc` (not in `module_bc_corrected`,
+which uses the empirical field-residual attribution instead, nor in `FROZEN`) → intra-file duplication. The
+three values are **distinct scenarios (low/mid/high) — preserved, not collapsed**. Same-numbers-different-meaning
+vs iter40's outlook cutpoints (0.8/1.2): the attribution band is unrelated to the replacement-ratio
+classification and must never be merged (guarded).
+
+**Canonical:** file-local named vector `URPS_ATTRIB_MULT <- c(mid=1.0, low=0.8, high=1.2)` with fail-loud
+`stopifnot` (ordered, mid=1.0, low<mid<high). File-local (not a shared constant) because the value is used only
+in this one script — the right scope; a shared home would be over-engineering.
+
+**Files changed:** `scripts/urps_demand_module_bc_2026-07-23.R` (canonical vector + both consumers wired to it);
+new `tests/testthat/test-ssot-attribution-multipliers.R`.
+
+**Hardcoded copies removed:** the duplicated triple (3 literal args + 1 inline named vector) → 1 canonical
+vector. Behavior-preserving (values identical: 1.0/0.8/1.2).
+
+**Validation guards:** `stopifnot` in the file; the guard evaluates only the constant line (the script opens a
+DuckDB connection, so it cannot be sourced whole) and checks values + wiring.
+
+**Tests added (`test-ssot-attribution-multipliers.R`, 16/0):** well-formed/ordered; **behavior-preserving**
+(1.0/0.8/1.2); **semantic** (symmetric ±0.2 band); **adversarial** (both consumers reference `URPS_ATTRIB_MULT`,
+no bare `attr_proc(0.8)`/`attr_proc(1.2)`/inline named-vector remains); **intentional-difference** (the
+attribution band is file-local and did NOT leak into `workforce_constants.R`, keeping it distinct from the
+outlook cutpoints).
+
+**Initial failures:** none. **Final: attribution-multipliers 16/0; all 38 SSOT guards 583/0; module_bc parses.**
+
+**Remaining risks:** none for this value (single-file, fully wired). The stale workforce-table tribble remains an
+open PI-gated item (`docs/FLAG_stale_workforce_table_hardcode.md`), unrelated to this iteration.
+
+**Recommended next candidate:** the FPMRS supply **figure** hardcodes in `scripts/fig_fpmrs_supply_line.R`
+(1196/1283/1301/4.4/55.6/1.08/15.2/CI) — same class as the stale table but noted in the FLAG doc as PI-gated
+(baseline-entangled); verify which of its numbers are baseline-independent (e.g. the CI z was already iter15,
+the year axis iter14) and whether any remaining literal is safe to single-source without touching the baseline.
+Otherwise scan `code/` (the older pipeline) for an un-audited duplicated constant. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 40-41 files
+(`R/workforce_constants.R`, `scripts/graduate_growth_scenarios.R`, `scripts/urps_demand_module_bc_2026-07-23.R`,
+`tests/testthat/test-ssot-workforce-outlook.R`, `tests/testthat/test-ssot-attribution-multipliers.R`,
+`docs/SSOT_LEDGER.md`) — iter40 remains validated/green and awaits the next "land" instruction.
+
+---
+
+## Iteration 42 — study observed-window START year (`2013`) → `WORKFORCE_OBSERVED_START_YEAR`
+
+**Candidate considered first, REJECTED: the FPMRS supply-figure hardcodes** (1196/1283/1301/4.4/55.6/15.2/1.08).
+Same old-era supply numbers as the stale table, PI-gated + baseline-entangled per
+`docs/FLAG_stale_workforce_table_hardcode.md`; horizon/CI-z/axis already single-sourced (iters 1/14/15). Not
+touched.
+
+**Candidate selected:** the study observed-administrative-data-window START year `2013` — a baseline-independent
+design constant.
+
+**Why higher-risk than alternatives:** it fixes the lower bound of the *observed* data the whole analysis rests
+on (the Medicare panel, the observed supply series, and the truth-contract year gate), yet was a bare literal in
+three code files across three lineages. A change to the study start that updated one and missed another would
+silently mis-scope the age-productivity panel or let the validator admit/reject the wrong years — and unlike the
+supply numbers it is NOT baseline-entangled, so it is safe to unify now.
+
+**Audit / provenance:** `scripts/urps_module_a_age_productivity_2026-07-23.R:27` (`yrs <- 2013:2024`),
+`scripts/fig_fpmrs_supply_line.R:16` (`OBS_START <- 2013L`), `R/validators/validate_workforce_truth_contract.R:98`
+(`year_min_allowed <- 2013L`), and `config/expected_workforce_counts.yml:74` (`test_years` begins 2013).
+
+**Discrepancy adjudication:** the START `2013` is consistent at every site → one SSOT. The window END is
+**intentionally different and NOT collapsed**: the truth-contract study scope ends `2023` (`year_max_allowed`),
+while the Medicare panel and observed supply series run to `2024` (latest available). Only the shared start is
+unified; no end constant was introduced.
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_OBSERVED_START_YEAR <- 2013L` (constant; fail-loud: integer,
+pinned 2013, `< PROJECTION_BASELINE_YEAR`). Constant (a fixed study-design year), not a function.
+
+**Files changed:** `R/workforce_constants.R` (new constant); `scripts/fig_fpmrs_supply_line.R:16`;
+`scripts/urps_module_a_age_productivity_2026-07-23.R` (added `source(workforce_constants)` + wired `yrs`);
+`R/validators/validate_workforce_truth_contract.R` (guarded top-of-file source + wired `year_min_allowed`); new
+`tests/testthat/test-ssot-observed-start-year.R`. Config YAML left as data, parity-guarded.
+
+**Hardcoded copies removed:** 3 live literals (age-productivity, figure, validator) → 0. Behavior-preserving
+(`WORKFORCE_OBSERVED_START_YEAR == 2013L`; sequences identical; validator's own test 31/0, no regression).
+
+**Validation guards:** `stopifnot` in the constant; the guard's cross-config parity test ties
+`config/expected_workforce_counts.yml`'s `test_years[1]` to the constant.
+
+**Tests added (`test-ssot-observed-start-year.R`, 17/0):** well-formed (precedes projection baseline);
+**adversarial** (all 3 consumers reference the SSOT, no bare `2013` remains); **intentional-difference** (the 2023
+study-scope end and 2024 panel end stay distinct, no end constant folded in); **cross-config parity** (config
+`test_years` begins at the constant, contiguous); **behavior-preserving** (wired sequences equal the literals).
+
+**Initial failures:** none. **Final: observed-start 17/0; validator test 31/0 (no regression); all 39 SSOT guards
+600/0; all 4 touched files parse.**
+
+**Remaining risks:** the FPMRS figure remains PI-gated for its supply numbers (unrelated to this year constant).
+The study-scope END `2023` (validator `year_max_allowed` + config `test_years` end) is a *separate* value that may
+also duplicate `WC_OBS_END` (iter5) — a candidate below.
+
+**Recommended next candidate:** the study-scope END year `2023` — `validate_workforce_truth_contract.R`
+`year_max_allowed <- 2023L` and `config/expected_workforce_counts.yml` `test_years` end; check whether it
+duplicates the engine's `WC_OBS_END` (iter5's observation window) and can be unified without collapsing the
+Medicare-panel 2024 end. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iteration 42 files only
+(`R/workforce_constants.R`, `scripts/fig_fpmrs_supply_line.R`,
+`scripts/urps_module_a_age_productivity_2026-07-23.R`, `R/validators/validate_workforce_truth_contract.R`,
+`tests/testthat/test-ssot-observed-start-year.R`, `docs/SSOT_LEDGER.md`). Iterations 40-41 already landed in
+`a72726c`.
+
+---
+
+## Iteration 43 — study observation-confirmable END year (`2023`) → `WORKFORCE_OBSERVED_END_YEAR`
+
+**Candidate:** the study observation-confirmable END year `2023` — the 3-year-follow-up boundary through which a
+departure can be confirmed; the upper bound of the truth-contract study scope (2013-2023).
+
+**Why higher-risk than alternatives:** it defines which departures the analysis can confirm (right-censoring
+boundary) and which panel years the truth contract admits. `WC_OBS_END <- 2023L` was the engine's authoritative
+constant, but the truth-contract validator **re-hardcoded** the same 2023 as `year_max_allowed <- 2023L` — an
+un-wired duplicate that could silently disagree if one changed (e.g. when 2024 becomes confirmable). The ledger
+(line 374) had explicitly noted `WC_OBS_END` was "not yet individually guarded."
+
+**Audit / provenance:** `R/workforce_cliff_engine.R:26` (`WC_OBS_END <- 2023L`, authoritative),
+`R/validators/validate_workforce_truth_contract.R:103` (`year_max_allowed <- 2023L`, duplicate),
+`config/expected_workforce_counts.yml:74` (`test_years` ends 2023, YAML data).
+
+**Discrepancy adjudication:** both `2023` sites mean the last confirmable observed year → one SSOT. **NOT
+collapsed:** the reference / latest-data year `2024` (engine `WC_REF_YEAR`; the Medicare panel + observed supply
+series run to 2024, iter42) is a *separate* concept — the confirmable-observation end (2023) precedes the
+latest-available-data year (2024) by the 3-year follow-up rule; they must stay distinct.
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_OBSERVED_END_YEAR <- 2023L` (constant; fail-loud: integer,
+pinned 2023, `> WORKFORCE_OBSERVED_START_YEAR`). Homed in the shared constants file (reachable by both the engine
+and the validator) and the engine **aliases** `WC_OBS_END <- WORKFORCE_OBSERVED_END_YEAR` — matching the existing
+`WC_YEAR0 <- PROJECTION_BASELINE_YEAR` / `WC_HORIZON` / `WC_ENTRY_AGE` engine-alias pattern. Pairs with iter42's
+`WORKFORCE_OBSERVED_START_YEAR`.
+
+**Files changed:** `R/workforce_constants.R` (new constant); `R/workforce_cliff_engine.R:26` (alias);
+`R/validators/validate_workforce_truth_contract.R:103` (wired `year_max_allowed`); new
+`tests/testthat/test-ssot-observed-end-year.R`. Config YAML left as data, parity-guarded.
+
+**Hardcoded copies removed:** 2 live literals (engine + validator) → 0 (engine now aliases; validator references).
+Behavior-preserving (`WC_OBS_END == 2023L` unchanged; the alias resolves at engine load).
+
+**Validation guards:** `stopifnot` in the constant; the guard checks the engine alias + cross-config parity.
+
+**Tests added (`test-ssot-observed-end-year.R`, 18/0):** well-formed + ordered (start < end < baseline);
+**cross-lineage alias** (engine `WC_OBS_END` == constant, and `WC_WIN[2]=2021 <= WC_OBS_END`); **adversarial**
+(engine + validator reference the SSOT, no bare 2023L); **intentional-difference** (2023 end never shares a symbol
+with the 2024 latest-data year; `WC_REF_YEAR` stays 2024, panel stays `:2024`); **cross-config parity**
+(`test_years` last == observation end, first == observed start).
+
+**Initial failures:** 1 — `test-ssot-observed-start-year.R` (iter42) asserted the validator KEEPS
+`year_max_allowed <- 2023L` as a bare literal (to prove the end wasn't folded into the START constant).
+**Classification: obsolete-test-tied-to-old-literal** — iter43 legitimately gave the end its own constant.
+**Fix:** updated that assertion to the canonical form (`year_max_allowed <- WORKFORCE_OBSERVED_END_YEAR`, and
+`!= WORKFORCE_OBSERVED_START_YEAR`); the test's intent (end distinct from start) is preserved and strengthened.
+
+**Final results:** observed-end 18/0; observed-start 18/0 (fixed); obs-window 9/0 + truth-contract 31/0 (no
+regression); **all 40 SSOT guards 619/0**; all touched files parse; engine alias resolves to 2023.
+
+**Remaining risks:** none for this value. `WC_REF_YEAR <- 2024L` (engine reference / latest-data year) remains a
+bare literal that likely duplicates the age-productivity / fig panel end 2024 — a candidate below.
+
+**Recommended next candidate:** the reference / latest-data year `2024` — engine `WC_REF_YEAR <- 2024L` vs the
+`:2024` panel end in `urps_module_a_age_productivity` and `OBS_END`(=2024) in `fig_fpmrs_supply_line`; verify
+they are the same "latest available Medicare year" concept and can be unified as `WORKFORCE_REFERENCE_YEAR`
+without collapsing the 2023 observation end. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-43 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 44 — reference / latest-data year (`2024`) → `WORKFORCE_REFERENCE_YEAR`
+
+**Candidate:** the reference / latest-available-data year `2024` — the year cohort ages are reckoned as-of, and
+the most recent Medicare panel year.
+
+**Why higher-risk than alternatives:** it anchors age reconstruction (`age = reference − cert_year + age-at-cert`)
+and the age-productivity panel extent — a wrong reference year shifts every reconstructed age and therefore the
+age-structured hazard. `WC_REF_YEAR <- 2024L` was authoritative and already aliased by 4 engine-sourcing scripts,
+but the age-productivity script **re-hardcoded** the same reference year as bare `2024` (`birth := 2024-age24`,
+panel end `:2024`) — un-wired duplicates outside the engine lineage.
+
+**Audit / provenance:** `R/workforce_cliff_engine.R:24` (`WC_REF_YEAR <- 2024L`, authoritative; used at :77 for
+age reconstruction; aliased by hierarchical_hazard / abu_pathway / scenario_projection / build_hazard_comparison),
+`scripts/urps_module_a_age_productivity_2026-07-23.R:23` (`birth := 2024-age24`) + `:28` (panel end `:2024`).
+Schema identifiers `medicare_part_b_by_service_2024` / `national_2024` / `w65_2024` in module_bc are Medicare
+TABLE/COLUMN names — **intentional, left literal** (cf. iter24's `_2050` columns).
+
+**Discrepancy adjudication:** the engine reference year and the age-productivity `2024`s are the SAME concept
+(latest Medicare year / age-as-of year) → one SSOT. **NOT collapsed:** the observation-confirmable end `2023`
+(`WORKFORCE_OBSERVED_END_YEAR`, iter43) is one year earlier by the 3-yr follow-up rule; and the module_bc Medicare
+table/column identifiers stay literal (schema, not the value).
+
+**Canonical:** `R/workforce_constants.R::WORKFORCE_REFERENCE_YEAR <- 2024L` (constant; fail-loud: integer, pinned
+2024, `> WORKFORCE_OBSERVED_END_YEAR`, `< PROJECTION_BASELINE_YEAR`). Engine **aliases**
+`WC_REF_YEAR <- WORKFORCE_REFERENCE_YEAR` (matching WC_OBS_END/WC_YEAR0). Completes the year-constants family:
+START 2013 < END 2023 < REFERENCE 2024 < BASELINE 2025 (a `stopifnot` in the guard checks strict monotonicity).
+
+**Files changed:** `R/workforce_constants.R` (new constant); `R/workforce_cliff_engine.R:24` (alias);
+`scripts/urps_module_a_age_productivity_2026-07-23.R` (`birth`, panel end); new
+`tests/testthat/test-ssot-reference-year.R`.
+
+**Hardcoded copies removed:** 3 live literals (engine + 2 in age-productivity) → 0. Behavior-preserving
+(`WC_REF_YEAR == 2024L`; age reconstruction identical; alias resolves at load).
+
+**Validation guards:** `stopifnot` in the constant (ordering vs the neighbouring year constants); the guard checks
+the engine alias, age-reconstruction invariance, and that the Medicare schema names stay literal.
+
+**Tests added (`test-ssot-reference-year.R`, 18/0):** well-formed + full-family monotonicity; **cross-lineage alias**
+(engine `WC_REF_YEAR` == constant, `WC_WIN[2] < WC_REF_YEAR`); **behavior-preserving** (age reconstruction
+unchanged); **adversarial** (engine + age-productivity reference the SSOT, no bare `2024`); **intentional-difference**
+(module_bc `medicare_part_b_by_service_2024` schema name stays literal; the constant did not leak into SQL).
+
+**Initial failures:** 1 — the iter42 start-year guard (uncommitted) asserted the panel end reads literally
+`WORKFORCE_OBSERVED_START_YEAR:2024`, in two blocks (adversarial + intentional-difference). Iter44 wired the panel
+end to `:WORKFORCE_REFERENCE_YEAR`. Also the iter43 end-year guard asserted `WC_REF_YEAR <- 2024L` + the `:2024`
+panel end. **Classification: obsolete-tests-tied-to-old-literals** (cascading from iter44's alias, exactly like the
+iter42→43 cascade). **Fix:** updated all three assertions to the canonical `WORKFORCE_REFERENCE_YEAR` form;
+intent preserved (reference year is still 2024, still one past the 2023 end).
+
+**Final results:** reference-year 18/0; observed-start 18/0 + observed-end 19/0 (both fixed); age-at-cert 10/0 +
+obs-window 9/0 (no regression — both consume `WC_REF_YEAR`); **all 41 SSOT guards 638/0**; engine alias resolves
+to 2024; no bare reference-year literal remains.
+
+**Remaining risks:** none for this value. The workforce year-constants family is now complete (START/END/REFERENCE/
+BASELINE all single-sourced). The module_bc Medicare data-year schema identifiers remain intentional literals
+(guarded).
+
+**Recommended next candidate:** with the year constants exhausted, scan a fresh area — e.g. the older `code/`
+pipeline for an un-audited duplicated constant, or the age-productivity model's spline `df`/age-range bounds
+(`age>=30 & age<=80`, `ns(age, df=4)`) if those bounds are duplicated across the Module-A scripts. Ledger-check
+first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-44 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 45 — reference urology-pathway FTE default (`0.70`) → `URO_FTE_DEFAULT`
+
+**Candidates considered first, STOPPED:** (a) the `1.96` CI z-multiplier in the live `code/` pipeline — already
+ledgered (iter15), and iter15 **explicitly declared** `code/`'s copy "intentionally literal" (its adversarial
+grep scopes to `scripts/`); re-wiring would reverse a recorded decision, so left as-is (iter15 stands). (b) the
+age-productivity `30/80` age bounds + `ns(age, df=4)` — single-site, no duplication. (c) the "2025 averages 1.0"
+normalization — a runtime-computed method (`WBAR`), not a duplicated constant. (d) `OB_BASE_SHARE` — already
+derived (`N_OBGYN/N_TOT`) and single-sourced.
+
+**Candidate selected:** the reference urology-pathway FTE default `0.70` (fraction of a urology-pathway
+urogynecologist's clinical time spent in urogynecology, in the Reference scenario).
+
+**Why higher-risk than alternatives:** it sets the reference/frozen-manuscript pathway blend that the adequacy
+app's headline capacity index keys off. It was duplicated 5× — `model.R` DEFAULTS (`0.70`), `app.R` Reference
+preset (`70`), `app.R` reset handler (`70`), and two guard tests (`0.70`) — while its **sibling `ob_share` was
+already single-sourced** via `round(100*OB_BASE_SHARE)`. That asymmetry (one blend term single-sourced, the other
+hardcoded) is the exact drift trap: a reference-blend change would update `OB_BASE_SHARE` consumers but silently
+leave the `uro_fte` copies stale.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:42` (DEFAULTS `uro_fte=0.70`); `app.R:55` (Reference preset
+`uro_fte=70`); `app.R:222` (reset handler `value=70`); `tests/testthat/test-guards-consistency.R:81`
+(reset_target); `tests/testthat/test-guards-app.R:37` (positional in `project()`). All within the self-contained
+adequacy app; `app.R` + both tests already `source(model.R)`.
+
+**Discrepancy adjudication:** all five are the same reference value (fraction 0.70 = percent 70) → one SSOT.
+**NOT collapsed:** (1) the slider RANGE `uro_fte=list(ref=c(55,85),...)` and the `±0.15` sensitivity perturbation
+are distinct scenario knobs, left literal; (2) same number `0.70` as `WORKFORCE_CONVERSION_FLOOR` (iter10) but a
+DIFFERENT concept (urology clinical-time vs graduate-to-practice conversion) — kept in separate homes, guarded;
+(3) the independent-oracle test fixtures (`DEF_INPUTS`, the fingerprint `reference`/`higher_entr` lists) are
+all-literal input snapshots (`retire=65, ob_share=77, uro_fte=70, …`) that serve as independent checks — left
+literal per iter15's "test-oracle fixtures intentionally literal" precedent.
+
+**Canonical:** `shiny_urps_adequacy/model.R::URO_FTE_DEFAULT <- 0.70` (constant; app-local, next to
+`OB_BASE_SHARE`/`BASE_YEAR`). App-local (self-contained deployment; used only in this app) — the right scope.
+
+**Files changed:** `model.R` (new constant + DEFAULTS); `app.R` (Reference preset + reset handler, now
+`round(100*URO_FTE_DEFAULT)` mirroring `ob_share`); the two DEFAULTS-comparison guard tests; new
+`tests/testthat/test-ssot-uro-fte-default.R`.
+
+**Hardcoded copies removed:** 4 live copies (DEFAULTS + preset + reset + 2 comparison fixtures) → 0. The 3
+independent-oracle fixtures stay literal by design. Behavior-preserving (`0.70` unchanged; `round(100*0.70)==70`).
+
+**Validation guards:** the guard evaluates the constant line (model.R reads data, can't be sourced whole) and
+checks value + wiring + that it did not leak into `workforce_constants.R`.
+
+**Tests added (`test-ssot-uro-fte-default.R`, 19/0):** well-formed proportion; **behavior-preserving** (percent
+form == 70); **adversarial** (model + app reference the SSOT, no bare `uro_fte=0.70`/`=70` preset);
+**intentional-difference** (range `c(55,85)` + `±0.15` preserved; app-local, not in shared constants — same value
+as `WORKFORCE_CONVERSION_FLOOR` but separate home); **consistency** (both adequacy guard tests key off the constant).
+
+**Initial failures:** none. **Final: uro-fte 19/0; all 42 SSOT guards 657/0; adequacy own tests
+(consistency 73/0, model 293/0) — no regression; all touched files parse.**
+
+**Remaining risks:** none for this value. Sibling note: `test-guards-app.R:37`'s positional `0.77` (obgyn_share)
+is a rounded literal of `OB_BASE_SHARE` (0.770) — a separate small test-fixture item, flagged as follow-on.
+
+**Recommended next candidate:** the `test-guards-app.R:37` / fixture `0.77` obgyn_share literal vs the derived
+`OB_BASE_SHARE` (0.770) — a rounded-copy test-fixture gap; OR the adequacy app's `end_year=2050L` default vs
+`DEMAND_HORIZON_END_YEAR` (iter24, self-contained-app parity like BANDS). Both modest, app-local. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-45 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 46 — adequacy app projection horizon END year (`2050`) → `PROJECTION_END_YEAR`
+
+**Candidate:** the adequacy app's projection horizon end year `2050` (the default + maximum of the `end_year`
+slider).
+
+**Why higher-risk than alternatives (vs the `0.77` obgyn fixture):** `2050` is the horizon over which the app's
+entire supply-vs-demand adequacy trajectory is computed, and it is the app-local copy of the **published**
+manuscript horizon end (`DEMAND_HORIZON_END_YEAR`, iter24). It was duplicated 4× within the app (DEFAULTS end,
+slider MAX, slider DEFAULT, reset handler); a drift from the manuscript horizon (or between these copies) would
+make the app project a different window than the paper. The `0.77` alternative is a rounded literal in
+independent-oracle test fixtures (iter15 precedent → leave literal), lower value.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:50` (DEFAULTS `end_year=2050L`); `app.R:168`
+(`sliderInput("end_year", …, 2035, 2050, 2050, …)` — min/max/default); `app.R:225` (reset `value=2050`). Prose
+"2025-2050" comments (app.R:5,81) and the fingerprint fixtures (`end_year=2050` in test-guards-consistency:18-19)
+are narrative / independent-oracle literals, left as-is.
+
+**Discrepancy adjudication:** all four live copies are the same horizon end → one SSOT, and it must equal the
+manuscript `DEMAND_HORIZON_END_YEAR` (parity-guarded). **NOT collapsed:** the slider MINIMUM `2035` (shortest
+selectable horizon) and `BASE_YEAR 2025` (projection START, the app-local copy of `PROJECTION_BASELINE_YEAR`) are
+distinct values, left literal.
+
+**Canonical:** `shiny_urps_adequacy/model.R::PROJECTION_END_YEAR <- 2050L` (constant; app-local, next to
+`BASE_YEAR`). App-local + parity-guarded because the app deploys standalone (cannot source R/), the same
+mechanism used for `URO_FTE_DEFAULT` (iter45) and the `BANDS` snapshot (iter37).
+
+**Files changed:** `model.R` (new constant + DEFAULTS); `app.R` (slider max/default + reset handler); new
+`tests/testthat/test-ssot-adequacy-end-year.R`.
+
+**Hardcoded copies removed:** 4 live copies → 0. Behavior-preserving (`2050` unchanged; `BASE_YEAR:end_year`
+loop bound identical, 26 projected years).
+
+**Validation guards:** the guard evaluates the constant line (model.R can't be sourced whole) and adds a
+**cross-lineage parity** check that `PROJECTION_END_YEAR == DEMAND_HORIZON_END_YEAR` (sources
+`R/demand_denominator.R`), so the app horizon can't silently drift from the manuscript.
+
+**Tests added (`test-ssot-adequacy-end-year.R`, 15/0):** well-formed (end after start); **cross-lineage parity**
+(== manuscript horizon end); **adversarial** (model + app reference the SSOT, no bare `2050` horizon literal);
+**intentional-difference** (slider min `2035` + `BASE_YEAR 2025` distinct, left literal); **behavior-preserving**
+(2025..2050 span + 26-year count unchanged).
+
+**Initial failures:** none. **Final: adequacy-end-year 15/0; all 43 SSOT guards 672/0; adequacy own tests
+(consistency 73/0, model 293/0) — no regression; both touched files parse.**
+
+**Remaining risks:** none for this value. `BASE_YEAR 2025` in the adequacy app is a parallel app-local copy of
+`PROJECTION_BASELINE_YEAR` (iter23) that could get the same parity treatment — a candidate below.
+
+**Recommended next candidate:** the adequacy app's `BASE_YEAR <- 2025L` — the app-local projection START, a
+copy of `PROJECTION_BASELINE_YEAR` (iter23); give it the same app-local-constant + parity-guard treatment as
+`PROJECTION_END_YEAR`, or verify it's already covered. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-46 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 47 — adequacy app per-100k rate base (`1e5`) → app-local `RATE_PER_100K`
+
+**Candidate:** the per-100,000-population rate base `1e5` in the adequacy app (the "urogynecologists per 100k
+women 65+" headline metric).
+
+**Why higher-risk than alternatives (vs `BASE_YEAR` parity-only):** `BASE_YEAR` is already single-sourced within
+the app (defined once, referenced by name) — only a parity gap. The `1e5` was a genuine **within-app
+duplication** (hardcoded twice, `per100k_2025` + `per100k_end`), and it is the same rate base iter25 canonicalized
+as `R/units.R::RATE_PER_100K` — which the active scripts already reference but the self-contained app never wired.
+So this is both a real refactor AND a coverage-completion of iter25 for the standalone app.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:172` (`per100k_2025 = 1e5 * headcount / w65`) + `:173`
+(`per100k_end = 1e5 * …`). Only two `1e5` in the whole app; no `guess_max=1e5` (verified).
+
+**Discrepancy adjudication:** both are the same rate base → one SSOT, and it must equal `R/units.R::RATE_PER_100K`
+(parity-guarded). **NOT collapsed (iter25):** the identical literal `1e5` used as a read_csv/fread `guess_max`
+row hint is a data-loading parameter, not a rate base — the app has none, so nothing to disambiguate here.
+
+**Canonical:** `shiny_urps_adequacy/model.R::RATE_PER_100K <- 1e5` (constant; app-local, same NAME as the R/units.R
+SSOT to make the parity relationship explicit — no collision since the app never sources R/). App-local +
+parity-guarded because the app deploys standalone (cannot source R/), the mechanism used for
+`URO_FTE_DEFAULT`/`PROJECTION_END_YEAR` (iters 45-46).
+
+**Files changed:** `shiny_urps_adequacy/model.R` (new constant + both consumers); new
+`tests/testthat/test-ssot-adequacy-rate-per-100k.R`.
+
+**Hardcoded copies removed:** 2 live copies → 0. Behavior-preserving (`1e5` unchanged).
+
+**Validation guards:** the guard evaluates the constant line (model.R can't be sourced whole) and adds a
+**cross-lineage parity** check that the app `RATE_PER_100K == R/units.R::RATE_PER_100K`.
+
+**Tests added (`test-ssot-adequacy-rate-per-100k.R`, 12/0):** well-formed (1e5); **cross-lineage parity** (==
+R/units.R); **adversarial** (both consumers reference the constant, no bare `1e5 *`); **intentional-difference**
+(no `guess_max=` argument, no other live `1e5`); **behavior-preserving** (per-100k computation identical).
+
+**Initial failures:** 1 — the intentional-difference test `expect_false(any(grepl("guess_max", src)))` matched my
+own **documentation comment** (which mentions "guess_max row hint"), not any code. **Classification:
+test-authoring bug (over-broad literal match), not a refactor issue.** **Fix:** tightened the pattern to
+`guess_max\\s*=` (matches the argument usage, not the prose). Re-ran green.
+
+**Final results:** adequacy-rate 12/0; all 44 SSOT guards 684/0; adequacy own tests (consistency 73/0, model
+293/0) — no regression; model.R parses; no bare `1e5 *` remains.
+
+**Remaining risks:** none for this value. The adequacy app still holds an app-local `BASE_YEAR 2025` (already
+single-sourced, but un-parity-guarded vs `PROJECTION_BASELINE_YEAR`) — a guard-only follow-on.
+
+**Recommended next candidate:** a parity-only guard for the adequacy `BASE_YEAR <- 2025L` vs
+`PROJECTION_BASELINE_YEAR` (iter23) — BASE_YEAR is already single-sourced in the app, so this is a guard-only
+drift check completing the app's year-constant parity set (start + end). Or scan a fresh non-app area. Ledger-check
+first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-47 files. Iterations 40-41 already
+landed in `a72726c`.
+
+---
+
+## Iteration 48 — adequacy app reference entrant inflow (`entrants=64`) → derived `ENTRANTS_DEFAULT`
+
+**Candidate:** the adequacy app's reference annual entrant inflow `64` (the `entrants/yr` slider default).
+
+**Why higher-risk than alternatives (vs `BASE_YEAR` parity-only):** it is duplicated 3× AND, unlike a fixed
+parity constant, it is **derivable** — `64 = mean(GRAD_URPS)`, and the app already sources `GRAD_URPS` (its
+`urps_model_data.R` snapshot). Hardcoding `64` means a change to the ACGME graduate counts would update the
+scripts' `ENTRANTS <- mean(GRAD_URPS)` (iter7/33) and the engine `WC_ENTRANTS[["URPS"]]` but silently leave the
+app's reference stale. Deriving it closes that gap with a true SSOT link (not just a parity check).
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:57` (DEFAULTS `entrants=64L`); `app.R:55` (Reference preset
+`entrants=64`); `app.R:223` (reset handler `value=64`). `GRAD_URPS` is in scope (snapshot sourced at model.R:22);
+`mean(GRAD_URPS)=64`.
+
+**Discrepancy adjudication:** the three reference copies are the same value → derive once. **NOT collapsed:** the
+`Lower entrants=48` / `Higher entrants=80` scenario presets (and the `Stress test` `entrants=48`) are intentional
+scenario values, left literal; the slider range and the independent-oracle test fixtures (`entrants=64`) stay
+literal (iter15 precedent).
+
+**Canonical:** `shiny_urps_adequacy/model.R::ENTRANTS_DEFAULT <- as.integer(round(mean(GRAD_URPS)))` — a **derived
+value** (function of the sourced graduate counts), not a constant, so it tracks `GRAD_URPS`. Fail-loud
+`stopifnot` (positive integer, plausible range). No `==64` pin — pinning would defeat the derivation.
+
+**Files changed:** `shiny_urps_adequacy/model.R` (derived constant + DEFAULTS); `app.R` (Reference preset + reset
+handler); new `tests/testthat/test-ssot-adequacy-entrants.R`.
+
+**Hardcoded copies removed:** 3 live copies → 0 (now derived). Behavior-preserving (`round(mean(GRAD_URPS))==64`).
+
+**Validation guards:** `stopifnot`; the guard sources the snapshot for `GRAD_URPS`, evaluates the derived line in
+that scope, and cross-checks it equals the engine `WC_ENTRANTS[["URPS"]]`.
+
+**Tests added (`test-ssot-adequacy-entrants.R`, 17/0):** derives to 64 (== `round(mean(GRAD_URPS))`); **semantic**
+(derived from `GRAD_URPS`, not a bare 64 — a different cohort derives to a different value); **cross-lineage
+consistency** (== engine URPS entrant mean); **adversarial** (model + app reference `ENTRANTS_DEFAULT`, no bare
+`entrants=64`); **intentional-difference** (`entrants=48`/`80` scenario presets preserved).
+
+**Initial failures:** 1 — the semantic test used `mean(c(60,66,63,66)) = 63.75`, which **rounds back to 64**, so
+the "different vector differs from 64" assertion failed. **Classification: test-authoring bug (bad example
+vector), not a refactor issue.** **Fix:** used `c(60,60,60,60) -> 60` as the clearly-different cohort. Re-ran green.
+
+**Final results:** entrants 17/0; all 45 SSOT guards 701/0; adequacy own tests (consistency 73/0, model 293/0) —
+no regression; model.R + app.R parse; no bare `entrants=64` remains outside the oracle fixtures.
+
+**Remaining risks:** none for this value. The adequacy app still has app-local `entry_age=34` (== `WORKFORCE_ENTRY_AGE`,
+iter26/34) and `BASE_YEAR=2025` (== `PROJECTION_BASELINE_YEAR`) that remain parity-eligible follow-ons.
+
+**Recommended next candidate:** the adequacy app's `entry_age=34L` in DEFAULTS (== `WORKFORCE_ENTRY_AGE`, iter26/34)
+— a self-contained-app parity/constant follow-on like this one; OR `BASE_YEAR` parity. Both app-local. Given 7
+iterations (42-48) are now accumulated uncommitted, a **land** is recommended before continuing. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-48 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 7 iterations (42-48) accumulated uncommitted — recommend landing.**
+
+---
+
+## Iteration 49 — adequacy app physician entry-age default (`entry_age=34`) → `ENTRY_AGE_DEFAULT`
+
+**Candidate:** the adequacy app's physician entry-age default `34` (the `entry_age` slider default).
+
+**Why higher-risk than alternatives:** the entry age is where each annual entrant cohort is injected into the
+age-structured projection — it shapes the whole supply trajectory. It was duplicated 3× in the app (DEFAULTS,
+slider default, reset handler) and is an app-local copy of the study entry age `WORKFORCE_ENTRY_AGE` (iter26/34,
+unified across the engine + demand scripts); a drift between the app and the study value would make the app
+project a different entry cohort than the manuscript.
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:64` (DEFAULTS `entry_age=34L`); `app.R:167`
+(`sliderInput("entry_age", …, 30, 45, 34, …)` — default); `app.R:224` (reset `value=34`). Not derivable (fixed
+study-design value), and the app is self-contained (cannot source R/).
+
+**Discrepancy adjudication:** the three copies are the same value → one SSOT, parity-guarded against
+`WORKFORCE_ENTRY_AGE`. **NOT collapsed:** the slider RANGE `30, 45` (selectable entry-age bounds) is a distinct
+scenario knob, left literal; the independent-oracle test fixtures (`entry_age=34`) stay literal (iter15).
+
+**Canonical:** `shiny_urps_adequacy/model.R::ENTRY_AGE_DEFAULT <- 34L` (constant; app-local, next to
+`ENTRANTS_DEFAULT`; fail-loud `stopifnot` in [30,45]). App-local + parity-guarded, the mechanism used for
+`URO_FTE_DEFAULT`/`PROJECTION_END_YEAR`/`RATE_PER_100K` (iters 45-47).
+
+**Files changed:** `shiny_urps_adequacy/model.R` (new constant + DEFAULTS); `app.R` (slider default + reset
+handler); new `tests/testthat/test-ssot-adequacy-entry-age.R`.
+
+**Hardcoded copies removed:** 3 live copies → 0. Behavior-preserving (`34` unchanged, integer-typed).
+
+**Validation guards:** `stopifnot`; the guard adds a **cross-lineage parity** check that
+`ENTRY_AGE_DEFAULT == WORKFORCE_ENTRY_AGE`.
+
+**Tests added (`test-ssot-adequacy-entry-age.R`, 15/0):** well-formed (in [30,45]); **cross-lineage parity**
+(== `WORKFORCE_ENTRY_AGE`); **adversarial** (model + app reference the SSOT, no bare `entry_age=34`);
+**intentional-difference** (slider range `30, 45` literal, default strictly inside); **behavior-preserving**
+(34, integer).
+
+**Initial failures:** none. **Final: entry-age 15/0; all 46 SSOT guards 716/0; adequacy own tests (consistency
+73/0, model 293/0) — no regression; both touched files parse.**
+
+**Remaining risks:** none for this value. The adequacy app's DEFAULTS/scenario parameters are now largely
+single-sourced (uro_fte, entrants, entry_age, end_year, rate, bands, grad); the remaining raw defaults
+(`retire=65`, `fte_new=0.90`, `haz_mult=1.0`, `demand_mult=1.0`) are app-specific scenario knobs with no external
+canonical, and `BASE_YEAR 2025` is already single-sourced (parity-only follow-on).
+
+**Recommended next candidate:** given the adequacy app is now heavily single-sourced and 8 iterations (42-49) are
+accumulated uncommitted, **LAND first**, then either the `BASE_YEAR` parity guard (guard-only) or pivot to a fresh
+non-app area (e.g. an un-audited duplicated value in `manuscript/R/` figure builders). Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-49 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 8 iterations (42-49) accumulated uncommitted — landing strongly recommended.**
+
+---
+
+## Iteration 50 — manuscript Figure 1 baseline year (`base_year <- 2025L`) → `PROJECTION_BASELINE_YEAR`
+
+**Candidate:** the projection baseline year `2025` in the manuscript Figure 1 trajectory builder
+(`manuscript/R/create_figure1_workforce_projection.R:44`). Fresh non-app area (pivoted off the adequacy app).
+
+**Why higher-risk than alternatives:** it is the x-axis start of the **published** workforce-projection figure,
+and it is a bare copy of the shared `PROJECTION_BASELINE_YEAR` (iter23) — while the SAME function already wires
+`horizon <- WORKFORCE_PROJECTION_HORIZON_YEARS` (iter1). So one half of the figure's `year = base_year + 0:horizon`
+axis tracked the SSOT and the other half was hardcoded; a baseline change would move the horizon end but leave the
+figure's start at 2025, silently mis-labelling the axis.
+
+**Audit / provenance:** `create_figure1_workforce_projection.R:43` (`horizon <- WORKFORCE_PROJECTION_HORIZON_YEARS`,
+already wired) + `:44` (`base_year <- 2025L`, the bare copy), used at `:56` (`year = base_year + 0:horizon`). The
+`baseline_2025` COLUMN identifiers (`:57`, create_workforce_table, the contract) are schema names, left literal.
+
+**Discrepancy adjudication:** `base_year` is the same 2025 as `PROJECTION_BASELINE_YEAR` (verified: `2025 + 4 =
+2029`, the figure endpoint) → one SSOT. **NOT collapsed:** the `baseline_2025` column-name identifiers keep the
+year baked in (schema, cf. iter24's `_2050`).
+
+**Canonical:** `R/workforce_constants.R::PROJECTION_BASELINE_YEAR` (iter23), reachable in this figure builder via
+the contract it already sources (`workforce_data_contract.R` → `workforce_constants.R`), the identical path that
+already delivers `WORKFORCE_PROJECTION_HORIZON_YEARS`. Constant (fixed study year), no new home needed.
+
+**Files changed:** `manuscript/R/create_figure1_workforce_projection.R:44` (bare `2025L` → `PROJECTION_BASELINE_YEAR`);
+new `tests/testthat/test-ssot-figure1-base-year.R`.
+
+**Hardcoded copies removed:** 1 → 0. Behavior-preserving (`PROJECTION_BASELINE_YEAR == 2025L`; axis 2025-2029
+unchanged).
+
+**Validation guards:** the guard confirms reachability via the contract and checks the axis algebra + cross-lineage
+consistency.
+
+**Tests added (`test-ssot-figure1-base-year.R`, 9/0):** **adversarial** (references the SSOT, no bare `base_year <-
+2025L`); reachability (`PROJECTION_BASELINE_YEAR == 2025` via the contract, shares the horizon env);
+**behavior-preserving** (`base_year + 0:horizon == 2025:2029`, endpoint 2029); **cross-lineage consistency**
+(== the demand-lineage `DEMAND_INDEX_BASE_YEAR`, iter22); **intentional-difference** (`baseline_2025` column names
+stay literal, the base_year assignment carries no `2025` literal).
+
+**Initial failures:** none. **Final: figure1-base-year 9/0; all 47 SSOT guards 725/0; file parses; no bare
+`base_year <- 2025L` remains.**
+
+**Remaining risks:** none for this value. The stale `create_workforce_table.R` tribble (dead/PI-gated,
+`docs/FLAG_stale_workforce_table_hardcode.md`) still carries `baseline_2025` data literals — out of scope.
+
+**Recommended next candidate:** other manuscript figure builders (`workforce_figures.R`,
+`create_figure_scenario_projection.R`) for a bare baseline/horizon/ratio-axis literal that duplicates a canonical;
+OR the `BASE_YEAR` adequacy parity guard. Ledger-check first.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-50 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 9 iterations (42-50) accumulated uncommitted — landing strongly recommended before
+continuing.**
+
+---
+
+## Iteration 51 — adequacy app projection START `BASE_YEAR` parity guard (guard-only)
+
+**Candidates surveyed + stopped:** the remaining manuscript figure builders (`create_figure_scenario_projection.R`,
+`workforce_figures.R`) carry `2025/2029` only as prose axis labels + `projected_2029` schema column names — no
+computed-literal duplication. The live hardcoded hex colors (`workforce_figures.R:11`) are single-use (no
+duplication); the table cell colors are in the dead/PI-gated `create_workforce_table.R`. `palette_green_journal`
+is a single-sourced function. **The clean, genuinely-duplicated, un-audited SSOT vein is largely exhausted after
+50 iterations.**
+
+**Candidate selected (guard-only drift protection):** the adequacy app's projection START `BASE_YEAR <- 2025L`.
+
+**Why:** `BASE_YEAR` is already single-sourced within the app (defined once at `model.R:36`, referenced 9× by
+name), so there is no refactor — but nothing tied it to the study baseline `PROJECTION_BASELINE_YEAR` (iter23),
+so the self-contained-app copy could silently drift. This completes the app's projection-window parity set:
+`BASE_YEAR` (start) + `PROJECTION_END_YEAR` (end, iter46). A guard-only iteration, like iter38 (band-hazard
+inputs) and iter39 (GRAD_URPS gap).
+
+**Audit / provenance:** `shiny_urps_adequacy/model.R:36` (`BASE_YEAR <- 2025L`, the sole definition). The only
+other `2025` in non-comment code is the `"SSOT: 2025 index != 100"` error string (message, not a value) and the
+`per100k_2025` / `women_per_efte_2025` output column identifiers (schema).
+
+**Discrepancy adjudication:** none — `BASE_YEAR == PROJECTION_BASELINE_YEAR == 2025`. **NOT collapsed:** the
+`_2025` column-name identifiers (schema) and the diagnostic string stay literal.
+
+**Canonical:** unchanged — `R/workforce_constants.R::PROJECTION_BASELINE_YEAR` (iter23) is the study SSOT;
+`BASE_YEAR` is the app-local copy, now parity-guarded (the app cannot source R/). Added a provenance comment
+only; no code behavior change.
+
+**Files changed:** `shiny_urps_adequacy/model.R` (comment on `BASE_YEAR`); new
+`tests/testthat/test-ssot-adequacy-base-year.R`. **No copies removed** (already single-sourced) — the iteration
+converts an unguarded app-local copy into a guarded one.
+
+**Validation guards / tests added (`test-ssot-adequacy-base-year.R`, 11/0):** well-formed (2025, before the
+horizon end); **cross-lineage parity** (`== PROJECTION_BASELINE_YEAR`); **single-source** (one definition, no
+bare `2025` value in live code beyond it — schema columns + error string excluded); **intentional-difference**
+(`_2025` column names stay literal); **behavior-preserving** (`BASE_YEAR:PROJECTION_END_YEAR == 2025:2050`, 26
+years).
+
+**Initial failures:** none. **Final: base-year 11/0; all 48 SSOT guards 736/0; adequacy own tests (consistency
+73/0, model 293/0) — no regression; model.R parses.**
+
+**Remaining risks:** none for this value. **Strategic note: after 50 substantive refactors, the clean
+duplicated-value vein is exhausted.** Remaining literals are prose labels, schema identifiers, single-site plot
+params, PI-gated numbers, or dead code — none are clean SSOT refactors, and forcing them risks the loop's
+"avoid unrelated cleanup" guardrail.
+
+**Recommended next candidate:** none clean remains for a mechanical refactor. Next best moves are strategic, not
+loop-mechanical: (a) **LAND** the 10 accumulated iterations (42-51) first; (b) resolve a PI-gated item (stale
+workforce table, FPMRS figure supply numbers) with PI input; or (c) tackle the URPS baseline reconciliation
+(explicitly out of loop scope). A further loop iteration would likely produce only marginal guard-only or
+schema-adjacent work.
+
+**Status:** ✅ complete. Uncommitted (loop rule). Working tree = iterations 42-51 files. Iterations 40-41 already
+landed in `a72726c`. **NOTE: 10 iterations (42-51) accumulated uncommitted — landing strongly recommended; clean
+SSOT vein now exhausted.**
+
+---
+
+## Iteration 52 — geographic-access distance bands: investigated, STOPPED (no clean SSOT); vein confirmed exhausted
+
+**Candidate investigated:** the urogyn geographic-access distance bands (`25` / `50` / `100` miles; the `>60`-mile
+underserved-county cutoff) in `scripts/urps_module_d_geographic_access_2026-07-23.R` and
+`scripts/urps_module_d_map_2026-07-23.R` — the last plausible cross-file duplication after the fresh
+demand-module sweep.
+
+**Why STOPPED (loop step 3 — authority unclear + intentional differences + display-coupled):**
+- The two files use **different band schemes**: `geographic_access` reports `≤25 / ≤50 / ≤100 / >100` (a coarse
+  summary table), while `map` uses finer bins `<25 / 25-50 / 50-100 / 100-150 / >150 mi (desert)` with a
+  map-only 150-mi "desert" cutoff. They share `25/50/100` but embed them in **different structures for different
+  outputs** — collapsing them would erase intentional per-output granularity.
+- The shared values live inside **hand-written display-label strings** ("% women 65+ within 25 mi", "25-50 mi",
+  "> 150 mi (desert)") tightly coupled to each file's bins; a constant cannot drive the labels without a larger
+  string-templating refactor.
+- The `>60`-mile underserved cutoff is single-site (`geographic_access:130`) — no duplication.
+- `module_d` already single-sources what it can: `meters_to_miles`/`miles_to_meters` (iter18) and
+  `RATE_PER_100K` (iter25).
+- Authority for "the canonical access-band scheme" cannot be established (table vs map are legitimately
+  different), so per the loop this candidate is stopped, not forced.
+
+**Files changed:** none (ledger note only — records the distance-band investigation so it is not re-audited).
+
+**Conclusion — the clean SSOT vein is exhausted (confirmed twice, iters 51-52).** After **50 substantive
+single-source-of-truth refactors** (iters 1-50) plus guard-completions (iters 38/39/51), every remaining
+hardcoded literal in the active codebase falls into a non-refactorable class:
+- **prose / narrative labels** (figure titles "2025-2029", "Change from 2025 baseline");
+- **schema identifiers** (`baseline_2025`, `_2050`, `medicare_part_b_by_service_2024`, `per100k_2025` column and
+  table names);
+- **single-site plot/model params** (spline `df=4`, age bounds `30/80`, axis padding `1.12`, line colors);
+- **per-output display granularities** (the distance bands above);
+- **PI-gated numbers** (the stale workforce-table tribble + FPMRS-figure supply numbers, both baseline-entangled,
+  `docs/FLAG_stale_workforce_table_hardcode.md`);
+- **deliberately-literal legacy/test-oracle fixtures** (iter15's `code/` scoping; the adequacy fingerprint
+  fixtures);
+- **dead code** (`create_workforce_table.R`).
+Forcing any of these would violate the loop's own "avoid unrelated cleanup / broad architectural refactoring"
+and "never collapse intentional differences" guardrails.
+
+**Recommended next action (NOT a further loop iteration):**
+1. **LAND** the 10 accumulated iterations (42-51) — strongly recommended before anything else.
+2. Then **pause the mechanical SSOT loop** — the clean vein is worked out. Genuinely valuable remaining work is
+   PI-gated (stale table / FPMRS figure) or the out-of-scope URPS baseline reconciliation, none of which is a
+   mechanical single-value refactor.
+
+**Status:** ✅ documented stop (no refactor). Working tree unchanged except this ledger note (iterations 42-51 +
+this entry). Iterations 40-41 already landed in `a72726c`. **NOTE: landing recommended; loop vein exhausted.**
+
+### Iteration 53 addendum — config-vs-code class swept, no clean candidate (exhaustion re-confirmed)
+
+Swept the last un-checked SSOT class — **config YAML values duplicated in code**:
+- `config/fellowship_assumptions.yml` (default `FPMRS:60 / GO:50 / MIG:45`) is **config-single-sourced**: read by
+  the legacy `code/` pipeline (`code/01,04,06`); no `.R` script re-hardcodes it. Its only duplicate is stale
+  legacy manuscript prose (`manuscript/Surgical_workforce_cliff_REVISED.txt`, a pre-reframe `.txt` that also
+  carries the dead fixed retirement rates `4.4/5.2/3.4%`) — not code-refactorable, same PI-gated/legacy class as
+  the stale workforce table. It is a **different lineage** from the current-scripts `WC_GRAD` (iter3;
+  70/73/78/79 · 61/66/63/66 · 47/50/45/47) — legacy config-driven vs current pipeline, intentionally separate.
+- `config/expected_workforce_counts.yml`: regression test-threshold RANGES (intentionally approximate bounds) +
+  `test_years` (already parity-guarded, iters 42/43).
+No refactor. **Every SSOT class is now swept; the clean vein is exhausted.** Firm recommendation: LAND iters
+42-51 and pause the mechanical loop.

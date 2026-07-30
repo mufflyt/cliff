@@ -78,7 +78,7 @@ test_that("validate_scenario_contract rejects stale label / trough / value / fin
 # ---- reset reproduces the reference fingerprint -----------------------------
 test_that("the documented reset target reproduces the reference fingerprint", {
   reset_target <- list(retire=65, entrants=64, entry_age=34, fte_new=0.90,
-    obgyn_share=OB_BASE_SHARE, uro_fte=0.70, haz_mult=1.0, demand_mult=1.0,
+    obgyn_share=OB_BASE_SHARE, uro_fte=URO_FTE_DEFAULT, haz_mult=1.0, demand_mult=1.0,
     weight_on=TRUE, end_year=2050)
   expect_equal(scenario_fp(reset_target), scenario_fp(DEFAULTS))
   expect_true(is_reference_scenario(reset_target))

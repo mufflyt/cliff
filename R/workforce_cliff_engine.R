@@ -21,9 +21,9 @@ WC_WIN         <- c(2016L, 2021L)
 WC_AGE_AT_CERT <- 30L
 WC_HORIZON     <- WORKFORCE_PROJECTION_HORIZON_YEARS   # SSOT: shared with the data contract
 WC_ENTRY_AGE   <- WORKFORCE_ENTRY_AGE   # SSOT: shared entry age (workforce_constants.R)
-WC_REF_YEAR    <- 2024L
+WC_REF_YEAR    <- WORKFORCE_REFERENCE_YEAR   # SSOT: shared reference / latest-data year (workforce_constants.R)
 WC_YEAR0       <- PROJECTION_BASELINE_YEAR   # SSOT: shared projection baseline (workforce_constants.R)
-WC_OBS_END     <- 2023L
+WC_OBS_END     <- WORKFORCE_OBSERVED_END_YEAR   # SSOT: shared observation-confirmable end (workforce_constants.R)
 # WC_SUBS / WC_SUBS_FULL are the canonical subspecialty mappings, now defined in
 # R/workforce_constants.R (sourced above) so both the engine and manuscript lineages share them.
 WC_GRAD      <- list(GO = c(70,73,78,79), URPS = c(61,66,63,66), MIGS = c(47,50,45,47))
@@ -39,8 +39,21 @@ source(here::here("R", "wc_path.R"))
 WC_COHORT_CSV  <- wc_path("cohort_csv")
 WC_ABU_CW      <- wc_path("abu_crosswalk")
 WC_ABU_NN      <- wc_path("abu_net_new")
-wc_duckdb_path <- function() wc_path("signals_duckdb")
+# wc_duckdb_path() is provided by the sourced R/wc_path.R (line above) — do not redefine it here.
 
+#' Assign an age to its workforce age-band label
+#'
+#' Bucket one or more physician ages into the study age bands using the canonical
+#' breakpoints `WC_BANDS` and labels `WC_BAND_LABELS` (right-open intervals, so an
+#' age equal to a breakpoint falls in the upper band).
+#'
+#' @param age Numeric vector of ages in years.
+#' @return A character vector of `WC_BAND_LABELS` values the same length as `age`
+#'   (`"<45"`, `"45-49"`, ..., `"70+"`); `NA` for ages outside the band range.
+#' @seealso `WC_BANDS`, `WC_BAND_LABELS`; guarded by
+#'   `tests/testthat/test-ssot-age-bands.R`.
+#' @examples
+#' \dontrun{ wc_band_of(c(42, 47, 71)) }   # "<45" "45-49" "70+"
 wc_band_of <- function(age) as.character(cut(age, breaks = WC_BANDS, labels = WC_BAND_LABELS, right = FALSE))
 
 .wc_norm_sex <- function(x) { x <- toupper(trimws(as.character(x)))

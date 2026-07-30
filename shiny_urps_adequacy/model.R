@@ -24,10 +24,41 @@ APC    <- fread(dpath("urps_module_a_age_productivity_2026-07-23.csv"))
 DEMAND <- fread(dpath("urps_supply_demand_national_2026-07-23.csv"))
 
 ## ── fixed model pieces ───────────────────────────────────────────────────────
-N_OBGYN <- 1031; N_URO <- 308; N_TOT <- N_OBGYN + N_URO             # baseline 1,339
+N_OBGYN <- 1031; N_URO <- 308; N_TOT <- N_OBGYN + N_URO             # ssot-ok: frozen reproduction of mufflyaccess urps_count(2025,"roster_snapshot","national") = 1,339 (ABOG 1,031 + ABU net-new 308); self-contained deployed app
 OB_BASE_SHARE <- N_OBGYN / N_TOT                                    # 0.770
-BASE_YEAR <- 2025L
-BANDS <- c(0,45,50,55,60,65,70,Inf)
+# Reference urology-pathway clinical-time FTE: fraction of a urology-pathway urogynecologist's clinical time
+# spent in urogynecology (the rest is general urology). This is the reference/frozen-manuscript default that
+# the Reference scenario preset + the reset handler + the guard tests all key off. SSOT for this app; the app
+# slider works in percent (round(100*URO_FTE_DEFAULT)), like ob_share off OB_BASE_SHARE.
+# NOT the graduate-to-practice conversion floor (R/workforce_constants.R::WORKFORCE_CONVERSION_FLOOR, also 0.70):
+# same number, unrelated meaning — do not merge.
+URO_FTE_DEFAULT <- 0.70
+BASE_YEAR <- 2025L   # projection START / index base. App-local copy of R/workforce_constants.R::PROJECTION_BASELINE_YEAR
+                     # (== 2025); the app deploys standalone (cannot source R/), so it is kept in sync by a parity
+                     # guard (tests/testthat/test-ssot-adequacy-base-year.R). Pairs with PROJECTION_END_YEAR below.
+# Projection horizon end year — the default + maximum of the horizon slider. This is the self-contained-app
+# copy of the manuscript horizon end (R/demand_denominator.R::DEMAND_HORIZON_END_YEAR == 2050); the app cannot
+# source R/ (standalone deployment), so it is kept in sync by a parity guard (tests/testthat/test-ssot-adequacy-
+# end-year.R). NOT the slider MINIMUM (2035, the shortest selectable horizon) and NOT BASE_YEAR (2025 start).
+PROJECTION_END_YEAR <- 2050L
+# Per-100,000-population rate base for the "urogynecologists per 100k women 65+" headline metric. App-local copy
+# of R/units.R::RATE_PER_100K (== 1e5), kept in sync by a parity guard; the app deploys standalone and cannot
+# source R/. NOT a read_csv guess_max row hint (iter25 keeps those literal) — this app has no such use.
+RATE_PER_100K <- 1e5
+# Reference annual URPS entrant inflow = mean of the ACGME graduate counts (GRAD_URPS, from the sourced
+# urps_model_data.R snapshot). DERIVED, not hardcoded, so it tracks the graduate counts exactly like the scripts'
+# ENTRANTS <- mean(GRAD_URPS) (iter7/33) and the engine WC_ENTRANTS[["URPS"]]. The Lower/Higher-entrants scenario
+# presets (48 / 80) use their own values and are NOT derived.
+ENTRANTS_DEFAULT <- as.integer(round(mean(GRAD_URPS)))
+stopifnot(is.integer(ENTRANTS_DEFAULT), length(ENTRANTS_DEFAULT) == 1L,
+          ENTRANTS_DEFAULT > 0L, ENTRANTS_DEFAULT < 200L)
+# Physician entry age (the reference/default of the entry-age slider). App-local copy of the study entry age
+# R/workforce_constants.R::WORKFORCE_ENTRY_AGE (== 34, iter26/34); the app deploys standalone and cannot source
+# R/, so it is kept in sync by a parity guard. NOT the slider RANGE 30-45 (the selectable entry-age bounds).
+ENTRY_AGE_DEFAULT <- 34L
+stopifnot(is.integer(ENTRY_AGE_DEFAULT), length(ENTRY_AGE_DEFAULT) == 1L,
+          ENTRY_AGE_DEFAULT >= 30L, ENTRY_AGE_DEFAULT <= 45L)
+# BANDS + BAND_LABELS come from the sourced urps_model_data.R snapshot (SSOT; == engine WC_BANDS)
 band_of <- function(age) as.character(cut(age, breaks=BANDS, labels=BAND_LABELS, right=FALSE))
 HZ  <- HAZ_WINDOWS[["fully_obs"]]; HZ[is.na(HZ)] <- max(HZ, na.rm=TRUE)
 HZ  <- pmin(1, HZ); names(HZ) <- BAND_LABELS   # pmin() strips names -> must re-apply
@@ -38,9 +69,9 @@ WBAR <- sum(count0 * wfun(av0)) / sum(count0)                       # normalize 
 w <- function(a) wfun(a) / WBAR
 
 # Documented default (frozen manuscript) scenario — Guard 63/71 reference.
-DEFAULTS <- list(retire=65L, entrants=64L, entry_age=34L, fte_new=0.90,
-                 obgyn_share=OB_BASE_SHARE, uro_fte=0.70, haz_mult=1.0,
-                 demand_mult=1.0, weight_on=TRUE, end_year=2050L)
+DEFAULTS <- list(retire=65L, entrants=ENTRANTS_DEFAULT, entry_age=ENTRY_AGE_DEFAULT, fte_new=0.90,
+                 obgyn_share=OB_BASE_SHARE, uro_fte=URO_FTE_DEFAULT, haz_mult=1.0,
+                 demand_mult=1.0, weight_on=TRUE, end_year=PROJECTION_END_YEAR)
 
 MODEL_VERSION <- "1.0"
 DATA_THROUGH  <- "2024"
@@ -157,8 +188,8 @@ scenario_summary <- function(d, params, defaults = DEFAULTS) {
     sd_age_end          = e$sd_age,
     # patient-level translation (per literature: report per-100k + patient consequence,
     # not an abstract FTE gap). Load per FTE grows by 1/adequacy.
-    per100k_2025        = 1e5 * b$headcount / b$w65,          # urogynecologists per 100k women 65+
-    per100k_end         = 1e5 * e$headcount / e$w65,
+    per100k_2025        = RATE_PER_100K * b$headcount / b$w65,   # urogynecologists per 100k women 65+ (SSOT rate base)
+    per100k_end         = RATE_PER_100K * e$headcount / e$w65,
     women_per_efte_2025 = b$w65 / b$effective,               # women 65+ per effective FTE
     women_per_efte_end  = e$w65 / e$effective,
     load_increase_pct   = 100*((e$w65/e$effective)/(b$w65/b$effective) - 1),

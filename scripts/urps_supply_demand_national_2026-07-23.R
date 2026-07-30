@@ -33,11 +33,11 @@ demand <- dm[dl[,.(YEAR,w65_lo=women_65plus,pfd_lo=women_with_pfd)], on="YEAR"][
               dh[,.(YEAR,w65_hi=women_65plus,pfd_hi=women_with_pfd)], on="YEAR"]
 
 ## ── SUPPLY: project the workforce engine forward ────────────────────────────
-BANDS <- c(0,45,50,55,60,65,70,Inf)
+# BANDS + BAND_LABELS come from the sourced urps_model_data.R snapshot (SSOT; == engine WC_BANDS)
 band_of <- function(age) as.character(cut(age,breaks=BANDS,labels=BAND_LABELS,right=FALSE))
 hz <- {ev<-BAND_EV[["fully_obs"]]; py<-BAND_PY[["fully_obs"]]; h<-ifelse(py>0,ev/py,NA); h[is.na(h)]<-max(h,na.rm=T); h<-pmin(1,h); names(h)<-BAND_LABELS; h}  # re-name AFTER pmin (pmin strips names)
 haz_for <- function(age,hz){h<-hz[band_of(age)]; h[is.na(h)]<-max(hz,na.rm=T); pmin(1,h)}
-project <- function(ages, entrants, hz, horizon, entry_age=34L){
+project <- function(ages, entrants, hz, horizon, entry_age=WORKFORCE_ENTRY_AGE){  # SSOT: entry age (R/workforce_constants.R via demand_denominator, iter26)
   count<-table(ages); av<-as.integer(names(count)); count<-as.numeric(count)
   traj<-numeric(horizon+1); traj[1]<-sum(count)
   for(h in seq_len(horizon)){ hzz<-haz_for(av,hz); sv<-count*(1-hzz)
@@ -45,7 +45,7 @@ project <- function(ages, entrants, hz, horizon, entry_age=34L){
     if(is.na(ix)){av2<-c(av2,entry_age); sv<-c(sv,entrants)} else sv[ix]<-sv[ix]+entrants
     av<-av2; count<-sv; traj[h+1]<-sum(count) }
   traj }
-HORIZON <- 2050-2025
+HORIZON <- DEMAND_HORIZON_END_YEAR - PROJECTION_BASELINE_YEAR   # SSOT: projection span endpoints (R/demand_denominator.R + workforce_constants.R); trajectory length stays tied to the YEAR axis (line 62)
 ENTRANTS <- mean(GRAD_URPS)   # SSOT: URPS entrant inflow = mean of the ACGME graduate counts (matches module_a, iter7); never hardcode 64
 supply_mid <- project(URPS_AGES, ENTRANTS, hz, HORIZON)
 # Monte Carlo the departure hazard (Beta posterior on the age-band events/PY,

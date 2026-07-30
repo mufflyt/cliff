@@ -16,7 +16,7 @@ apc <- fread("data/urps_module_a_age_productivity_2026-07-23.csv")   # age, rel_
 wfun <- function(a){ a <- pmin(pmax(a, min(apc$age)), max(apc$age)); apc$rel_to_peak[match(a, apc$age)] }
 
 ## ── age-tracked supply projection 2025-2050 (same engine as the SSOT) ───────
-BANDS <- c(0,45,50,55,60,65,70,Inf)
+# BANDS + BAND_LABELS come from the sourced urps_model_data.R snapshot (SSOT; == engine WC_BANDS)
 band_of <- function(age) as.character(cut(age,breaks=BANDS,labels=BAND_LABELS,right=FALSE))
 hz <- {ev<-BAND_EV[["fully_obs"]]; py<-BAND_PY[["fully_obs"]]; hh<-ifelse(py>0,ev/py,NA); hh[is.na(hh)]<-max(hh,na.rm=T); hh<-pmin(1,hh); names(hh)<-BAND_LABELS; hh}
 haz_for <- function(age,hz){h<-hz[band_of(age)]; h[is.na(h)]<-max(hz,na.rm=T); pmin(1,h)}
