@@ -117,3 +117,122 @@ stopifnot(
   WORKFORCE_CI_Z95 > 1.9, WORKFORCE_CI_Z95 < 2.0,
   round(stats::qnorm(0.975), 2) == WORKFORCE_CI_Z95   # it IS the two-sided 95% z (rounded), not an arbitrary number
 )
+
+# WORKFORCE_OUTLOOK_ADEQUATE_MIN / WORKFORCE_OUTLOOK_MARGINAL_MIN + classify_workforce_outlook()
+#   Meaning : the "Workforce Outlook" categorisation of a replacement ratio (graduates / retirements) into
+#             Adequate / Marginal / Insufficient, as published in the manuscript workforce table caption and
+#             the replacement-ratio appendix:
+#               Adequate     if RR >= 1.2   (>= a 20% entry-over-exit buffer)
+#               Marginal     if 0.8 <= RR < 1.2
+#               Insufficient if RR < 0.8    (net workforce decline)
+#   Units   : dimensionless replacement ratio thresholds.
+#   Range   : 0 < MARGINAL_MIN < ADEQUATE_MIN.
+#   Source  : study design (manuscript "Workforce Outlook" bands; appendix_workforce_replacement_ratio.Rmd).
+#   Consumers: scripts/graduate_growth_scenarios.R (the only site that COMPUTES the label). The manuscript
+#             table (create_workforce_table.R) carries the outlook as reviewed data + states these cutpoints in
+#             its caption; a guard checks that caption + the appendix math against these constants.
+#   DISTINCT FROM: the contract's replacement classification classify_replacement() (Above/At/Below replacement,
+#             cuts 0.95/1.05 via WORKFORCE_REPLACEMENT_* in manuscript/R/workforce_data_contract.R). The two are
+#             SEPARATE schemes (different labels, different cutpoints, different tables) and must NOT be merged.
+WORKFORCE_OUTLOOK_ADEQUATE_MIN <- 1.2   # RR >= this -> "Adequate"
+WORKFORCE_OUTLOOK_MARGINAL_MIN <- 0.8   # RR >= this (and < ADEQUATE_MIN) -> "Marginal"; below -> "Insufficient"
+stopifnot(
+  is.numeric(WORKFORCE_OUTLOOK_ADEQUATE_MIN), length(WORKFORCE_OUTLOOK_ADEQUATE_MIN) == 1L,
+  is.numeric(WORKFORCE_OUTLOOK_MARGINAL_MIN), length(WORKFORCE_OUTLOOK_MARGINAL_MIN) == 1L,
+  WORKFORCE_OUTLOOK_MARGINAL_MIN > 0,
+  WORKFORCE_OUTLOOK_MARGINAL_MIN < WORKFORCE_OUTLOOK_ADEQUATE_MIN   # ordered bands
+)
+
+#' Classify a replacement ratio into a workforce-outlook label
+#'
+#' Map a fellowship-replacement ratio (annual graduates / annual retirements) to
+#' the manuscript "Workforce Outlook" category, using the shared cutpoints
+#' `WORKFORCE_OUTLOOK_ADEQUATE_MIN` (>= 1.2) and `WORKFORCE_OUTLOOK_MARGINAL_MIN`
+#' (>= 0.8).
+#'
+#' @details This is the manuscript workforce-table scheme
+#'   (Adequate / Marginal / Insufficient). It is INTENTIONALLY DISTINCT from the
+#'   data contract's replacement classifier `classify_replacement()`
+#'   (Above / At / Below replacement, cutpoints 0.95 / 1.05, in
+#'   `manuscript/R/workforce_data_contract.R`): different labels, different
+#'   cutpoints, different tables. The two must not be merged.
+#' @param ratio Numeric vector of replacement ratios (graduates / retirements);
+#'   `NA` propagates.
+#' @return A character vector the same length as `ratio`, each `"Adequate"`
+#'   (ratio >= 1.2), `"Marginal"` (0.8 <= ratio < 1.2), or `"Insufficient"`
+#'   (ratio < 0.8).
+#' @seealso `WORKFORCE_OUTLOOK_ADEQUATE_MIN`, `WORKFORCE_OUTLOOK_MARGINAL_MIN`.
+#'   Guarded by `tests/testthat/test-ssot-workforce-outlook.R`.
+#' @examples
+#' classify_workforce_outlook(c(0.7, 1.0, 1.3))  # "Insufficient" "Marginal" "Adequate"
+classify_workforce_outlook <- function(ratio) {
+  ifelse(ratio >= WORKFORCE_OUTLOOK_ADEQUATE_MIN, "Adequate",
+         ifelse(ratio >= WORKFORCE_OUTLOOK_MARGINAL_MIN, "Marginal", "Insufficient"))
+}
+
+# WORKFORCE_OBSERVED_START_YEAR
+#   Meaning : the FIRST year of the study's observed administrative data window (the earliest Medicare
+#             fee-for-service year used for the panel / observed supply series / truth-contract year bound).
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year.
+#   Source  : study design (observed data begins 2013).
+#   Consumers: scripts/urps_module_a_age_productivity_2026-07-23.R (panel `yrs`), scripts/fig_fpmrs_supply_line.R
+#             (`OBS_START`), R/validators/validate_workforce_truth_contract.R (`year_min_allowed`).
+#   NOT the window END: the observed window END differs by context and is DELIBERATELY separate — the
+#             truth-contract study scope ends 2023, while the Medicare panel / observed supply series run to the
+#             latest available year 2024. This constant is ONLY the shared start; do not fold an end year into it.
+WORKFORCE_OBSERVED_START_YEAR <- 2013L
+stopifnot(
+  is.integer(WORKFORCE_OBSERVED_START_YEAR),
+  length(WORKFORCE_OBSERVED_START_YEAR) == 1L,
+  !is.na(WORKFORCE_OBSERVED_START_YEAR),
+  WORKFORCE_OBSERVED_START_YEAR == 2013L,               # pin the published observed-window start
+  WORKFORCE_OBSERVED_START_YEAR < PROJECTION_BASELINE_YEAR   # observation precedes the projection baseline
+)
+
+# WORKFORCE_OBSERVED_END_YEAR
+#   Meaning : the LAST fully-observable / confirmable year of the study window — the 3-year-administrative-
+#             follow-up boundary through which a departure can be confirmed (departures dated after this are
+#             right-censored). It is the upper bound of the truth-contract study scope (2013-2023) and the end
+#             of the hazard-observation window's fully-observable range.
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year, after the observed start, at/before the reference year.
+#   Source  : study design (data end 2023-2024 minus the 3-year confirmation rule -> 2023).
+#   Consumers: the engine (R/workforce_cliff_engine.R::WC_OBS_END aliases this) AND
+#             R/validators/validate_workforce_truth_contract.R (`year_max_allowed`).
+#   DISTINCT FROM: the reference / latest-data year 2024 (engine WC_REF_YEAR; the Medicare panel and observed
+#             supply series in scripts/urps_module_a_age_productivity_* and fig_fpmrs_supply_line run to 2024).
+#             The confirmable-observation end (2023) and the latest-available-data year (2024) are separate
+#             concepts and must NOT be collapsed.
+WORKFORCE_OBSERVED_END_YEAR <- 2023L
+stopifnot(
+  is.integer(WORKFORCE_OBSERVED_END_YEAR),
+  length(WORKFORCE_OBSERVED_END_YEAR) == 1L,
+  !is.na(WORKFORCE_OBSERVED_END_YEAR),
+  WORKFORCE_OBSERVED_END_YEAR == 2023L,                          # pin the published observation-confirmable end
+  WORKFORCE_OBSERVED_END_YEAR > WORKFORCE_OBSERVED_START_YEAR    # end follows start
+)
+
+# WORKFORCE_REFERENCE_YEAR
+#   Meaning : the reference / latest-available-data year — the year the cohort's ages are reckoned as-of and the
+#             most recent Medicare fee-for-service year in the panel. Physician age is reconstructed as
+#             (reference year − certification year + age-at-certification), and the age-productivity panel runs
+#             through this year.
+#   Units   : calendar year (integer).
+#   Range   : a single 4-digit year, after the observation-confirmable end, before the projection baseline.
+#   Source  : study design (latest available Medicare data = 2024).
+#   Consumers: the engine (R/workforce_cliff_engine.R::WC_REF_YEAR aliases this; the 4 engine-sourcing scripts
+#             alias WC_REF_YEAR) AND scripts/urps_module_a_age_productivity_2026-07-23.R (age-as-of year + panel end).
+#   DISTINCT FROM: the observation-confirmable end 2023 (WORKFORCE_OBSERVED_END_YEAR; 3-yr follow-up boundary).
+#             The latest-data year (2024) is one year past the last confirmable-departure year (2023); they are
+#             separate concepts and must NOT be collapsed. Also distinct from the module_bc Medicare *table/column*
+#             identifiers `medicare_part_b_by_service_2024` / `national_2024` (schema names, left literal).
+WORKFORCE_REFERENCE_YEAR <- 2024L
+stopifnot(
+  is.integer(WORKFORCE_REFERENCE_YEAR),
+  length(WORKFORCE_REFERENCE_YEAR) == 1L,
+  !is.na(WORKFORCE_REFERENCE_YEAR),
+  WORKFORCE_REFERENCE_YEAR == 2024L,                             # pin the published reference / latest-data year
+  WORKFORCE_REFERENCE_YEAR > WORKFORCE_OBSERVED_END_YEAR,        # latest data is past the confirmable-observation end
+  WORKFORCE_REFERENCE_YEAR < PROJECTION_BASELINE_YEAR           # reference precedes the projection baseline
+)

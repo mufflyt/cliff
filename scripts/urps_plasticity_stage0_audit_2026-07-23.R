@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
+source(here::here("R", "urps_procedure_codes.R"))   # SSOT: anchor procedure codes (labels stay per-output)
 # Stage 0 claims-universe audit + reconstructed PRIMARY-CLINICIAN plasticity
 # matrix for the anchor pelvic-floor codes (Medicare 2024).
 # Decomposes each anchor code into mutually exclusive categories:
@@ -19,8 +20,8 @@ cohmap <- rbind(data.table(npi=as.character(abu$npi[inmodel(abu$in_model_baselin
 cohmap <- unique(cohmap[!is.na(npi)&npi!=""], by="npi")
 dbWriteTable(con, "cohmap", cohmap, temporary=TRUE, overwrite=TRUE)
 
-anchors <- c("57288"="Sling (SUI)","57282"="Apical suspension","51728"="Complex urodynamics",
-             "52287"="Bladder BOTOX")
+anchors <- setNames(c("Sling (SUI)","Apical suspension","Complex urodynamics","Bladder BOTOX"),
+                    urps_anchor_codes())   # SSOT codes (R/urps_procedure_codes.R); labels per-output, order-matched
 APP <- c("Physician Assistant","Nurse Practitioner","Clinical Nurse Specialist",
          "Certified Clinical Nurse Specialist","Certified Registered Nurse Anesthetist")
 OBG <- c("Obstetrics & Gynecology","Gynecological Oncology")
