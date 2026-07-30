@@ -17,8 +17,8 @@ prod_lines <- function() {
   stats::setNames(lapply(fs, readLines, warn = FALSE), fs)
 }
 
-test_that("mufflyaccess supplies the v2.1.0 contract we migrated to", {
-  expect_equal(urps_provenance()$contract_version, "2.1.0")
+test_that("mufflyaccess supplies the v3.0.0 contract we consume", {
+  expect_equal(urps_provenance()$contract_version, "3.0.0")
 })
 
 test_that("the 2025 status-quo baseline is 1339 via the SSOT (value preserved)", {
@@ -27,11 +27,12 @@ test_that("the 2025 status-quo baseline is 1339 via the SSOT (value preserved)",
   expect_equal(n, 1339L)                       # de-hardcoding only: same value
 })
 
-test_that("2023 active (1332) and 2025 roster (1339) are distinct measures", {
-  active_2023 <- urps_count(2023, "board_certified_active", "national", TRUE)
-  roster_2025 <- urps_count(2025, "roster_snapshot",        "national", TRUE)
-  expect_equal(active_2023, 1332L)
+test_that("three URPS baselines are distinct: 1295 legacy / 1306 active / 1339 roster", {
+  active_2023 <- urps_count(2023, "board_certified_active", "national", TRUE)   # current
+  roster_2025 <- urps_count(2025, "roster_snapshot",        "national", TRUE)   # snapshot
+  expect_equal(active_2023, 1306L)       # v3.0.0 current 2023 active (NOT the retired 1332)
   expect_equal(roster_2025, 1339L)
+  expect_false(active_2023 %in% c(1295L, 1332L, 1339L))  # separate from legacy/retired/roster
   expect_false(identical(active_2023, roster_2025))
 })
 
@@ -42,6 +43,21 @@ test_that("the frozen SGS projection still begins at the legacy 1295 baseline", 
   urps <- d[d$subspecialty_abbrev == "URPS", ]
   expect_equal(nrow(urps), 1L)
   expect_equal(as.integer(urps$baseline_2025), 1295L)   # NOT re-baselined
+})
+
+test_that("the new 1306 current-active scenario is sourced from the SSOT, separate from 1295", {
+  # the current-active value is 1306 and is distinct from the frozen cohort (1295)
+  expect_equal(urps_count(2023, "board_certified_active", "national", TRUE), 1306L)
+  expect_equal(urps_count(2023, "board_certified_active", "conus",    TRUE), 1303L)
+  expect_false(urps_count(2023, "board_certified_active", "national", TRUE) == 1295L)
+  # the data contract defines the new scenario constants, routed through urps_count()
+  dc <- file.path(repo_root(), "manuscript", "R", "workforce_data_contract.R")
+  skip_if_not(file.exists(dc), "data contract not present")
+  txt <- readLines(dc, warn = FALSE)
+  expect_true(any(grepl("URPS_2023_ACTIVE_NATIONAL_CURRENT", txt)))     # scenario defined
+  expect_true(any(grepl('urps_count\\(2023, "board_certified_active", "national"', txt)))  # sourced, not a literal
+  # and the legacy cohort is still present and annotated
+  expect_true(any(grepl("URPS_LEGACY_PROJECTION_BASELINE\\s*<-\\s*1295L", txt)))
 })
 
 test_that("2025 status-quo application paths route through urps_count(), not a literal", {

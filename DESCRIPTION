@@ -11,9 +11,12 @@ Imports:
     bit64, blme, broom, bslib, checkmate, chromote, data.table, DBI, digest,
     dplyr, DT, duckdb, eulerr, flextable, forcats, ggplot2, glue, gtsummary,
     here, hms, htmlwidgets, httr, humaniformat, janitor, jsonlite, kableExtra,
-    knitr, leaflet, lme4, lubridate, maps, officer, optparse, patchwork, plotly,
-    purrr, RcppRoll, readr, readxl, rlang, rmarkdown, rsconnect, scales, sf,
-    shiny, shinydashboard, shinytest2, stringr, testthat, tibble, tidycensus,
-    tidygeocoder, tidyr, tidyverse, tigris, usethis, viridis, withr, yaml, zipangu
+    knitr, leaflet, lme4, lubridate, maps, mufflyaccess, officer, optparse,
+    patchwork, plotly, purrr, RcppRoll, readr, readxl, rlang, rmarkdown,
+    rsconnect, scales, sf, shiny, shinydashboard, shinytest2, stringr, testthat,
+    tibble, tidycensus, tidygeocoder, tidyr, tidyverse, tigris, usethis, viridis,
+    withr, yaml, zipangu
+Remotes:
+    mufflyt/mufflyaccess@69a8560
 Note: 'exploratory' (Exploratory.io, non-CRAN) is used by one legacy script and
     is intentionally omitted from Imports; install separately if that script is run.
