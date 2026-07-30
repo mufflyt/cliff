@@ -16,9 +16,20 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(ggplot2) })
 
-source("urps_model_data.R")   # URPS_AGES, BAND_LABELS, BANDS, HAZ_WINDOWS, BAND_EV, BAND_PY, GRAD_URPS
+source("urps_model_data.R")   # URPS_AGES, BAND_LABELS, HAZ_WINDOWS, BAND_EV, BAND_PY, GRAD_URPS
+source("scenario_comparison.R")   # UNC-style multi-scenario comparison module (contract v3.0.0)
 
-# BANDS (age-band breakpoints) now comes from urps_model_data.R (SSOT; == engine WC_BANDS)
+# National URPS baseline from the SSOT, never a hardcoded literal. This app
+# models the 2025 status-quo roster, so the baseline is the 2025 roster_snapshot
+# (1339 = 1031 ABOG + 308 ABU net-new). NOTE: 1339 is the roster snapshot, NOT
+# the 2023 board_certified_active count (1332) -- do not conflate them.
+if (!requireNamespace("mufflyaccess", quietly = TRUE))
+  stop("Package 'mufflyaccess' is required (renv::install(\"mufflyt/mufflyaccess\")).", call. = FALSE)
+URPS_BASELINE_SSOT <- mufflyaccess::urps_count(
+  year = 2025, measure = "roster_snapshot", geography = "national",
+  include_urology = TRUE, incomplete = "error")
+
+BANDS <- c(0, 45, 50, 55, 60, 65, 70, Inf)
 # plain-language display labels for the age bands (BAND_LABELS stays the model key)
 BAND_DISPLAY <- c("<45" = "Under 45", "45-49" = "45 to 49", "50-54" = "50 to 54",
                   "55-59" = "55 to 59", "60-64" = "60 to 64", "65-69" = "65 to 69", "70+" = "70 years or older")
@@ -60,7 +71,7 @@ MC_SEED <- 20260718L                       # matches manuscript_WORKFORCE_CLIFF.
   if (is.na(rmp))     rmp   <- 1466
   if (is.na(defer))   defer <- 38
   if (is.null(curve)) curve <- c(0.329, 0.595, 0.881, 0.956, 0.972, 0.984)
-  list(baseline = 1339L, completions = 64L, ratio = 5.02, proj_immediate = round(imm),  # ssot-ok: frozen reproduction of mufflyaccess urps_count(2025,"roster_snapshot","national") = 1,339; self-contained deployed app
+  list(baseline = URPS_BASELINE_SSOT, completions = 64L, ratio = 5.02, proj_immediate = round(imm),
        proj_ramped = round(rmp), deferred_pct = round(defer), ramp_cum = curve,
        source = if (file.exists(proj_f)) "graduation_active_transition CSVs" else "frozen docx 2026-07-21")
 }
@@ -169,7 +180,8 @@ validate_model <- function() {
   chk <- function(cond, msg) if (!isTRUE(cond)) f <<- c(f, msg)
   hz <- adjusted_haz("fully_obs", 1, "obs")
   bands_used <- unique(band_of(sort(unique(URPS_AGES))))
-  chk(length(BASELINE) == 1 && BASELINE == 1339, sprintf("Baseline workforce is %s, expected 1,339.", BASELINE))  # ssot-ok: expected value is mufflyaccess urps_count(2025,"roster_snapshot","national") = 1,339
+  chk(length(BASELINE) == 1 && BASELINE == URPS_BASELINE_SSOT,
+      sprintf("Baseline workforce is %s, expected the SSOT 2025 roster_snapshot (%s).", BASELINE, URPS_BASELINE_SSOT))
   chk(!any(is.na(hz)) && all(BAND_LABELS %in% names(hz)), "Age-band hazard vector has missing names or NA values.")
   chk(sum(is.na(hz[bands_used])) == 0, "Some age bands do not join to a hazard (by-name lookup failed).")
   pr <- project_traj(URPS_AGES, 64, hz, 4)
@@ -371,6 +383,9 @@ main_ui <- bslib::page_sidebar(
             shiny::uiOutput("sv_note"),
             bslib::card(bslib::card_header("Which assumptions change the projected number of physicians most?"), bslib::card_body(shiny::plotOutput("tornado", height = "320px"))))))),
 
+    # ===== 2b. SCENARIO COMPARISON (contract v3.0.0) =====================
+    bslib::nav_panel("Scenario comparison", scenario_comparison_ui("cmp")),
+
     # ===== 3. RESEARCH DETAILS ===========================================
     bslib::nav_panel("Research details",
       bslib::navset_pill(
@@ -406,6 +421,7 @@ main_ui <- bslib::page_sidebar(
 
 # ---- server ----------------------------------------------------------------
 main_server <- function(input, output, session) {
+  scenario_comparison_server("cmp")   # UNC-style contract-v3.0.0 comparison tab
   st <- reactiveValues(base = PRIMARY_PRESET)
   apply_preset <- function(p) {
     updateSliderInput(session, "comp", value = p$comp); updateSliderInput(session, "conv", value = p$conv)

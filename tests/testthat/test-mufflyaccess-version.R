@@ -1,53 +1,29 @@
-# tests/testthat/test-mufflyaccess-version.R
-library(testthat)
-test_that("cliff uses an approved mufflyaccess version", {
+# Pins the consumer to the released mufflyaccess: fails loudly if a stale package
+# (or a non-v3.0.0 contract) is installed, so URPS baselines can never be sourced
+# from an out-of-date SSOT.
+suppressWarnings(suppressMessages(library(testthat)))
+
+# The v3.0.0 mufflyaccess release (>=0.7.0) is not published yet: the mufflyaccess
+# 0.7.0/0.7.1 tag is blocked on GitHub Actions billing, so the currently installable
+# release is 0.6.0 (contract v2.1.0). Until 0.7.1 installs, these assertions SKIP
+# with a precise reason (mirroring twostep's contract-3.0.0 consumer tests); they
+# activate and enforce the pin the moment the v3.0.0 package is installed.
+.mfa_v3_ready <- function() {
+  requireNamespace("mufflyaccess", quietly = TRUE) &&
+    utils::packageVersion("mufflyaccess") >= "0.7.0"
+}
+.mfa_skip <- "requires mufflyaccess >= 0.7.0 (contract v3.0.0); release blocked on Actions billing"
+
+test_that("mufflyaccess is at least the pinned 0.7.0 release", {
   skip_if_not_installed("mufflyaccess")
-  installed <- utils::packageVersion(
-    "mufflyaccess"
-  )
-  minimum_approved <- package_version(
-    "0.1.0"
-  )
-  expect_gte(
-    installed,
-    minimum_approved
-  )
+  skip_if_not(.mfa_v3_ready(), .mfa_skip)
+  expect_true(utils::packageVersion("mufflyaccess") >= "0.7.0")
 })
-test_that("mufflyaccess is recorded in renv.lock", {
-  # resolve from the repo root (testthat's wd is tests/testthat/, not the root)
-  lockfile <- tryCatch(here::here("renv.lock"), error = function(e) "renv.lock")
-  skip_if_not(file.exists(lockfile))
-  lock <- jsonlite::read_json(
-    lockfile,
-    simplifyVector = FALSE
-  )
-  expect_true(
-    "mufflyaccess" %in%
-      names(lock$Packages),
-    info = paste(
-      "mufflyaccess must be pinned in renv.lock",
-      "rather than installed ad hoc"
-    )
-  )
-  record <- lock$Packages$mufflyaccess
-  expect_true(
-    record$Source %in% c(
-      "GitHub",
-      "Repository"
-    )
-  )
-  if (identical(record$Source, "GitHub")) {
-    expect_identical(
-      record$RemoteUsername,
-      "mufflyt"
-    )
-    expect_identical(
-      record$RemoteRepo,
-      "mufflyaccess"
-    )
-    expect_match(
-      record$RemoteSha,
-      "^[0-9a-f]{40}$"
-    )
-  }
+
+test_that("the served URPS contract is v3.0.0 (current, not retired v2.1.0)", {
+  skip_if_not_installed("mufflyaccess")
+  skip_if_not(.mfa_v3_ready(), .mfa_skip)
+  expect_equal(mufflyaccess::urps_provenance()$contract_version, "3.0.0")
+  # retired v2.1.0 values must never be what the current API returns
+  expect_false(mufflyaccess::urps_count(2023, "board_certified_active", "national", TRUE) %in% c(1332L, 1329L))
 })

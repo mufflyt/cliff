@@ -1239,6 +1239,25 @@ btv <- bt %>% dplyr::transmute(
 kable(btv, caption = "**Appendix Table S31.** Age-band-stratified closed-cohort temporal back-test. The board-certified cohort active in 2016 is frozen and rolled forward to 2021 under the age-band hazard model (pure survival, no entrants); the predicted number still active is compared with the observed number within each base-year age band. Calibration is close in the well-populated bands (within a few percent through age 59, which hold the large majority of physicians); the oldest bands contain as few as four to nine physicians per cohort, so their percentage errors reflect small counts rather than model misfit. ABU net-new urogynecologists are absent from the historical back-test cohort (no pre-2024 roster) and are not included.")
 ```
 
+# Appendix S16. Evidence Supporting Scenarios
+
+Modeled after Fraher et al. (Pediatrics 2024;153[S2]:e2023063678C, Table 5), this
+table consolidates the scenarios examined in this supplement: the concrete change
+each applies to the projection and the evidence used to inform its magnitude and
+direction. Every scenario is projected through the same age-structured engine
+(`wc_project`, horizon 4, 64 entrants per year at age 34) with a Binomial Monte
+Carlo 95% interval at a fixed seed, so a change in the projected workforce reflects
+the stated input rather than the model. The detailed results for each scenario
+appear in the preceding appendices.
+
+```{r table-s32-evidence-supporting-scenarios}
+sc <- readr::read_csv(here::here("data", "table_evidence_supporting_scenarios.csv"),
+                      show_col_types = FALSE)
+kable(sc,
+      col.names = c("Scenario", "Implementation", "Evidence"),
+      caption = "**Appendix Table S32.** Evidence supporting scenarios for the urogynecology workforce projection. The primary specification is marked in each scenario family. Modeled after Fraher et al., Pediatrics 2024;153(S2), Table 5.")
+```
+
 # Data Availability
 
 All input data sources are publicly available. Board certification, NPI, practice location, and Medicare and Open Payments records are identifiable professional records; reported analytic results are aggregated. The consolidated
