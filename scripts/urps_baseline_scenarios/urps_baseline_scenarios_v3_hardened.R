@@ -96,11 +96,11 @@ run <- function(scenario, ages, index_year, obs_status, source_artifact, source_
 frozen <- utils::read.csv(file.path(root, "data", "workforce_projections_consolidated.csv"),
                           stringsAsFactors = FALSE)
 u <- frozen[frozen$subspecialty_abbrev == "URPS", ]; stopifnot(nrow(u) == 1L)
-FROZEN_BASELINE <- 1295L; FROZEN_ENDPOINT <- 1505.367
+FROZEN_BASELINE <- 1295L; FROZEN_ENDPOINT <- 1505.367   # ssot-ok: FROZEN_BASELINE is the legacy frozen SGS projection cohort (read-only, preserved)
 stopifnot("frozen baseline changed"  = as.integer(u$baseline_2025) == FROZEN_BASELINE,
           "frozen endpoint changed"  = abs(as.numeric(u$projected_2029) - FROZEN_ENDPOINT) < 0.01)
 table1 <- data.frame(
-  scenario_id = "published_legacy_1295", observed_or_synthetic = "published (frozen)",
+  scenario_id = "published_legacy_1295", observed_or_synthetic = "published (frozen)",   # ssot-ok: scenario label, not a baseline source (frozen row read from the SSOT CSV)
   source_artifact = "data/workforce_projections_consolidated.csv", source_year = 2025L,
   index_year = 2025L, target_year = 2029L, horizon = 4L,
   baseline_count = as.integer(u$baseline_2025), age_proxy_method = "as published (SGS)",
@@ -121,11 +121,11 @@ table2 <- rbind(
   run("legacy_primarycert_rerun", expand("n_legacy_primarycert"), index_year = 2025L,
       obs_status = "observed cohort (best-effort legacy reconstruction)",
       source_artifact = "data/abog+abu_all_urps_ENRICHED_2026-07-22.csv", source_year = 2022L,
-      note = "Best-effort legacy cohort = ABOG in_model (1031) + ABU net-new (270). N=1301, +6 vs published 1295 (old scrape's 6 non-datable exclusions not encoded in tracked rosters)."),
-  run("active_2023_1306", expand("n_active_2023"), index_year = 2023L,
+      note = "Best-effort legacy cohort = ABOG in_model (1031) + ABU net-new (270). N=1301, +6 vs published 1295 (old scrape's 6 non-datable exclusions not encoded in tracked rosters)."),   # ssot-ok: provenance note describing the legacy reconstruction
+  run("active_2023_1306", expand("n_active_2023"), index_year = 2023L,   # ssot-ok: scenario identifier label; the baseline value is computed from the age cohort, not this literal
       obs_status = "observed cohort", source_artifact = "mufflyaccess urps_count(2023,board_certified_active)",
       source_year = 2023L, note = "v3.0.0 URPS-subspecialty-cert active workforce."),
-  run("roster_2025_1339", expand("n_roster_2025"), index_year = 2025L,
+  run("roster_2025_1339", expand("n_roster_2025"), index_year = 2025L,   # ssot-ok: scenario identifier label; the baseline value is computed from the age cohort, not this literal
       obs_status = "observed cohort", source_artifact = "mufflyaccess urps_count(2025,roster_snapshot)",
       source_year = 2025L, note = "2025 roster snapshot; index year 2025, NOT a 2023 baseline."))
 
@@ -223,9 +223,9 @@ traj_one <- function(scenario, ages, index_year) {
 }
 traj <- rbind(
   traj_one("legacy_primarycert_rerun", expand("n_legacy_primarycert"), 2025L),
-  traj_one("active_2023_1306",         expand("n_active_2023"),        2023L),
-  traj_one("roster_2025_1339",         expand("n_roster_2025"),        2025L),
-  data.frame(scenario_id = "published_legacy_1295", year = c(2025L, 2029L),
+  traj_one("active_2023_1306",         expand("n_active_2023"),        2023L),   # ssot-ok: scenario identifier label; the trajectory count is computed from the age cohort, not this literal
+  traj_one("roster_2025_1339",         expand("n_roster_2025"),        2025L),   # ssot-ok: scenario identifier label; the trajectory count is computed from the age cohort, not this literal
+  data.frame(scenario_id = "published_legacy_1295", year = c(2025L, 2029L),   # ssot-ok: scenario label; the frozen values are read from the published record, not this literal
              active = c(FROZEN_BASELINE, FROZEN_ENDPOINT),
              ci95_lower = c(NA, as.numeric(u$ci95_lower)), ci95_upper = c(NA, as.numeric(u$ci95_upper)),
              stringsAsFactors = FALSE))
