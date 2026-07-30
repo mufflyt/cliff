@@ -32,7 +32,7 @@ primary <- tibble::tribble(
   ~fellowship_total_4yr,   ~total_retirements_4yr,
 
   "Urogynecology and Reconstructive Pelvic Surgery", "URPS",
-  1295L, 1505.3672, 15.2,
+  1295L, 1505.3672, 15.2,  # ssot-ok: legacy frozen SGS projection cohort (baseline_2025)
   1476L, 1535L, 16.245,
   0.8809, 11.408178, 64L,
   5.61, "Above replacement",

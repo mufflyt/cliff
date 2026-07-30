@@ -9,10 +9,18 @@ ft <- tryCatch({ f <- systemfonts::system_fonts()$family
 OUT <- here::here("augs_application","figures","cms_styles")
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 
+# 2025 status-quo demand anchor from the SSOT (2025 roster_snapshot = 1339);
+# never a hardcoded literal. This is the roster snapshot, not the 2023 active count.
+if (!requireNamespace("mufflyaccess", quietly = TRUE))
+  stop("Package 'mufflyaccess' is required (renv::install(\"mufflyt/mufflyaccess\")).", call. = FALSE)
+URPS_STATUS_QUO_2025 <- mufflyaccess::urps_count(
+  year = 2025, measure = "roster_snapshot", geography = "national",
+  include_urology = TRUE, incomplete = "error")
+
 d <- read_csv(here::here("data","urps_supply_demand_national_2026-07-23.csv"), show_col_types = FALSE) %>%
-  mutate(demand_equiv    = 1339 * w65_index/100,        # physicians to hold 2025 status quo
-         demand_equiv_lo = 1339 * w65_lo_index/100,
-         demand_equiv_hi = 1339 * w65_hi_index/100,
+  mutate(demand_equiv    = URPS_STATUS_QUO_2025 * w65_index/100,   # physicians to hold 2025 status quo
+         demand_equiv_lo = URPS_STATUS_QUO_2025 * w65_lo_index/100,
+         demand_equiv_hi = URPS_STATUS_QUO_2025 * w65_hi_index/100,
          margin   = supply - demand_equiv,              # capacity margin (physicians)
          adequacy = supply / demand_equiv)              # 1.0 = balance
 yrs <- range(d$YEAR)

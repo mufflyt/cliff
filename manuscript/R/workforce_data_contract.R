@@ -77,7 +77,39 @@ WORKFORCE_SUBSPECIALTIES <- c("URPS", "GO", "MIGS")
 # value change (e.g. after a rerun) touches one place instead of many test files.
 # Raw SSOT values (display rounds ratios to 1 decimal in the manuscript).
 WORKFORCE_HEADLINE_RATIO    <- c(URPS = 5.61,  GO = 7.11,  MIGS = 11.06)   # completion-to-departure
-WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1295L, GO = 1052L, MIGS = 605L)    # 2025 active baseline
+# -- URPS baseline: LEGACY FROZEN PROJECTION COHORT (not a mufflyaccess cell) --
+# URPS = 1295 is the legacy reconciliation cohort (1031 ABOG + 264 model-included
+# ABU net-new) that the frozen, published SGS-deck Monte Carlo projection was run
+# on. It is a projection-cohort baseline, NOT an "active-workforce" count and NOT
+# a mufflyaccess canonical cell. It is intentionally preserved unchanged:
+# re-baselining onto the current SSOT would require re-running that frozen
+# projection (a separate, deliberate task -- do NOT do it in a plumbing migration).
+# The current SSOT cohorts are different and are sourced via mufflyaccess::urps_count()
+# (contract v3.0.0, URPS-subspecialty-cert basis):
+#   2023 board_certified_active / national / +urology = 1306 (ABU 279)  <- current 2023 active
+#   2025 roster_snapshot        / national / +urology = 1339 (ABU 308)  <- 2025 roster
+# 1295 is a legacy projection cohort, not a current active-workforce count, and
+# 1339 (the 2025 roster) is not the 2023 board-certified active count.
+URPS_LEGACY_PROJECTION_BASELINE <- 1295L  # ssot-ok: legacy frozen SGS projection cohort
+attr(URPS_LEGACY_PROJECTION_BASELINE, "metadata") <- list(
+  measure         = "legacy_projection_cohort",
+  cohort          = "1031 ABOG + 264 ABU net-new",
+  purpose         = "reproduce frozen SGS projection",
+  contract_status = "not a mufflyaccess v3.0.0 canonical cell")
+WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1295L, GO = 1052L, MIGS = 605L)    # ssot-ok: legacy frozen SGS projection cohort (URPS); see URPS_LEGACY_PROJECTION_BASELINE
+
+# NEW SCENARIO (contract v3.0.0): the CURRENT 2023 board-certified active workforce,
+# sourced live from mufflyaccess. This is a SEPARATE scenario from the frozen 1295
+# projection cohort above -- it does not replace or re-baseline that projection.
+# National = 1306, CONUS = 1303 (URPS-subspecialty-cert basis). Use this for new
+# analyses that want the current active count; use URPS_LEGACY_PROJECTION_BASELINE
+# only to reproduce the published SGS projection.
+URPS_2023_ACTIVE_NATIONAL_CURRENT <- if (requireNamespace("mufflyaccess", quietly = TRUE))
+  as.integer(mufflyaccess::urps_count(2023, "board_certified_active", "national",
+                                      include_urology = TRUE, incomplete = "error")) else NA_integer_
+URPS_2023_ACTIVE_CONUS_CURRENT <- if (requireNamespace("mufflyaccess", quietly = TRUE))
+  as.integer(mufflyaccess::urps_count(2023, "board_certified_active", "conus",
+                                      include_urology = TRUE, incomplete = "error")) else NA_integer_
 
 # The only legal workforce-outlook labels (headcount replacement balance).
 # "Unknown" is a red flag for a placeholder/zero scaffold and is rejected.

@@ -1,20 +1,15 @@
 # urps_baseline.R   [APPLY IN: cliff, replacing any independent baseline derivation]
 #
-# The ONLY way cliff obtains the URPS baseline. cliff depends on a PINNED release
-# of mufflyaccess and uses these values purely as INPUTS to projections /
-# scenarios. Never derive or hardcode the baseline here.
-# (isochrones builds the roster, mufflyaccess serves the number, cliff models what
-#  happens next.)
+# The ONLY way cliff obtains the national URPS baseline. cliff depends on a
+# PINNED release of mufflyaccess and uses these values purely as INPUTS to
+# projections / scenarios. Never derive or hardcode the baseline here.
+# (Per ARCHITECTURE.md: isochrones builds the roster, mufflyaccess serves the
+#  number, cliff models what happens next.)
 #
-# CONTRACT v2.1.0 (mufflyaccess 0.6.0): the baseline is a (measure, year,
-# geography, pathway) cell. Verified canonical cells:
-#   urps_count(2023, "board_certified_active", "national", incl_urology=TRUE)  -> 1332
-#   urps_count(2023, "board_certified_active", "conus",    incl_urology=TRUE)  -> 1329
-#   urps_count(2023, "board_certified_active", "national", incl_urology=FALSE) -> 1031
-#   urps_count(2025, "roster_snapshot",        "national", incl_urology=TRUE)  -> 1339
-# 1339 is the 2025 roster_snapshot -- NOT the 2023 active baseline. Do not use it  # ssot-ok
-# as the projection starting value. Pathway sub-counts come from urps_count(), not
-# by subtracting literals.
+# CONTRACT v2.1.0: the baseline is a (measure, year, geography, pathway) cell.
+# The canonical 2023 active count is 1332 (national) / 1329 (conus) WITH urology.
+# 1339 is the 2025 roster_snapshot -- NOT the 2023 active baseline. Do not use it
+# as the projection starting value.
 
 #' National URPS baseline for cliff (sourced from mufflyaccess).
 #' @param include_urology FALSE = ABOG-only; TRUE = ABOG + ABU net-new.
@@ -22,7 +17,7 @@
 #' @param year measure year (default 2023).
 #' @param measure "board_certified_active" (default; the active-workforce baseline)
 #'   or "roster_snapshot".
-#' @return integer active count (e.g. 2023/national/with-urology = 1332).  # ssot-ok
+#' @return integer active count (e.g. 2023/national/with-urology = 1332).
 urps_baseline <- function(include_urology = FALSE, geography = "national",
                           year = 2023L, measure = "board_certified_active") {
   if (!requireNamespace("mufflyaccess", quietly = TRUE))
@@ -33,58 +28,11 @@ urps_baseline <- function(include_urology = FALSE, geography = "national",
     include_urology = include_urology, incomplete = "error"))
 }
 
-#' Load a qualified cliff workforce baseline from the mufflyaccess SSOT
-#'
-#' The interface cliff's models call to obtain a baseline count; delegates to
-#' [urps_baseline()] and attaches provenance that keeps the measure year and the
-#' model start year distinct.
-#'
-#' @inheritParams urps_baseline
-#' @return A list with `n_providers`, `source_package` (`"mufflyaccess"`),
-#'   `measure`, `geography`, `measure_year`, and `model_start_year` (the
-#'   projection start, DELIBERATELY separate from the measure year).
-#' @seealso [urps_baseline()], [project_urps_workforce()].
-load_workforce_baseline <- function(include_urology = FALSE, geography = "national",
-                                    year = 2023L, measure = "board_certified_active") {
-  n <- urps_baseline(include_urology = include_urology, geography = geography,
-                     year = year, measure = measure)
-  list(
-    n_providers      = n,
-    source_package   = "mufflyaccess",
-    measure          = measure,
-    geography        = geography,
-    measure_year     = as.integer(year),
-    model_start_year = 2025L   # projection start; NEVER conflated with the measure year
-  )
-}
-
-#' Project the URPS workforce forward from a qualified SSOT baseline
-#'
-#' Minimal net-flow projection seeded from the mufflyaccess baseline: the value at
-#' `baseline_year` equals the SSOT count for the requested cell, and each
-#' subsequent year adds the net of `entrants` minus `retirements`.
-#'
-#' @inheritParams urps_baseline
-#' @param baseline_year Measure year of the baseline cell (default 2023).
-#' @param projection_years Integer vector of years; defaults to `baseline_year`
-#'   through `baseline_year + 12`.
-#' @param entrants,retirements Annual counts entering/leaving the workforce.
-#' @return A data frame with `year` and `n_providers`.
-#' @seealso [load_workforce_baseline()], [urps_baseline()].
-project_urps_workforce <- function(baseline_year = 2023L, include_urology = FALSE,
-                                   geography = "national",
-                                   measure = "board_certified_active",
-                                   projection_years = NULL,
-                                   entrants = 0, retirements = 0) {
-  base <- urps_baseline(include_urology = include_urology, geography = geography,
-                        year = baseline_year, measure = measure)
-  if (is.null(projection_years)) projection_years <- baseline_year:(baseline_year + 12L)
-  years <- as.integer(projection_years)
-  net   <- entrants - retirements
-  data.frame(year = years,
-             n_providers = as.numeric(base) + net * (years - as.integer(baseline_year)))
-}
-
 # Drop-in for the old get_baseline("URPS"): route it through mufflyaccess so the
 # workforce_projections_consolidated.csv baseline is no longer a separate SSOT.
-#   get_baseline("URPS") -> urps_baseline(include_urology = TRUE, geography = "national")   # ssot-ok (1332, 2023 active)
+# Example replacement inside manuscript/R/workforce_statistics.R:
+#   get_baseline <- function(sub) {
+#     if (identical(sub, "URPS"))
+#       return(urps_baseline(include_urology = TRUE, geography = "national"))  # 1332 (2023 active)
+#     ... existing logic for other subspecialties ...
+#   }
