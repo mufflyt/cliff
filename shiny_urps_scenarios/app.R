@@ -314,7 +314,8 @@ main_ui <- bslib::page_sidebar(
         shiny::div(style = sprintf("font-size:12px;color:%s;line-height:1.35;margin-top:-6px;", SLATE),
                    "The manuscript uses 10,000 simulations (random seed 20260718). Set this to 10,000 to reproduce its published 95% range; 2,000 gives a close, faster approximation."))),
     shiny::downloadButton("dl", "Download scenario data", class = "btn-sm btn-primary"),
-    shiny::downloadButton("packet", "Download methods and results", class = "btn-sm btn-outline-primary mt-1")
+    shiny::downloadButton("packet", "Download methods and results", class = "btn-sm btn-outline-primary mt-1"),
+    shiny::downloadButton("packet_json", "Download JSON (machine-readable)", class = "btn-sm btn-outline-primary mt-1")
   ),
 
   # readability baseline: larger body text, dark navy ink, generous wrapping,
@@ -415,6 +416,7 @@ main_ui <- bslib::page_sidebar(
             shiny::HTML("<p>Reproducible exports for the current scenario.</p>"),
             shiny::downloadButton("dl2", "Download scenario data (spreadsheet)", class = "btn-primary mb-2"),
             shiny::downloadButton("packet2", "Download methods and results (text)", class = "btn-outline-primary"),
+            shiny::downloadButton("packet_json2", "Download JSON (machine-readable)", class = "btn-outline-primary"),
             shiny::uiOutput("dl_note")))))
   )
 )
@@ -837,10 +839,62 @@ main_server <- function(input, output, session) {
       "SESSION INFO:", paste0("  ", utils::capture.output(print(utils::sessionInfo()))))
     writeLines(lines, file)
   }
+  # Machine-readable counterpart of analysis_packet(): the SAME provenance, scenario,
+  # results, projection, and age structure emitted as structured JSON for pipelines.
+  analysis_packet_json <- function(file) {
+    m <- model(); q <- mc(); at <- age_table(input$win, input$mult, input$hz70)
+    be_conv <- 100 * m$avg_dep / input$comp; be_comp <- m$avg_dep / (input$conv / 100)
+    modified <- identical(input$preset, "Custom scenario")
+    changes <- if (modified) { p <- PRESETS[[st$base]]; d <- c(); if (!is.null(p)) { if (input$comp!=p$comp) d<-c(d,sprintf("completions %d->%d",p$comp,input$comp)); if (input$conv!=p$conv) d<-c(d,sprintf("conversion %d->%d",p$conv,input$conv)); if (input$mult!=p$mult) d<-c(d,sprintf("multiplier %.1f->%.1f",p$mult,input$mult)); if (input$win!=p$win) d<-c(d,sprintf("window %s->%s",p$win,input$win)); if (input$mort!=p$mort) d<-c(d,sprintf("mortality %d->%d",p$mort,input$mort)) }; paste(d, collapse="; ") } else "none"
+    prespec <- (!modified) && input$comp>=PLAUS$comp[1] && input$comp<=PLAUS$comp[2] && input$conv>=PLAUS$conv[1] && input$mult>=PLAUS$mult[1] && input$mult<=PLAUS$mult[2] && input$mort==0 && input$hz70=="obs"
+    yrs <- 2025 + 0:input$horizon
+    pkt <- list(
+      schema = "urps-analysis-packet/1",
+      generated_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
+      provenance = list(app_commit = APP_GIT_COMMIT, engine_commit = ENGINE_COMMIT,
+                        tree_state = if (isTRUE(TREE_DIRTY)) "dirty" else "clean",
+                        model_data_sha256 = MODELDATA_SHA, mc_seed = MC_SEED, mc_draws = q$draws),
+      scenario = list(selected = input$preset,
+                      status = if (prespec) "prespecified" else if (modified) "modified/exploratory" else "stress/exploratory",
+                      modified_from = if (modified) st$base else NA_character_, changes_from_preset = changes,
+                      completions = input$comp, conversion_pct = input$conv, departure_multiplier = input$mult,
+                      hazard_window = input$win, hz70 = input$hz70, mortality_pct = input$mort,
+                      entry_age = entry_age(), horizon_years = input$horizon, baseline = BASELINE),
+      model = list(engine = "wc_project (R/workforce_cliff_engine.R)",
+                   deterministic = "departures_year = sum(count_age * hazard_band(age)) + extra_deaths; survivors age+1; entrants at entry age; proportional mortality drain; ratio = (completions*conversion)/mean_departures",
+                   monte_carlo = "hazard_band ~ Beta(events+0.5, PY-events+0.5); graduates bootstrap-resampled; interval = parameter uncertainty only"),
+      input_provenance = list(
+        list(quantity="active_workforce",       value=as.character(BASELINE), source="ABOG + ABU rosters",              version="2026-07-14 ABU scrape", category="observed"),
+        list(quantity="fellowship_completions", value="61,66,63,66",          source="ACGME Data Resource Book",         version="recent 4 AY",          category="observed"),
+        list(quantity="departure_hazards",      value="age-band",             source="Medicare/NPPES/ABMS consensus",    version="study window",         category="estimated"),
+        list(quantity="conversion",             value="user",                 source="not observed",                     version=NA_character_,          category="assumption"),
+        list(quantity="additional_mortality",   value="user",                 source="SSA 2020 period life table",       version="2020",                 category="assumption")),
+      results = list(entrants_effective = round(m$entrants_eff, 2), mean_annual_departures = round(m$avg_dep, 2),
+                     ratio = round(m$ratio, 3), projected_year = 2025 + input$horizon, projected = round(m$proj),
+                     growth = round(m$grow), growth_pct = round(m$grow_pct, 1),
+                     mc_ratio_ci95 = c(round(q$ratio_lo, 3), round(q$ratio_hi, 3)),
+                     mc_final_ci95 = c(round(q$final_lo), round(q$final_hi)),
+                     declining_draws = q$n_decline, draws = q$draws,
+                     break_even = list(departure_multiplier = round(m$ratio, 2),
+                                       completions_floor = round(be_comp), conversion_floor_pct = round(be_conv))),
+      projection_table = data.frame(year = yrs, active = round(m$traj),
+                                    departures = c(NA_real_, round(m$dep_yr, 1))),
+      age_structure = data.frame(band = at$band, n = round(at$n), hazard = round(at$hazard, 4),
+                                 exp_dep = round(at$exp_dep, 1), pct_dep = round(at$pct_dep)),
+      citations = c("ACGME Data Resource Book (fellowship completions)",
+                    "American Board of Obstetrics and Gynecology certification records",
+                    "American Board of Urology public verification portal (portal.abu.org), scraped 2026-07-14",
+                    "Social Security Administration Period Life Table, 2020",
+                    "J Am Coll Surg 2026 (national surgeon attrition benchmark, 1.5-1.7%/yr)"),
+      session = list(r_version = R.version.string, platform = R.version$platform))
+    jsonlite::write_json(pkt, file, pretty = TRUE, auto_unbox = TRUE, digits = 6, null = "null")
+  }
   output$dl <- downloadHandler(function() sprintf("urps_scenario_h%dy.csv", input$horizon), scenario_csv)
   output$dl2 <- downloadHandler(function() sprintf("urps_scenario_h%dy.csv", input$horizon), scenario_csv)
   output$packet <- downloadHandler(function() sprintf("urps_analysis_packet_%s.txt", format(Sys.time(), "%Y%m%d_%H%M%S")), analysis_packet)
   output$packet2 <- downloadHandler(function() sprintf("urps_analysis_packet_%s.txt", format(Sys.time(), "%Y%m%d_%H%M%S")), analysis_packet)
+  output$packet_json <- downloadHandler(function() sprintf("urps_analysis_packet_%s.json", format(Sys.time(), "%Y%m%d_%H%M%S")), analysis_packet_json)
+  output$packet_json2 <- downloadHandler(function() sprintf("urps_analysis_packet_%s.json", format(Sys.time(), "%Y%m%d_%H%M%S")), analysis_packet_json)
   output$dl_note <- renderUI(HTML(sprintf("<div style='color:#777;font-size:12px;margin-top:8px;'>App commit %s, engine commit %s. The packet flags a mismatch if the working tree is dirty.</div>", APP_GIT_COMMIT, ENGINE_COMMIT)))
 }
 
