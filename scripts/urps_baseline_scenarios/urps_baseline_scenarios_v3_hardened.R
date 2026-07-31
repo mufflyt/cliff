@@ -237,6 +237,80 @@ utils::write.csv(table2, file.path(sdir, "table2_controlled_sensitivity.csv"), r
 utils::write.csv(decomp, file.path(sdir, "decomposition_count_vs_age.csv"), row.names = FALSE)
 utils::write.csv(eq, file.path(sdir, "engine_equivalence.csv"), row.names = FALSE)
 
+# ============================ detailed provenance =============================
+# A machine-readable provenance record for the scenario analysis: producing code,
+# engine, SSOT contract + cells, input hashes, run parameters, the exact cohort-
+# definition rules, and output hashes. Follows the codebase provenance contract
+# (CLAUDE.md #18 cache provenance / #19 trust-a-number): input fingerprints,
+# code_fingerprint, output content shas, tool versions, and run provenance.
+.sha <- function(p) if (file.exists(p) && requireNamespace("digest", quietly = TRUE))
+  digest::digest(file = p, algo = "sha256") else NA_character_
+.git <- function(...) tryCatch(system2("git", c("-C", root, ...), stdout = TRUE, stderr = FALSE),
+                               error = function(e) character(0))
+this_script <- file.path(sdir, "urps_baseline_scenarios_v3_hardened.R")
+engine_file <- file.path(root, "R", "workforce_cliff_engine.R")
+in_ages   <- file.path(sdir, "urps_cohort_ages_v3.0.0.csv")
+in_frozen <- file.path(root, "data", "workforce_projections_consolidated.csv")
+in_abog   <- file.path(root, "data", "abog_all_urps_ENRICHED_2026-07-22.csv")
+in_abu    <- file.path(root, "data", "abu_all_urps_ENRICHED_2026-07-22.csv")
+mfa_ver <- tryCatch(as.character(utils::packageVersion("mufflyaccess")), error = function(e) NA_character_)
+mfa_ctr <- tryCatch(mufflyaccess::urps_provenance()$contract_version,   error = function(e) NA_character_)
+mfa_src <- tryCatch(mufflyaccess::urps_provenance()$source_git_commit,  error = function(e) NA_character_)
+served  <- tryCatch(as.integer(mufflyaccess::urps_count(2023, "board_certified_active", "national", TRUE)),
+                    error = function(e) NA_integer_)
+out_hash <- function(f) list(file = f, sha256 = .sha(file.path(sdir, f)))
+
+prov <- list(
+  schema       = "cliff-urps-scenario-provenance/1",
+  generated_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
+  producer = list(
+    script = "scripts/urps_baseline_scenarios/urps_baseline_scenarios_v3_hardened.R",
+    script_sha256 = .sha(this_script),
+    git_commit = .git("rev-parse", "HEAD")[1],
+    git_tree_dirty = length(.git("status", "--porcelain")) > 0),
+  engine = list(
+    file = "R/workforce_cliff_engine.R", file_sha256 = .sha(engine_file),
+    fn = "wc_project", loader = "wc_engine_loader.R (pure projection defs only)",
+    version = ENGINE_VERSION,
+    equivalence_vs_reimplementation = list(max_abs = max_abs, max_rel = max_rel)),
+  ssot = list(
+    package = "mufflyaccess", installed_version = mfa_ver, contract_version = mfa_ctr,
+    artifact_source_commit = mfa_src,
+    analysis_cells = list(active_2023_national = 1306L, roster_2025_national = 1339L),   # ssot-ok: provenance: records the v3.0.0 SSOT cells verified against mufflyaccess
+    ssot_tie_verified = isTRUE(served == 1306L),   # ssot-ok: provenance: verifies the installed SSOT serves the v3.0.0 cell
+    note = if (isTRUE(served == 1306L)) "installed mufflyaccess serves the v3.0.0 cells"   # ssot-ok: provenance: notes whether the installed SSOT matches v3.0.0
+           else sprintf("installed mufflyaccess serves %s (pre-v3.0.0); analysis cells taken from the v3.0.0 provider-snapshot age file, verified once 0.7.x installs", served)),
+  parameters = list(
+    entrants_per_year = ENTRANTS, entry_age = ENTRY_AGE, horizon = HORIZON,
+    age_proxy_reference_year = AGE_REF, mc_seed = MC_SEED, mc_draws = MC_DRAWS,
+    hazard_version = HAZARD_VERSION, band_labels = WC_BAND_LABELS,
+    band_events = BAND_EV, band_person_years = BAND_PY, band_hazard = unname(HZ)),
+  cohorts = list(
+    legacy_primarycert_rerun = list(
+      n = sum(ages_tbl$n_legacy_primarycert), age_basis = "age_proxy_from_cert (estimated proxy)",
+      rule = "ABOG in_model_baseline (1031) + ABU status=='net-new (in model)' (270)",
+      source = "data/{abog,abu}_all_urps_ENRICHED_2026-07-22.csv",
+      caveat = "best-effort reconstruction; +6 vs published 1295 (old scrape's 6 non-datable exclusions not encoded in the tracked rosters); authoritative legacy result is the frozen published row"),   # ssot-ok: provenance caveat text; the legacy value is read from the frozen record
+    active_2023_1306 = list(   # ssot-ok: provenance cohort key; the count is summed from the age cohort, not this literal
+      n = sum(ages_tbl$n_active_2023), age_basis = "age_proxy_from_cert (estimated proxy)",
+      rule = "isochrones v3.0.0 provider snapshot, active_2023 == TRUE",
+      source = "mufflyaccess urps_count(2023, board_certified_active, national, TRUE)"),
+    roster_2025_1339 = list(   # ssot-ok: provenance cohort key; the count is summed from the age cohort, not this literal
+      n = sum(ages_tbl$n_roster_2025), age_basis = "age_proxy_from_cert (estimated proxy)",
+      rule = "isochrones v3.0.0 provider snapshot, 2025 roster (in_model_baseline)",
+      source = "mufflyaccess urps_count(2025, roster_snapshot, national, TRUE)")),
+  inputs = list(
+    list(name = "cohort_ages",       path = "scripts/urps_baseline_scenarios/urps_cohort_ages_v3.0.0.csv", sha256 = .sha(in_ages)),
+    list(name = "frozen_projection", path = "data/workforce_projections_consolidated.csv",                 sha256 = .sha(in_frozen)),
+    list(name = "abog_roster",       path = "data/abog_all_urps_ENRICHED_2026-07-22.csv",                  sha256 = .sha(in_abog)),
+    list(name = "abu_roster",        path = "data/abu_all_urps_ENRICHED_2026-07-22.csv",                   sha256 = .sha(in_abu))),
+  outputs = lapply(c("table1_published_preservation.csv", "table2_controlled_sensitivity.csv",
+                     "decomposition_count_vs_age.csv", "scenario_trajectories.csv",
+                     "engine_equivalence.csv", "table_evidence_supporting_scenarios.csv"), out_hash))
+jsonlite::write_json(prov, file.path(sdir, "scenario_provenance.json"),
+                     pretty = TRUE, auto_unbox = TRUE, digits = 10, null = "null")
+cat("wrote scenario_provenance.json (", length(prov$inputs), "inputs,", length(prov$outputs), "outputs hashed)\n")
+
 cat("== equivalence wc_project vs reimplementation: max abs =", signif(max_abs,3),
     " max rel =", signif(max_rel,3), "==\n")
 cat("\n== TABLE 1 (frozen published, preserved) ==\n")
