@@ -222,6 +222,8 @@ The projected workforce declines for FPMRS and Gynecologic Oncology demand urgen
 
 Geographic maldistribution compounds these shortages. Fellowship graduates concentrate in metropolitan academic centers, whereas retiring subspecialists practice more evenly across urban and rural settings. This spatial mismatch threatens to worsen existing rural–urban disparities in access to complex gynecologic surgical care.
 
+We quantified this maldistribution directly for the urogynecology workforce. In a companion analysis of the 1,339 active urogynecologists (the American Board of Obstetrics and Gynecology and American Board of Urology pathways combined), providers practiced in only 386 of approximately 3,143 U.S. counties—87.7% of counties had none—yielding a county-level Gini coefficient of 0.94 and a state-level Gini of 0.56; the five highest-supply states accounted for 38% of the workforce. County-level access varied nearly six-fold between the best- and least-served deciles (23.4 vs 4.0 urogynecologists per 100,000 women aged ≥65 at the 90th versus 10th percentile). The workforce was 96.1% urban and only 1.1% rural, 53.0% female, and 5.7% international medical graduates, and 29.5% practiced within a designated Health Professional Shortage Area. These distributional findings indicate that even where a national replacement ratio appears adequate, access is concentrated in a small number of metropolitan counties.
+
 ### Fellowship Entry and Practice Attrition
 
 Our projections assume all fellowship graduates enter full-time subspecialty practice, representing a conservative best-case scenario. In reality, 10–15% of fellows may pursue part-time practice, non-clinical careers, or international practice. This attrition would further erode replacement ratios, transforming marginal FPMRS and Gynecologic Oncology replacement into clearly insufficient levels.
@@ -232,11 +234,13 @@ Previous gynecologic oncology workforce analyses documented declining geographic
 
 For FPMRS, no prior national workforce projections have been published despite the subspecialty's critical role in managing pelvic floor disorders affecting more than one-quarter of U.S. women. Our identification of marginal replacement (ratio 0.85) represents the first rigorous evidence that FPMRS fellowship capacity is insufficient to maintain current workforce levels.
 
+Our approach parallels the microsimulation framework recently used to forecast the United States pediatric subspecialty workforce through 2040, which ages individual providers forward under age-specific entry and attrition and reports supply at national and subnational levels.^15^ We adopted the same conceptual levers—fellowship inflow, conversion to active practice, and departure—but differed in two respects. First, rather than assuming age-specific attrition, we estimated departure empirically from concordant national registries (National Plan and Provider Enumeration System, Medicare Part B and Part D, Provider Enrollment, Chain, and Ownership System, and Open Payments) and validated it against state medical-board records, yielding 94.4% agreement. Second, we restricted the horizon to five years—the interval over which fellowship-capacity decisions can plausibly respond—and propagated uncertainty through a 10,000-iteration Monte Carlo simulation rather than discrete scenarios. As in the pediatric work, a nationally adequate count can mask maldistribution, which motivated the concentration and composition analysis reported above.
+
 ## Strengths and Limitations
 
 Study strengths include comprehensive national coverage of ABOG-certified subspecialists, validated seven-source retirement detection with high sensitivity and specificity, and probabilistic Monte Carlo projections providing explicit uncertainty quantification. The hierarchical retirement detection system substantially reduces misclassification compared with single-source approaches relying solely on billing cessation or age thresholds.
 
-Several limitations warrant acknowledgment. First, our 4-year projection horizon may underestimate longer-term workforce needs, particularly if retirement rates accelerate as large cohorts certified in the 1990s reach retirement age. Second, we did not model fellowship completion attrition or practice entry failure, assuming all graduates enter full-time subspecialty practice. Third, geographic maldistribution is not addressed in national aggregate projections; state-level and regional analyses would reveal areas facing more severe shortages. Fourth, practice intensity changes (full-time to part-time transitions) are not incorporated, potentially overstating effective workforce capacity. Finally, retirement detection prior to 2025 relies on administrative claims data with a 2-year publication lag, introducing potential misclassification for recent retirement cohorts.
+Several limitations warrant acknowledgment. First, our 4-year projection horizon may underestimate longer-term workforce needs, particularly if retirement rates accelerate as large cohorts certified in the 1990s reach retirement age. Second, we did not model fellowship completion attrition or practice entry failure, assuming all graduates enter full-time subspecialty practice. Third, although we quantified geographic concentration and workforce composition for urogynecology (county-level Gini 0.94), the aggregate temporal projections for gynecologic oncology and MIGS do not yet incorporate this spatial dimension; subspecialty-specific state and regional analyses would reveal areas facing more severe shortages. Fourth, practice intensity changes (full-time to part-time transitions) are not incorporated, potentially overstating effective workforce capacity. Finally, retirement detection prior to 2025 relies on administrative claims data with a 2-year publication lag, introducing potential misclassification for recent retirement cohorts.
 
 # CONCLUSION
 
@@ -275,6 +279,8 @@ Immediate policy interventions are essential: expanding ACGME fellowship positio
 13. Staiger DO, Auerbach DI, Buerhaus PI. Registered nurse labor supply and the recession—are we in a bubble? N Engl J Med 2012;366:1463–5.
 
 14. Simkin J, Brooke HL, Johansson ALV, et al. Inequity in geographic accessibility to cancer screening services in British Columbia, Canada. Cancer Med 2023;12:20825–37.
+
+15. Fraher EP, Knapton A, McCartha E, Leslie LK. Forecasting the future supply of pediatric subspecialists in the United States: 2020–2040. Pediatrics 2024;153(Suppl 2):e2023063678C.
 
 ---
 

@@ -186,6 +186,18 @@ population, years, transformation, uncertainty, **model version**, and a frozen 
   This is the highest-value, lowest-risk integration — it strengthens exactly the weakest part of
   cliff's demand story while keeping the published anchors as a validation backstop.
 
+> **Wired (2026-08-02): HDMM life-course demand as a tier-6 comparison series.**
+> `scripts/urps_demand_denominators_sensitivity.R` now also consumes the
+> reproductive **life-course (HDMM)** contract behind `CLIFF_USE_HDMM_DEMAND=1`,
+> using the same tier/model-agnostic ingestion helpers in `R/dpmm_contract.R`. It
+> reads `tier6_procedural` (the closest analogue to the URPS surgical workforce),
+> rebases to 2025 = 100, and adds `coverage_vs_hdmm` plus a `prev_vs_hdmm`
+> concordance entry. Like the DPMM series it is **comparison-only** (the HDMM
+> coefficient tables are placeholders; its cohort exposure marginals are cited)
+> and is gated on `calibration_status`, so it never replaces the published anchors
+> or the robustness verdict. Config path `hdmm_demand_contract` already exists in
+> `config/cliff_paths.yml`; tests in `tests/testthat/test-dpmm-contract.R`.
+
 ### Stage 3 — Supply structure flows *up*, not down
 - Port cliff's age-structure + hazards + pathway + age–productivity into `simulation` (this *is*
   improvement-plan §6). `simulation` then produces the four supply measures per year/geo/pathway.
