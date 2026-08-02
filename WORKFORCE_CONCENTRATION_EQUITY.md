@@ -12,7 +12,7 @@ existing de-identified roster — no new data collection.
   top-k, rate dispersion, equity breakdown) — base-R/dplyr, runs from a bare clone.
 - **Driver:** `scripts/urps_concentration_equity_2026-08-01.R`
 - **Tests:** `tests/testthat/test-concentration-equity.R`
-- **Figure:** `figures/urps_concentration_lorenz_2026-08-01.svg` (Lorenz curves)
+- **Figure:** `figures/urps_concentration_lorenz_2026-08-01.png` (+ `.tiff`; Lorenz curves)
 - **Tables:** `data/urps_concentration_by_geography_2026-08-01.csv`,
   `data/urps_equity_demographics_2026-08-01.csv`,
   `data/urps_lorenz_states_2026-08-01.csv`,
@@ -48,7 +48,7 @@ existing de-identified roster — no new data collection.
 ratio of 5.8** — the best-served decile of providers sits in counties with
 roughly six times the per-capita supply of the least-served decile.
 
-![Lorenz curves](figures/urps_concentration_lorenz_2026-08-01.svg)
+![Lorenz curves](figures/urps_concentration_lorenz_2026-08-01.png)
 
 ---
 
