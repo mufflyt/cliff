@@ -1,0 +1,9 @@
+modifier,condition,comparison,effect_measure,effect_size,ci_low,ci_high,confidence,source,notes
+obesity,POP_selfreport,overweight (BMI 25-30) vs <25,RR,1.36,1.20,1.53,high,"Giri A et al. Am J Obstet Gynecol 2017;217(1):11-26.e3 (meta-analysis, 22 studies)","Self-reported POP."
+obesity,POP_selfreport,obese (BMI >=30) vs <25,RR,1.47,1.35,1.59,high,"Giri A et al. AJOG 2017 (meta-analysis)","Self-reported POP."
+obesity,POP_objective,overweight (BMI 25-30) vs <25,RR,1.54,1.29,1.83,high,"Giri A et al. AJOG 2017 (meta-analysis)","Objective clinically-significant POP; stronger than self-report."
+obesity,POP_objective,obese (BMI >=30) vs <25,RR,1.71,1.42,2.06,high,"Giri A et al. AJOG 2017 (meta-analysis)","Objective clinically-significant POP."
+bmi_continuous,POP,per +1 kg/m2,OR,1.03,NA,NA,high,"Gyhagen M et al. BJOG 2013 (SWEPOP)","Symptomatic POP."
+birth_weight,POP,per +100 g infant birth weight,OR,1.03,NA,NA,high,"Gyhagen M et al. BJOG 2013 (SWEPOP)","Secondary obstetric exposure."
+hysterectomy,POP_surgery,hysterectomy for prolapse vs other indication,RR,5.5,3.1,9.7,medium,"Mant J et al. Br J Obstet Gynaecol 1997 (Oxford FPA)","Via secondary paraphrase; verify."
+bmi_smoking,UI_any,high BMI and heavy smoking,direction_only,NA,NA,NA,low,"Hannestad YS et al. BJOG 2003;110(3):247-254 (EPINCONT)","Association confirmed; point estimates NOT extracted. Do not use as a number."
