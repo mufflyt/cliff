@@ -1,0 +1,7 @@
+stage,condition,metric,value,ci_low,ci_high,confidence,source,notes
+prevalence,PFD_any,prevalence in US women >=20,0.237,NA,NA,high,"Nygaard I et al. JAMA 2008;300(11):1311-1316 (NHANES 2005-06)","Level anchor. Components UI 15.7%, FI 9.0%, POP 2.9%."
+care_seeking,UI_any,fraction who seek care,0.25,NA,NA,medium,"Minassian VA et al. Int Urogynecol J 2012;23(8):1087-1093","'Iceberg' -- a minority seek care; fewer still see a specialist. Upper bound <25%."
+treatment,SUI_or_POP,lifetime surgery risk by age 80,0.200,0.199,0.202,high,"Wu JM et al. Obstet Gynecol 2014;123(6):1201-1206","Population lifetime risk (US)."
+treatment,SUI,lifetime surgery risk by age 80,0.136,NA,NA,high,"Wu JM et al. Obstet Gynecol 2014","US lifetime risk."
+treatment,POP,lifetime surgery risk by age 80,0.126,NA,NA,high,"Wu JM et al. Obstet Gynecol 2014","US lifetime risk."
+treatment_mix,POP,conservative (pessary/watchful) share of managed patients,0.50,NA,NA,low,"Referral-clinic cohorts (e.g. PMC6394765)","Highly setting-dependent; NOT a population parameter. ~75-77% of US urogynecologists offer pessary first-line."
