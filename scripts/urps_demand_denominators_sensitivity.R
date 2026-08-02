@@ -154,6 +154,39 @@ if (hdmm_flag) {
 }
 use_hdmm <- isTRUE(hdmm_flag) && dpmm_series_usable(D_HDMM)
 
+# --- OPTIONAL: DMDM dynamic multistate prevalence as an alternative series ----
+# Same ingestion seam. Off by default. Enable with CLIFF_USE_DMDM_DEMAND=1 AND a
+# resolvable dmdm_demand_contract path (config/cliff_paths.yml, produced by the
+# simulation repo's export_dmdm_demand_contract()). DMDM is the longitudinal
+# onset/remission/death disease model; tier3_prevalent_pfd is its any-PFD
+# population prevalence -- a dynamic counterpart to the published D1 prevalence.
+# Coefficients are placeholders, so this is a COMPARISON series only: it never
+# replaces the published anchors and never contributes to the robustness verdict.
+dmdm_flag <- tolower(Sys.getenv("CLIFF_USE_DMDM_DEMAND", "")) %in% c("1", "true", "yes", "on")
+D_DMDM <- NULL
+dmdm_status <- NA_character_
+if (dmdm_flag) {
+  dmdm_path <- tryCatch({
+    wcp <- here::here("R", "wc_path.R")
+    if (file.exists(wcp)) { source(wcp); wc_path("dmdm_demand_contract") }
+    else Sys.getenv("WORKFORCE_DMDM_DEMAND_CONTRACT", "")
+  }, error = function(e) "")
+  ct_m <- read_dpmm_demand_contract(dmdm_path)   # generic reader, works on any contract
+  if (!is.null(ct_m)) {
+    dmdm_status <- ct_m$status
+    D_DMDM <- dpmm_alt_d1_index(ct_m$data, d$YEAR, base_year = BASE,
+                                tier = "tier3_prevalent_pfd")   # align + rebase to 2025 = 100
+    cat(sprintf("DMDM dynamic-prevalence demand contract loaded: %s [%s]\n", dmdm_path,
+                if (identical(dmdm_status, "calibrated")) "CALIBRATED" else
+                  sprintf("UNCALIBRATED (calibration_status='%s') - comparison only", dmdm_status)))
+  } else {
+    cat(sprintf("CLIFF_USE_DMDM_DEMAND set but contract not found (%s); using published anchors only.\n",
+                if (nzchar(dmdm_path)) dmdm_path else "<unresolved>"))
+    dmdm_flag <- FALSE
+  }
+}
+use_dmdm <- isTRUE(dmdm_flag) && dpmm_series_usable(D_DMDM)
+
 demand <- tibble(
   YEAR = d$YEAR,
   supply_index                = S,
@@ -179,6 +212,11 @@ if (use_hdmm) {
     mutate(d_hdmm_lifecourse_index = D_HDMM,
            coverage_vs_hdmm        = 100 * supply_index / d_hdmm_lifecourse_index)
 }
+if (use_dmdm) {
+  demand <- demand %>%
+    mutate(d_dmdm_prevalence_index = D_DMDM,
+           coverage_vs_dmdm        = 100 * supply_index / d_dmdm_prevalence_index)
+}
 
 # --- concordance across the three demand definitions -------------------------
 cov <- demand %>% select(coverage_vs_prevalence, coverage_vs_consultations, coverage_vs_surgery)
@@ -200,6 +238,9 @@ if (use_dpmm) {
 }
 if (use_hdmm) {
   rho <- c(rho, prev_vs_hdmm = sp(cov$coverage_vs_prevalence, demand$coverage_vs_hdmm))
+}
+if (use_dmdm) {
+  rho <- c(rho, prev_vs_dmdm = sp(cov$coverage_vs_prevalence, demand$coverage_vs_dmdm))
 }
 
 # --- write outputs -----------------------------------------------------------
@@ -232,6 +273,13 @@ if (use_hdmm) {
               if (identical(hdmm_status, "calibrated")) "calibrated" else "UNCALIBRATED",
               end$d_hdmm_lifecourse_index, end$coverage_vs_hdmm))
   cat("      HDMM is a vaginal-delivery-driven life-course comparison (tier6 procedural);\n")
+  cat("      it does NOT affect the robustness verdict.\n")
+}
+if (use_dmdm) {
+  cat(sprintf("DMDM dynamic prevalence (comparison only, %s): 2050 any-PFD index %.0f | coverage %.0f\n",
+              if (identical(dmdm_status, "calibrated")) "calibrated" else "UNCALIBRATED",
+              end$d_dmdm_prevalence_index, end$coverage_vs_dmdm))
+  cat("      DMDM is a longitudinal onset/remission/death prevalence comparison;\n")
   cat("      it does NOT affect the robustness verdict.\n")
 }
 cat("Wrote", OUT_CSV, "\n")

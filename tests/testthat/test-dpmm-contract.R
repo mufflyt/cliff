@@ -107,3 +107,24 @@ test_that("an absent HDMM tier yields an unusable (empty/NA) series", {
   d <- e$dpmm_alt_d1_index(ct, 2025:2027, tier = "tier7_missing")
   expect_false(e$dpmm_series_usable(d))
 })
+
+# --- DMDM dynamic-multistate contract (tier3) via the same generic helpers ----
+# The dynamic multistate model emits a DMDM contract with tier3_prevalent_pfd
+# (any-PFD dynamic prevalence) + per-condition tiers; cliff consumes tier3 as a
+# comparison series in scripts/urps_demand_denominators_sensitivity.R
+# (CLIFF_USE_DMDM_DEMAND=1).
+
+test_that("the generic reader/index helpers extract the DMDM tier3 prevalence series", {
+  p <- tempfile(fileext = ".csv")
+  write.csv(data.frame(
+    model = "DMDM", calibration_status = "placeholder_uncalibrated",
+    denominator_tier = "tier3_prevalent_pfd", calendar_year = 2025:2030,
+    denominator_index = c(100, 110, 125, 140, 150, 160)), p, row.names = FALSE)
+  ct <- e$read_dpmm_demand_contract(p)
+  expect_equal(ct$status, "placeholder_uncalibrated")
+  d3 <- e$dpmm_alt_d1_index(ct$data, 2025:2035, base_year = 2025L, tier = "tier3_prevalent_pfd")
+  expect_equal(d3[1], 100)                                # 2025 -> 100
+  expect_equal(d3[6], 160)                                # 2030
+  expect_true(all(is.na(d3[(2025:2035) > 2030])))        # NA past the DMDM horizon
+  expect_true(e$dpmm_series_usable(d3))
+})
