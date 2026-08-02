@@ -1,4 +1,8 @@
 #' @title Step 2: Create Figures for Workforce Cliff Manuscript
+#' @section Provenance: PRODUCES figures/figure1_workforce_trajectories.{png,tiff}
+#'   and figures/figure2_replacement_gap.{png,tiff}. READS
+#'   data/workforce_projections_consolidated.csv. Dates, baseline, and the
+#'   manuscript-vs-README figure split are recorded in docs/FIGURE_PROVENANCE.md.
 #' @description This script generates Figure 1 (Workforce projection trajectories) and Figure 2 (Replacement gap visualization)
 #' for the workforce cliff manuscript. It requires the consolidated data from '01_consolidate_workforce_data.R' to be run first.
 #' @author Tyler Muffly, MD / Claude Code

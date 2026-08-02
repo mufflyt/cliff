@@ -2,6 +2,13 @@
 # Manuscript figure builders (return ggplot objects; captions live in the Rmd
 # fig.cap per journal convention, so these plots carry NO baked-in title/subtitle).
 # Palette + theme match scripts/make_cool_cliff_figures.R.
+#
+# PROVENANCE: these builders are called by manuscript_WORKFORCE_CLIFF.Rmd at
+# render time and write manuscript/figures/figure1-1.png and figure2-1.png.
+# They READ data/workforce_projections_consolidated.csv (via load_workforce_data)
+# plus data/graduation_active_transition_projection.csv and, for Figure 2, the
+# hierarchical/sensitivity CSVs. These are the CURRENT (1,306, pooled) figures;
+# see docs/FIGURE_PROVENANCE.md for how they relate to the code/ pipeline figures.
 #   fig_trajectory()  -> Figure 1: 2025-2029 projection, immediate vs transition-adjusted
 #   fig_robustness()  -> Figure 2: completion-to-departure ratio across every stress test
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

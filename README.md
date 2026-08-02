@@ -253,29 +253,40 @@ paste-ready Methods paragraph are in
 
 ## Figure index
 
-Every figure in this README, what produces it, and which baseline it was rendered
-from. All are committed; `.tiff` companions at publication resolution sit beside
-each `.png`.
+Every figure in this README, what produces it, the data it reads, the day it was
+generated (git commit date), and which workforce baseline it reflects. All are
+committed; `.tiff` companions at publication resolution sit beside each `.png`.
+The canonical, fuller record (including the upstream isochrones-to-mufflyaccess
+data lineage) is [`docs/FIGURE_PROVENANCE.md`](docs/FIGURE_PROVENANCE.md); a
+machine-readable copy is [`docs/figure_provenance.csv`](docs/figure_provenance.csv).
 
-| Figure | File | Generator | Baseline |
-|---|---|---|---|
-| Abstract / hero (2026–2030) | `figures/workforce_crisis_abstract.png` | `code/03_create_abstract_figure.R` | manuscript |
-| 1 · Workforce trajectories | `figures/figure1_workforce_trajectories.png` | `code/02_create_figures.R` | manuscript |
-| 2 · Replacement gap | `figures/figure2_replacement_gap.png` | `code/02_create_figures.R` | manuscript |
-| Fellowship scenarios, 2029 level | `figures/scenario_comparison.png` | `code/04_compare_scenarios.R` | 1,306 rebuild |
-| Fellowship scenarios, % change | `figures/scenario_comparison_change.png` | `code/04_compare_scenarios.R` | 1,306 rebuild |
-| Retirement sensitivity, 2029 level | `figures/retirement_sensitivity_workforce.png` | `code/06_retirement_sensitivity.R` | 1,306 rebuild |
-| Retirement sensitivity, % change | `figures/retirement_sensitivity_change.png` | `code/06_retirement_sensitivity.R` | 1,306 rebuild |
-| Differential distance map | `outputs/urps_differential_distance_map_2026-07-23.png` | `scripts/urps_module_d_differential_map.R` | roster (N = 1,339) |
-| Concentration Lorenz curves | `figures/urps_concentration_lorenz_2026-08-01.png` | `scripts/urps_concentration_equity_2026-08-01.R` | roster (N = 1,339) |
-| Access map (interactive) | `outputs/urps_module_d_access_map_2026-07-23.html` | `scripts/urps_module_d_map_2026-07-23.R` | roster (N = 1,339) |
+| Figure | File | Generator | Reads | Generated | Baseline | Status |
+|---|---|---|---|---|---|---|
+| Abstract / hero (2026 to 2030) | `figures/workforce_crisis_abstract.png` | `code/03_create_abstract_figure.R` | `workforce_projections_consolidated.csv` | 2026-08-02 | 1,306 | current |
+| 1 - Workforce trajectories | `figures/figure1_workforce_trajectories.png` | `code/02_create_figures.R` | `workforce_projections_consolidated.csv` | 2026-08-02 | 1,306 | current |
+| 2 - Replacement gap | `figures/figure2_replacement_gap.png` | `code/02_create_figures.R` | `workforce_projections_consolidated.csv` | 2026-08-02 | 1,306 | current |
+| Fellowship scenarios, 2029 level | `figures/scenario_comparison.png` | `code/04_compare_scenarios.R` | `..._consolidated.csv` + `scenario_comparison.csv` | 2026-08-02 | 1,306 | current |
+| Fellowship scenarios, % change | `figures/scenario_comparison_change.png` | `code/04_compare_scenarios.R` | `..._consolidated.csv` + `scenario_comparison.csv` | 2026-08-02 | 1,306 | current |
+| Retirement sensitivity, 2029 level | `figures/retirement_sensitivity_workforce.png` | `code/06_retirement_sensitivity.R` | `..._consolidated.csv` + `retirement_sensitivity.csv` | 2026-08-02 | 1,306 | current |
+| Retirement sensitivity, % change | `figures/retirement_sensitivity_change.png` | `code/06_retirement_sensitivity.R` | `..._consolidated.csv` + `retirement_sensitivity.csv` | 2026-08-02 | 1,306 | current |
+| Differential distance map | `outputs/urps_differential_distance_map_2026-07-23.png` | `scripts/urps_module_d_differential_map.R` | enriched roster | 2026-07-23 | roster (N = 1,339) | current |
+| Concentration Lorenz curves | `figures/urps_concentration_lorenz_2026-08-01.png` | `scripts/urps_concentration_equity_2026-08-01.R` | `abog_*` + `abu_all_urps_ENRICHED_2026-07-22.csv` | 2026-08-02 | roster (N = 1,339) | current |
+| Access map (interactive) | `outputs/urps_module_d_access_map_2026-07-23.html` | `scripts/urps_module_d_map_2026-07-23.R` | enriched roster | 2026-07-23 | roster (N = 1,339) | current |
 
-The "Baseline" column is the split described in the
-[Key Findings](#key-findings) note: the manuscript figures and the scenario /
-sensitivity figures were rendered from different versions of
-`data/workforce_projections_consolidated.csv` and do not currently agree. The
-roster-derived figures are independent of both — they read the committed enriched
-rosters through the shared `inmodel()` filter.
+**Manuscript figures and README figures agree (as of 2026-08-02).** The
+manuscript's Figure 1 and Figure 2 (`manuscript/figures/figure1-1.png`,
+`figure2-1.png`, drawn by `manuscript/R/workforce_figures.R` at render time) and
+the README hero/Fig 1/Fig 2 (`workforce_crisis_abstract`,
+`figure1_workforce_trajectories`, `figure2_replacement_gap`) are all on the
+current 1,306 baseline. The three README figures had lagged at a pre-1,306
+version generated 2026-07-24; they were regenerated on 2026-08-02 from the current
+`data/workforce_projections_consolidated.csv` (see
+[`docs/FIGURE_PROVENANCE.md`](docs/FIGURE_PROVENANCE.md)). If that CSV changes
+again, re-run `Rscript code/02_create_figures.R` and
+`Rscript code/03_create_abstract_figure.R` (and re-render the manuscript) to keep
+them in sync. The roster-derived figures (Lorenz, differential-distance and
+access maps) are independent of the consolidated CSV: they read the committed
+enriched rosters through the shared `inmodel()` filter.
 
 ---
 

@@ -1,4 +1,7 @@
 #' @title Step 3: Create SGS Abstract Figure (Workforce Crisis)
+#' @section Provenance: PRODUCES figures/workforce_crisis_abstract.{png,tiff}.
+#'   READS data/workforce_projections_consolidated.csv. Dates, baseline, and the
+#'   manuscript-vs-README figure split are recorded in docs/FIGURE_PROVENANCE.md.
 #' @description This script recreates the "Gynecologic Surgical Subspecialty Workforce Crisis"
 #' from the SGS abstract submission, featuring a clean trajectory plot with 90% confidence intervals
 #' and endpoint labels.

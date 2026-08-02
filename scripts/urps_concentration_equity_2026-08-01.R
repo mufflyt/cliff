@@ -3,6 +3,12 @@
 # URPS Geographic Concentration & Workforce Equity
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
+# PROVENANCE: PRODUCES figures/urps_concentration_lorenz_<STAMP>.{png,tiff} and
+# the urps_concentration/lorenz/equity CSVs. READS the committed enriched rosters
+# data/abog_all_urps_ENRICHED_2026-07-22.csv and data/abu_all_urps_ENRICHED_2026-07-22.csv
+# (roster N = 1,339) through the shared inmodel() filter. Baseline is the roster,
+# independent of workforce_projections_consolidated.csv. See docs/FIGURE_PROVENANCE.md.
+#
 # Purpose:
 #   Add a distribution / equity lens to the cliff workforce story, inspired by
 #   the Cecil G. Sheps Center pediatric-subspecialty microsimulation (which
