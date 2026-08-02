@@ -67,3 +67,16 @@ hdmm_demand_contract:
   # simulation checkout output.
   path: /Users/tylermuffly/simulation/dpmm_outputs/hdmm_demand_contract_v0.1.0.csv
   env: WORKFORCE_HDMM_DEMAND_CONTRACT
+
+dmdm_demand_contract:
+  # Versioned demand artifact emitted by the simulation repo's dynamic multistate
+  # disease model (DMDM): simulation/R/export_demand_contract.R
+  # export_dmdm_demand_contract() -> dmdm_demand_contract_v<ver>.csv. Carries
+  # tier3_prevalent_pfd (any-PFD dynamic prevalence) plus per-condition tiers.
+  # Read with the same generic seam: read_dpmm_demand_contract() +
+  # dpmm_alt_d1_index(tier = "tier3_prevalent_pfd"). Optional by design: absent
+  # file -> published anchors. The DMDM coefficient tables are placeholders (see
+  # the contract's calibration_status column), so this is off by default. Point it
+  # at your local simulation checkout output.
+  path: /Users/tylermuffly/simulation/dpmm_outputs/dmdm_demand_contract_v0.1.0.csv
+  env: WORKFORCE_DMDM_DEMAND_CONTRACT
