@@ -95,6 +95,7 @@ S <- d$supply_index
 # this is a COMPARISON series only: it never replaces the validated published-
 # anchor D1/D2/D3 default and never contributes to the robustness verdict. See
 # SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md.
+source(here::here("R", "dpmm_contract.R"))   # pure, tested ingestion helpers
 dpmm_flag <- tolower(Sys.getenv("CLIFF_USE_DPMM_DEMAND", "")) %in% c("1", "true", "yes", "on")
 D1_DPMM <- NULL
 dpmm_status <- NA_character_
@@ -104,16 +105,10 @@ if (dpmm_flag) {
     if (file.exists(wcp)) { source(wcp); wc_path("dpmm_demand_contract") }
     else Sys.getenv("WORKFORCE_DPMM_DEMAND_CONTRACT", "")
   }, error = function(e) "")
-  if (nzchar(dpmm_path) && file.exists(dpmm_path)) {
-    dc <- read_csv(dpmm_path, show_col_types = FALSE)
-    if ("calibration_status" %in% names(dc)) dpmm_status <- as.character(dc$calibration_status[1])
-    t3 <- dc %>%
-      filter(denominator_tier == "tier3_prevalent_pfd") %>%
-      transmute(YEAR = as.integer(calendar_year), dpmm_index = as.numeric(denominator_index))
-    j <- tibble(YEAR = d$YEAR) %>% left_join(t3, by = "YEAR")   # align to cliff horizon
-    base_idx <- j$dpmm_index[j$YEAR == BASE]
-    D1_DPMM <- if (length(base_idx) == 1 && !is.na(base_idx) && base_idx > 0)
-      100 * j$dpmm_index / base_idx else j$dpmm_index          # rebase to 2025 = 100
+  ct <- read_dpmm_demand_contract(dpmm_path)
+  if (!is.null(ct)) {
+    dpmm_status <- ct$status
+    D1_DPMM <- dpmm_alt_d1_index(ct$data, d$YEAR, base_year = BASE)   # align + rebase to 2025 = 100
     cat(sprintf("DPMM demand contract loaded: %s [%s]\n", dpmm_path,
                 if (identical(dpmm_status, "calibrated")) "CALIBRATED" else
                   sprintf("UNCALIBRATED (calibration_status='%s') - comparison only", dpmm_status)))
@@ -123,7 +118,7 @@ if (dpmm_flag) {
     dpmm_flag <- FALSE
   }
 }
-use_dpmm <- isTRUE(dpmm_flag) && !is.null(D1_DPMM) && any(!is.na(D1_DPMM))
+use_dpmm <- isTRUE(dpmm_flag) && dpmm_series_usable(D1_DPMM)
 
 demand <- tibble(
   YEAR = d$YEAR,
