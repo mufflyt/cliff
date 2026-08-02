@@ -53,6 +53,11 @@ n_abu <- length(abu_age)
 
 ages <- split((coh %>% filter(ret==FALSE, !is.na(age)))$age, (coh %>% filter(ret==FALSE, !is.na(age)))$ab)
 ages$URPS <- c(ages$URPS, abu_age)
+# cliff#1 (adopt 1306): override the URPS active-age distribution with the canonical
+# v3.0.0 2023 board-certified active cohort (1027 ABOG + 279 ABU); hazards are
+# estimated from the cohort life table (cohort-invariant) and applied to these ages.
+.v3 <- here("data","urps_ages_v3_1306.csv")
+if (file.exists(.v3)) { ages$URPS <- with(utils::read.csv(.v3), rep(age, n)); n_abu <- 279L }
 
 # ---- per-(specialty,band) person-year + event counts -----------------------
 pyrows <- do.call(rbind, lapply(which(coh$ab %in% PRIMARY), function(i){

@@ -441,12 +441,12 @@ test_that("H1 active_baseline == certified_matched - deceased - inactive", {
   expect_equal(f$active_baseline, f$certified_matched - f$removed_deceased - f$removed_inactive)
 })
 
-test_that("H2 ABU flow: 270 identified - 6 no-cert = 264 included; 1031 + 264 = 1295 final", {
+test_that("H2 ABU flow: 308 identified - 29 cert>2023 = 279 active; 1027 + 279 = 1306 final", {
   f <- csv("consort_cohort_flow.csv")
   u <- f[f$ab == "URPS", ]
   expect_equal(u$abu_identified - u$abu_excluded_nocert, u$abu_included)
   expect_equal(u$active_baseline + u$abu_included, u$active_baseline_final)
-  expect_equal(u$active_baseline_final, 1295)
+  expect_equal(u$active_baseline_final, 1306)
 })
 
 test_that("H3 non-URPS cohorts add no ABU physicians; final == baseline", {
