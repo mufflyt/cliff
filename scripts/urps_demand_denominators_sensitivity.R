@@ -120,6 +120,40 @@ if (dpmm_flag) {
 }
 use_dpmm <- isTRUE(dpmm_flag) && dpmm_series_usable(D1_DPMM)
 
+# --- OPTIONAL: HDMM reproductive life-course demand as an alternative series --
+# Same ingestion seam as DPMM (the helpers are tier/model-agnostic). Off by
+# default. Enable with CLIFF_USE_HDMM_DEMAND=1 AND a resolvable
+# hdmm_demand_contract path (config/cliff_paths.yml, produced by the simulation
+# repo's export_hdmm_demand_contract()). The HDMM life-course model's coefficient
+# tables are placeholders (its cohort exposure marginals are cited), so this is a
+# COMPARISON series only -- tier6 procedural demand, the closest analogue to the
+# URPS surgical workforce. It never replaces the published anchors and never
+# contributes to the robustness verdict. See SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md.
+hdmm_flag <- tolower(Sys.getenv("CLIFF_USE_HDMM_DEMAND", "")) %in% c("1", "true", "yes", "on")
+D_HDMM <- NULL
+hdmm_status <- NA_character_
+if (hdmm_flag) {
+  hdmm_path <- tryCatch({
+    wcp <- here::here("R", "wc_path.R")
+    if (file.exists(wcp)) { source(wcp); wc_path("hdmm_demand_contract") }
+    else Sys.getenv("WORKFORCE_HDMM_DEMAND_CONTRACT", "")
+  }, error = function(e) "")
+  ct_h <- read_dpmm_demand_contract(hdmm_path)   # generic reader, works on any contract
+  if (!is.null(ct_h)) {
+    hdmm_status <- ct_h$status
+    D_HDMM <- dpmm_alt_d1_index(ct_h$data, d$YEAR, base_year = BASE,
+                                tier = "tier6_procedural")   # align + rebase to 2025 = 100
+    cat(sprintf("HDMM life-course demand contract loaded: %s [%s]\n", hdmm_path,
+                if (identical(hdmm_status, "calibrated")) "CALIBRATED" else
+                  sprintf("UNCALIBRATED (calibration_status='%s') - comparison only", hdmm_status)))
+  } else {
+    cat(sprintf("CLIFF_USE_HDMM_DEMAND set but contract not found (%s); using published anchors only.\n",
+                if (nzchar(hdmm_path)) hdmm_path else "<unresolved>"))
+    hdmm_flag <- FALSE
+  }
+}
+use_hdmm <- isTRUE(hdmm_flag) && dpmm_series_usable(D_HDMM)
+
 demand <- tibble(
   YEAR = d$YEAR,
   supply_index                = S,
@@ -140,6 +174,11 @@ if (use_dpmm) {
     mutate(d1_dpmm_prevalence_index = D1_DPMM,
            coverage_vs_dpmm         = 100 * supply_index / d1_dpmm_prevalence_index)
 }
+if (use_hdmm) {
+  demand <- demand %>%
+    mutate(d_hdmm_lifecourse_index = D_HDMM,
+           coverage_vs_hdmm        = 100 * supply_index / d_hdmm_lifecourse_index)
+}
 
 # --- concordance across the three demand definitions -------------------------
 cov <- demand %>% select(coverage_vs_prevalence, coverage_vs_consultations, coverage_vs_surgery)
@@ -158,6 +197,9 @@ robust <- all(cov_2050 > 100)   # supply outpaces demand under ALL three PUBLISH
 # keep it OUT of `robust` and the weakest-margin call above.
 if (use_dpmm) {
   rho <- c(rho, prev_vs_dpmm = sp(cov$coverage_vs_prevalence, demand$coverage_vs_dpmm))
+}
+if (use_hdmm) {
+  rho <- c(rho, prev_vs_hdmm = sp(cov$coverage_vs_prevalence, demand$coverage_vs_hdmm))
 }
 
 # --- write outputs -----------------------------------------------------------
@@ -184,6 +226,13 @@ if (use_dpmm) {
               if (identical(dpmm_status, "calibrated")) "calibrated" else "UNCALIBRATED",
               end$d1_dpmm_prevalence_index, end$coverage_vs_dpmm))
   cat("      DPMM is a dynamic-prevalence comparison; it does NOT affect the robustness verdict.\n")
+}
+if (use_hdmm) {
+  cat(sprintf("HDMM life-course (comparison only, %s): 2050 procedural index %.0f | coverage %.0f\n",
+              if (identical(hdmm_status, "calibrated")) "calibrated" else "UNCALIBRATED",
+              end$d_hdmm_lifecourse_index, end$coverage_vs_hdmm))
+  cat("      HDMM is a vaginal-delivery-driven life-course comparison (tier6 procedural);\n")
+  cat("      it does NOT affect the robustness verdict.\n")
 }
 cat("Wrote", OUT_CSV, "\n")
 
