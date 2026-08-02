@@ -54,3 +54,16 @@ dpmm_demand_contract:
   # path is off by default. Point it at your local simulation checkout output.
   path: /Users/tylermuffly/simulation/dpmm_outputs/dpmm_demand_contract_v0.1.0.csv
   env: WORKFORCE_DPMM_DEMAND_CONTRACT
+
+hdmm_demand_contract:
+  # Versioned demand-hierarchy artifact emitted by the simulation repo's
+  # reproductive life-course model (HDMM): simulation/R/export_demand_contract.R
+  # export_hdmm_demand_contract() -> hdmm_demand_contract_v<ver>.csv. Carries
+  # tiers 5-6 (tier5_care_seeking, tier6_procedural). Read with the same generic
+  # seam as the DPMM contract: read_dpmm_demand_contract() + dpmm_alt_d1_index(
+  # tier = "tier6_procedural"). Optional by design: absent file -> published
+  # anchors. The HDMM coefficient tables are placeholders (see the contract's
+  # calibration_status column), so this is off by default. Point it at your local
+  # simulation checkout output.
+  path: /Users/tylermuffly/simulation/dpmm_outputs/hdmm_demand_contract_v0.1.0.csv
+  env: WORKFORCE_HDMM_DEMAND_CONTRACT
