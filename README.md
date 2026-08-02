@@ -136,6 +136,26 @@ pathway (ABU urology vs ABOG OB/GYN).
 
 ---
 
+## Geographic concentration & equity
+
+Beyond the supply-vs-retirement count, cliff reports **how unevenly the workforce
+is distributed** and **who it is** — the distributional lens the Sheps Center
+pediatric-subspecialty model uses at the subnational level. Computed from the
+committed de-identified roster (N = 1,339):
+
+- Active urogynecologists practice in **only 386 of ~3,143 US counties** (87.7%
+  have none); **county Gini 0.94**, state Gini 0.56, top-5 states = 38%.
+- **96% urban / 1.1% rural**; 53% female; 5.7% IMG; 29.5% in a designated HPSA.
+
+Regenerate: `Rscript scripts/urps_concentration_equity_2026-08-01.R`
+— see [`WORKFORCE_CONCENTRATION_EQUITY.md`](WORKFORCE_CONCENTRATION_EQUITY.md)
+(metrics in `R/workforce_concentration_metrics.R`). The modeling precedent and a
+paste-ready Methods paragraph are in
+[`PEDS_SUBSPEC_MICROSIMULATION_COMPARISON.md`](PEDS_SUBSPEC_MICROSIMULATION_COMPARISON.md)
+(Fraher et al., *Pediatrics* 2024;153(Suppl 2):e2023063678C).
+
+---
+
 ## Data Sources
 
 | Source | Years | Purpose |
