@@ -3092,3 +3092,111 @@ Swept the last un-checked SSOT class — **config YAML values duplicated in code
   `test_years` (already parity-guarded, iters 42/43).
 No refactor. **Every SSOT class is now swept; the clean vein is exhausted.** Firm recommendation: LAND iters
 42-51 and pause the mechanical loop.
+
+---
+
+## Iteration 54 — active-baseline cohort filter (`in_model_baseline` predicate) → `R/in_model_baseline.R`
+
+**Candidate:** the predicate that reads the PI-adjudicated `in_model_baseline` flag off the enriched ABOG/ABU
+rosters — the filter defining the 1,339-provider active cohort.
+
+**Why this survived 53 iterations (the "exhausted vein" needs one qualification).** Iterations 1-53 swept
+duplicated **values** — scalars, vectors, config literals. This is a duplicated **predicate**: a filter
+*expression*, not a number. That class was never swept, and it is exactly where a silent cross-module cohort
+divergence would live. The exhaustion conclusion (iters 51/52/53) holds for values; it did not cover expressions.
+
+**Why high-risk vs alternatives:** the flag gates **which physicians exist** in every downstream analysis, so a
+parsing divergence changes N — and therefore every rate, Gini, and adequacy ratio — without failing anything
+loudly. It was written **four different ways across ten call sites**, and the geographic and concentration
+analyses (the two that feed the maldistribution denominator) used **different ones**.
+
+**Provenance table (audit; line numbers pre-change):**
+
+| File:line | Form | Status | Notes |
+|---|---|---|---|
+| `scripts/urps_module_a_age_productivity_2026-07-23.R:12` | `inmodel(x) <- x %in% c(TRUE,"TRUE","true",1,"1")` | **duplicate def (1/7)** | verbatim copy |
+| `scripts/urps_module_bc_corrected_2026-07-23.R:26` | same body | **duplicate def (2/7)** | verbatim copy |
+| `scripts/urps_plasticity_stage0_audit_2026-07-23.R:12` | same body | **duplicate def (3/7)** | verbatim copy |
+| `scripts/urps_demand_module_bc_2026-07-23.R:15` | same body | **duplicate def (4/7)** | verbatim copy |
+| `scripts/urps_module_bc_gate_audit_2026-07-23.R:116` | same body | **duplicate def (5/7)** | verbatim copy |
+| `scripts/enrich_rosters_medicare_procedures_2024_refresh.R:55` | same body | **duplicate def (6/7)** | verbatim copy |
+| `scripts/build_table1_urps_2026-07-23.R:6` | same body | **duplicate def (7/7)** | verbatim copy |
+| `scripts/urps_module_d_geographic_access_2026-07-23.R:32` | `d[in_model_baseline == TRUE]` | **divergent parsing** | strictest form; NA→NA |
+| `scripts/urps_concentration_equity_2026-08-01.R:73` | `toupper(trimws(x)) %in% c("TRUE","1")` | **divergent parsing** | most permissive; reads an all-character frame |
+| `scripts/enrich_rosters_hpsa_point_in_polygon_2026-07-23.R:69` | body inlined, no helper | **divergent parsing** | copy-4 with no function |
+| `R/` (any file) | — | **ABSENT** | the flag had no package-level accessor at all |
+
+**Empirical check before refactoring (no live discrepancy).** All four forms agree on the committed rosters:
+the column reads as clean `logical`, zero NAs, values only `TRUE`/`FALSE` → ABOG 1,031/1,135 + ABU 308/365 =
+**1,339** under every variant. The risk was **latent, not live**: form `== TRUE` alone drops *every* row if the
+column is ever re-serialised as `"true"`/`"1"`/whitespace-padded, and yields `NA` (not `FALSE`) on a missing
+flag. `concentration_equity` already reads the roster with `mutate(across(everything(), as.character))` — i.e.
+one consumer *does* take the character path, which is why it needed `toupper(trimws())` in the first place.
+
+**Discrepancy adjudication:** collapse to the **union** of the four forms — the most permissive is a strict
+superset of the others on the committed data (verified), so the collapse is behaviour-preserving today while
+being robust to a character re-read. **NOT collapsed:** prose mentions of the rule (`shiny_urps_adequacy/app.R:72`
+methods string, `urps_concentration_equity:23` header comment) stay literal — they are narrative, not predicates.
+
+**Ownership note (important — this is a CONSUMER-side SSOT).** cliff does **not** own the definition of
+`in_model_baseline`. It is the upstream isochrones authority: that charter adopts `in_model_baseline == TRUE`
+as the fail-closed active-in-year definition, PI-adjudicated 2026-07-23, superseding
+`credentials.retirement_consensus` for the 48 providers where they disagree. This iteration single-sources how
+cliff **reads** the flag; it never re-derives it. The count itself is contract-pinned upstream
+(`rows_national 1339` in the isochrones v3.0.0 manifest served by mufflyaccess) — deliberately **not** copied
+into a cliff constant, which would create the very duplication this iteration removes.
+
+**Canonical contract:** new **`R/in_model_baseline.R`** (pure function, no path/data deps, base R only):
+- `inmodel(x)` — TRUE for a roster row in the active model baseline. Vectorised, type-agnostic (`logical` /
+  `numeric` / `character` / `factor`), and **total**: always `TRUE`/`FALSE`, never `NA`. Accepts `TRUE`, `1`,
+  `"TRUE"`, `"true"`, `"True"`, `"1"` and whitespace-padded forms; everything else (incl. `NA`, `""`, `"FALSE"`,
+  `0`) is FALSE.
+- One intentional behaviour difference: a missing flag returns `FALSE`, where bare `== TRUE` returned `NA`
+  (which data.table happened to treat as FALSE in `i`, but which propagates in a base-R subset).
+
+**Files changed:** new `R/in_model_baseline.R`; new `tests/testthat/test-ssot-in-model-baseline.R`; +`source`
+and call-site conversion in all 10 consumer scripts (each using its own local sourcing idiom —
+`here::here("R","x.R")`, `h("R/x.R")`, or relative `"R/x.R"`).
+
+**Hardcoded copies removed:** 10 — 7 verbatim `inmodel()` definitions + 3 divergent inline parsings.
+
+**Validation guards / tests added (`test-ssot-in-model-baseline.R`, 36/0):** well-formedness + totality
+(`NA`→FALSE, never NA, length-preserving); **semantics** across all four storage types; **behaviour-preservation**
+against all four prior forms on both the logical and character reads (and an explicit assertion that `== TRUE`
+*does* diverge on a character column — the bug being closed); **adversarial** (no consumer re-defines `inmodel`
+or re-hardcodes a variant, every consumer sources the module, comments excluded so prose is not a false
+positive); **cross-module cohort count** (both rosters → 1,031 / 308 / 1,339, read both ways consumers read them).
+Plus a fail-loud `stopifnot` block in the module itself.
+
+**Initial failures:** 1 (caught by the new test, pre-commit) — the adversarial `source(...)` detection regex did
+not match the two-arg `here::here("R", "x.R")` idiom and reported 6 false offenders; simplified to
+`source\(.*in_model_baseline\.R`.
+
+**Verification beyond the guards:** Module D filter old-vs-new on both rosters → `identical(old, new) == TRUE`,
+row for row. `urps_concentration_equity` ran end-to-end (`Active baseline URPS: 1339 (ABOG 1031, ABU 308)`) with
+all four output CSVs **byte-identical** to committed. Two diffs that appeared during testing were investigated
+and proven **not** attributable to this change: the Lorenz figures (re-running the *pre-change* script from HEAD
+also differs from the committed render → graphics-device/font environment; my version and HEAD render
+byte-identically), and one Table-1 cell (`p 0.323 → 0.320`, from the **unseeded**
+`fisher.test(simulate.p.value=TRUE, B=1e4)` at `build_table1_urps:51` — RNG noise; all counts and Ns identical).
+Both files restored. SSOT suite: **802 pass / 2 fail**, both pre-existing (`ssot-adequacy-base-year`,
+`ssot-age-bands`), neither referencing this flag.
+
+**Remaining risks:**
+1. The adversarial guard checks a **fixed `CONSUMERS` list**. A *new* script that filters on `in_model_baseline`
+   will not be policed until it is added. Closing this means deriving `CONSUMERS` by grepping `scripts/` for the
+   flag — recommended, not done here (keeps the iteration to one change).
+2. `scripts/urps_baseline_scenarios/urps_baseline_scenarios_v3_hardened.R` describes a **different** cohort rule
+   (`ABOG in_model_baseline (1,031) + ABU status=="net-new (in model)" (270)` = 1,301) in prose/metadata. That is
+   a third cohort definition alongside 1,339 (roster snapshot) and 1,306 (active-2023). Deliberately **not**
+   touched — reconciling them is a PI/definitional question, not a mechanical refactor
+   (cf. `docs/SSOT_URPS_BASELINE_RECONCILIATION.md`).
+
+**Recommended next candidate:** the **CT county-FIPS vintage** in Module D — the `county_fips` roster join
+against 2020-vintage ACS. Verify whether the roster carries old Connecticut county FIPS (`09001`-`09015`) or the
+2022 planning-region FIPS (`09110`-`09190`); a vintage mismatch drops CT silently and would bias the
+geographic-maldistribution denominator. Tracked upstream in `mufflyaccess/docs/CHARTER_URPS_SSOT.md`.
+
+**Status:** ✅ complete. **Committed and pushed** (branch `refactor/inmodel-ssot-consolidation`) — the loop's
+"do NOT commit" rule applied to the automated loop, which is closed; this iteration was run and landed on
+request.
