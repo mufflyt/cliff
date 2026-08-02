@@ -1,16 +1,16 @@
 subspecialty,subspecialty_abbrev,baseline_2025,projected_2029,sd_2029,ci95_lower,ci95_upper,percent_change,annual_retirement_rate,avg_annual_retirements,annual_entrants,replacement_ratio,replacement_assessment,fellowship_total_4yr,total_retirements_4yr,scenario
-Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1489.367288,15.2,1476,1535,15.009056988416981,0.88094,11.408178,60,5.259384978039439,Above replacement,240,46,default
-Gynecologic Oncology,GO,1052,1209.805908,16.1,1278,1341,15.00056159695818,1.00271,10.548523,50,4.740000092904002,Above replacement,200,42,default
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1306,1498.4596,7.91,1494,1525,14.736569678407344,0.91,11.8851,60,5.048337834767903,Above replacement,240,48,default
+Gynecologic Oncology,GO,1052,1209.805908,16.1,1278,1341,15.00056159695818,1.0027,10.548523,50,4.740000092904002,Above replacement,200,42,default
 Minimally Invasive Gynecologic Surgery,MIGS,605,768.001808,11,754,798,26.942447603305784,0.7024,4.249548,45,10.589361503858763,Above replacement,180,17,default
-Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1529.367288,15.2,1476,1535,18.09786007722007,0.88094,11.408178,70,6.135949141046011,Above replacement,280,46,optimistic
-Gynecologic Oncology,GO,1052,1249.805908,16.1,1278,1341,18.802842965779472,1.00271,10.548523,60,5.6880001114848024,Above replacement,240,42,optimistic
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1306,1538.4596,7.91,1494,1525,17.799356814701373,0.91,11.8851,70,5.889727473895887,Above replacement,280,48,optimistic
+Gynecologic Oncology,GO,1052,1249.805908,16.1,1278,1341,18.802842965779472,1.0027,10.548523,60,5.6880001114848024,Above replacement,240,42,optimistic
 Minimally Invasive Gynecologic Surgery,MIGS,605,808.001808,11,754,798,33.554017851239664,0.7024,4.249548,55,12.942552949160712,Above replacement,220,17,optimistic
-Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1449.367288,15.2,1476,1535,11.920253899613893,0.88094,11.408178,50,4.382820815032865,Above replacement,200,46,pessimistic
-Gynecologic Oncology,GO,1052,1169.805908,16.1,1278,1341,11.198280228136888,1.00271,10.548523,40,3.7920000743232016,Above replacement,160,42,pessimistic
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1306,1458.4596,7.91,1494,1525,11.673782542113317,0.91,11.8851,50,4.206948195639919,Above replacement,200,48,pessimistic
+Gynecologic Oncology,GO,1052,1169.805908,16.1,1278,1341,11.198280228136888,1.0027,10.548523,40,3.7920000743232016,Above replacement,160,42,pessimistic
 Minimally Invasive Gynecologic Surgery,MIGS,605,728.001808,11,754,798,20.330877355371896,0.7024,4.249548,35,8.236170058556816,Above replacement,140,17,pessimistic
-Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1437.367288,15.2,1476,1535,10.993612972972967,0.88094,11.408178,47,4.119851566130893,Above replacement,188,46,historical_2025
-Gynecologic Oncology,GO,1052,1249.805908,16.1,1278,1341,18.802842965779472,1.00271,10.548523,60,5.6880001114848024,Above replacement,240,42,historical_2025
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1306,1446.4596,7.91,1494,1525,10.754946401225109,0.91,11.8851,47,3.9545313039015237,Above replacement,188,48,historical_2025
+Gynecologic Oncology,GO,1052,1249.805908,16.1,1278,1341,18.802842965779472,1.0027,10.548523,60,5.6880001114848024,Above replacement,240,42,historical_2025
 Minimally Invasive Gynecologic Surgery,MIGS,605,792.001808,11,754,798,30.90938975206611,0.7024,4.249548,51,12.001276371039932,Above replacement,204,17,historical_2025
-Urogynecology and Reconstructive Pelvic Surgery,URPS,1295,1469.367288,15.2,1476,1535,13.464655444015436,0.88094,11.408178,55,4.821102896536152,Above replacement,220,46,status_quo
-Gynecologic Oncology,GO,1052,1229.805908,16.1,1278,1341,16.901702281368827,1.00271,10.548523,55,5.214000102194403,Above replacement,220,42,status_quo
+Urogynecology and Reconstructive Pelvic Surgery,URPS,1306,1478.4596,7.91,1494,1525,13.20517611026033,0.91,11.8851,55,4.627643015203911,Above replacement,220,48,status_quo
+Gynecologic Oncology,GO,1052,1229.805908,16.1,1278,1341,16.901702281368827,1.0027,10.548523,55,5.214000102194403,Above replacement,220,42,status_quo
 Minimally Invasive Gynecologic Surgery,MIGS,605,768.001808,11,754,798,26.942447603305784,0.7024,4.249548,45,10.589361503858763,Above replacement,180,17,status_quo

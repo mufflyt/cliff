@@ -1,4 +1,8 @@
 #' @title Step 6: Retirement Threshold Sensitivity Analysis
+#' @section Provenance: PRODUCES figures/retirement_sensitivity_workforce.{png,tiff}
+#'   and figures/retirement_sensitivity_change.{png,tiff}. READS
+#'   data/workforce_projections_consolidated.csv and data/retirement_sensitivity.csv.
+#'   Dates and baseline are recorded in docs/FIGURE_PROVENANCE.md.
 #' @description This script assesses the sensitivity of workforce projections to retirement rate
 #' assumptions by varying inactivity detection thresholds. It simulates the impact of shortening
 #' or extending those thresholds by ±1 year.

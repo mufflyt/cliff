@@ -1,4 +1,8 @@
 #' @title Step 4: Compare Fellowship Scenarios
+#' @section Provenance: PRODUCES figures/scenario_comparison.{png,tiff} and
+#'   figures/scenario_comparison_change.{png,tiff}. READS
+#'   data/workforce_projections_consolidated.csv and data/scenario_comparison.csv.
+#'   Dates and baseline are recorded in docs/FIGURE_PROVENANCE.md.
 #' @description This script runs workforce projections across multiple fellowship scenarios
 #' defined in 'cliff/config/fellowship_assumptions.yml' and creates comparison visualizations
 #' and tables.
