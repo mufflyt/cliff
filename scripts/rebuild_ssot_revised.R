@@ -32,11 +32,19 @@ primary <- tibble::tribble(
   ~fellowship_total_4yr,   ~total_retirements_4yr,
 
   "Urogynecology and Reconstructive Pelvic Surgery", "URPS",
-  1295L, 1505.3672, 15.2,  # ssot-ok: legacy frozen SGS projection cohort (baseline_2025)
-  1476L, 1535L, 16.245,
-  0.8809, 11.408178, 64L,
-  5.61, "Above replacement",
-  256L, 46L,
+  # cliff#1 v3.0.0 re-derivation: baseline = canonical 2023 board-certified active
+  # (1306 = 1027 ABOG + 279 ABU_NET_NEW), projected with the SAME POOLED GO+URPS
+  # age-band hazard used by the frozen primary (5.61), now applied to the 1306
+  # active-age distribution + the manuscript parameter-uncertainty MC (Beta on the
+  # pooled events, graduate bootstrap, seed 20260718, 10000 draws). The ratio moves
+  # 5.61 (1295) -> 5.38 (1306): a small age-distribution effect, NOT the large
+  # "engine-driven" drop erroneously reported from an earlier run that mistakenly
+  # used the URPS-anchored hazard. See scripts/urps_scenario_cube/regen_urps_1306_projection.R.
+  1306L, 1514.4596, 7.91,
+  1494L, 1525L, 15.96168,
+  0.910, 11.8851, 64L,
+  5.38, "Above replacement",
+  256L, 48L,
 
   "Gynecologic Oncology", "GO",
   1052L, 1309.8059, 16.1,

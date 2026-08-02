@@ -432,8 +432,9 @@ flags 56 Gynecologic Oncology and 41 URPS departures over 2016-2021 while the pr
 non-Open-Payments-anchored definition retains 37 and 35, respectively.
 
 **The baseline gate and the departure-event definition are related but not
-identical.** The 2025 active-workforce baseline (1,052 Gynecologic Oncology; 1,031
-ABOG plus 264 ABU for URPS) is set by the cohorting active-status rule, a
+identical.** The active-workforce baseline (1,052 Gynecologic Oncology; 1,027
+ABOG plus 279 ABU for URPS, contract v3.0.0 URPS-subspecialty-certification basis)
+is set by the cohorting active-status rule, a
 hierarchical priority classifier (`R/retirement_sql_builder.R`) that assigns a
 retirement year from, in priority order, ABMS lapse, NPPES deactivation, Open
 Payments cessation, PECOS disenrollment, and Part D / Part B cessation, each under a
@@ -563,14 +564,14 @@ lab <- c(URPS="Urogynecology and Reconstructive Pelvic Surgery",
          GO="Gynecologic Oncology", MIGS="Minimally Invasive Gynecologic Surgery")
 s7 <- s7[match(c("GO","URPS","MIGS"), s7$ab), ]
 s7v <- data.frame(
-  Stage = c("1. Certified/designated, NPI-matched, CONUS practice",
+  Stage = c("1. Certified/designated, NPI-matched, in-model roster",
             "2. Removed: classified deceased",
-            "3. Removed: classified inactive (departed)",
-            "4. ABOG-pathway active baseline",
-            "5a. ABU urology-pathway net-new active identified (URPS)",
-            "5b. Excluded: no datable certification year",
-            "5c. ABU included in the age-structured model",
-            "6. Final active baseline"),
+            "3. Removed: inactive/departed (GO, MIGS); ABOG-pathway URPS subspecialty certification after 2023 (URPS)",
+            "4. ABOG-pathway 2023 board-certified active",
+            "5a. ABU urology-pathway identified (net-new + reinstated)",
+            "5b. Excluded: ABU subspecialty certification after 2023",
+            "5c. ABU included (2023 active)",
+            "6. Final 2023 board-certified active baseline"),
   `Gynecologic Oncology` = c(s7$certified_matched[1], s7$removed_deceased[1],
                              s7$removed_inactive[1], s7$active_baseline[1], 0, 0, 0, s7$active_baseline_final[1]),
   `URPS` = c(s7$certified_matched[2], s7$removed_deceased[2], s7$removed_inactive[2],
@@ -579,15 +580,19 @@ s7v <- data.frame(
   `MIGS (exploratory)` = c(s7$certified_matched[3], s7$removed_deceased[3],
                            s7$removed_inactive[3], s7$active_baseline[3], 0, 0, 0, s7$active_baseline_final[3]),
   check.names = FALSE)
-kable(s7v, caption = "**Appendix Table S7.** Cohort derivation from certification/designation to the final active baseline, by cohort. For URPS the final baseline is the ABOG-pathway active baseline (1,031) plus the ABU-pathway physicians included in the model (264), i.e., 1,031 + 264 = 1,295; the 6 ABU physicians without a datable certification year are excluded from both baseline and projection.")
+kable(s7v, caption = "**Appendix Table S7.** Cohort derivation to the 2023 board-certified active baseline, by cohort (canonical contract v3.0.0, URPS-subspecialty-certification basis). For URPS the baseline is the ABOG-pathway active count (1,027) plus the ABU urology-pathway physicians active in 2023 (279), i.e., 1,027 + 279 = 1,306. Of the 1,031 ABOG-pathway and 308 ABU-pathway (270 net-new + 38 reinstated dual-boarded) physicians in the identified roster, 33 (4 ABOG, 29 ABU) whose URPS subspecialty certification postdates 2023 are excluded from the 2023 active baseline.")
 ```
 
-*The base table is already NPI-matched and restricted to contiguous-U.S. practice.
-Classified deaths are zero here, reflecting death under-ascertainment (Appendix S4),
-not the absence of deaths. Of the 270 ABU urology-pathway net-new active physicians
-identified, 6 lacked a datable certification year and were excluded from both the
-baseline and the projection, so 264 entered the model and 1,031 + 264 = 1,295. MIGS is
-an exploratory focused-practice-designation cohort.*
+*The roster is already NPI-matched and de-duplicated. Classified deaths are zero
+here, reflecting death under-ascertainment (Appendix S4), not the absence of deaths.
+The v3.0.0 baseline is keyed on the URPS subspecialty certification year: of the
+identified roster (1,031 ABOG + 308 ABU), the 33 physicians whose subspecialty
+certification postdates 2023 are excluded, leaving 1,027 + 279 = 1,306 active in 2023.
+Age is reconstructed from the URPS subspecialty certification year where available
+(981 ABOG physicians via the ABOG sub-certification start date) and otherwise from a
+fellowship-timing proxy (46 ABOG via primary certification + 3 years; all 279 ABU via
+primary certification + 2 years). MIGS is an exploratory focused-practice-designation
+cohort.*
 
 # Appendix S6b. Pooled Versus Unpooled Age-Band Hazards
 
@@ -706,7 +711,7 @@ projection in which the empirical age-band hazard is split into sex-specific haz
 graduates enter at the female share of the OB/GYN resident pool that feeds these
 fellowships (about 85%, ACGME), with the observed recent-subspecialist share (72%)
 as a lower bound. The URPS results here are **ABOG-pathway only**: sex is ascertainable
-only for the ABOG-certified cohort (n = 1,031; the external ABU roster carries no sex
+only for the ABOG-certified cohort (n = 1,027; the external ABU roster carries no sex
 field), and the 85% female entrant share is the obstetrics-gynecology resident pool
 feeding the ABOG pathway, not the urology pathway. The sex-neutral URPS ratio below is
 therefore the ABOG-pathway value computed on the sex-known subsample, which is lower than
@@ -852,12 +857,12 @@ conducted an exploratory analysis operationalizing operative-workforce exit long
 from Medicare Part B by-service claims (procedure-level HCPCS codes per physician per year),
 restricted to Gynecologic Oncology and URPS; MIGS was excluded because only about 13% of
 that cohort was visible as Medicare operators. **The URPS operative analysis uses the
-ABOG-pathway URPS cohort only** (active n = 1,031), because the ABU (urology-pathway)
+ABOG-pathway URPS cohort only** (active n = 1,027), because the ABU (urology-pathway)
 physicians are not claims-linkable in this cohort; both the operator denominator and the
 graduate-entry numerator are therefore ABOG-pathway. All URPS operative figures below should
-be read as ABOG-pathway URPS, not the both-pathway workforce (1,295) used in the primary
+be read as ABOG-pathway URPS, not the both-pathway workforce (1,306) used in the primary
 headcount analysis. As a share of the both-pathway workforce the visible-operator percentage
-would be correspondingly lower (e.g., 613/1,295 = 47% rather than 613/1,031 = 60%).
+would be correspondingly lower (e.g., 613/1,306 = 47% rather than 613/1,027 = 60%).
 
 The qualifying major-operation HCPCS list is the subspecialty operative code set from the
 project procedure reference (58210-58958, 38570-49255, 56630-58240 and 57xxx pelvic-floor

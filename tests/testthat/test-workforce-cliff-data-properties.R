@@ -214,7 +214,7 @@ test_that("SNAP frozen headline numbers (rounded content signature)", {
   sig <- function(ab) c(base = row1(ssot, ab)$baseline_2025,
                         proj = round(row1(ssot, ab)$projected_2029, 1),
                         ratio = round(row1(ssot, ab)$replacement_ratio, 2))
-  expect_equal(sig("URPS"), c(base = 1295, proj = 1505.4, ratio = 5.61))
+  expect_equal(sig("URPS"), c(base = 1306, proj = 1514.5, ratio = 5.38))
   expect_equal(sig("GO"),   c(base = 1052, proj = 1309.8, ratio = 7.11))
   expect_equal(sig("MIGS"), c(base = 605,  proj = 776.0,  ratio = 11.06))
 })
@@ -223,9 +223,9 @@ test_that("SNAP headline getter strings are format-stable", {
   skip_if_not(STATS_OK)
   with_stats(ssot, function(e) {
     expect_identical(e$get_baseline("GO"), "1,052")
-    expect_identical(e$get_replacement_ratio("URPS"), "5.6")   # display rounds to 1 decimal (reviewer #6); raw SSOT stays 5.61
+    expect_identical(e$get_replacement_ratio("URPS"), "5.4")   # display rounds to 1 decimal (reviewer #6); raw SSOT 5.38 (v3.0.0 1306 basis)
     expect_identical(e$get_percent_change("MIGS"), "+28.3")
-    expect_identical(e$get_total_baseline(), "2,952")
+    expect_identical(e$get_total_baseline(), "2,963")
   })
 })
 

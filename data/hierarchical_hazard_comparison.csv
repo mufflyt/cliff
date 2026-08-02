@@ -1,9 +1,9 @@
 subspecialty_abbrev,method,replacement_ratio,ci_lo,ci_hi,events,person_years
 GO,unpooled,7.83,4.19,9.5,36,6434
-URPS,unpooled,4.83,2.79,6.1,35,6403
+URPS,unpooled,4.63,2.67,5.87,35,6403
 GO,pooled,7.11,4.3,8.35,36,6434
-URPS,pooled,5.61,4.07,6.71,35,6403
+URPS,pooled,5.38,3.89,6.46,35,6403
 GO,partial_pooled,7.56,4.54,11.98,36,6434
-URPS,partial_pooled,5.14,3.62,9.78,35,6403
-URPS,partial_pooled_abu_0.5x,5.7,NA,NA,35,6403
-URPS,partial_pooled_abu_2x,4.31,NA,NA,35,6403
+URPS,partial_pooled,4.93,3.47,9.37,35,6403
+URPS,partial_pooled_abu_0.5x,5.49,NA,NA,35,6403
+URPS,partial_pooled_abu_2x,4.1,NA,NA,35,6403
