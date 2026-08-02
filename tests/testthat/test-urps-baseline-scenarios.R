@@ -13,13 +13,24 @@ repo_root <- function() {
 }
 sdir <- function() file.path(repo_root(), "scripts", "urps_baseline_scenarios")
 
-test_that("the frozen SGS projection is preserved (legacy 1295 -> 1505.367)", {
-  csv <- file.path(repo_root(), "data", "workforce_projections_consolidated.csv")
-  skip_if_not(file.exists(csv), "frozen projection CSV not present")
+test_that("the frozen SGS legacy projection is preserved in its dedicated record (1295 -> 1505.367)", {
+  # cliff#1 adopted 1306 as the consolidated headline; the legacy 1295 SGS projection
+  # is preserved unchanged in its own frozen file for reproducibility.
+  csv <- file.path(repo_root(), "data", "workforce_projections_LEGACY_1295_frozen.csv")
+  skip_if_not(file.exists(csv), "legacy frozen projection CSV not present")
   u <- utils::read.csv(csv, stringsAsFactors = FALSE)
   u <- u[u$subspecialty_abbrev == "URPS", ]
-  expect_equal(as.integer(u$baseline_2025), 1295L)          # NOT re-baselined
+  expect_equal(as.integer(u$baseline_2025), 1295L)
   expect_equal(as.numeric(u$projected_2029), 1505.367, tolerance = 1e-3)
+})
+
+test_that("the consolidated projection is now the canonical v3.0.0 1306 basis", {
+  csv <- file.path(repo_root(), "data", "workforce_projections_consolidated.csv")
+  skip_if_not(file.exists(csv), "consolidated projection CSV not present")
+  u <- utils::read.csv(csv, stringsAsFactors = FALSE)
+  u <- u[u$subspecialty_abbrev == "URPS", ]
+  expect_equal(as.integer(u$baseline_2025), 1306L)
+  expect_equal(as.numeric(u$replacement_ratio), 5.38, tolerance = 1e-2)
 })
 
 test_that("Table 1 preserves the published legacy result exactly (frozen, not recalculated)", {

@@ -123,12 +123,12 @@ test_that("GOLD GO ratio/projection/percent match hand arithmetic", {
 })
 
 test_that("GOLD weighted aggregates match hand-calculated totals", {
-  # baseline sum: 1295 + 1052 + 605 = 2952 (hand)
-  expect_equal(sum(ssot$baseline_2025), 2952)
+  # baseline sum: 1306 + 1052 + 605 = 2963 (hand)
+  expect_equal(sum(ssot$baseline_2025), 2963)
   # fellowship 4-yr totals: 64*4=256, 75*4=300, 47*4=188 (hand)
   expect_equal(sort(ssot$fellowship_total_4yr), sort(c(256, 300, 188)))
-  # projected sum rounds to 3591 (hand: 1505.39 + 1309.79 + 776.01 = 3591.18)
-  expect_equal(round(sum(ssot$projected_2029)), 3591)
+  # projected sum rounds to 3591 (hand: 1514.46 + 1309.81 + 776.00 = 3600.27)
+  expect_equal(round(sum(ssot$projected_2029)), 3600)
 })
 
 test_that("GOLD hazard band and break-even drop match hand arithmetic", {

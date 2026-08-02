@@ -76,13 +76,13 @@ WORKFORCE_SUBSPECIALTIES <- c("URPS", "GO", "MIGS")
 # Centralized headline constants (#9). The pinned expected values live ONCE here so a
 # value change (e.g. after a rerun) touches one place instead of many test files.
 # Raw SSOT values (display rounds ratios to 1 decimal in the manuscript).
-WORKFORCE_HEADLINE_RATIO    <- c(URPS = 5.40,  GO = 7.11,  MIGS = 11.06)   # completion-to-departure (URPS 1306 pooled-hazard basis)
+WORKFORCE_HEADLINE_RATIO    <- c(URPS = 5.38,  GO = 7.11,  MIGS = 11.06)   # completion-to-departure (URPS 1306 pooled-hazard basis)
 # -- URPS baseline: canonical v3.0.0 2023 board-certified active workforce --
 # cliff#1 (adopt 1306): the headline URPS baseline is now the mufflyaccess v3.0.0
 # canonical 2023 board_certified_active / national count = 1306 (1027 ABOG + 279
 # ABU_NET_NEW, URPS-subspecialty-cert basis), projected with the SAME pooled GO+URPS
 # age-band hazard as the frozen primary, applied to the 1306 active-age distribution.
-# Ratio moves 5.61 (1295) -> 5.40 (1306): a small age-distribution effect.
+# Ratio moves 5.61 (1295) -> 5.38 (1306): a small age-distribution effect.
 #   2023 board_certified_active / national / +urology = 1306 (ABU 279)  <- HEADLINE
 #   2025 roster_snapshot        / national / +urology = 1339 (ABU 308)  <- roster
 # The prior headline 1295 (1031 ABOG + 264 datable ABU) is retained below as the

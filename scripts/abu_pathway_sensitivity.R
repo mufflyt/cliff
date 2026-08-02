@@ -49,6 +49,12 @@ abu_nn <- trimws(gsub('"','', readLines(
 abu_nn <- abu_nn[abu_nn!="" & !grepl("npi", abu_nn, ignore.case=TRUE)]
 abu_ages <- abu_cw %>% filter(npi %in% abu_nn, !is.na(cert_year)) %>%
   mutate(age=REF_YEAR-cert_year+AGE_AT_CERT) %>% distinct(npi,.keep_all=TRUE) %>% pull(age)
+# cliff#1 (adopt 1306): override with the canonical v3.0.0 2023 board-certified active
+# age distributions (ABOG-only 1027; ABU net-new 279 -> both-pathway 1306). Hazards
+# come from the cohort life table (cohort-invariant), applied to these ages.
+.v3abog <- here::here("data","urps_ages_v3_1027_abog.csv"); .v3abu <- here::here("data","urps_ages_v3_279_abu.csv")
+if (file.exists(.v3abog)) abog_ages <- with(utils::read.csv(.v3abog), rep(age, n))
+if (file.exists(.v3abu))  abu_ages  <- with(utils::read.csv(.v3abu),  rep(age, n))
 
 # dynamic 4-yr projection over sub-populations, each with its own hazard multiplier
 project <- function(pops, entrants){

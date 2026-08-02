@@ -37,14 +37,14 @@ primary <- tibble::tribble(
   # age-band hazard used by the frozen primary (5.61), now applied to the 1306
   # active-age distribution + the manuscript parameter-uncertainty MC (Beta on the
   # pooled events, graduate bootstrap, seed 20260718, 10000 draws). The ratio moves
-  # 5.61 (1295) -> 5.40 (1306): a small age-distribution effect, NOT the large
+  # 5.61 (1295) -> 5.38 (1306): a small age-distribution effect, NOT the large
   # "engine-driven" drop erroneously reported from an earlier run that mistakenly
   # used the URPS-anchored hazard. See scripts/urps_scenario_cube/regen_urps_1306_projection.R.
-  1306L, 1514.56, 8.0,
-  1494L, 1525L, 15.969,
-  0.9082, 11.86, 64L,
-  5.40, "Above replacement",
-  256L, 47L,
+  1306L, 1514.4596, 7.91,
+  1494L, 1525L, 15.96168,
+  0.910, 11.8851, 64L,
+  5.38, "Above replacement",
+  256L, 48L,
 
   "Gynecologic Oncology", "GO",
   1052L, 1309.8059, 16.1,

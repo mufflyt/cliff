@@ -157,7 +157,7 @@ test_that("[adversarial] audit-table primary row reproduces the consolidated SSO
   }
   # exact headline values guard (GO+URPS-only primary hazard, MIGS excluded 2026-07-19)
   expect_equal(round(as.numeric(ss$replacement_ratio[ss$subspecialty_abbrev=="GO"]),2), 7.11)
-  expect_equal(round(as.numeric(ss$replacement_ratio[ss$subspecialty_abbrev=="URPS"]),2), 5.61)
+  expect_equal(round(as.numeric(ss$replacement_ratio[ss$subspecialty_abbrev=="URPS"]),2), 5.38)
 })
 
 # ---- #4 pooled vs unpooled hazard: counts + the ordering flip the prose claims ----
@@ -175,14 +175,14 @@ test_that("[adversarial] pooled-vs-unpooled hazard artifact matches the disclose
 })
 
 # ---- #11 ABU cohort-flow arithmetic must close ------------------------------------
-test_that("[adversarial] ABU cohort-flow arithmetic closes: 1031 + 264 = 1295", {
+test_that("[adversarial] ABU cohort-flow arithmetic closes: 1027 + 279 = 1306", {
   cf <- csv("consort_cohort_flow.csv")
   u  <- cf[cf$ab == "URPS", ]
   expect_equal(as.integer(u$abu_identified) - as.integer(u$abu_excluded_nocert),
                as.integer(u$abu_included))
   expect_equal(as.integer(u$active_baseline) + as.integer(u$abu_included),
                as.integer(u$active_baseline_final))
-  expect_equal(as.integer(u$active_baseline_final), 1295L)
+  expect_equal(as.integer(u$active_baseline_final), 1306L)
   expect_equal(as.integer(u$abu_identified), 270L)
   expect_equal(as.integer(u$abu_excluded_nocert), 6L)
 })
