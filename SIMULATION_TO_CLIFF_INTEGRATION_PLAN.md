@@ -207,12 +207,17 @@ population, years, transformation, uncertainty, **model version**, and a frozen 
 
 1. **Baseline reconciliation note** — one table reconciling 1,169/1,295/1,332/1,339 with the PI's
    chosen cell (cliff, docs only).
-2. **`simulation` versioned demand export** — `save_dpmm_outputs()` writes a tidy
-   `dpmm_prevalence_trajectory_vX.csv` (`year, age_band, prevalence, prevalence_lo/hi, severity_dist,
-   model_version, manifest_hash`).
-3. **cliff demand contract + concordance** — register the export in `config/cliff_paths.yml`, read
-   it in `scripts/urps_demand_denominators_sensitivity.R` as an alternative D1, add the concordance
-   panel. Feature-flagged; published anchors remain default until DPMM is calibrated.
+2. **`simulation` versioned demand export** — ✅ **landed** (`R/export_demand_contract.R`,
+   `export_dpmm_demand_contract()`): writes tidy `dpmm_demand_contract_v<ver>.csv`
+   (`model, model_version, calibration_status, denominator_tier, calendar_year, prevalence,
+   prevalence_lo/hi, national_cases, denominator_index`) + a JSON provenance manifest; guarded
+   call wired at the end of file 05.
+3. **cliff demand contract + concordance** — ✅ **landed**: registered `dpmm_demand_contract` in
+   `config/cliff_paths.yml`; `scripts/urps_demand_denominators_sensitivity.R` reads it as an
+   alternative D1 behind `CLIFF_USE_DPMM_DEMAND`, adds a `coverage_vs_dpmm` concordance series and
+   figure line. Off by default; published anchors remain the default and the uncalibrated DPMM
+   series is excluded from the robustness verdict. *Follow-up:* fixture-based unit test for the
+   ingestion path.
 4. **cliff baseline via mufflyaccess** — apply the not-yet-wired drop-in at `R/urps_baseline.R:31-38`
    so Lineage A stops reading the frozen archived table.
 
