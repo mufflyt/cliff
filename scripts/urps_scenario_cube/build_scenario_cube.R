@@ -9,8 +9,10 @@
 #
 #   pathway    : ABOG, ABU, combined (combined = ABOG + ABU, kept additive)
 #   geography  : national (US), conus (CONUS)
-#   scenario   : baseline, earlier_exit_2yr, lower_late_career_fte,
-#                fellowship_expansion_10pct
+#   scenario   : the nine mufflyaccess registry scenarios (urps_scenarios() v1.0.0):
+#                baseline, retire_2yr_earlier, retire_5yr_earlier, retire_2yr_later,
+#                fellowship_plus_10pct, fellowship_constrained, lower_late_career_fte,
+#                combined_pessimistic, combined_investment
 #   -> 3 x 2 x 4 x 18 = 432 rows.
 #
 # Reuses cliff's ACTUAL machinery, nothing reinvented:
@@ -50,7 +52,7 @@ wfun <- function(a) { a <- pmin(pmax(a, min(APC$age)), max(APC$age)); APC$rel_to
 # ---- parameters --------------------------------------------------------------
 INDEX_YEAR <- 2023L; END_YEAR <- 2040L; HORIZON <- END_YEAR - INDEX_YEAR
 ENTRANTS_TOTAL <- 64L; ENTRY_AGE <- 34L; MC_SEED <- 20260718L; MC_DRAWS <- 2000L
-LATE_FTE_FACTOR <- 0.85
+LATE_ONSET <- 60L                                          # mufflyaccess registry: late_career_fte_onset_age
 CT <- c(ABOG = 1.0, ABU = 0.70)                            # pathway clinical-time share
 BAND_EV <- c(13.058, 2.853, 3.508, 4.002, 5.192, 4.388, 0)
 BAND_PY <- c(3854, 973, 811, 488, 221, 53, 3)
@@ -65,7 +67,7 @@ ENTR   <- c(ABOG = round(ENTRANTS_TOTAL * shr("ABOG")), ABU = round(ENTRANTS_TOT
 # FTE global scale: combined-national-2023 effective FTE == headcount (1,306)
 raw23 <- sum(vapply(c("ABOG", "ABU"), function(p) { c <- cohort(p, "national"); sum(c$n * wfun(c$av) * CT[[p]]) }, numeric(1)))
 SCALE <- N_NAT / raw23
-fte_of <- function(av, n, p, late) SCALE * sum(n * wfun(av) * CT[[p]] * ifelse(late & av >= 60, LATE_FTE_FACTOR, 1))
+fte_of <- function(av, n, p, late_factor) SCALE * sum(n * wfun(av) * CT[[p]] * ifelse(av >= LATE_ONSET, late_factor, 1))
 
 # deterministic per-year age structure + flows
 project_years <- function(coh, entrants, haz_shift = 0L) {
@@ -94,24 +96,50 @@ mc_hc <- function(coh, entrants, haz_shift = 0L) {
   m
 }
 
+# The nine scenarios of the mufflyaccess registry (urps_scenarios(), v1.0.0).
+# Lever mapping: haz_shift = -retirement_shift_years (registry sign is -=earlier);
+# em = entrant_multiplier; late_factor = late_career_fte_factor (onset LATE_ONSET).
+# Composites (combined_*) are just their combined lever values. THIS MUST MATCH
+# mufflyaccess::urps_scenarios(); the mufflyaccess cube validator cross-checks that
+# every served scenario_id is registered.
 SCEN <- list(
-  baseline                   = list(haz_shift = 0L, em = 1.0, late = FALSE),
-  earlier_exit_2yr           = list(haz_shift = 2L, em = 1.0, late = FALSE),
-  lower_late_career_fte      = list(haz_shift = 0L, em = 1.0, late = TRUE),
-  fellowship_expansion_10pct = list(haz_shift = 0L, em = 1.1, late = FALSE))
+  baseline               = list(haz_shift =  0L, em = 1.00, late_factor = 1.00),
+  retire_2yr_earlier     = list(haz_shift =  2L, em = 1.00, late_factor = 1.00),
+  retire_5yr_earlier     = list(haz_shift =  5L, em = 1.00, late_factor = 1.00),
+  retire_2yr_later       = list(haz_shift = -2L, em = 1.00, late_factor = 1.00),
+  fellowship_plus_10pct  = list(haz_shift =  0L, em = 1.10, late_factor = 1.00),
+  fellowship_constrained = list(haz_shift =  0L, em = 0.90, late_factor = 1.00),
+  lower_late_career_fte  = list(haz_shift =  0L, em = 1.00, late_factor = 0.75),
+  combined_pessimistic   = list(haz_shift =  2L, em = 0.90, late_factor = 0.75),
+  combined_investment    = list(haz_shift = -2L, em = 1.10, late_factor = 1.00))
 
 yrs <- INDEX_YEAR + 0:HORIZON
-mk_row <- function(s, p, g, det_p, mc_p, late) {
-  hc <- vapply(det_p, function(y) sum(y$n), numeric(1))
-  ft <- vapply(det_p, function(y) fte_of(y$av, y$n, p, late), numeric(1))
-  ex <- vapply(det_p, function(y) y$exits, numeric(1)); en <- vapply(det_p, function(y) y$entr, numeric(1))
-  data.frame(year = yrs, scenario_id = s, pathway = p, geography_type = g,
+# conform to mufflyaccess urps_projection_schema() (0.10.0): specialty column +
+# count-contract certification_pathway vocabulary + net_change = entrants - exits.
+SPECIALTY <- "URPS"
+PMAP <- c(ABOG = "ABOG", ABU = "ABU_NET_NEW", combined = "ABOG_PLUS_ABU")
+# flow triplet: NA at the index year (no flow yet); net_change == entrants - exits
+# EXACTLY as displayed (rounded), satisfying the projection-contract flow identity.
+mk_flow <- function(en, ex) {
+  en_r <- round(en); ex_r <- round(ex, 1); nc <- en_r - ex_r
+  en_r[1] <- NA; ex_r[1] <- NA; nc[1] <- NA
+  list(entrants = en_r, exits = ex_r, net_change = nc)
+}
+frame <- function(s, p, g, hc, ft, lo, hi, en, ex) {
+  fl <- mk_flow(en, ex)
+  data.frame(year = yrs, scenario_id = s, specialty = SPECIALTY,
+             certification_pathway = unname(PMAP[[p]]), geography_type = g,
              geography_id = if (g == "national") "US" else "CONUS",
              supply_headcount = round(hc), supply_clinical_fte = round(ft, 1),
-             lower_95 = round(apply(mc_p, 2, stats::quantile, .025)),
-             upper_95 = round(apply(mc_p, 2, stats::quantile, .975)),
-             entrants = round(en), exits = round(ex, 1), net_change = round(c(NA, diff(hc))),
+             lower_95 = round(lo), upper_95 = round(hi),
+             entrants = fl$entrants, exits = fl$exits, net_change = fl$net_change,
              stringsAsFactors = FALSE)
+}
+mk_row <- function(s, p, g, det_p, mc_p, late_factor) {
+  hc <- vapply(det_p, function(y) sum(y$n), numeric(1))
+  ft <- vapply(det_p, function(y) fte_of(y$av, y$n, p, late_factor), numeric(1))
+  ex <- vapply(det_p, function(y) y$exits, numeric(1)); en <- vapply(det_p, function(y) y$entr, numeric(1))
+  frame(s, p, g, hc, ft, apply(mc_p, 2, stats::quantile, .025), apply(mc_p, 2, stats::quantile, .975), en, ex)
 }
 
 rows <- list()
@@ -123,8 +151,8 @@ for (s in names(SCEN)) { cfg <- SCEN[[s]]
       det[[p]] <- project_years(cohort(p, g), e, cfg$haz_shift)
       mc[[p]]  <- mc_hc(cohort(p, g), e, cfg$haz_shift)
     }
-    rows[[length(rows) + 1L]] <- mk_row(s, "ABOG", g, det[["ABOG"]], mc[["ABOG"]], cfg$late)
-    rows[[length(rows) + 1L]] <- mk_row(s, "ABU",  g, det[["ABU"]],  mc[["ABU"]],  cfg$late)
+    rows[[length(rows) + 1L]] <- mk_row(s, "ABOG", g, det[["ABOG"]], mc[["ABOG"]], cfg$late_factor)
+    rows[[length(rows) + 1L]] <- mk_row(s, "ABU",  g, det[["ABU"]],  mc[["ABU"]],  cfg$late_factor)
     # combined = ABOG + ABU (additive headcount, FTE, flows; CI from summed draws)
     ix <- seq_len(HORIZON + 1L)
     comb_det <- lapply(ix, function(i) list(
@@ -132,21 +160,18 @@ for (s in names(SCEN)) { cfg <- SCEN[[s]]
       exits = det[["ABOG"]][[i]]$exits + det[["ABU"]][[i]]$exits,
       entr  = det[["ABOG"]][[i]]$entr  + det[["ABU"]][[i]]$entr))
     hc <- vapply(ix, function(i) sum(det[["ABOG"]][[i]]$n) + sum(det[["ABU"]][[i]]$n), numeric(1))
-    ft <- vapply(ix, function(i) fte_of(det[["ABOG"]][[i]]$av, det[["ABOG"]][[i]]$n, "ABOG", cfg$late) +
-                                 fte_of(det[["ABU"]][[i]]$av,  det[["ABU"]][[i]]$n,  "ABU",  cfg$late), numeric(1))
+    ft <- vapply(ix, function(i) fte_of(det[["ABOG"]][[i]]$av, det[["ABOG"]][[i]]$n, "ABOG", cfg$late_factor) +
+                                 fte_of(det[["ABU"]][[i]]$av,  det[["ABU"]][[i]]$n,  "ABU",  cfg$late_factor), numeric(1))
     ex <- vapply(comb_det, function(y) y$exits, numeric(1)); en <- vapply(comb_det, function(y) y$entr, numeric(1))
     cmc <- mc[["ABOG"]] + mc[["ABU"]]
-    rows[[length(rows) + 1L]] <- data.frame(year = yrs, scenario_id = s, pathway = "combined",
-      geography_type = g, geography_id = if (g == "national") "US" else "CONUS",
-      supply_headcount = round(hc), supply_clinical_fte = round(ft, 1),
-      lower_95 = round(apply(cmc, 2, stats::quantile, .025)), upper_95 = round(apply(cmc, 2, stats::quantile, .975)),
-      entrants = round(en), exits = round(ex, 1), net_change = round(c(NA, diff(hc))), stringsAsFactors = FALSE)
+    rows[[length(rows) + 1L]] <- frame(s, "combined", g, hc, ft,
+      apply(cmc, 2, stats::quantile, .025), apply(cmc, 2, stats::quantile, .975), en, ex)
   }
 }
 cube <- do.call(rbind, rows)
 utils::write.csv(cube, file.path(root, "data", "workforce_scenario_cube.csv"), row.names = FALSE)
 cat(sprintf("wrote data/workforce_scenario_cube.csv: %d rows (3 pathways x 2 geographies x %d scenarios x %d years)\n",
             nrow(cube), length(SCEN), HORIZON + 1L))
-cat("\n== 2023 & 2040 baseline headcount / FTE by pathway x geography ==\n")
+cat("\n== 2023 & 2040 baseline headcount / FTE by certification_pathway x geography ==\n")
 print(cube[cube$scenario_id == "baseline" & cube$year %in% c(2023, 2040),
-           c("year","pathway","geography_type","supply_headcount","supply_clinical_fte")], row.names = FALSE)
+           c("year","certification_pathway","geography_type","supply_headcount","supply_clinical_fte")], row.names = FALSE)

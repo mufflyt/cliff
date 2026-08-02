@@ -23,6 +23,12 @@ source(here("R","workforce_cliff_engine.R"))    # single source of truth (consta
 SUBS <- WC_SUBS; GRAD <- WC_GRAD; ENTRANTS_NRMP <- WC_ENTRANTS_NRMP; PRIMARY <- WC_PRIMARY; HORIZON <- WC_HORIZON  # NRMP benchmark: SSOT = engine WC_ENTRANTS_NRMP
 coh  <- wc_load_cohort(apply_anchor = TRUE)
 ages <- wc_active_ages(coh)
+# cliff#1 (adopt 1306): override the URPS active-age distribution with the canonical
+# v3.0.0 2023 board-certified active cohort (1027 ABOG + 279 ABU); the pooled hazard
+# below is estimated from the cohort's departure life table (cohort-invariant) and
+# applied to this age distribution, matching the primary re-derivation.
+.v3 <- here("data","urps_ages_v3_1306.csv")
+if (file.exists(.v3)) ages$URPS <- with(utils::read.csv(.v3), rep(age, n))
 bc   <- wc_band_counts(coh); HAZ <- setNames(bc$ev/bc$py, bc$band)
 project <- function(a, entrants) wc_project(a, entrants, HAZ)
 
