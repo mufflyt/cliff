@@ -10,6 +10,7 @@
 # for the manuscript update. Same lower-bound caveats (Medicare FFS only; CMS
 # suppresses provider-code cells <11 services).
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table); library(yaml)})
+source(here::here("R", "in_model_baseline.R"))   # SSOT: inmodel() active-baseline cohort filter
 
 CSV <- Sys.getenv("MEDICARE_2024_CSV", unset = here::here("data","enrichment_inputs","medicare_prov_svc_2024.csv"))
 stopifnot(file.exists(CSV))
@@ -52,7 +53,6 @@ abu2  <- add(abu,  "data/abu_all_urps_ENRICHED_2026-07-22.csv")
 abog2 <- add(abog, "data/abog_all_urps_ENRICHED_2026-07-22.csv")
 
 # ---- pathway split for the manuscript sentence (computed from rosters) ----
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 summ <- function(df,lab){ s<-df[inmodel(in_model_baseline)]
   cat(sprintf("%s in-model n=%d: did urogyn surgery %.0f%%; did slings %.0f%% (%d surgeons, %d slings); median urogyn services %d\n",
       lab, nrow(s), 100*mean(s$did_urogyn_surgery_2024), 100*mean(s$slings_medicare_2024>0),

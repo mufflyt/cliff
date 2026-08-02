@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
 source(here::here("R", "urps_procedure_codes.R"))   # SSOT: anchor procedure codes (labels stay per-output)
+source(here::here("R", "in_model_baseline.R"))      # SSOT: inmodel() active-baseline cohort filter
 # Stage 0 claims-universe audit + reconstructed PRIMARY-CLINICIAN plasticity
 # matrix for the anchor pelvic-floor codes (Medicare 2024).
 # Decomposes each anchor code into mutually exclusive categories:
@@ -9,7 +10,6 @@ source(here::here("R", "urps_procedure_codes.R"))   # SSOT: anchor procedure cod
 # Corrects the earlier denominator that mixed facilities + assistants with
 # primary surgeons. Single anchor code per family (no multi-code episode sums).
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 con <- dbConnect(duckdb(), wc_duckdb_path(), read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))
 
