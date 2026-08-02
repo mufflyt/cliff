@@ -1,0 +1,7 @@
+provider_type,metric,value,status,source,notes
+ob_gyn,office visits per physician per year,1700,derived_order_of_magnitude,"Derived: NAMCS ~64M OB/GYN office visits (2014-15) / ~40k practicing OB/GYNs","NOT a published per-FTE figure. Range ~1500-1900. Placeholder; replace before publication."
+urogyn_fpmrs,subspecialist count (US),845,cited_count_not_productivity,"Am J Obstet Gynecol 2024 (S0002937824001030)","Median 0.17 per 100,000 population by hospital referral region. A COUNT, not a productivity denominator."
+urogyn_fpmrs,services or visits per FTE per year,NA,GAP,"Not found in AUGS/ACOG public materials","Needs MGMA DataDive (paywalled) or direct AUGS request. Do not fabricate."
+physical_therapist,national FTE supply 2022,233890,cited,"Zarek P et al. Phys Ther 2025;105(3):pzaf014","Supply count from PT workforce microsimulation."
+physical_therapist,national FTE demand 2022,245960,cited,"Zarek P et al. Phys Ther 2025;105(3):pzaf014","~12,000 FTE shortfall. Demand count, not a per-FTE visit constant."
+pelvic_floor_pt,visits per FTE per year,NA,GAP,"Zarek 2025 uses microsimulation, not a single visits/FTE constant","Outpatient PT generic benchmark ~1800-2700 visits/yr (8-12/day x ~225 days) is order-of-magnitude only."
