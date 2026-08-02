@@ -2,6 +2,7 @@
 source(here::here("R", "wc_path.R"))
 source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols() / DEMAND_AGE_MIN
 source(here::here("R", "urps_procedure_codes.R")) # SSOT: anchor procedure codes (family labels below stay per-output)
+source(here::here("R", "in_model_baseline.R"))    # SSOT: inmodel() active-baseline cohort filter
 
 # Module B+C (CORRECTED): procedure-based utilization & plasticity attribution
 #
@@ -23,7 +24,6 @@ source(here::here("R", "urps_procedure_codes.R")) # SSOT: anchor procedure codes
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
 # census NPP files resolved via npp_projection_path() (R/demand_denominator.R)
 EXTRACT_DATE <- "2024 PUF (PHY_R26...D24), extracted 2026-07-23"
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 
 con <- dbConnect(duckdb(), wc_duckdb_path(), read_only=TRUE)
 on.exit(dbDisconnect(con, shutdown=TRUE))

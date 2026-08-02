@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
 source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols() / DEMAND_AGE_MIN
+source(here::here("R", "in_model_baseline.R"))    # SSOT: inmodel() active-baseline cohort filter
 # ACS Module B (procedure-based demand) + C (empirical plasticity/attribution)
 # for urogynecology, national, 2025-2050.
 #   B: observed 2024 Medicare volume per core service -> per-capita rate on women
@@ -12,7 +13,6 @@ source(here::here("R", "demand_denominator.R"))   # SSOT: npp_women_65plus_cols(
 #      undercount largely cancels in the adequacy ratio).
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table)})
 # census NPP files resolved via npp_projection_path() (R/demand_denominator.R)
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 sq <- function(v) paste0("(", paste0("'", v, "'", collapse=","), ")")
 
 con <- dbConnect(duckdb(), wc_duckdb_path(), read_only=TRUE)

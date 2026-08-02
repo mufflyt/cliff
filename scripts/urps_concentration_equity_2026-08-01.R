@@ -48,6 +48,7 @@ suppressPackageStartupMessages({
 })
 
 source(here::here("R/workforce_concentration_metrics.R"))
+source(here::here("R/in_model_baseline.R"))   # SSOT: inmodel() active-baseline cohort filter
 
 STAMP <- "2026-08-01"
 US_COUNTY_TOTAL <- 3143L   # counties + county-equivalents (Census 2020)
@@ -70,7 +71,7 @@ roster <- bind_rows(
   abog |> select(any_of(keep)),
   abu  |> select(any_of(keep))
 ) |>
-  filter(toupper(trimws(in_model_baseline)) %in% c("TRUE", "1")) |>
+  filter(inmodel(in_model_baseline)) |>
   mutate(
     # Normalize the pathway label to a clean two-code stratum (source rosters
     # carry the verbose "ABU (urology)" / "ABOG (OB/GYN)" strings).

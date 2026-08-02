@@ -18,6 +18,7 @@
 #   hpsa_type_pip            designation type(s) of the containing polygon(s)
 # Keeps the earlier tract flag + county flag for comparison.
 suppressPackageStartupMessages({ library(sf); library(data.table); library(here) })
+source(here::here("R", "in_model_baseline.R"))   # SSOT: inmodel() active-baseline cohort filter
 sf_use_s2(FALSE)
 
 SHP <- Sys.getenv("HPSA_SHP", unset = here::here("data","enrichment_inputs","hpsa_shp","HPSA_CMPPC_SHP_DET_CUR_VX.shp"))
@@ -66,7 +67,7 @@ enrich <- function(path, lab) {
   d[, npi := as.character(npi)]
   d <- merge(d, pip, by = "npi", all.x = TRUE)
   fwrite(d, path)
-  inm <- d[in_model_baseline %in% c(TRUE,"TRUE","true",1,"1")]
+  inm <- d[inmodel(in_model_baseline)]
   cov <- sum(!is.na(inm$pip_in_designated_hpsa))
   cat(sprintf("\n== %s in-model n=%d ==\n", lab, nrow(inm)))
   cat(sprintf("  with coordinates matched: %d (%.0f%%)\n", cov, 100*cov/nrow(inm)))

@@ -12,6 +12,7 @@ suppressPackageStartupMessages({library(data.table); library(digest)})
 h <- function(p){ for(r in c(".","..","../..")) if(file.exists(file.path(r,p))) return(file.path(r,p)); p }
 source(h("R/demand_denominator.R"))   # SSOT: DEMAND_AGE_MIN / NPP_MAX_AGE for the 65+ definition gate
 source(h("R/urps_procedure_codes.R")) # SSOT: anchor codes + surgical/functional (SURG/FUNC) split
+source(h("R/in_model_baseline.R"))    # SSOT: inmodel() active-baseline cohort filter
 
 FROZEN <- fread(h("data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
 PROV   <- fread(h("data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
@@ -113,7 +114,6 @@ G(52,"FATAL","Calibrated denominator label present", "national_calibrated_primar
 
 # ── F. Cohort integrity ─────────────────────────────────────────────────────
 abu <- fread(h("data/abu_all_urps_ENRICHED_2026-07-22.csv"), colClasses=list(character="npi"))
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 coh <- unique(c(abu$npi[inmodel(abu$in_model_baseline)], abog$npi[inmodel(abog$in_model_baseline)]))
 G(53,"FATAL","Cohort NPIs unique", length(coh)==length(unique(coh)))
 G(54,"FATAL","Certification pathway valid (ABOG/ABU)", all(grepl("ABU",abu$pathway)) && all(grepl("ABOG",abog$pathway)), paste(unique(c(abu$pathway,abog$pathway)),collapse=","), "ABU*/ABOG*")

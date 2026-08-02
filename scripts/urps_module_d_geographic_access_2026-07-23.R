@@ -23,13 +23,14 @@ options(tigris_use_cache = TRUE, tigris_class = "sf")
 sf::sf_use_s2(TRUE)
 source("R/conus.R")    # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
 source("R/units.R")    # SSOT: meters_to_miles() / miles_to_meters() (METERS_PER_MILE)
+source("R/in_model_baseline.R")  # SSOT: inmodel() active-baseline cohort filter
 
 ## ── 1. urogynecologist point layer (active; ZIP centroid) ────────────────────
 cen <- fread("data/reference/zcta_centroids_2020.csv", colClasses=list(character="zcta5"))
 cen <- cen[, .(zip5=sprintf("%05d", as.integer(zcta5)), lat=centroid_lat, lon=centroid_lon)]
 load_roster <- function(f, pathway){
   d <- fread(f)
-  d <- if ("in_model_baseline" %in% names(d)) d[in_model_baseline==TRUE] else d
+  d <- if ("in_model_baseline" %in% names(d)) d[inmodel(in_model_baseline)] else d
   d[, zip5 := ifelse(is.na(business_zip5), NA_character_, sprintf("%05d", business_zip5))]
   d[, .(npi, pathway=pathway, state, county_fips, zip5)]
 }

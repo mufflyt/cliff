@@ -3,7 +3,7 @@
 # Emits a tidy CSV. Continuous: median [IQR], Wilcoxon. Categorical: n (%),
 # chi-square (Fisher when any expected cell < 5). Coverage = % non-missing.
 suppressPackageStartupMessages({ library(data.table) })
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
+source("R/in_model_baseline.R")   # SSOT: inmodel() active-baseline cohort filter
 a <- fread("data/abu_all_urps_ENRICHED_2026-07-22.csv",  colClasses=list(character="npi"))
 b <- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv", colClasses=list(character="npi"))
 a <- a[inmodel(in_model_baseline)]; b <- b[inmodel(in_model_baseline)]
