@@ -4516,14 +4516,14 @@
     },
     "mufflyaccess": {
       "Package": "mufflyaccess",
-      "Version": "0.6.0",
+      "Version": "0.10.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "mufflyaccess",
       "RemoteUsername": "mufflyt",
       "RemoteRef": "main",
-      "RemoteSha": "e4d4742408c823ec525582831887a1c52226d3a4"
+      "RemoteSha": "1fc2221e9c2d77212828c63ad563989e49a96cd6"
     },
     "nlme": {
       "Package": "nlme",
