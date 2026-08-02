@@ -1,0 +1,4 @@
+geography,n_units,n_occupied,pct_units_zero,gini,gini_pop_weighted,hhi,top5_share,top10_share
+US state (incl DC),51,48,5.9,0.564,,0.0509,0.3837,0.5721
+US county,3143,386,87.7,0.9374,,0.0063,0.1005,0.1674
+"ACOG district (I-XII, excl. unknown)",11,11,0.0,0.1711,,0.1005,0.5755,0.9451
