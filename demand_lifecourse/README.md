@@ -22,7 +22,7 @@ pipeline (`code/00_RUN_ALL.R`).
 | `04_condition_transitions.R` | ⬜ | Incidence / progression / recurrence / mortality |
 | `05_care_seeking.R` | ⬜ | Recognition, seeking, referral (calibrate to observed volume) |
 | `06_service_use.R` | ⬜ | Treatment mix × intensity → annual service units |
-| `07_staffing_conversion.R` | ⬜ | Services ÷ services-per-FTE → provider FTE demand |
+| `07_staffing_conversion.R` | ✅ done | Service volumes → required FTE via CMS work RVUs + calibrated wrvu-per-FTE (ported from simulation R/17/R/23) |
 | `08_scenarios.R` | ⬜ | Baseline, mode-of-delivery, reduced barriers, prevention, substitution |
 | `09_validation.R` | ⬜ | Back-cast vs Nygaard / Medicare / SWAN–WHI–Gyhagen |
 
@@ -42,5 +42,8 @@ Tests: `tests/testthat/test-demand-lifecourse.R`.
 - The vaginal/cesarean split is **derived** (parity × period cesarean fraction);
   no off-the-shelf per-woman joint distribution exists — refine with NSFG microdata.
 - Medium-confidence dose-response rows (Hendrix, Mant) need full-text verification.
-- Services-per-FTE staffing denominators are **placeholders/gaps** — source before
-  any published FTE-demand number.
+- Services→FTE conversion is now **CMS-work-RVU based** (`07_staffing_conversion.R`,
+  `params/urps_service_workload_rvu.csv`; ported from simulation R/17/R/23). The
+  productivity denominator is *solved* from a base-year anchor, not assumed. The
+  earlier "visits per FTE" placeholder gap is closed; the full provider-delegation
+  / setting engine remains in simulation (SSOT).
