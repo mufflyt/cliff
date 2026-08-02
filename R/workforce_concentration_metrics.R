@@ -287,11 +287,11 @@ equity_breakdown <- function(df, characteristic, stratum = NULL,
   for (s in strata) {
     mask <- st_col == s
     stats <- vapply(ordered_levels, function(l) build_col(mask, l), numeric(2))
-    out[[paste0(s, "_n")]]   <- stats["n", ]
-    out[[paste0(s, "_pct")]] <- stats["pct", ]
+    out[[paste0(s, "_n")]]   <- unname(stats["n", ])
+    out[[paste0(s, "_pct")]] <- unname(stats["pct", ])
   }
   overall <- vapply(ordered_levels, function(l) build_col(rep(TRUE, nrow(df)), l), numeric(2))
-  out[["overall_n"]]   <- overall["n", ]
-  out[["overall_pct"]] <- overall["pct", ]
+  out[["overall_n"]]   <- unname(overall["n", ])
+  out[["overall_pct"]] <- unname(overall["pct", ])
   out
 }

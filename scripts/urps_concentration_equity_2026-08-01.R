@@ -72,7 +72,10 @@ roster <- bind_rows(
 ) |>
   filter(toupper(trimws(in_model_baseline)) %in% c("TRUE", "1")) |>
   mutate(
-    pathway = ifelse(is.na(pathway) | pathway == "", "ABOG", pathway),
+    # Normalize the pathway label to a clean two-code stratum (source rosters
+    # carry the verbose "ABU (urology)" / "ABOG (OB/GYN)" strings).
+    pathway = dplyr::if_else(grepl("ABU|urolog", pathway, ignore.case = TRUE),
+                             "ABU", "ABOG"),
     urogyn_per_100k_women65 = suppressWarnings(as.numeric(urogyn_per_100k_women65))
   )
 
