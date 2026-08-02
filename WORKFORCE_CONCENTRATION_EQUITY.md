@@ -19,7 +19,10 @@ existing de-identified roster — no new data collection.
   `data/urps_provider_rate_dispersion_2026-08-01.csv`
 
 **Cohort:** N = 1,339 active urogynecologists (URPS) in the 2025 model baseline
-(1,031 ABOG pathway + 308 ABU pathway; `in_model_baseline == TRUE`).
+(1,031 ABOG pathway + 308 ABU pathway), selected by the shared `inmodel()` filter
+in `R/in_model_baseline.R` — the single source of truth every URPS module uses to
+read the upstream `in_model_baseline` flag, so this cohort cannot differ from the
+one behind the Module D geographic figures.
 
 ---
 

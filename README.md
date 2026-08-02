@@ -141,11 +141,18 @@ pathway (ABU urology vs ABOG OB/GYN).
 Beyond the supply-vs-retirement count, cliff reports **how unevenly the workforce
 is distributed** and **who it is** — the distributional lens the Sheps Center
 pediatric-subspecialty model uses at the subnational level. Computed from the
-committed de-identified roster (N = 1,339):
+committed de-identified roster (N = 1,339 — the active baseline, selected by the
+shared `inmodel()` filter in [`R/in_model_baseline.R`](R/in_model_baseline.R) so
+the geographic and concentration analyses cannot drift to different cohorts):
 
 - Active urogynecologists practice in **only 386 of ~3,143 US counties** (87.7%
   have none); **county Gini 0.94**, state Gini 0.56, top-5 states = 38%.
 - **96% urban / 1.1% rural**; 53% female; 5.7% IMG; 29.5% in a designated HPSA.
+
+The `in_model_baseline` flag itself is **upstream-owned** (isochrones adopts
+`in_model_baseline == TRUE` as the fail-closed active-in-year definition; the
+count is contract-pinned as `rows_national 1339`). cliff consumes it and never
+re-derives it — see [`docs/SSOT_LEDGER.md`](docs/SSOT_LEDGER.md) iteration 54.
 
 Regenerate: `Rscript scripts/urps_concentration_equity_2026-08-01.R`
 — see [`WORKFORCE_CONCENTRATION_EQUITY.md`](WORKFORCE_CONCENTRATION_EQUITY.md)
