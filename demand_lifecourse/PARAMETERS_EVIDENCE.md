@@ -69,11 +69,15 @@ which is the demand-relevant signal a static age-only denominator misses.
    age strata sourced.
 4. **Obesity → UI per-5-kg/m² OR with CI**, and quantified menopause/smoking
    modifiers — direction only.
-5. **Services (or visits) per FTE for urogynecologists and pelvic-floor PTs** —
-   not public. The OB/GYN ~1,700 visits/physician figure is a *derivation* from
-   aggregate NAMCS totals, **not** a published per-FTE constant, and is a
-   placeholder. Sourcing this (MGMA DataDive, AUGS) is required before the
-   staffing-conversion step produces a defensible FTE number.
+5. **Services→FTE conversion — RESOLVED via work RVUs (was a placeholder gap).**
+   Rather than a "visits per FTE" constant, `07_staffing_conversion.R` converts
+   service volumes to required FTE with CMS Physician Fee Schedule work RVUs
+   (RVU25A 2025, `params/urps_service_workload_rvu.csv`) and a wrvu-per-FTE that
+   is *solved* from a base-year anchor (Dall 2013), grossed up for indirect time.
+   Ported from the simulation package's R/17/R/23. An external benchmark
+   (3,500 / 7,500 / 12,000 wRVU per FTE) is used only as a plausibility check.
+   The full provider-delegation and setting-allocation engine remains in
+   simulation (SSOT); cliff carries only the URPS-attributed wRVU path.
 6. **Hendrix (WHI) and Mant (Oxford FPA) exact estimates/CIs** — verify full
    text before locking.
 
