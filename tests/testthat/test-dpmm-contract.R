@@ -128,3 +128,52 @@ test_that("the generic reader/index helpers extract the DMDM tier3 prevalence se
   expect_true(all(is.na(d3[(2025:2035) > 2030])))        # NA past the DMDM horizon
   expect_true(e$dpmm_series_usable(d3))
 })
+
+# --- per-tier provenance (literature POP transitions) ------------------------
+# When the DMDM contract is built from the simulation repo's literature POP
+# transitions (R/33), it carries a tier_calibration_status column: dmdm_pop is
+# "derived_by_analogy" while dmdm_ui/dmdm_ai stay placeholders and tier3 (any-PFD)
+# takes the weakest input status. read_dpmm_demand_contract() surfaces the map and
+# dpmm_tier_status() reads a tier's status with a fallback.
+
+mk_dmdm_pertier <- function() {
+  tiers <- c("tier3_prevalent_pfd", "dmdm_ui", "dmdm_pop", "dmdm_ai")
+  tst   <- c("placeholder_uncalibrated", "placeholder_uncalibrated",
+             "derived_by_analogy", "placeholder_uncalibrated")
+  do.call(rbind, Map(function(tier, s) data.frame(
+    model = "DMDM", calibration_status = "derived_by_analogy",
+    tier_calibration_status = s, denominator_tier = tier,
+    calendar_year = 2025:2027, denominator_index = c(100, 130, 170),
+    stringsAsFactors = FALSE), tiers, tst))
+}
+
+test_that("read_dpmm_demand_contract surfaces the per-tier status map", {
+  p <- tempfile(fileext = ".csv"); write.csv(mk_dmdm_pertier(), p, row.names = FALSE)
+  ct <- e$read_dpmm_demand_contract(p)
+  expect_false(is.null(ct$tier_status))
+  expect_equal(unname(ct$tier_status["dmdm_pop"]), "derived_by_analogy")
+  expect_equal(unname(ct$tier_status["dmdm_ui"]), "placeholder_uncalibrated")
+})
+
+test_that("dpmm_tier_status reads a tier's provenance, weakest for any-PFD", {
+  p <- tempfile(fileext = ".csv"); write.csv(mk_dmdm_pertier(), p, row.names = FALSE)
+  ct <- e$read_dpmm_demand_contract(p)
+  expect_equal(e$dpmm_tier_status(ct, "dmdm_pop"), "derived_by_analogy")
+  expect_equal(e$dpmm_tier_status(ct, "tier3_prevalent_pfd"), "placeholder_uncalibrated")
+  # the POP-specific series is readable and usable
+  dpop <- e$dpmm_alt_d1_index(ct$data, 2025:2027, base_year = 2025L, tier = "dmdm_pop")
+  expect_equal(dpop, c(100, 130, 170))
+  expect_true(e$dpmm_series_usable(dpop))
+})
+
+test_that("dpmm_tier_status falls back to object status for contracts without the column", {
+  p <- tempfile(fileext = ".csv")
+  write.csv(data.frame(
+    model = "DMDM", calibration_status = "placeholder_uncalibrated",
+    denominator_tier = "tier3_prevalent_pfd", calendar_year = 2025:2026,
+    denominator_index = c(100, 150)), p, row.names = FALSE)
+  ct <- e$read_dpmm_demand_contract(p)
+  expect_null(ct$tier_status)
+  expect_equal(e$dpmm_tier_status(ct, "dmdm_pop"), "placeholder_uncalibrated")  # fallback
+  expect_equal(e$dpmm_tier_status(NULL), NA_character_)
+})

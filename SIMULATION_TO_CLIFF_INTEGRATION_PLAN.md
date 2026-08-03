@@ -198,6 +198,21 @@ population, years, transformation, uncertainty, **model version**, and a frozen 
 > or the robustness verdict. Config path `hdmm_demand_contract` already exists in
 > `config/cliff_paths.yml`; tests in `tests/testthat/test-dpmm-contract.R`.
 
+> **Wired (2026-08-03): literature POP transitions with per-tier provenance.**
+> The `simulation` DMDM now models prolapse as graded and regressing (R/33,
+> `dmdm_transitions_with_pop_literature()`, from MOAD/WHI/SWEPOP). Passing those
+> transitions to `export_dmdm_demand_contract(transitions = )` stamps a
+> `tier_calibration_status` column, so the contract carries provenance **per tier**:
+> `dmdm_pop` = `derived_by_analogy` while `dmdm_ui`/`dmdm_ai` stay placeholders and
+> `tier3_prevalent_pfd` takes the weakest input status. cliff's ingestion
+> (`R/dpmm_contract.R`) gained `read_dpmm_demand_contract()$tier_status` and
+> `dpmm_tier_status(ct, tier)` to read a tier's provenance (falling back to the
+> object-level status for older contracts). Under `CLIFF_USE_DMDM_DEMAND=1`,
+> `scripts/urps_demand_denominators_sensitivity.R` now also surfaces the
+> POP-specific `dmdm_pop` series (`coverage_vs_dmdm_pop`, `prev_vs_dmdm_pop`) with
+> its `derived_by_analogy` label — still comparison-only, still excluded from the
+> robustness verdict. Tests extended in `tests/testthat/test-dpmm-contract.R`.
+
 ### Stage 3 — Supply structure flows *up*, not down
 - Port cliff's age-structure + hazards + pathway + age–productivity into `simulation` (this *is*
   improvement-plan §6). `simulation` then produces the four supply measures per year/geo/pathway.

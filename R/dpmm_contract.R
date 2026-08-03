@@ -47,14 +47,48 @@ dpmm_alt_d1_index <- function(contract, years,
 #' Thin base-R I/O wrapper. Returns `NULL` when `path` is empty or missing, so a
 #' caller can cleanly fall back to the published-anchor denominators.
 #'
+#' The DMDM contract (from the simulation repo's `export_dmdm_demand_contract()`)
+#' may carry a `tier_calibration_status` column, which stamps provenance PER TIER
+#' rather than for the whole artifact: e.g. when the contract is produced from the
+#' literature POP transitions, `dmdm_pop` is `derived_by_analogy` while `dmdm_ui`/
+#' `dmdm_ai` remain placeholders. `tier_status` surfaces that mapping so a
+#' consumer can gate on the provenance of the specific tier it reads. Older
+#' contracts without the column yield `tier_status = NULL`; use [dpmm_tier_status()]
+#' to read a tier's status with a fall back to the object-level `status`.
+#'
 #' @param path path to a `dpmm_demand_contract_v*.csv` (may be `""` / absent).
-#' @return `list(data = data.frame, status = character)` or `NULL`.
+#' @return `list(data = data.frame, status = character, tier_status = named
+#'   character or NULL)` or `NULL`.
 read_dpmm_demand_contract <- function(path) {
   if (is.null(path) || !nzchar(path) || !file.exists(path)) return(NULL)
   df <- utils::read.csv(path, stringsAsFactors = FALSE)
   status <- if ("calibration_status" %in% names(df))
     as.character(df$calibration_status[1]) else NA_character_
-  list(data = df, status = status)
+  tier_status <- NULL
+  if (all(c("denominator_tier", "tier_calibration_status") %in% names(df))) {
+    keep <- !duplicated(df$denominator_tier)
+    tier_status <- stats::setNames(as.character(df$tier_calibration_status[keep]),
+                                   as.character(df$denominator_tier[keep]))
+  }
+  list(data = df, status = status, tier_status = tier_status)
+}
+
+#' Per-tier calibration status of a demand contract (with fallback)
+#'
+#' Returns the provenance of a single `tier`, preferring the per-tier
+#' `tier_calibration_status` (via [read_dpmm_demand_contract()]'s `tier_status`)
+#' and falling back to the object-level `status` when the contract predates the
+#' per-tier column. Pure; no I/O.
+#'
+#' @param ct list from [read_dpmm_demand_contract()] (or `NULL`).
+#' @param tier denominator tier to look up. Default `"tier3_prevalent_pfd"`.
+#' @return character scalar (the tier's status), or `NA_character_`.
+dpmm_tier_status <- function(ct, tier = DPMM_DEFAULT_TIER) {
+  if (is.null(ct)) return(NA_character_)
+  if (!is.null(ct$tier_status) && tier %in% names(ct$tier_status))
+    return(unname(ct$tier_status[[tier]]))
+  if (!is.null(ct$status)) return(ct$status)
+  NA_character_
 }
 
 #' Is a DPMM-derived series usable (non-NULL with at least one value)?

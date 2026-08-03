@@ -164,7 +164,9 @@ use_hdmm <- isTRUE(hdmm_flag) && dpmm_series_usable(D_HDMM)
 # replaces the published anchors and never contributes to the robustness verdict.
 dmdm_flag <- tolower(Sys.getenv("CLIFF_USE_DMDM_DEMAND", "")) %in% c("1", "true", "yes", "on")
 D_DMDM <- NULL
+D_DMDM_POP <- NULL
 dmdm_status <- NA_character_
+dmdm_pop_status <- NA_character_
 if (dmdm_flag) {
   dmdm_path <- tryCatch({
     wcp <- here::here("R", "wc_path.R")
@@ -173,12 +175,24 @@ if (dmdm_flag) {
   }, error = function(e) "")
   ct_m <- read_dpmm_demand_contract(dmdm_path)   # generic reader, works on any contract
   if (!is.null(ct_m)) {
-    dmdm_status <- ct_m$status
+    # Per-tier provenance: tier3 (any-PFD) is only as calibrated as its weakest
+    # input condition; dmdm_pop carries the POP-specific status, which becomes
+    # "derived_by_analogy" once the contract is built from the literature POP
+    # transitions (simulation R/33). dpmm_tier_status() falls back to the object-
+    # level status for older contracts without the per-tier column.
+    dmdm_status <- dpmm_tier_status(ct_m, "tier3_prevalent_pfd")
+    dmdm_pop_status <- dpmm_tier_status(ct_m, "dmdm_pop")
     D_DMDM <- dpmm_alt_d1_index(ct_m$data, d$YEAR, base_year = BASE,
                                 tier = "tier3_prevalent_pfd")   # align + rebase to 2025 = 100
+    # POP-specific dynamic prevalence: the series the literature transitions
+    # actually improve (graded, regressing prolapse), read as its own comparison.
+    D_DMDM_POP <- dpmm_alt_d1_index(ct_m$data, d$YEAR, base_year = BASE,
+                                    tier = "dmdm_pop")
     cat(sprintf("DMDM dynamic-prevalence demand contract loaded: %s [%s]\n", dmdm_path,
                 if (identical(dmdm_status, "calibrated")) "CALIBRATED" else
                   sprintf("UNCALIBRATED (calibration_status='%s') - comparison only", dmdm_status)))
+    if (dpmm_series_usable(D_DMDM_POP))
+      cat(sprintf("  DMDM POP-specific series (dmdm_pop) available [%s]\n", dmdm_pop_status))
   } else {
     cat(sprintf("CLIFF_USE_DMDM_DEMAND set but contract not found (%s); using published anchors only.\n",
                 if (nzchar(dmdm_path)) dmdm_path else "<unresolved>"))
@@ -186,6 +200,7 @@ if (dmdm_flag) {
   }
 }
 use_dmdm <- isTRUE(dmdm_flag) && dpmm_series_usable(D_DMDM)
+use_dmdm_pop <- isTRUE(dmdm_flag) && dpmm_series_usable(D_DMDM_POP)
 
 demand <- tibble(
   YEAR = d$YEAR,
@@ -217,6 +232,11 @@ if (use_dmdm) {
     mutate(d_dmdm_prevalence_index = D_DMDM,
            coverage_vs_dmdm        = 100 * supply_index / d_dmdm_prevalence_index)
 }
+if (use_dmdm_pop) {
+  demand <- demand %>%
+    mutate(d_dmdm_pop_index    = D_DMDM_POP,
+           coverage_vs_dmdm_pop = 100 * supply_index / d_dmdm_pop_index)
+}
 
 # --- concordance across the three demand definitions -------------------------
 cov <- demand %>% select(coverage_vs_prevalence, coverage_vs_consultations, coverage_vs_surgery)
@@ -241,6 +261,9 @@ if (use_hdmm) {
 }
 if (use_dmdm) {
   rho <- c(rho, prev_vs_dmdm = sp(cov$coverage_vs_prevalence, demand$coverage_vs_dmdm))
+}
+if (use_dmdm_pop) {
+  rho <- c(rho, prev_vs_dmdm_pop = sp(cov$coverage_vs_prevalence, demand$coverage_vs_dmdm_pop))
 }
 
 # --- write outputs -----------------------------------------------------------
@@ -281,6 +304,12 @@ if (use_dmdm) {
               end$d_dmdm_prevalence_index, end$coverage_vs_dmdm))
   cat("      DMDM is a longitudinal onset/remission/death prevalence comparison;\n")
   cat("      it does NOT affect the robustness verdict.\n")
+}
+if (use_dmdm_pop) {
+  cat(sprintf("DMDM prolapse-specific (comparison only, %s): 2050 POP index %.0f | coverage %.0f\n",
+              dmdm_pop_status, end$d_dmdm_pop_index, end$coverage_vs_dmdm_pop))
+  cat("      dmdm_pop is graded, regressing prolapse from the literature POP transitions\n")
+  cat("      (MOAD/WHI/SWEPOP); comparison only, it does NOT affect the robustness verdict.\n")
 }
 cat("Wrote", OUT_CSV, "\n")
 
