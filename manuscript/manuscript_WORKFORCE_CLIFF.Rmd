@@ -188,7 +188,7 @@ kable(table2,
 
 *Immediate-entry adds graduates to the active stock in their entry year (a structural upper estimate); transition-adjusted applies the empirical certification-to-first-Medicare-activity entry ramp (Appendix S14). The 95% uncertainty interval is the 2.5th–97.5th percentile of a Monte Carlo simulation for the immediate-entry projection. The completion-to-departure ratio is annual fellowship completions divided by mean annual departures. URPS, urogynecology and reconstructive pelvic surgery; GO, gynecologic oncology.*
 
-```{r figure1, fig.cap="**Figure 1.** Projected active workforce, 2025–2029, under the status-quo entrant scenario. Solid lines are the immediate-entry projection with shaded 95% uncertainty bands; dashed lines (hollow endpoints) are the transition-adjusted trajectory. URPS, urogynecology and reconstructive pelvic surgery; GO, gynecologic oncology.", fig.width=7.2, fig.height=4.1}
+```{r figure1, fig.cap="**Figure 1.** Near-term urogynecology workforce projection, 2025–2029, under the status-quo entrant scenario. The thick solid line is the immediate-entry projection with a shaded 95% uncertainty band; the dashed line is the empirical entry-ramp (transition-adjusted) projection. The 2025 baseline and both 2029 endpoints are labeled directly.", fig.width=7.0, fig.height=4.2}
 fig_trajectory()
 ```
 
@@ -198,7 +198,7 @@ Under the status-quo scenario, the projected 2029 urogynecology workforce rose f
 
 Every one-way sensitivity kept both cohorts above replacement (Figure 2). Only the most adverse combined scenario, the provisional 2016–2023 window with tripled departures and 70% graduate conversion, approached balance (gynecologic oncology `r get_grid_worst("GO")`, urogynecology `r get_grid_worst("URPS")`; Appendix S12). Reaching replacement would require the departure rate to rise `r get_breakeven_rate_range()` or graduate output to fall `r get_breakeven_drop_range()` (Appendix S10). Inactivity-threshold, hazard-pooling, ABU-scaling, mortality, entrant-effort, baseline-definition, and graduate-supply sensitivities all remained above replacement and are reported in the Supplemental Digital Content.
 
-```{r figure2, fig.cap="**Figure 2.** Fellowship-completion-to-departure ratio across the primary analysis and selected sensitivity analyses. The dashed line marks one-for-one replacement; points to its right indicate completions exceeding departures. URPS, urogynecology and reconstructive pelvic surgery; GO, gynecologic oncology.", fig.width=7.4, fig.height=5.0}
+```{r figure2, fig.cap="**Figure 2.** Selected urogynecology sensitivity analyses. Completion-to-departure ratio (log scale) from the primary analysis (filled point, top) to the most adverse combined scenario (outlined point, bottom); the dashed line marks one-for-one replacement and shading lies below it. Values are printed beside each point.", fig.width=7.0, fig.height=4.2}
 fig_robustness()
 ```
 
@@ -209,7 +209,7 @@ In the exploratory 2030–2050 scenario extension, projected urogynecology suppl
 <!-- LIVE on the 1,306 cohort (supply + capacity rebuilt 2026-08-02 via
 scripts/rebuild_urps_1306_snapshot.R; fig_supply_demand_integrated() fails closed
 if the supply baseline is not 1,306). See docs/FIGURE_PROVENANCE.md. -->
-```{r figure-integrated-supply-demand, fig.width=9, fig.height=8, fig.cap="**Figure 3.** Projected urogynecology supply and demographic need, 2025–2050 (exploratory beyond 2029). Panel A indexes supply, productivity-adjusted capacity, and the two need measures to 2025 = 100; Panels B and C show urogynecologists per 100,000 women aged 65 years or older and women with a pelvic floor disorder per urogynecologist. URPS, urogynecology and reconstructive pelvic surgery."}
+```{r figure-integrated-supply-demand, fig.width=7.2, fig.height=7.0, fig.cap="**Figure 3.** Urogynecology supply relative to demographic need, 2025–2050 (exploratory beyond 2029, shaded). (A) Supply headcount and productivity-adjusted capacity (accent color) and the two population-based need measures (gray), indexed to 2025 = 100, with 2050 endpoints labeled directly. (B) Women with a pelvic floor disorder per urogynecologist, with 2025 and 2050 values labeled. FTE, full-time equivalent; PFD, pelvic floor disorder."}
 fig_supply_demand_integrated()
 ```
 

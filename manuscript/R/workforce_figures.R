@@ -27,65 +27,71 @@ suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr)
         legend.margin = margin(b = -4),
         axis.title = element_text(size = rel(0.9)))
 
-#' Figure 1: status-quo workforce trajectory, immediate-entry vs transition-adjusted.
+#' Figure 1: near-term urogynecology workforce projection, 2025-2029 (URPS only).
+#' Immediate-entry (solid) vs empirical entry ramp (dashed); endpoints labeled directly.
 fig_trajectory <- function() {
-  traj <- .wf_rd("scenario_projection_trajectories.csv") %>% filter(subspecialty_abbrev %in% c("GO","URPS"))
+  traj <- .wf_rd("scenario_projection_trajectories.csv") %>% filter(subspecialty_abbrev == "URPS")
   sq <- traj %>% filter(tolower(scenario) %in% c("status_quo","status-quo","status quo"))
-  if (nrow(sq) == 0) sq <- traj %>% group_by(subspecialty_abbrev) %>%
-    filter(scenario == dplyr::nth(unique(scenario), 1)) %>% ungroup()
-  ramp <- .wf_rd("graduation_active_transition_projection.csv") %>% filter(subspecialty_abbrev %in% c("GO","URPS"))
-  end_yr <- max(sq$year)
-  sq   <- sq   %>% mutate(cohort = .wf_lab[subspecialty_abbrev])
-  ramp_pts <- ramp %>% transmute(subspecialty_abbrev, year = end_yr, median = projected_2029_ramped,
-                                 cohort = .wf_lab[subspecialty_abbrev])
-  # transition-adjusted trajectory: a dashed path from each cohort's 2025 baseline to its
-  # 2029 transition-adjusted endpoint, so both projections are shown as lines (not just a point).
-  base_pts <- sq %>% group_by(subspecialty_abbrev, cohort) %>% dplyr::filter(year == min(year)) %>%
-    dplyr::ungroup() %>% dplyr::select(subspecialty_abbrev, cohort, year, median)
-  ramp_line <- dplyr::bind_rows(base_pts, dplyr::select(ramp_pts, subspecialty_abbrev, cohort, year, median))
-  ggplot(sq, aes(year, median, colour = cohort, fill = cohort)) +
-    geom_ribbon(aes(ymin = lo, ymax = hi), alpha = .15, colour = NA) +
-    geom_line(data = ramp_line, aes(year, median), linetype = "dashed", linewidth = .9, show.legend = FALSE) +
-    geom_line(linewidth = 1.1) + geom_point(size = 2) +
-    geom_point(data = ramp_pts, aes(year, median), shape = 21, size = 3.6, stroke = 1.1, fill = "white") +
-    geom_text(data = ramp_pts, aes(label = sprintf("transition-\nadjusted: %s", comma(round(median)))),
-              hjust = 1.1, vjust = 1.2, size = 8, size.unit = "pt", lineheight = .9, show.legend = FALSE) +
-    scale_colour_manual(values = .wf_pal, aesthetics = c("colour","fill")) +
-    scale_x_continuous(breaks = unique(sq$year), guide = guide_axis(check.overlap = TRUE)) +
+  if (nrow(sq) == 0) sq <- traj %>% filter(scenario == dplyr::first(unique(scenario)))
+  ramp <- .wf_rd("graduation_active_transition_projection.csv") %>% filter(subspecialty_abbrev == "URPS")
+  yr0 <- min(sq$year); yr1 <- max(sq$year); acc <- .wf_URPS
+  base_med <- sq$median[sq$year == yr0]; imm_end <- sq$median[sq$year == yr1]
+  ramp_end <- ramp$projected_2029_ramped[1]
+  ramp_line <- tibble(year = c(yr0, yr1), median = c(base_med, ramp_end))
+  ends <- tibble(year = c(yr0, yr1, yr1), median = c(base_med, imm_end, ramp_end),
+                 kind = c("baseline","immediate","ramp"))
+  lab <- tibble(x = c(yr0, yr1, yr1) + c(0, 0.08, 0.08),
+                y = c(base_med, imm_end, ramp_end),
+                txt = c(sprintf("2025 baseline: %s", comma(round(base_med))),
+                        sprintf("Immediate entry: %s", comma(round(imm_end))),
+                        sprintf("Empirical entry ramp: %s", comma(round(ramp_end)))),
+                h = c(1, 0, 0), v = c(1.8, -0.6, 1.6))
+  ggplot(sq, aes(year, median)) +
+    geom_ribbon(aes(ymin = lo, ymax = hi), fill = acc, alpha = .12) +
+    geom_line(linewidth = 1.3, colour = acc) +
+    geom_line(data = ramp_line, linewidth = 1.1, colour = acc, linetype = "dashed") +
+    geom_point(data = ends, aes(shape = kind, fill = kind), size = 2.8, colour = acc, stroke = 1) +
+    scale_shape_manual(values = c(baseline = 16, immediate = 16, ramp = 21), guide = "none") +
+    scale_fill_manual(values = c(baseline = acc, immediate = acc, ramp = "white"), guide = "none") +
+    geom_text(data = lab, aes(x, y, label = txt, hjust = h, vjust = v),
+              size = 9, size.unit = "pt", colour = "grey20", inherit.aes = FALSE) +
+    scale_x_continuous(breaks = yr0:yr1, limits = c(yr0, yr1 + 0.05)) +
     scale_y_continuous(labels = comma) +
-    labs(x = NULL, y = "Active subspecialists") +
-    .wf_theme()
+    coord_cartesian(clip = "off") +
+    labs(x = NULL, y = "Active urogynecologists") +
+    .wf_theme() + theme(legend.position = "none", plot.margin = margin(8, 96, 8, 8))
 }
 
-#' Figure 2: completion-to-departure ratio across the full stress-test set.
+#' Figure 2: selected urogynecology sensitivity analyses (URPS only), log ratio axis.
+#' Primary at top (filled), most adverse combined at bottom (outlined); values printed.
 fig_robustness <- function() {
   wf <- .wf_rd("workforce_projections_consolidated.csv"); mort <- .wf_rd("mortality_sensitivity.csv")
   cons <- .wf_rd("consistent_definition_baseline_sensitivity.csv"); op <- .wf_rd("open_payments_sensitivity.csv")
   win <- .wf_rd("departure_window_sensitivity.csv"); grid <- .wf_rd("sensitivity_grid_summary.csv")
-  g <- function(df, ab, col) df[[col]][df$subspecialty_abbrev == ab]
-  rows <- function(ab) tibble(
-    scenario = c("Primary","Anchored-definition baseline","Open Payments-inclusive",
-                 "+ half expected deaths","+ all expected deaths",
-                 "Full window (2016-2023)","3x departure rate","Worst-case combined"),
-    ratio = c(g(wf,ab,"replacement_ratio"), g(cons,ab,"ratio_consistent"),
-              op$replacement_ratio[op$rule == "op_inclusive" & op$subspecialty_abbrev == ab],
-              g(mort,ab,"ratio_adj_half_missed"), g(mort,ab,"ratio_adj_all_missed"),
-              win$dynamic_ratio[win$label == "full" & win$subspecialty_abbrev == ab],
-              g(grid,ab,"oneway_min"), g(grid,ab,"worst_ratio")),
-    ab = ab)
-  rob <- bind_rows(rows("GO"), rows("URPS")) %>%
-    mutate(scenario = factor(scenario, levels = rev(unique(scenario))), cohort = .wf_lab[ab])
-  ggplot(rob, aes(ratio, scenario, colour = cohort)) +
-    annotate("rect", xmin = -Inf, xmax = 1, ymin = -Inf, ymax = Inf, fill = "grey90", alpha = .6) +
+  g <- function(df, col) df[[col]][df$subspecialty_abbrev == "URPS"]
+  labs_v <- c("Primary","Anchored-definition baseline","Open Payments-inclusive",
+              "+ half expected deaths","+ all expected deaths",
+              "Full window (2016-2023)","Tripled departure rate","Most adverse combined")
+  rob <- tibble(
+    scenario = labs_v,
+    ratio = c(g(wf,"replacement_ratio"), g(cons,"ratio_consistent"),
+              op$replacement_ratio[op$rule == "op_inclusive" & op$subspecialty_abbrev == "URPS"],
+              g(mort,"ratio_adj_half_missed"), g(mort,"ratio_adj_all_missed"),
+              win$dynamic_ratio[win$label == "full" & win$subspecialty_abbrev == "URPS"],
+              g(grid,"oneway_min"), g(grid,"worst_ratio"))) %>%
+    mutate(scenario = factor(scenario, levels = rev(labs_v)),   # Primary top, adverse bottom
+           kind = dplyr::case_when(scenario == "Primary" ~ "primary",
+                                   scenario == "Most adverse combined" ~ "adverse", TRUE ~ "other"))
+  acc <- .wf_URPS
+  ggplot(rob, aes(ratio, scenario)) +
+    annotate("rect", xmin = 0.8, xmax = 1, ymin = -Inf, ymax = Inf, fill = "grey90", alpha = .7) +
     geom_vline(xintercept = 1, linetype = "dashed", colour = "grey40") +
-    geom_segment(aes(x = 1, xend = ratio, yend = scenario),
-                 position = position_dodge(width = .6), linewidth = .9, alpha = .5) +
-    geom_point(position = position_dodge(width = .6), size = 3.2) +
-    geom_text(aes(label = sprintf("%.1f", ratio)), position = position_dodge(width = .6),
-              hjust = -0.35, size = 8, size.unit = "pt", show.legend = FALSE) +
-    scale_colour_manual(values = .wf_pal) +
-    scale_x_continuous(limits = c(0, max(rob$ratio) * 1.12), breaks = seq(0, 8, 2),
-                       expand = expansion(mult = c(0, .02))) +
-    labs(x = "Completion-to-departure ratio", y = NULL) +
-    .wf_theme()
+    geom_point(aes(shape = kind, fill = kind), size = 3.3, colour = acc, stroke = 1) +
+    geom_text(aes(label = sprintf("%.1f", ratio)), hjust = -0.45, size = 9, size.unit = "pt", colour = "grey20") +
+    scale_shape_manual(values = c(primary = 21, adverse = 21, other = 21), guide = "none") +
+    scale_fill_manual(values = c(primary = acc, adverse = "white", other = acc), guide = "none") +
+    scale_x_log10(breaks = c(1, 2, 4), limits = c(0.8, 7)) +
+    coord_cartesian(clip = "off") +
+    labs(x = "Completion-to-departure ratio (log scale; dashed line = replacement)", y = NULL) +
+    .wf_theme() + theme(legend.position = "none", plot.margin = margin(8, 40, 8, 8))
 }

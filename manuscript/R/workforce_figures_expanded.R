@@ -294,176 +294,90 @@ fig_supply_demand_integrated <- function(
     )
 
   endpoint_year <- base::max(trajectory_tbl$YEAR)
+  short_name <- c(
+    "URPS headcount" = "URPS headcount",
+    "Productivity-adjusted capacity" = "Capacity (FTE-adjusted)",
+    "Women aged 65 years or older" = "Women 65+",
+    "Women with a pelvic floor disorder" = "Women with PFD")
+  # One accent hue for supply, gray for the population measures; solid vs dashed
+  # distinguishes headcount from capacity and older women from those with a PFD,
+  # so the figure reads without color and without a legend.
+  series_col <- c(
+    "URPS headcount" = "#d1495b", "Productivity-adjusted capacity" = "#d1495b",
+    "Women aged 65 years or older" = "grey35", "Women with a pelvic floor disorder" = "grey35")
+  series_lty <- c(
+    "URPS headcount" = "solid", "Productivity-adjusted capacity" = "dashed",
+    "Women aged 65 years or older" = "solid", "Women with a pelvic floor disorder" = "dashed")
 
   endpoint_tbl <- trajectory_tbl |>
     dplyr::filter(.data$YEAR == endpoint_year) |>
     dplyr::mutate(
-      label = scales::number(.data$index, accuracy = 1),
-      label_y = .data$index +
-        dplyr::case_when(
-          .data$series == "URPS headcount" ~ 2.0,
-          .data$series == "Productivity-adjusted capacity" ~ -2.0,
-          .data$series == "Women aged 65 years or older" ~ 1.2,
-          TRUE ~ -1.2
-        )
-    )
+      label = base::paste0(short_name[base::as.character(.data$series)], " ",
+                           scales::number(.data$index, accuracy = 1)),
+      label_y = .data$index + dplyr::case_when(
+        .data$series == "URPS headcount" ~ 2.5,
+        .data$series == "Women aged 65 years or older" ~ 1.6,
+        .data$series == "Productivity-adjusted capacity" ~ -2.6,
+        TRUE ~ -1.6))
 
   panel_a <- ggplot2::ggplot(
     trajectory_tbl,
-    ggplot2::aes(
-      x = .data$YEAR,
-      y = .data$index,
-      colour = .data$series
-    )
-  ) +
-    ggplot2::annotate(
-      geom = "rect",
-      xmin = modeled_end_year,
-      xmax = Inf,
-      ymin = -Inf,
-      ymax = Inf,
-      fill = "grey80",
-      alpha = 0.18
-    ) +
+    ggplot2::aes(x = .data$YEAR, y = .data$index,
+                 colour = .data$series, linetype = .data$series)) +
+    ggplot2::annotate("rect", xmin = modeled_end_year, xmax = Inf, ymin = -Inf, ymax = Inf,
+                      fill = "grey85", alpha = 0.35) +
     ggplot2::geom_ribbon(
       data = indexed_tbl,
-      ggplot2::aes(
-        x = .data$YEAR,
-        ymin = .data$supply_lo_index_calc,
-        ymax = .data$supply_hi_index_calc
-      ),
-      inherit.aes = FALSE,
-      fill = .wc_palette[["URPS headcount"]],
-      alpha = 0.12
-    ) +
-    ggplot2::geom_vline(
-      xintercept = modeled_end_year,
-      linetype = "dashed",
-      colour = "grey40"
-    ) +
+      ggplot2::aes(x = .data$YEAR, ymin = .data$supply_lo_index_calc,
+                   ymax = .data$supply_hi_index_calc),
+      inherit.aes = FALSE, fill = "#d1495b", alpha = 0.12) +
+    ggplot2::geom_vline(xintercept = modeled_end_year, linetype = "dotted", colour = "grey55") +
     ggplot2::geom_line(linewidth = 1.05) +
     ggplot2::geom_text(
       data = endpoint_tbl,
-      ggplot2::aes(
-        x = .data$YEAR + 0.5,
-        y = .data$label_y,
-        label = .data$label
-      ),
-      hjust = 0,
-      size = 2.8,
-      show.legend = FALSE
-    ) +
-    ggplot2::annotate(
-      geom = "text",
-      x = modeled_end_year + 0.4,
-      y = Inf,
-      label = "Long-horizon extrapolation",
-      hjust = 0,
-      vjust = 1.4,
-      size = 3
-    ) +
-    ggplot2::scale_colour_manual(values = .wc_palette) +
-    ggplot2::scale_x_continuous(
-      breaks = base::seq(baseline_year, endpoint_year, 5L),
-      limits = c(baseline_year, endpoint_year + 7)
-    ) +
-    ggplot2::scale_y_continuous(
-      labels = scales::label_number(accuracy = 1),
-      expand = ggplot2::expansion(mult = c(0.04, 0.12))
-    ) +
-    ggplot2::labs(
-      x = NULL,
-      y = base::paste0("Index, ", baseline_year, " = 100")
-    ) +
-    .wc_theme()
+      ggplot2::aes(x = .data$YEAR + 0.6, y = .data$label_y, label = .data$label,
+                   colour = .data$series),
+      hjust = 0, size = 3, show.legend = FALSE, inherit.aes = FALSE) +
+    ggplot2::annotate("text", x = modeled_end_year + 0.4, y = -Inf,
+                      label = "Exploratory scenario extension", hjust = 0, vjust = -0.8,
+                      size = 2.9, colour = "grey40") +
+    ggplot2::scale_colour_manual(values = series_col, guide = "none") +
+    ggplot2::scale_linetype_manual(values = series_lty, guide = "none") +
+    ggplot2::scale_x_continuous(breaks = base::seq(baseline_year, endpoint_year, 5L),
+                                limits = c(baseline_year, endpoint_year + 9)) +
+    ggplot2::scale_y_continuous(labels = scales::label_number(accuracy = 1),
+                                expand = ggplot2::expansion(mult = c(0.04, 0.10))) +
+    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::labs(x = NULL, y = base::paste0("Index, ", baseline_year, " = 100")) +
+    .wc_theme() +
+    ggplot2::theme(legend.position = "none", plot.margin = ggplot2::margin(8, 92, 4, 8))
 
+  # Panel B: the most interpretable burden measure (women with a pelvic floor
+  # disorder per urogynecologist); per-100,000 coverage moves to the supplement.
+  b_end <- indexed_tbl |> dplyr::filter(.data$YEAR %in% c(baseline_year, endpoint_year))
   panel_b <- ggplot2::ggplot(
-    indexed_tbl,
-    ggplot2::aes(
-      x = .data$YEAR,
-      y = .data$urogyn_per_100k_w65
-    )
-  ) +
-    ggplot2::annotate(
-      geom = "rect",
-      xmin = modeled_end_year,
-      xmax = Inf,
-      ymin = -Inf,
-      ymax = Inf,
-      fill = "grey80",
-      alpha = 0.18
-    ) +
-    ggplot2::geom_ribbon(
-      ggplot2::aes(
-        ymin = .data$per100k_lo,
-        ymax = .data$per100k_hi
-      ),
-      fill = .wc_palette[["URPS headcount"]],
-      alpha = 0.12
-    ) +
-    ggplot2::geom_line(
-      colour = .wc_palette[["URPS headcount"]],
-      linewidth = 1.05
-    ) +
-    ggplot2::geom_vline(
-      xintercept = modeled_end_year,
-      linetype = "dashed",
-      colour = "grey40"
-    ) +
-    ggplot2::scale_x_continuous(
-      breaks = base::seq(baseline_year, endpoint_year, 5L)
-    ) +
-    ggplot2::scale_y_continuous(
-      labels = scales::label_number(accuracy = 0.1)
-    ) +
-    ggplot2::labs(
-      x = "Year",
-      y = "Urogynecologists per\n100,000 women aged 65+"
-    ) +
+    indexed_tbl, ggplot2::aes(x = .data$YEAR, y = .data$women_pfd_per_urogyn)) +
+    ggplot2::annotate("rect", xmin = modeled_end_year, xmax = Inf, ymin = -Inf, ymax = Inf,
+                      fill = "grey85", alpha = 0.35) +
+    ggplot2::geom_vline(xintercept = modeled_end_year, linetype = "dotted", colour = "grey55") +
+    ggplot2::geom_line(colour = "#d1495b", linewidth = 1.05) +
+    ggplot2::geom_point(data = b_end, size = 2.2, colour = "#d1495b") +
+    ggplot2::geom_text(data = b_end,
+                       ggplot2::aes(label = scales::comma(base::round(.data$women_pfd_per_urogyn))),
+                       vjust = -1, hjust = c(0, 1), size = 3, colour = "grey20") +
+    ggplot2::scale_x_continuous(breaks = base::seq(baseline_year, endpoint_year, 5L),
+                                limits = c(baseline_year, endpoint_year + 9)) +
+    ggplot2::scale_y_continuous(labels = scales::label_comma(),
+                                expand = ggplot2::expansion(mult = c(0.08, 0.14))) +
+    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::labs(x = "Year", y = "Women with a pelvic floor\ndisorder per urogynecologist") +
     .wc_theme() +
-    ggplot2::theme(legend.position = "none")
+    ggplot2::theme(legend.position = "none", plot.margin = ggplot2::margin(4, 92, 8, 8))
 
-  panel_c <- ggplot2::ggplot(
-    indexed_tbl,
-    ggplot2::aes(
-      x = .data$YEAR,
-      y = .data$women_pfd_per_urogyn
-    )
-  ) +
-    ggplot2::annotate(
-      geom = "rect",
-      xmin = modeled_end_year,
-      xmax = Inf,
-      ymin = -Inf,
-      ymax = Inf,
-      fill = "grey80",
-      alpha = 0.18
-    ) +
-    ggplot2::geom_line(
-      colour = .wc_palette[["Women with a pelvic floor disorder"]],
-      linewidth = 1.05
-    ) +
-    ggplot2::geom_vline(
-      xintercept = modeled_end_year,
-      linetype = "dashed",
-      colour = "grey40"
-    ) +
-    ggplot2::scale_x_continuous(
-      breaks = base::seq(baseline_year, endpoint_year, 5L)
-    ) +
-    ggplot2::scale_y_continuous(labels = scales::label_comma()) +
-    ggplot2::labs(
-      x = "Year",
-      y = "Women with a pelvic floor\ndisorder per urogynecologist"
-    ) +
-    .wc_theme() +
-    ggplot2::theme(legend.position = "none")
-
-  base::message("Combining indexed and clinical-coverage panels.")
-
-  panel_a /
-    (panel_b | panel_c) +
-    patchwork::plot_layout(heights = c(1.7, 1))
+  base::message("Combining indexed and burden panels.")
+  panel_a / panel_b +
+    patchwork::plot_layout(heights = c(1.6, 1)) +
+    patchwork::plot_annotation(tag_levels = "A")
 }
 
 
