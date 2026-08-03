@@ -298,11 +298,7 @@ fig_supply_demand_integrated <- function(
   endpoint_tbl <- trajectory_tbl |>
     dplyr::filter(.data$YEAR == endpoint_year) |>
     dplyr::mutate(
-      label = base::paste0(
-        .data$series,
-        ": ",
-        scales::number(.data$index, accuracy = 1)
-      ),
+      label = scales::number(.data$index, accuracy = 1),
       label_y = .data$index +
         dplyr::case_when(
           .data$series == "URPS headcount" ~ 2.0,
