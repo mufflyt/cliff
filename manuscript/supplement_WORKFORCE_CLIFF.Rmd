@@ -17,6 +17,10 @@ suppressPackageStartupMessages({
   library(knitr)
 })
 source(here("manuscript/R/workforce_statistics.R"))
+# Figure builders for the moved main-text figures (Appendix S17).
+source(here("manuscript/R/workforce_figures.R"))
+source(here("manuscript/R/create_figure_stock_flow_design.R"))
+source(here("manuscript/R/workforce_figures_expanded.R"))
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 workforce_summary <- load_workforce_data()
 ```
@@ -1268,6 +1272,38 @@ sc <- readr::read_csv(here::here("data", "table_evidence_supporting_scenarios.cs
 kable(sc,
       col.names = c("Scenario", "Implementation", "Evidence"),
       caption = "**Appendix Table S32.** Evidence supporting scenarios for the urogynecology workforce projection. The primary specification is marked in each scenario family. Modeled after Fraher et al., Pediatrics 2024;153(S2), Table 5.")
+```
+
+# Appendix S17. Supplementary Figures Moved from the Main Text
+
+To keep the main manuscript to three figures, the dynamic stock-and-flow schematic,
+the age-composition and workforce-flow figure, the full completion-to-departure
+robustness grid (both cohorts, including the gynecologic oncology comparator), and the
+per-100,000-women coverage measure are reported here.
+
+```{r sfig-stock-flow, fig.width=9, fig.height=5, fig.cap="**Supplemental Figure S1.** Design of the dynamic age-structured stock-and-flow supply forecast. The estimated 2025 active workforce is aged one year, the pooled age-band departure hazard removes departures, and annual fellowship completers enter, each year across 2025-2029 (extended to 2050 as an exploratory scenario). URPS, urogynecology and reconstructive pelvic surgery; GO, gynecologic oncology; ACGME, Accreditation Council for Graduate Medical Education; FTE, full-time equivalent."}
+print(fig_stock_flow_design())
+```
+
+```{r sfig-age-conveyor, fig.width=9, fig.height=8, fig.cap="**Supplemental Figure S2.** Projected urogynecology age composition (upper panel; black line, total projected headcount) with annual fellowship entrants (above zero) and expected departures (below zero; lower panel). The shaded region is the exploratory scenario extension from 2030. PFD, pelvic floor disorder."}
+fig_age_conveyor()
+```
+
+```{r sfig-robustness-frontier, fig.width=9, fig.height=6.5, fig.cap="**Supplemental Figure S3.** Completion-to-departure robustness frontier for urogynecology and the gynecologic oncology comparator, crossing the observation window, graduate-to-practice conversion, and departure-rate multiplier. Cells above 1.0 exceed one-for-one replacement; the ringed cell is the primary analysis."}
+fig_robustness_frontier()
+```
+
+```{r sfig-per100k, fig.width=7, fig.height=4, fig.cap="**Supplemental Figure S4.** Urogynecologists per 100,000 women aged 65 years or older, 2025-2050 (exploratory scenario extension from 2030, shaded), with the 95% Monte Carlo uncertainty band."}
+.sd <- readr::read_csv(here("data", "urps_supply_demand_national_2026-07-23.csv"), show_col_types = FALSE)
+ggplot2::ggplot(.sd, ggplot2::aes(YEAR, urogyn_per_100k_w65)) +
+  ggplot2::annotate("rect", xmin = 2029, xmax = Inf, ymin = -Inf, ymax = Inf, fill = "grey85", alpha = 0.35) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = per100k_lo, ymax = per100k_hi), fill = "#d1495b", alpha = 0.12) +
+  ggplot2::geom_vline(xintercept = 2029, linetype = "dotted", colour = "grey55") +
+  ggplot2::geom_line(colour = "#d1495b", linewidth = 1.05) +
+  ggplot2::scale_x_continuous(breaks = seq(2025, 2050, 5)) +
+  ggplot2::labs(x = "Year", y = "Urogynecologists per\n100,000 women aged 65+") +
+  ggplot2::theme_minimal(base_size = 11) +
+  ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
 ```
 
 # Data Availability
