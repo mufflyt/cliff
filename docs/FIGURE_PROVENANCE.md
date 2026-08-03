@@ -45,8 +45,9 @@ parentheses when it is later, i.e. a working-copy regeneration not yet committed
 
 | Figure | File(s) | Generator | Reads | Generated | Baseline | Status |
 |---|---|---|---|---|---|---|
-| Manuscript Fig 1 (trajectories) | `manuscript/figures/figure1-1.png` | `manuscript/R/workforce_figures.R` `fig_trajectory()` (called by the Rmd at render) | `data/workforce_projections_consolidated.csv` (via `load_workforce_data`) + `data/graduation_active_transition_projection.csv` | rendered 2026-08-02 | 1,306 / pooled | CURRENT |
-| Manuscript Fig 2 (robustness) | `manuscript/figures/figure2-1.png` | `manuscript/R/workforce_figures.R` `fig_robustness()` (called by the Rmd at render) | `data/workforce_projections_consolidated.csv` + `data/hierarchical_hazard_comparison.csv` + sensitivity CSVs | rendered 2026-08-02 | 1,306 / pooled | CURRENT |
+| Manuscript Fig 1 (stock-flow design schematic) | `manuscript/figures/figure-stock-flow-design-1.png` (render) + `figure_stock_flow_design.{png,tiff}` (standalone) | `manuscript/R/create_figure_stock_flow_design.R` `fig_stock_flow_design()` (called by the Rmd at render) | constructed schematic, NO data input | 2026-08-02 | n/a (design) | CURRENT |
+| Manuscript Fig 2 (trajectories) | `manuscript/figures/figure1-1.png` | `manuscript/R/workforce_figures.R` `fig_trajectory()` (called by the Rmd at render) | `data/workforce_projections_consolidated.csv` (via `load_workforce_data`) + `data/graduation_active_transition_projection.csv` | rendered 2026-08-02 | 1,306 / pooled | CURRENT |
+| Manuscript Fig 3 (robustness) | `manuscript/figures/figure2-1.png` | `manuscript/R/workforce_figures.R` `fig_robustness()` (called by the Rmd at render) | `data/workforce_projections_consolidated.csv` + `data/hierarchical_hazard_comparison.csv` + sensitivity CSVs | rendered 2026-08-02 | 1,306 / pooled | CURRENT |
 | README hero (abstract, 2026 to 2030) | `figures/workforce_crisis_abstract.{png,tiff}` | `code/03_create_abstract_figure.R` | `data/workforce_projections_consolidated.csv` | 2026-08-02 | 1,306 | CURRENT |
 | README Fig 1 (workforce trajectories) | `figures/figure1_workforce_trajectories.{png,tiff}` | `code/02_create_figures.R` | `data/workforce_projections_consolidated.csv` | 2026-08-02 | 1,306 | CURRENT |
 | README Fig 2 (replacement gap) | `figures/figure2_replacement_gap.{png,tiff}` | `code/02_create_figures.R` | `data/workforce_projections_consolidated.csv` | 2026-08-02 | 1,306 | CURRENT |
@@ -89,7 +90,8 @@ through `here()` from the repo root):
 | `code/06_retirement_sensitivity.R` | `retirement_sensitivity_workforce`, `retirement_sensitivity_change` |
 | `scripts/urps_concentration_equity_2026-08-01.R` | `urps_concentration_lorenz_2026-08-01` |
 | `scripts/urps_module_d_differential_map.R` | `urps_differential_distance_map_2026-07-23` |
-| render of `manuscript/manuscript_WORKFORCE_CLIFF.Rmd` | `manuscript/figures/figure1-1.png`, `figure2-1.png` |
+| `manuscript/R/create_figure_stock_flow_design.R` | `figure_stock_flow_design` (Fig 1 design schematic; standalone or via render) |
+| render of `manuscript/manuscript_WORKFORCE_CLIFF.Rmd` | `figure-stock-flow-design-1.png` (Fig 1), `figure1-1.png` (Fig 2), `figure2-1.png` (Fig 3) |
 
 `code/00_RUN_ALL.R` runs the full `code/` pipeline and writes a machine-readable
 run manifest to `outputs/runs/<timestamp>/metadata.json` (git commit, R version,
