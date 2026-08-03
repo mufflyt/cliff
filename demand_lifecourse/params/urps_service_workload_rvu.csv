@@ -1,0 +1,12 @@
+service,setting,unit,work_rvu,cpt_label,status,source
+new_consultation,ambulatory,encounter,2.5350,99203+99204+99205,calibrated,"CMS PFS Relative Value File RVU25A (PPRRVU25_JAN, 2025), mix-weighted"
+return_visit,ambulatory,encounter,1.3960,99212+99213+99214,calibrated,"CMS PFS RVU25A 2025, mix-weighted"
+pessary_care,ambulatory,encounter,0.8900,57160,calibrated,"CMS PFS RVU25A 2025"
+urodynamics,ambulatory,study,1.8880,51726+51728+51729+51741+51784,calibrated,"CMS PFS RVU25A 2025, mix-weighted"
+cystoscopy,ambulatory,procedure,1.5300,52000,calibrated,"CMS PFS RVU25A 2025"
+botox_bladder,ambulatory,procedure,3.2000,52287,calibrated,"CMS PFS RVU25A 2025"
+ptns,ambulatory,session,0.6000,64566,calibrated,"CMS PFS RVU25A 2025"
+bladder_instillation,ambulatory,session,0.6000,51700,calibrated,"CMS PFS RVU25A 2025"
+sling_procedure,operative,procedure,12.2864,51992+57287+57288,calibrated,"CMS PFS RVU25A 2025, mix-weighted"
+prolapse_procedure,operative,procedure,12.1155,57120+57240+57250+57260+57265+57268+57282+57283+57425,calibrated,"CMS PFS RVU25A 2025, mix-weighted"
+postoperative_care,ambulatory,encounter,0.0000,bundled in 090-day global period,calibrated,"CMS PFS RVU25A 2025 (090-day global includes postop)"
