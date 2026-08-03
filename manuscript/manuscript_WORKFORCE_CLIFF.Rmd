@@ -17,7 +17,7 @@ running_head: Urogynecology Workforce Through 2050
 precis: Recent fellowship completion exceeded projected near-term departures, but
   national workforce growth did not establish geographic access or operative
   capacity.
-word_count: 3,700 words
+word_count: 3,000 words
 abstract_word_count: 300 words
 conflict_of_interest: The authors report no conflict of interest.
 funding: "This research received no specific grant from any funding agency in the
@@ -67,6 +67,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Title Page
+
+**Title:** United States Urogynecology Workforce Supply Relative to Demographic Need Through 2050: A Stock-and-Flow Projection
+
+**Running head:** Urogynecology Workforce Through 2050
+
+**Author:** Tyler Muffly, MD
+
+**Affiliation:** Department of Obstetrics and Gynecology, Denver Health Medical Center, and University of Colorado School of Medicine, Denver, Colorado.
+
+**Corresponding author:** Tyler Muffly, MD, Department of Obstetrics and Gynecology, Denver Health Medical Center, 777 Bannock Street, Denver, CO 80204; email tyler.muffly@dhha.org.
+
+**Précis:** Recent fellowship completion exceeded projected near-term departures, but national workforce growth did not establish geographic access or operative capacity.
+
+**Word count:** abstract 252 words; main text approximately 2,700 words.
+
+**Financial disclosure:** The authors report no conflict of interest.
+
+**Funding:** This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
+
+**Keywords:** urogynecology; pelvic floor disorders; physician workforce projection; workforce supply and demand; clinical-practice departure; fellowship training.
+
 ## Abstract
 
 **OBJECTIVE:** To project United States urogynecology and reconstructive pelvic surgery workforce supply through 2050 and compare supply with population-based measures of demographic need.
@@ -109,7 +131,7 @@ Age-band departure hazards were estimated from the cohort's own person-year life
 
 ## Demographic-Need Measures and Exploratory 2050 Extension
 
-To situate supply against population-based need, we used the number of United States women aged 65 years or older (US Census Bureau 2023 National Population Projections) and the number estimated to be living with a pelvic floor disorder (published age-specific prevalence applied to those projections).[@nygaard2008] These are demographic measures of need, not utilization-derived demand. We modeled need for urogynecology only; gynecologic oncology need depends on cancer incidence, which this model does not capture, so no gynecologic oncology need or adequacy is inferred, and that cohort is carried solely as a supply-side comparator. Supply was expressed as headcount and as productivity-adjusted capacity, weighting each subspecialist by clinical time devoted to urogynecologic care.[@temkin2022fte] The primary model covered 2025–2029; an exploratory scenario extension carried the same inputs through 2050 to align with the demographic projections, and its long-horizon values are provisional rather than validated forecasts. An accompanying interactive tool allows the productivity and pathway assumptions to be varied.
+To situate supply against population-based need, we used the number of United States women aged 65 years or older (US Census Bureau 2023 National Population Projections) and the number estimated to be living with a pelvic floor disorder (published age-specific prevalence applied to those projections).[@nygaard2008] These are demographic measures of need, not utilization-derived demand. We modeled need for urogynecology only; gynecologic oncology need depends on cancer incidence, which this model does not capture, so no gynecologic oncology need or adequacy is inferred, and that cohort is carried solely as a supply-side comparator. Supply was expressed as headcount and as productivity-adjusted capacity, weighting each subspecialist by clinical time devoted to urogynecologic care.[@temkin2022fte] The primary model covered 2025–2029; an exploratory scenario extension carried the same inputs through 2050 to align with the demographic projections, and its long-horizon values are provisional rather than validated forecasts. An accompanying interactive web application allows the productivity, pathway, and scenario assumptions to be varied.[@muffly_urps_explorer]
 
 An exploratory operative-workforce analysis using Medicare fee-for-service by-service claims could not distinguish true cessation of surgery from loss of Medicare visibility; operative replacement was therefore not estimated in the primary manuscript, and its methods and results are reported in the Supplemental Digital Content (Appendix S11).
 
