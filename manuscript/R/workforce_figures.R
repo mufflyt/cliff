@@ -30,22 +30,29 @@ suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr)
 #' Figure 1: near-term urogynecology workforce projection, 2025-2029 (URPS only).
 #' Immediate-entry (solid) vs empirical entry ramp (dashed); endpoints labeled directly.
 fig_trajectory <- function() {
-  traj <- .wf_rd("scenario_projection_trajectories.csv") %>% filter(subspecialty_abbrev == "URPS")
-  sq <- traj %>% filter(tolower(scenario) %in% c("status_quo","status-quo","status quo"))
-  if (nrow(sq) == 0) sq <- traj %>% filter(scenario == dplyr::first(unique(scenario)))
-  ramp <- .wf_rd("graduation_active_transition_projection.csv") %>% filter(subspecialty_abbrev == "URPS")
-  yr0 <- min(sq$year); yr1 <- max(sq$year); acc <- .wf_URPS
-  base_med <- sq$median[sq$year == yr0]; imm_end <- sq$median[sq$year == yr1]
-  ramp_end <- ramp$projected_2029_ramped[1]
+  # Drive Figure 1 from the SSOT (workforce_projections_consolidated.csv via
+  # load_workforce_data), NOT the stale producerless scenario_projection_trajectories.csv
+  # (which is on a 1,295 baseline). Baseline, 2029 immediate endpoint, and the 95%
+  # interval are the SSOT values; the ramp endpoint is the transition CSV. The near-term
+  # trajectory is near-linear, so it is drawn baseline -> 2029 endpoint.
+  ss <- load_workforce_data(); u <- ss[ss$subspecialty_abbrev == "URPS", ]
+  ramp_end <- .wf_rd("graduation_active_transition_projection.csv") %>%
+    filter(subspecialty_abbrev == "URPS") %>% pull(projected_2029_ramped) %>% `[`(1)
+  yr0 <- 2025L; yr1 <- 2029L; acc <- .wf_URPS
+  base_med <- u$baseline_2025; imm_end <- u$projected_2029
+  lo29 <- u$ci95_lower; hi29 <- u$ci95_upper
+  yrs <- yr0:yr1; f <- (yrs - yr0) / (yr1 - yr0)
+  sq <- tibble(year = yrs, median = base_med + f * (imm_end - base_med),
+               lo = base_med + f * (lo29 - base_med), hi = base_med + f * (hi29 - base_med))
   ramp_line <- tibble(year = c(yr0, yr1), median = c(base_med, ramp_end))
   ends <- tibble(year = c(yr0, yr1, yr1), median = c(base_med, imm_end, ramp_end),
                  kind = c("baseline","immediate","ramp"))
-  lab <- tibble(x = c(yr0, yr1, yr1) + c(0, 0.08, 0.08),
+  lab <- tibble(x = c(yr0, yr1, yr1) + c(0.05, 0.08, 0.08),
                 y = c(base_med, imm_end, ramp_end),
                 txt = c(sprintf("2025 baseline: %s", comma(round(base_med))),
                         sprintf("Immediate entry: %s", comma(round(imm_end))),
                         sprintf("Empirical entry ramp: %s", comma(round(ramp_end)))),
-                h = c(1, 0, 0), v = c(1.8, -0.6, 1.6))
+                h = c(0, 0, 0), v = c(-1.4, -0.6, 1.6))
   ggplot(sq, aes(year, median)) +
     geom_ribbon(aes(ymin = lo, ymax = hi), fill = acc, alpha = .12) +
     geom_line(linewidth = 1.3, colour = acc) +

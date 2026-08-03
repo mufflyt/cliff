@@ -339,7 +339,7 @@ fig_supply_demand_integrated <- function(
                    colour = .data$series),
       hjust = 0, size = 3, show.legend = FALSE, inherit.aes = FALSE) +
     ggplot2::annotate("text", x = modeled_end_year + 0.4, y = -Inf,
-                      label = "Exploratory scenario extension", hjust = 0, vjust = -0.8,
+                      label = "Exploratory scenario extension (from 2030)", hjust = 0, vjust = -0.8,
                       size = 2.9, colour = "grey40") +
     ggplot2::scale_colour_manual(values = series_col, guide = "none") +
     ggplot2::scale_linetype_manual(values = series_lty, guide = "none") +
