@@ -21,11 +21,14 @@ suppressPackageStartupMessages({
 # Data contract: constants, canonical path, and the fail-loud validator.
 source(here::here("manuscript", "R", "workforce_data_contract.R"))
 
-# Monte Carlo iteration count. As of the Tier-3 dynamic-model integration
-# (2026-07-18) the SD/CI columns in the SSOT ARE a live re-runnable simulation:
-# scripts/rebuild_ssot_dynamic_acgme.R runs a 1,000-iteration seeded microsimulation
-# of the age-structured departure process and writes the 95% PREDICTION interval
-# (ci95_lower/upper) and its SD into data/workforce_projections_consolidated.csv.
+# Monte Carlo iteration count. The SD/CI columns in the SSOT
+# (ci95_lower/ci95_upper) are a cohort-level Monte Carlo PARAMETER-UNCERTAINTY
+# interval, NOT a microsimulation: the canonical writer scripts/rebuild_ssot_revised.R
+# runs a WORKFORCE_MONTE_CARLO_ITERATIONS-iteration (10,000) seeded Monte Carlo over
+# aggregate age-band flows (Beta posteriors on the band hazards + empirical resampling
+# of the annual graduate counts) and writes ci95_lower/ci95_upper into
+# data/workforce_projections_consolidated.csv. (scripts/rebuild_ssot_dynamic_acgme.R
+# is a non-canonical stub that only re-emits the frozen table under an override.)
 # The count lives once in workforce_data_contract.R; keep this alias for callers.
 N_MONTE_CARLO_ITERATIONS <- WORKFORCE_MONTE_CARLO_ITERATIONS
 
