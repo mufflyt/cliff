@@ -81,7 +81,7 @@ knitr::opts_chunk$set(
 
 **Précis:** A national urogynecology replacement cliff was not supported; fellowship output exceeded projected departures, but rising headcount did not establish access or operative capacity.
 
-**Word count:** abstract 283 words; main text approximately 2,700 words.
+**Word count:** abstract 283 words; main text approximately 2,800 words.
 
 **Financial disclosure:** The author reports no conflict of interest.
 
@@ -91,7 +91,7 @@ knitr::opts_chunk$set(
 
 ## Abstract
 
-**OBJECTIVE:** To determine whether recent fellowship completion is sufficient to offset departures from clinical practice, and to project United States urogynecology and reconstructive pelvic surgery workforce supply relative to demographic need through 2050.
+**OBJECTIVE:** In a primary 2025–2029 projection of United States urogynecology and reconstructive pelvic surgery workforce supply, to determine whether recent fellowship completion is sufficient to offset departures from clinical practice; and, in an exploratory status-quo scenario extended through 2050, to compare projected supply with demographic measures of need.
 
 **METHODS:** We linked American Board of Obstetrics and Gynecology and American Board of Urology certification records to six national administrative data sources. Sustained clinical-practice departure was classified during the fully observable 2016–2021 period. Because departures were sparse, age-band hazards were pooled with a gynecologic oncology comparator and applied in a dynamic stock-and-flow model beginning with the estimated 2025 active workforce. Annual entrants were based on recent Accreditation Council for Graduate Medical Education fellowship completions. The primary projection covered 2025–2029; an exploratory extension through 2050 compared supply with the number of United States women aged 65 years or older and the estimated number living with a pelvic floor disorder. Uncertainty was evaluated using Monte Carlo simulation and adverse-scenario analyses.
 
