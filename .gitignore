@@ -14,3 +14,6 @@ renv/sandbox/
 *.utf8.md
 *.knit.md
 data/enrichment_inputs/
+
+# Microsoft Word lock/owner files
+~$*
