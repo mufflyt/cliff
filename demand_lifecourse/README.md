@@ -24,7 +24,7 @@ pipeline (`code/00_RUN_ALL.R`).
 | `06_service_use.R` | ⬜ | Treatment mix × intensity → annual service units |
 | `07_staffing_conversion.R` | ✅ done | Service volumes → required FTE via CMS work RVUs + calibrated wrvu-per-FTE (ported from simulation R/17/R/23) |
 | `08_scenarios.R` | ⬜ | Baseline, mode-of-delivery, reduced barriers, prevention, substitution |
-| `09_validation.R` | ⬜ | Back-cast vs Nygaard / Medicare / SWAN–WHI–Gyhagen |
+| `09_validation.R` | ✅ harness | Back-cast harness vs cited Nygaard 2008 + SWAN (Waetjen 2007) targets; full SWAN microdata validation stays in simulation legacy |
 
 ## Quick check
 
