@@ -98,6 +98,7 @@ suppressPackageStartupMessages({
 #' gini(c(25, 25, 25, 25))   # 0 (perfectly even)
 #' gini(c(100, 0, 0, 0))     # 0.75
 gini <- function(x) {
+  if (!is.numeric(x)) stop("gini(): x must be numeric.", call. = FALSE)
   x <- x[is.finite(x)]
   if (any(x < 0)) stop("gini(): negative values are not allowed.", call. = FALSE)
   x <- sort(x)
@@ -178,6 +179,11 @@ concentration_summary <- function(counts, n_units_total = length(counts),
                                    label = NA_character_, weight = NULL) {
   counts <- as.numeric(counts)
   n_occupied <- sum(counts > 0, na.rm = TRUE)
+  if (n_units_total < n_occupied)
+    stop(sprintf(paste0("concentration_summary(): n_units_total (%s) is smaller than the ",
+                        "number of occupied units (%s); the unit universe cannot be smaller ",
+                        "than the units that already contain providers."),
+                 n_units_total, n_occupied), call. = FALSE)
   n_pad <- max(0L, n_units_total - length(counts))
   full <- c(counts, rep(0, n_pad))
 

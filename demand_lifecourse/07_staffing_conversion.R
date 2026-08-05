@@ -72,6 +72,8 @@ service_volume_to_wrvu <- function(volumes, workload = load_urps_workload_rvu())
   if (length(unknown))
     stop(sprintf("service_volume_to_wrvu(): service(s) not in the workload basket: %s",
                  paste(unknown, collapse = ", ")), call. = FALSE)
+  if (any(!is.finite(volumes$volume)) || any(volumes$volume < 0))
+    stop("service_volume_to_wrvu(): volume must be finite and non-negative.", call. = FALSE)
   j <- dplyr::left_join(volumes, workload[, c("service", "work_rvu")], by = "service")
   j <- dplyr::mutate(j, wrvu = .data$volume * .data$work_rvu)
   if ("year" %in% names(j)) {
