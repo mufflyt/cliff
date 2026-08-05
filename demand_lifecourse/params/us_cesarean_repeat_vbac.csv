@@ -1,0 +1,8 @@
+year,total_cesarean_rate,primary_cesarean_rate,vbac_rate,repeat_cesarean_rate,confidence,source
+1996,0.207,NA,0.283,0.717,solid,"AHRQ VBAC Evidence Report / NCHS NVSR (VBAC peak)"
+2006,0.311,NA,0.085,0.915,solid,"AHRQ / NCHS NVSR (VBAC trough)"
+2016,0.319,0.217,0.124,0.876,solid,"NCHS Data Brief No. 359 (Osterman 2020); VSRR No. 21"
+2019,0.317,0.216,0.138,0.862,solid,"NCHS VSRR No. 21 (Osterman 2022)"
+2021,0.321,0.224,0.142,0.858,solid,"NCHS VSRR No. 21 (2021 provisional)"
+2023,0.323,0.228,NA,NA,solid,"NCHS Data Brief No. 535 (2025)"
+2024,0.324,0.229,0.155,0.845,solid,"NCHS Data Brief No. 535 (2025)"

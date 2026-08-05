@@ -15,9 +15,9 @@ exact abstracts and from reviews quoting the primary source. Consequences:
 - **High-confidence** landmark figures (Gyhagen 2013, Rortveit 2003 NEJM, Wu
   2014, Giri 2017, Nygaard 2008, LaCross 2015) are internally consistent with the
   well-established literature.
-- **Medium-confidence** figures reaching us only through secondary paraphrase
-  (Hendrix/WHI, Mant/Oxford FPA) are flagged `confidence = medium` in the CSVs
-  and **must be verified against full text before publication.**
+- Hendrix/WHI is now **CONFIRMED against the abstract** and Mant's per-parity RRs
+  were **removed as unconfirmed** — see the 2026-08-03 update at the bottom, which
+  supersedes the medium-confidence flags below.
 - Where nothing could be sourced, it is listed under **Gaps**, not filled.
 
 ## Files
@@ -44,9 +44,9 @@ which is the demand-relevant signal a static age-only denominator misses.
 
 - **Mode of delivery → POP:** vaginal vs cesarean (single birth) OR **2.55**
   (1.98–3.28), Gyhagen 2013 — the cleanest mode-isolating estimate.
-- **Parity dose-response → POP:** Mant 1997 RR **8.4** (2 vaginal births) →
-  **10.9** (4) vs nulliparous (medium; verify). Hendrix per-additional-birth
-  OR ~1.10–1.21 by compartment (medium; verify).
+- **Parity dose-response → POP:** Hendrix WHI 2002 per-additional-birth OR
+  ~1.10–1.21 by compartment (**confirmed**; see 2026-08-03 update). Mant's exact
+  per-parity RRs are **unconfirmed and removed** — do not use a point estimate.
 - **Mode → UI:** vaginal vs cesarean-only OR **1.7** (1.3–2.1), Rortveit 2003
   NEJM; cesarean itself raises UI above nulliparous (OR 1.5).
 - **OASI → AI:** OR **2.66** (1.77–3.98), LaCross 2015.
@@ -89,3 +89,42 @@ Gyhagen 2013 BJOG · Hendrix 2002 AJOG (WHI) · Mant 1997 Br J Obstet Gynaecol
 2008 JAMA · Minassian 2012 Int Urogynecol J · Wu 2014 Obstet Gynecol · Zarek 2025
 Phys Ther · CDC/NCHS Natality & Data Briefs (35, 477, 535) · US Census CPS
 Fertility Supplement / P20 series · BGSU NCFMR FP-20-04.
+
+---
+
+## Update 2026-08-03 — coefficient verification, validation targets, cesarean-correlation refinement
+
+**Coefficient verification (dose-response).** Verified `params/parity_disease_dose_response.csv`
+against primary abstracts (publisher/PubMed PDFs were network-blocked, so this rests
+on search-surfaced abstract text — do one confirmatory institutional read before
+locking a published number):
+
+- **CONFIRMED** (upgraded from "medium — verify"): Hendrix WHI 2002 — uterine prolapse
+  first-birth OR 2.13 (1.67–2.72), per additional birth 1.10 (1.05–1.16); cystocele 1.91
+  (1.67–2.19), per-birth 1.21 (1.17–1.24); rectocele 2.22 (1.84–2.68), per-birth 1.21
+  (1.17–1.26). Rortveit NEJM 2003 — any-UI vaginal-vs-cesarean 1.7 (1.3–2.1), and
+  moderate/severe UI vaginal-vs-cesarean 2.2 (1.5–3.1) added. Gyhagen 2013 (2.55) and
+  Mant 1997 hysterectomy-for-prolapse RR 5.5 (3.1–9.7) confirmed.
+- **CORRECTED**: the two Mant per-parity RR rows (previously 8.4 / 10.9) are **removed as
+  point estimates** — those values were never confirmed against Mant's table and conflict
+  with a secondary "~4 / 8 / 11-fold" paraphrase. The row now carries NA with a low-confidence
+  note; do not use a per-parity RR until the full text is read.
+
+**Validation targets (#2).** `params/validation_targets.csv` + `09_validation.R` add an
+external back-cast harness. Cited targets: Nygaard 2008 cross-sectional prevalence
+(any-PFD 23.7%, UI 15.7%, POP 2.9%, FI 9.0%); SWAN/Waetjen 2007 midlife UI prevalence
+46.7% (mean age 45.8) and annual incidence 11.1%; SWAN 2025 (Sci Rep) parity/mode
+direction check. The participant-level SWAN validation stays in the simulation package's
+legacy DPPM framework (needs the application-gated ICPSR SWAN microdata); this harness
+validates against the **published** SWAN estimates.
+
+**Cesarean within-woman correlation (#5).** The `mean_vaginal_deliveries` derivation is
+**unbiased** by how cesareans cluster within a woman (expectation is linear), so the
+cohort-cell model is unaffected. But the **stratum distribution** (0/1/2/3+ vaginal
+births) needs the within-woman correlation: among US women with a prior cesarean,
+**~85–87%** of next births are repeat cesareans vs a **~22%** primary rate (NCHS Data
+Brief No. 359; VSRR No. 21) — committed in `params/us_cesarean_repeat_vbac.csv`.
+`cesarean_births_correlated()` (02_birth_history.R) implements a first-order sequence
+draw for a per-woman microsimulation. **Remaining gap:** the exact per-woman joint
+distribution of vaginal vs cesarean births by cohort is **not published** and requires a
+custom NSFG Female Pregnancy File microdata tabulation.
