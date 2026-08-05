@@ -112,12 +112,17 @@ cohort_vaginal_exposure <- function(cohorts) {
 
   parity <- completed_parity_for_cohort(cohorts)
 
+  # Round total and vaginal, then derive cesarean as (total - vaginal) so the
+  # additive identity vaginal + cesarean == total holds EXACTLY (rounding each of
+  # the three independently broke it by up to 0.001 -- caught by a semantic test).
+  mtp <- round(parity, 3)
+  mvd <- round(parity * (1 - ces_frac), 3)
   tibble::tibble(
     birth_cohort            = cohorts,
-    mean_total_parity       = round(parity, 3),
+    mean_total_parity       = mtp,
     cohort_cesarean_fraction = round(ces_frac, 4),
-    mean_vaginal_deliveries = round(parity * (1 - ces_frac), 3),
-    mean_cesarean_deliveries = round(parity * ces_frac, 3)
+    mean_vaginal_deliveries = mvd,
+    mean_cesarean_deliveries = mtp - mvd
   )
 }
 
