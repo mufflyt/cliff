@@ -131,3 +131,44 @@ attach_birth_history <- function(population) {
   exposure <- cohort_vaginal_exposure(sort(unique(population$birth_cohort)))
   dplyr::left_join(population, exposure, by = "birth_cohort")
 }
+
+# ---- Within-woman cesarean correlation (per-woman stratum refinement) --------
+# The cohort-MEAN vaginal exposure above is unbiased regardless of how cesareans
+# are distributed within a woman (expectation is linear). But the DISTRIBUTION of
+# vaginal-parity strata (0/1/2/3+ vaginal births) depends on the strong
+# within-woman correlation of cesarean delivery that an independent-per-birth
+# draw omits: among US women with a prior cesarean, ~85-87% of the next births
+# are repeat cesareans (NCHS Data Brief No. 359; VSRR No. 21), versus a ~22%
+# primary (first-birth) rate -- a ~4x within-woman elevation. This helper draws a
+# per-woman cesarean count with a first-order sequence model, for a per-woman
+# microsimulation (the cohort-cell model uses the mean and does not need it).
+#
+# The exact per-woman joint distribution of vaginal vs cesarean births is NOT
+# published and requires a custom NSFG Female Pregnancy File tabulation
+# (see PARAMETERS_EVIDENCE.md). This is a documented approximation, not that.
+
+#' Draw per-woman cesarean-birth counts with within-woman correlation
+#'
+#' First birth is cesarean with probability `primary_rate`; each subsequent birth
+#' is cesarean with `repeat_rate` if the woman has already had a cesarean, else
+#' `primary_rate`. Reduces to an independent binomial only when
+#' `repeat_rate == primary_rate`.
+#'
+#' @param parity Integer vector of total births per woman.
+#' @param primary_rate First-birth (primary) cesarean probability. Default 0.22.
+#' @param repeat_rate Cesarean probability given a prior cesarean. Default 0.86.
+#' @return Integer vector of cesarean births per woman (0..parity).
+cesarean_births_correlated <- function(parity, primary_rate = 0.22, repeat_rate = 0.86) {
+  parity <- as.integer(parity)
+  stopifnot(all(parity >= 0, na.rm = TRUE),
+            primary_rate >= 0, primary_rate <= 1, repeat_rate >= 0, repeat_rate <= 1)
+  vapply(parity, function(k) {
+    if (is.na(k) || k <= 0) return(0L)
+    had_cs <- FALSE; n_cs <- 0L
+    for (b in seq_len(k)) {
+      p <- if (had_cs) repeat_rate else primary_rate
+      if (stats::runif(1) < p) { n_cs <- n_cs + 1L; had_cs <- TRUE }
+    }
+    n_cs
+  }, integer(1))
+}
