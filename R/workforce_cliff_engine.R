@@ -97,13 +97,39 @@ wc_band_counts <- function(coh, win = WC_WIN, rows = which(coh$ab %in% WC_PRIMAR
 wc_haz_for <- function(age, hz) { h <- hz[wc_band_of(age)]; h[is.na(h)] <- max(hz, na.rm = TRUE); pmin(1, h) }
 
 #' Deterministic age-structured projection. Returns list(active_2029, departures_4yr).
-wc_project <- function(ages, entrants, hz, horizon = WC_HORIZON) {
+#' `age_shift` shifts the retirement-hazard curve along age: at age `a` a provider
+#' faces the hazard of age `a - age_shift`, so a NEGATIVE age_shift retires people
+#' earlier (they face an older age's hazard). Default `0L` is byte-identical to the
+#' original engine. This is the lever mufflyaccess's scenario dictionary calls
+#' `retirement_shift_years` (pass it straight through).
+wc_project <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L) {
   count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count); dep <- 0
   for (h in seq_len(horizon)) {
-    hzz <- wc_haz_for(av, hz); dep <- dep + sum(count * hzz); sv <- count * (1 - hzz)
+    hzz <- wc_haz_for(av - age_shift, hz); dep <- dep + sum(count * hzz); sv <- count * (1 - hzz)
     av2 <- av + 1L; ix <- match(WC_ENTRY_AGE, av2)
     if (is.na(ix)) { av2 <- c(av2, WC_ENTRY_AGE); sv <- c(sv, entrants) } else sv[ix] <- sv[ix] + entrants
     av <- av2; count <- sv
   }
   list(active_2029 = sum(count), departures_4yr = dep)
+}
+
+#' Per-year projection PATH -- the same recurrence as wc_project(), but recording
+#' each projected year instead of only the endpoint. Returns a data.frame with one
+#' row per year: `step` (1..horizon), `active` (headcount after that year's exits +
+#' entrants), `entrants`, `departures` (exits that year). By construction the final
+#' `active` equals wc_project()$active_2029 and `sum(departures)` equals
+#' wc_project()$departures_4yr for the same inputs (asserted in
+#' test-wc-engine-equivalence.R); it just exposes the intermediate years the
+#' projection contract needs. `age_shift` behaves exactly as in wc_project().
+wc_project_trajectory <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L) {
+  count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count)
+  out <- vector("list", horizon)
+  for (h in seq_len(horizon)) {
+    hzz <- wc_haz_for(av - age_shift, hz); dep_h <- sum(count * hzz); sv <- count * (1 - hzz)
+    av2 <- av + 1L; ix <- match(WC_ENTRY_AGE, av2)
+    if (is.na(ix)) { av2 <- c(av2, WC_ENTRY_AGE); sv <- c(sv, entrants) } else sv[ix] <- sv[ix] + entrants
+    av <- av2; count <- sv
+    out[[h]] <- data.frame(step = h, active = sum(count), entrants = entrants, departures = dep_h)
+  }
+  do.call(rbind, out)
 }
