@@ -29,12 +29,28 @@ test_that("shape: executable scenarios x 2023-2040, national ABOG_PLUS_ABU", {
   expect_setequal(unique(d$year), 2023:2040)
   expect_identical(unique(d$certification_pathway), "ABOG_PLUS_ABU")
   expect_identical(unique(d$geography_type), "national")
-  # exactly the executable (non-FTE, non-demand) scenarios
+  # exactly the executable (non-demand) scenarios -- supply + FTE levers, not demand
   sc <- mufflyaccess::urps_scenarios()
-  exec <- sc$scenario_id[!sc$requires_fte_model & !sc$requires_demand_model]
+  exec <- sc$scenario_id[!sc$requires_demand_model]
   expect_setequal(unique(d$scenario_id), exec)
-  # FTE not modelled yet
-  expect_true(all(is.na(d$supply_clinical_fte)))
+  expect_true(all(c("lower_late_career_fte", "combined_pessimistic") %in% d$scenario_id))
+})
+
+test_that("clinical FTE is populated, non-negative, and never exceeds headcount", {
+  expect_true(all(!is.na(d$supply_clinical_fte)))
+  expect_true(all(d$supply_clinical_fte >= 0))
+  expect_true(all(d$supply_clinical_fte <= d$supply_headcount + 1e-9))
+  # the current age/pathway mix (age-productivity x ABU 0.70) discounts FTE below headcount
+  b2023 <- d[d$scenario_id == "baseline" & d$year == 2023, ]
+  expect_lt(b2023$supply_clinical_fte, b2023$supply_headcount)
+})
+
+test_that("the late-career FTE lever lowers FTE without changing headcount", {
+  yr <- 2040
+  base <- d[d$scenario_id == "baseline" & d$year == yr, ]
+  lcf  <- d[d$scenario_id == "lower_late_career_fte" & d$year == yr, ]
+  expect_equal(lcf$supply_headcount, base$supply_headcount)   # headcount unaffected
+  expect_lt(lcf$supply_clinical_fte, base$supply_clinical_fte) # clinical FTE reduced
 })
 
 test_that("Monte Carlo intervals: NA at the index year, present and bracketing after", {

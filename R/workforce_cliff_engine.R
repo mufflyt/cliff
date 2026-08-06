@@ -133,3 +133,22 @@ wc_project_trajectory <- function(ages, entrants, hz, horizon = WC_HORIZON, age_
   }
   do.call(rbind, out)
 }
+
+#' Per-year AGE COMPOSITION -- the same recurrence as wc_project() / _trajectory(),
+#' but recording the full (age, n) distribution after each projected year rather
+#' than only the aggregate. Returns a long data.frame(step, age, n). The per-step
+#' `sum(n)` equals wc_project_trajectory()$active exactly (asserted in
+#' test-wc-engine-additions.R); it exposes the age structure an age-weighted
+#' clinical-FTE calculation needs. `age_shift` behaves exactly as in wc_project().
+wc_project_ages <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L) {
+  count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count)
+  out <- vector("list", horizon)
+  for (h in seq_len(horizon)) {
+    hzz <- wc_haz_for(av - age_shift, hz); sv <- count * (1 - hzz)
+    av2 <- av + 1L; ix <- match(WC_ENTRY_AGE, av2)
+    if (is.na(ix)) { av2 <- c(av2, WC_ENTRY_AGE); sv <- c(sv, entrants) } else sv[ix] <- sv[ix] + entrants
+    av <- av2; count <- sv
+    out[[h]] <- data.frame(step = h, age = av, n = count)
+  }
+  do.call(rbind, out)
+}

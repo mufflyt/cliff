@@ -15,16 +15,21 @@
 #   * Retirement hazards + entrants: cliff's REVIEWED frozen model (BAND_EV/BAND_PY,
 #     2016-2021 primary window; ENTRANTS = mean(GRAD_URPS) = 64), identical to
 #     scripts/urps_baseline_scenarios/urps_scenario_analysis_v3.R.
-#   * The engine: the REAL wc_project_trajectory(), loaded verbatim from
-#     R/workforce_cliff_engine.R via wc_engine_loader.R (no reimplementation).
+#   * The engine: the REAL wc_project_trajectory() / wc_project_ages(), loaded
+#     verbatim from R/workforce_cliff_engine.R via wc_engine_loader.R (no reimpl.).
 #   * Scenario levers: mufflyaccess::urps_scenarios() (the shared dictionary).
+#   * Clinical FTE: mufflyaccess::urps_effective_fte() over the projected age x
+#     pathway distribution (urps_cohort_ages_by_pathway_v3.0.0.csv), applying the
+#     scenario's late-career FTE lever. mufflyaccess owns the FTE definition; cliff
+#     just projects the age structure and calls it.
 #
-# Scope (Phase 2b): 2040 horizon, index on 2023-active (1306), ABOG_PLUS_ABU only.
+# Scope: 2040 horizon, index on 2023-active (1306), national ABOG_PLUS_ABU.
 # supply_headcount is the deterministic point estimate; lower_95 / upper_95 are the
 # Monte Carlo 95% interval (2000 draws: Beta band hazards + bootstrapped entrants,
-# seed 20260718 -- the same scheme as urps_scenario_analysis_v3.R). FTE / demand
-# scenarios are excluded (requires_fte_model / requires_demand_model);
-# supply_clinical_fte stays NA until the FTE model wires in.
+# seed 20260718 -- the same scheme as urps_scenario_analysis_v3.R). supply_clinical_
+# _fte is the deterministic age x pathway capacity index (each head <= 1.0 FTE, so
+# FTE <= headcount). Executable = every non-demand scenario (supply + FTE levers +
+# their composites); the DEMAND scenarios wait on the demand equations.
 #
 # The output is VALIDATED against the mufflyaccess projection contract, including a
 # baseline_tie back to urps_count(2023) so it can never drift from the served count.
@@ -65,6 +70,21 @@ if (length(ages) != ssot_active_2023)
   stop(sprintf("[build] seed cohort (%d) != urps_count(%d) (%d); the frozen ages table is out of sync with the SSOT.",
                length(ages), INDEX_YEAR, ssot_active_2023), call. = FALSE)
 
+## ---- age x pathway split (for the clinical-FTE layer) -----------------------
+# ABOG (clinical-time 1.00) vs ABU (0.70). Parquet-derived, committed, and asserted
+# to sum back to the by-age cohort above. age_proxy is an ESTIMATED age proxy.
+pw_tbl <- utils::read.csv(
+  file.path(ROOT, "scripts", "urps_baseline_scenarios", "urps_cohort_ages_by_pathway_v3.0.0.csv"),
+  stringsAsFactors = FALSE)
+if (sum(pw_tbl$n_active_2023) != ssot_active_2023)
+  stop("[build] by-pathway cohort does not sum to the SSOT active count.", call. = FALSE)
+ages_pw <- lapply(split(pw_tbl, pw_tbl$pathway),
+                  function(x) rep(x$age_proxy, x$n_active_2023))   # $ABOG, $ABU age vectors
+PW_SHARE <- vapply(ages_pw, length, integer(1)) / ssot_active_2023 # entrant pathway split
+# reference (2023) counts for the FTE calc, one row per age x pathway
+REF_COUNTS <- data.frame(age = pw_tbl$age_proxy, pathway = pw_tbl$pathway,
+                         n = pw_tbl$n_active_2023, stringsAsFactors = FALSE)
+
 ## ---- frozen retirement hazards + entrants (cliff's reviewed model) ----------
 # Verbatim from urps_scenario_analysis_v3.R (HAZARD_VERSION "fully_obs
 # (BAND_EV/BAND_PY, 2016-2021 primary window)"); deterministic point estimate.
@@ -93,20 +113,53 @@ mc_bounds <- function(entrant_multiplier, age_shift) {
              upper_95 = apply(m, 2, stats::quantile, probs = 0.975, names = FALSE))
 }
 
+## ---- clinical-FTE layer (mufflyaccess FTE model, age x pathway) -------------
+# supply_clinical_fte is the raw age x pathway capacity index: each head weighted
+# by urps_fte_weight(age, pathway, late lever) = rel_to_peak(age) * clinical_time
+# (ABOG 1.0 / ABU 0.70) * late-career factor. All three factors are <= 1, so with
+# scale = 1 the FTE is bounded above by the headcount (the contract invariant).
+# Not anchored, so FTE(2023) < headcount reflects the current age/pathway mix.
+# Per-pathway aging: each pathway is projected separately (same hazards; entrants
+# split by the 2023 pathway share) and recombined, so the ABU 0.70 differential is
+# carried through the age structure rather than folded into a blended constant.
+fte_series <- function(entrant_multiplier, age_shift, late_from_age, late_factor) {
+  ent_pw <- ENTRANTS * entrant_multiplier * PW_SHARE          # entrants per pathway
+  ag <- Map(function(a, e) eng$wc_project_ages(a, e, HZ_POINT, horizon = HORIZON, age_shift = age_shift),
+            ages_pw, ent_pw[names(ages_pw)])
+  # combine the pathways per step into one (age, pathway, n) frame, weight it
+  per_step <- function(h) {
+    counts <- do.call(rbind, lapply(names(ag), function(pw) {
+      d <- ag[[pw]]; d <- d[d$step == h, ]
+      data.frame(age = d$age, pathway = pw, n = d$n, stringsAsFactors = FALSE)
+    }))
+    mufflyaccess::urps_effective_fte(counts, scale = 1,
+                                     late_from_age = late_from_age, late_factor = late_factor)
+  }
+  vapply(seq_len(HORIZON), per_step, numeric(1))
+}
+
 ## ---- run each executable scenario through the real trajectory ---------------
+# Executable = every scenario whose levers cliff can drive today: supply (retire /
+# fellowship), the late-career FTE lever, and their composites. Only the DEMAND
+# scenarios wait (requires_demand_model) on the demand equations.
 sc   <- mufflyaccess::urps_scenarios()
-exec <- sc$scenario_id[!sc$requires_fte_model & !sc$requires_demand_model]
+exec <- sc$scenario_id[!sc$requires_demand_model]
 
 series_for <- function(id) {
-  lv    <- mufflyaccess::urps_scenario(id)
-  ent   <- ENTRANTS * lv$entrant_multiplier                 # entrant_multiplier lever
-  shift <- as.integer(lv$retirement_shift_years)            # retirement_shift_years lever
-  tr    <- eng$wc_project_trajectory(ages, ent, HZ_POINT, horizon = HORIZON, age_shift = shift)
-  bnd   <- mc_bounds(lv$entrant_multiplier, shift)          # per-year 95% interval on supply
-  idx <- data.frame(year = INDEX_YEAR, supply_headcount = length(ages),
+  lv       <- mufflyaccess::urps_scenario(id)
+  ent      <- ENTRANTS * lv$entrant_multiplier              # entrant_multiplier lever
+  shift    <- as.integer(lv$retirement_shift_years)         # retirement_shift_years lever
+  late_from <- if (!is.na(lv$late_career_fte_onset_age)) as.integer(lv$late_career_fte_onset_age) else NULL
+  late_fac  <- lv$late_career_fte_factor                    # late-career FTE lever
+  tr       <- eng$wc_project_trajectory(ages, ent, HZ_POINT, horizon = HORIZON, age_shift = shift)
+  bnd      <- mc_bounds(lv$entrant_multiplier, shift)       # per-year 95% interval on supply
+  fte_fwd  <- fte_series(lv$entrant_multiplier, shift, late_from, late_fac)
+  fte_idx  <- mufflyaccess::urps_effective_fte(REF_COUNTS, scale = 1,
+                                               late_from_age = late_from, late_factor = late_fac)
+  idx <- data.frame(year = INDEX_YEAR, supply_headcount = length(ages), supply_clinical_fte = fte_idx,
                     lower_95 = NA_real_, upper_95 = NA_real_,
                     entrants = NA_real_, exits = NA_real_, net_change = NA_real_)  # index year: no flow
-  fwd <- data.frame(year = INDEX_YEAR + tr$step, supply_headcount = tr$active,
+  fwd <- data.frame(year = INDEX_YEAR + tr$step, supply_headcount = tr$active, supply_clinical_fte = fte_fwd,
                     lower_95 = bnd$lower_95, upper_95 = bnd$upper_95,
                     entrants = tr$entrants, exits = tr$departures,
                     net_change = tr$entrants - tr$departures)
@@ -114,7 +167,7 @@ series_for <- function(id) {
   data.frame(
     year = as.integer(out$year), scenario_id = id, specialty = SPECIALTY,
     certification_pathway = PATHWAY, geography_type = GEOG_TYPE, geography_id = GEOG_ID,
-    supply_headcount = out$supply_headcount, supply_clinical_fte = NA_real_,
+    supply_headcount = out$supply_headcount, supply_clinical_fte = out$supply_clinical_fte,
     lower_95 = out$lower_95, upper_95 = out$upper_95,
     entrants = out$entrants, exits = out$exits, net_change = out$net_change,
     stringsAsFactors = FALSE)

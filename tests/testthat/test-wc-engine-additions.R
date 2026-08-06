@@ -57,3 +57,18 @@ test_that("age_shift moves retirement the right way: earlier -> fewer survivors"
                  numeric(1))
   expect_true(all(diff(surv) > 0))     # -5 < -2 < 0 < +2 in survivors
 })
+
+test_that("wc_project_ages emits a per-year age distribution that sums to the trajectory", {
+  for (H in c(1L, 4L, 17L)) for (sh in c(0L, -2L, 2L)) {
+    ag <- eng$wc_project_ages(ages, ent, hz, horizon = H, age_shift = sh)
+    tr <- eng$wc_project_trajectory(ages, ent, hz, horizon = H, age_shift = sh)
+    expect_setequal(names(ag), c("step", "age", "n"))
+    expect_setequal(unique(ag$step), seq_len(H))
+    # per-step sum(n) reproduces the aggregate headcount exactly
+    per_step <- tapply(ag$n, ag$step, sum)
+    expect_equal(as.numeric(per_step[as.character(seq_len(H))]), tr$active)
+    expect_true(all(ag$n >= 0))
+    # entrants (>0) are injected at the entry age (34) every year
+    expect_true(min(ag$age) <= 34L)
+  }
+})
