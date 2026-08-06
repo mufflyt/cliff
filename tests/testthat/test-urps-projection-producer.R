@@ -25,15 +25,34 @@ test_that("the committed projection conforms to the contract and ties to urps_co
     geography_type = "national", certification_pathway = "ABOG_PLUS_ABU")))
 })
 
-test_that("shape: executable scenarios x 2023-2040, national ABOG_PLUS_ABU", {
+test_that("shape: ALL registered scenarios x 2023-2040, national ABOG_PLUS_ABU", {
   expect_setequal(unique(d$year), 2023:2040)
   expect_identical(unique(d$certification_pathway), "ABOG_PLUS_ABU")
   expect_identical(unique(d$geography_type), "national")
-  # exactly the executable (non-demand) scenarios -- supply + FTE levers, not demand
-  sc <- mufflyaccess::urps_scenarios()
-  exec <- sc$scenario_id[!sc$requires_demand_model]
-  expect_setequal(unique(d$scenario_id), exec)
-  expect_true(all(c("lower_late_career_fte", "combined_pessimistic") %in% d$scenario_id))
+  # every registered scenario, including FTE and demand families
+  expect_setequal(unique(d$scenario_id), mufflyaccess::urps_scenarios()$scenario_id)
+  expect_true(all(c("lower_late_career_fte", "combined_pessimistic",
+                    "demand_obesity_increase", "demand_managed_care_increase") %in% d$scenario_id))
+})
+
+test_that("demand + gap are wired and NA until the demand model calibrates", {
+  expect_true(all(c("demand_clinical_fte", "gap_fte") %in% names(d)))
+  # the mufflyaccess demand model is a pre-calibration skeleton -> NA, and so is gap
+  skip_if_not(all(mufflyaccess::urps_demand_params()$calibration_status == "not_calibrated"),
+              "demand model is now calibrated; producer must wire a real demand population")
+  expect_true(all(is.na(d$demand_clinical_fte)))
+  expect_true(all(is.na(d$gap_fte)))
+})
+
+test_that("demand scenarios carry the baseline supply trajectory (only demand levers differ)", {
+  for (yr in c(2023, 2040)) {
+    base <- d[d$scenario_id == "baseline" & d$year == yr, ]
+    for (id in c("demand_obesity_increase", "demand_managed_care_increase", "demand_equity")) {
+      s <- d[d$scenario_id == id & d$year == yr, ]
+      expect_equal(s$supply_headcount, base$supply_headcount, info = paste(id, yr))
+      expect_equal(s$supply_clinical_fte, base$supply_clinical_fte, info = paste(id, yr))
+    }
+  }
 })
 
 test_that("clinical FTE is populated, non-negative, and never exceeds headcount", {

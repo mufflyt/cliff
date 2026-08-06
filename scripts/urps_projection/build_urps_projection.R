@@ -22,14 +22,18 @@
 #     pathway distribution (urps_cohort_ages_by_pathway_v3.0.0.csv), applying the
 #     scenario's late-career FTE lever. mufflyaccess owns the FTE definition; cliff
 #     just projects the age structure and calls it.
+#   * Demand + gap: mufflyaccess::urps_demand_fte() / urps_gap_fte(). A
+#     PRE-CALIBRATION skeleton today (returns NA), wired unconditionally so the
+#     columns light up with zero code change once the demand equations are fit.
 #
-# Scope: 2040 horizon, index on 2023-active (1306), national ABOG_PLUS_ABU.
-# supply_headcount is the deterministic point estimate; lower_95 / upper_95 are the
-# Monte Carlo 95% interval (2000 draws: Beta band hazards + bootstrapped entrants,
-# seed 20260718 -- the same scheme as urps_scenario_analysis_v3.R). supply_clinical_
-# _fte is the deterministic age x pathway capacity index (each head <= 1.0 FTE, so
-# FTE <= headcount). Executable = every non-demand scenario (supply + FTE levers +
-# their composites); the DEMAND scenarios wait on the demand equations.
+# Scope: 2040 horizon, index on 2023-active (1306), national ABOG_PLUS_ABU, ALL 14
+# registered scenarios. supply_headcount is the deterministic point estimate;
+# lower_95 / upper_95 are the Monte Carlo 95% interval (2000 draws: Beta band
+# hazards + bootstrapped entrants, seed 20260718 -- the same scheme as
+# urps_scenario_analysis_v3.R). supply_clinical_fte is the deterministic age x
+# pathway capacity index (each head <= 1.0 FTE, so FTE <= headcount).
+# demand_clinical_fte / gap_fte are NA until the mufflyaccess demand model
+# calibrates (a fail-loud guard forces a real demand population in at that point).
 #
 # The output is VALIDATED against the mufflyaccess projection contract, including a
 # baseline_tie back to urps_count(2023) so it can never drift from the served count.
@@ -138,12 +142,35 @@ fte_series <- function(entrant_multiplier, age_shift, late_from_age, late_factor
   vapply(seq_len(HORIZON), per_step, numeric(1))
 }
 
-## ---- run each executable scenario through the real trajectory ---------------
-# Executable = every scenario whose levers cliff can drive today: supply (retire /
-# fellowship), the late-career FTE lever, and their composites. Only the DEMAND
-# scenarios wait (requires_demand_model) on the demand equations.
+## ---- demand + gap (mufflyaccess demand model; NA until it calibrates) --------
+# urps_demand_fte() is a PRE-CALIBRATION skeleton: it returns NA_real_ for every
+# scenario until urps_demand_params() carries fitted coefficients, and cliff is
+# meant to call it unconditionally (the NA propagates to gap_fte; the contract
+# allows NA in optional columns). So demand_clinical_fte / gap_fte are wired now
+# and light up with zero code change once the equations are fit. Guard against a
+# silent placeholder: the day the model calibrates, this producer must be given a
+# projected age x sex demand population (and visits_per_fte) rather than the stub.
+DEMAND_CALIBRATED <- !all(mufflyaccess::urps_demand_params()$calibration_status == "not_calibrated")
+if (DEMAND_CALIBRATED)
+  stop("[build] the mufflyaccess demand model is now CALIBRATED. Replace the ",
+       "provisional demand population / visits_per_fte below with the projected ",
+       "age x sex population before emitting demand_clinical_fte.", call. = FALSE)
+DEMAND_POP     <- data.frame(age = 50L, sex = "female", n = NA_integer_)  # stub (unused while NA)
+VISITS_PER_FTE <- NA_real_                                                # stub (unused while NA)
+
+## ---- run each scenario through the real trajectory --------------------------
+# Every registered scenario: the supply / FTE levers drive the projection; the
+# demand levers resolve into demand_clinical_fte (NA until calibration). MC bounds
+# depend only on the supply levers, so they are memoized by (entrant_multiplier,
+# retirement_shift_years) -- the demand scenarios reuse baseline's draws.
 sc   <- mufflyaccess::urps_scenarios()
-exec <- sc$scenario_id[!sc$requires_demand_model]
+exec <- sc$scenario_id
+.mc_cache <- new.env(parent = emptyenv())
+mc_cached <- function(entrant_multiplier, age_shift) {
+  key <- paste(entrant_multiplier, age_shift, sep = "|")
+  if (is.null(.mc_cache[[key]])) .mc_cache[[key]] <- mc_bounds(entrant_multiplier, age_shift)
+  .mc_cache[[key]]
+}
 
 series_for <- function(id) {
   lv       <- mufflyaccess::urps_scenario(id)
@@ -152,10 +179,11 @@ series_for <- function(id) {
   late_from <- if (!is.na(lv$late_career_fte_onset_age)) as.integer(lv$late_career_fte_onset_age) else NULL
   late_fac  <- lv$late_career_fte_factor                    # late-career FTE lever
   tr       <- eng$wc_project_trajectory(ages, ent, HZ_POINT, horizon = HORIZON, age_shift = shift)
-  bnd      <- mc_bounds(lv$entrant_multiplier, shift)       # per-year 95% interval on supply
+  bnd      <- mc_cached(lv$entrant_multiplier, shift)       # per-year 95% interval on supply
   fte_fwd  <- fte_series(lv$entrant_multiplier, shift, late_from, late_fac)
   fte_idx  <- mufflyaccess::urps_effective_fte(REF_COUNTS, scale = 1,
                                                late_from_age = late_from, late_factor = late_fac)
+  dem      <- mufflyaccess::urps_demand_fte(DEMAND_POP, VISITS_PER_FTE, scenario_id = id)  # NA (skeleton)
   idx <- data.frame(year = INDEX_YEAR, supply_headcount = length(ages), supply_clinical_fte = fte_idx,
                     lower_95 = NA_real_, upper_95 = NA_real_,
                     entrants = NA_real_, exits = NA_real_, net_change = NA_real_)  # index year: no flow
@@ -170,6 +198,9 @@ series_for <- function(id) {
     supply_headcount = out$supply_headcount, supply_clinical_fte = out$supply_clinical_fte,
     lower_95 = out$lower_95, upper_95 = out$upper_95,
     entrants = out$entrants, exits = out$exits, net_change = out$net_change,
+    demand_clinical_fte = dem,                                             # NA until calibrated
+    gap_fte = vapply(out$supply_clinical_fte,                              # per-row (urps_gap_fte is scalar)
+                     function(s) mufflyaccess::urps_gap_fte(s, dem), numeric(1)),
     stringsAsFactors = FALSE)
 }
 
