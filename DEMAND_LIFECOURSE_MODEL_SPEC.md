@@ -204,15 +204,15 @@ Built as a **self-contained subsystem in a new directory**
 
 ```
 demand_lifecourse/
-  01_population.R          # NPP female population by age × year (reuse demand_denominator SSOT)
-  02_birth_history.R       # cohort vaginal-parity distribution (NSFG/CPS/natality) -> cells
+  demand-population.R          # NPP female population by age × year (reuse demand_denominator SSOT)
+  demand-birth_history.R       # cohort vaginal-parity distribution (NSFG/CPS/natality) -> cells
   03_pelvic_floor_risk.R   # exposure × modifiers -> condition prevalences (fixed external ORs)
   04_condition_transitions.R # incidence/progression/recurrence/mortality between states
   05_care_seeking.R        # recognition, seeking, referral (calibrated to observed volume)
   06_service_use.R         # treatment mix × intensity -> annual service units
-  07_staffing_conversion.R # services ÷ services-per-FTE -> provider FTE demand (by provider type)
+  supply-staffing_conversion.R # services ÷ services-per-FTE -> provider FTE demand (by provider type)
   08_scenarios.R           # the five scenarios above as parameter overlays
-  09_validation.R          # back-cast vs Nygaard / Medicare / SWAN-WHI-Gyhagen
+  validation-targets.R          # back-cast vs Nygaard / Medicare / SWAN-WHI-Gyhagen
   params/                  # cited coefficient tables (ORs, fractions, staffing ratios)
   data/                    # dated committed inputs (cohort parity, cesarean-by-year, ...)
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# demand_lifecourse/02_birth_history.R
+# demand_lifecourse/demand-birth_history.R
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # Level 2 (PRIMARY EXPOSURE) of the reproductive life-course demand model
@@ -11,7 +11,7 @@
 # WHAT IT PRODUCES
 #   Per birth cohort: mean total parity, the cohort's mean cesarean fraction, and
 #   the derived mean number of VAGINAL and CESAREAN deliveries per woman. These
-#   attach to the population cells from 01_population.R via birth_cohort.
+#   attach to the population cells from demand-population.R via birth_cohort.
 #
 # DERIVATION (and its documented limits)
 #   Off-the-shelf US data do NOT publish a per-woman joint distribution of
@@ -126,7 +126,7 @@ cohort_vaginal_exposure <- function(cohorts) {
   )
 }
 
-#' Attach cohort vaginal exposure onto population cells from 01_population.R
+#' Attach cohort vaginal exposure onto population cells from demand-population.R
 #'
 #' @param population A tibble from `lifecourse_population()` (has birth_cohort).
 #' @return `population` with mean_total_parity, cohort_cesarean_fraction,

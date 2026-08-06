@@ -1,11 +1,11 @@
 # tests/testthat/test-staffing-conversion.R
-# Guards for demand_lifecourse/07_staffing_conversion.R (services -> required FTE,
+# Guards for demand_lifecourse/supply-staffing_conversion.R (services -> required FTE,
 # work-RVU method ported from the simulation package's R/17/R/23).
 
 library(testthat)
 library(here)
 
-source(here::here("demand_lifecourse/07_staffing_conversion.R"))
+source(here::here("demand_lifecourse/supply-staffing_conversion.R"))
 
 test_that("the cited workload basket loads with CMS-anchored work RVUs", {
   wl <- load_urps_workload_rvu()
