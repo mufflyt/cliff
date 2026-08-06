@@ -15,6 +15,7 @@ root <- here::here(); sdir <- file.path(root, "scripts", "urps_scenario_cube")
 source(file.path(root, "scripts", "urps_baseline_scenarios", "wc_engine_loader.R"))
 eng <- load_real_wc_engine(file.path(root, "R", "workforce_cliff_engine.R"))
 wc_project <- eng$wc_project; wc_haz_for <- eng$wc_haz_for; WC_BAND_LABELS <- eng$WC_BAND_LABELS
+source(file.path(root, "R", "workforce_uncertainty.R"))   # median + PI + decision probabilities
 
 # cohort age vectors (combined national) from the pathway/geo extract
 ages <- utils::read.csv(file.path(sdir, "urps_cohort_ages_pathway_geo_v3.0.0.csv"))
@@ -49,7 +50,8 @@ mc <- function(ages) {
   }
   list(final_lo = unname(stats::quantile(fin, .025)), final_hi = unname(stats::quantile(fin, .975)),
        sd = stats::sd(fin), ratio_lo = unname(stats::quantile(rat, .025)),
-       ratio_hi = unname(stats::quantile(rat, .975)))
+       ratio_hi = unname(stats::quantile(rat, .975)),
+       fin = fin, rat = rat)   # retain raw draws for the uncertainty summary (item 7)
 }
 
 report <- function(tag, ages) {
@@ -77,3 +79,20 @@ out <- data.frame(
   stringsAsFactors = FALSE)
 utils::write.csv(out, file.path(sdir, "urps_row_1306_regenerated.csv"), row.names = FALSE)
 cat("\nwrote scripts/urps_scenario_cube/urps_row_1306_regenerated.csv\n")
+
+# ── Uncertainty report (item 7): communicate the distribution, not one number ──
+# Decision probabilities from the SAME MC draws. shortage_pct / improve_pct are 0
+# (any net decline / any growth) plus a 5% variant; adjust the X% here if the
+# manuscript needs a different shortage threshold.
+u0 <- wc_uncertainty_summary(new_r$fin, new_r$rat, baseline = new_r$baseline,
+                             shortage_pct = 0, improve_pct = 0)
+u5 <- wc_uncertainty_summary(new_r$fin, new_r$rat, baseline = new_r$baseline,
+                             shortage_pct = 5, improve_pct = 5)
+unc <- rbind(cbind(subspecialty_abbrev = "URPS", scenario = "any_change", u0),
+             cbind(subspecialty_abbrev = "URPS", scenario = "5pct_threshold", u5))
+utils::write.csv(unc, file.path(sdir, "urps_uncertainty_1306.csv"), row.names = FALSE)
+cat("\n== URPS uncertainty (item 7) ==\n")
+cat(wc_uncertainty_sentence(u0), "\n")
+cat(sprintf("At a 5%% threshold: P(shortage worsens >=5%%) = %.1f%%, P(access improves >=5%%) = %.1f%%.\n",
+            100 * u5$p_shortage_exceeds, 100 * u5$p_access_improves))
+cat("wrote scripts/urps_scenario_cube/urps_uncertainty_1306.csv\n")
