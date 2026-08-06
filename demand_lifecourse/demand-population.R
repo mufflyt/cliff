@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# demand_lifecourse/01_population.R
+# demand_lifecourse/demand-population.R
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # Level 1 of the reproductive life-course demand model (see
