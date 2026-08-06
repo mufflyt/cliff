@@ -33,7 +33,7 @@ exact abstracts and from reviews quoting the primary source. Consequences:
 
 ## What the exposure layer shows
 
-Derived by `02_birth_history.R` from the two cited data series, mean vaginal
+Derived by `demand-birth_history.R` from the two cited data series, mean vaginal
 deliveries per woman falls from **~2.9 (born ~1935)** to **~1.3 (born ~1985)** —
 driven by both falling completed parity (~3.0 → ~1.9) and the rising cesarean
 fraction (~5% → ~32%). Future 65+ cohorts therefore carry roughly **half** the
@@ -62,7 +62,7 @@ which is the demand-relevant signal a static age-only denominator misses.
    no off-the-shelf published table; needs a custom NSFG microdata tabulation.
    The current vaginal/cesarean split is *derived* (parity × period cesarean
    fraction over the childbearing window) with documented assumptions in
-   `02_birth_history.R`.
+   `demand-birth_history.R`.
 2. **Clean 1/2/3/4+ vaginal-parity POP ladder with CIs** — only single-birth
    (Gyhagen), per-birth increments (Hendrix), and stepped RRs (Mant) exist.
 3. **SUI-subtype-specific dose-response by delivery count** — only "any UI" and
@@ -70,7 +70,7 @@ which is the demand-relevant signal a static age-only denominator misses.
 4. **Obesity → UI per-5-kg/m² OR with CI**, and quantified menopause/smoking
    modifiers — direction only.
 5. **Services→FTE conversion — RESOLVED via work RVUs (was a placeholder gap).**
-   Rather than a "visits per FTE" constant, `07_staffing_conversion.R` converts
+   Rather than a "visits per FTE" constant, `supply-staffing_conversion.R` converts
    service volumes to required FTE with CMS Physician Fee Schedule work RVUs
    (RVU25A 2025, `params/urps_service_workload_rvu.csv`) and a wrvu-per-FTE that
    is *solved* from a base-year anchor (Dall 2013), grossed up for indirect time.
@@ -110,7 +110,7 @@ locking a published number):
   with a secondary "~4 / 8 / 11-fold" paraphrase. The row now carries NA with a low-confidence
   note; do not use a per-parity RR until the full text is read.
 
-**Validation targets (#2).** `params/validation_targets.csv` + `09_validation.R` add an
+**Validation targets (#2).** `params/validation_targets.csv` + `validation-targets.R` add an
 external back-cast harness. Cited targets: Nygaard 2008 cross-sectional prevalence
 (any-PFD 23.7%, UI 15.7%, POP 2.9%, FI 9.0%); SWAN/Waetjen 2007 midlife UI prevalence
 46.7% (mean age 45.8) and annual incidence 11.1%; SWAN 2025 (Sci Rep) parity/mode
@@ -124,7 +124,7 @@ cohort-cell model is unaffected. But the **stratum distribution** (0/1/2/3+ vagi
 births) needs the within-woman correlation: among US women with a prior cesarean,
 **~85–87%** of next births are repeat cesareans vs a **~22%** primary rate (NCHS Data
 Brief No. 359; VSRR No. 21) — committed in `params/us_cesarean_repeat_vbac.csv`.
-`cesarean_births_correlated()` (02_birth_history.R) implements a first-order sequence
+`cesarean_births_correlated()` (demand-birth_history.R) implements a first-order sequence
 draw for a per-woman microsimulation. **Remaining gap:** the exact per-woman joint
 distribution of vaginal vs cesarean births by cohort is **not published** and requires a
 custom NSFG Female Pregnancy File microdata tabulation.

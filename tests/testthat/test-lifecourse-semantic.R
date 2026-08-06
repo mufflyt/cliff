@@ -8,9 +8,9 @@ library(testthat)
 library(here)
 
 source(here::here("R/workforce_concentration_metrics.R"))
-source(here::here("demand_lifecourse/02_birth_history.R"))
-source(here::here("demand_lifecourse/07_staffing_conversion.R"))
-source(here::here("demand_lifecourse/09_validation.R"))
+source(here::here("demand_lifecourse/demand-birth_history.R"))
+source(here::here("demand_lifecourse/supply-staffing_conversion.R"))
+source(here::here("demand_lifecourse/validation-targets.R"))
 
 # ---- Exposure: the model's central obstetric claims --------------------------
 

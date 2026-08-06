@@ -1,12 +1,12 @@
 # tests/testthat/test-validation-refinement.R
-# Guards for demand_lifecourse/09_validation.R (external-target harness) and the
-# within-woman cesarean-correlation refinement in 02_birth_history.R.
+# Guards for demand_lifecourse/validation-targets.R (external-target harness) and the
+# within-woman cesarean-correlation refinement in demand-birth_history.R.
 
 library(testthat)
 library(here)
 
-source(here::here("demand_lifecourse/02_birth_history.R"))
-source(here::here("demand_lifecourse/09_validation.R"))
+source(here::here("demand_lifecourse/demand-birth_history.R"))
+source(here::here("demand_lifecourse/validation-targets.R"))
 
 # ---- Validation harness -----------------------------------------------------
 

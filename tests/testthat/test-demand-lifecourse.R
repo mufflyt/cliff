@@ -5,8 +5,8 @@
 library(testthat)
 library(here)
 
-source(here::here("demand_lifecourse/01_population.R"))
-source(here::here("demand_lifecourse/02_birth_history.R"))
+source(here::here("demand_lifecourse/demand-population.R"))
+source(here::here("demand_lifecourse/demand-birth_history.R"))
 
 test_that("population layer returns non-negative female pop with a birth-cohort axis", {
   pop <- lifecourse_population("mid")
