@@ -33,9 +33,27 @@ test_that("shape: executable scenarios x 2023-2040, national ABOG_PLUS_ABU", {
   sc <- mufflyaccess::urps_scenarios()
   exec <- sc$scenario_id[!sc$requires_fte_model & !sc$requires_demand_model]
   expect_setequal(unique(d$scenario_id), exec)
-  # deterministic: no intervals yet; FTE not modelled yet
-  expect_true(all(is.na(d$lower_95)) && all(is.na(d$upper_95)))
+  # FTE not modelled yet
   expect_true(all(is.na(d$supply_clinical_fte)))
+})
+
+test_that("Monte Carlo intervals: NA at the index year, present and bracketing after", {
+  idx <- d[d$year == 2023, ]
+  fwd <- d[d$year >  2023, ]
+  expect_true(all(is.na(idx$lower_95)) && all(is.na(idx$upper_95)))    # index year: point only
+  expect_true(all(!is.na(fwd$lower_95)) && all(!is.na(fwd$upper_95)))  # forward: interval present
+  # the deterministic point sits inside the 95% interval everywhere
+  expect_true(all(fwd$lower_95 <= fwd$supply_headcount &
+                  fwd$supply_headcount <= fwd$upper_95))
+})
+
+test_that("interval width grows with the forecast horizon", {
+  b <- d[d$scenario_id == "baseline" & d$year > 2023, ]
+  b <- b[order(b$year), ]
+  w <- b$upper_95 - b$lower_95
+  # not strictly monotone draw-to-draw, but the late-horizon band is much wider
+  expect_gt(mean(utils::tail(w, 3)), 3 * mean(utils::head(w, 3)))
+  expect_true(w[length(w)] > w[1])
 })
 
 test_that("every scenario starts at the SSOT 1306 in 2023", {
@@ -58,8 +76,11 @@ test_that("the levers move supply the right way at the 2040 endpoint", {
 })
 
 test_that("re-running the builder reproduces the committed artifact (deterministic)", {
+  # the full 2000-draw MC rebuild is ~75s; opt in with CLIFF_SLOW_TESTS=1
+  skip_if(!nzchar(Sys.getenv("CLIFF_SLOW_TESTS")),
+          "slow: set CLIFF_SLOW_TESTS=1 to re-run the 2000-draw builder")
   skip_if_not(file.exists(builder), "builder script not present")
   before <- readLines(out_csv)
   invisible(utils::capture.output(source(builder, local = new.env())))  # rewrites out_csv
-  expect_identical(readLines(out_csv), before)   # pure inputs, no RNG/date -> byte-identical
+  expect_identical(readLines(out_csv), before)   # set.seed + pure inputs -> byte-identical
 })

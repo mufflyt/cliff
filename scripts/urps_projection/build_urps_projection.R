@@ -19,10 +19,12 @@
 #     R/workforce_cliff_engine.R via wc_engine_loader.R (no reimplementation).
 #   * Scenario levers: mufflyaccess::urps_scenarios() (the shared dictionary).
 #
-# Scope (Phase 2b defaults): 2040 horizon, index on 2023-active (1306),
-# deterministic point estimates (95% bounds NA -- MC is a follow-up), ABOG_PLUS_ABU
-# only. FTE / demand scenarios are excluded (requires_fte_model /
-# requires_demand_model); supply_clinical_fte stays NA until the FTE model wires in.
+# Scope (Phase 2b): 2040 horizon, index on 2023-active (1306), ABOG_PLUS_ABU only.
+# supply_headcount is the deterministic point estimate; lower_95 / upper_95 are the
+# Monte Carlo 95% interval (2000 draws: Beta band hazards + bootstrapped entrants,
+# seed 20260718 -- the same scheme as urps_scenario_analysis_v3.R). FTE / demand
+# scenarios are excluded (requires_fte_model / requires_demand_model);
+# supply_clinical_fte stays NA until the FTE model wires in.
 #
 # The output is VALIDATED against the mufflyaccess projection contract, including a
 # baseline_tie back to urps_count(2023) so it can never drift from the served count.
@@ -72,6 +74,25 @@ BAND_EV   <- c(13.058, 2.853, 3.508, 4.002, 5.192, 4.388, 0)
 BAND_PY   <- c(3854, 973, 811, 488, 221, 53, 3)
 HZ_POINT  <- setNames(ifelse(BAND_PY > 0, BAND_EV / BAND_PY, NA_real_), BAND_LABELS)
 
+## ---- Monte Carlo 95% interval (same scheme as urps_scenario_analysis_v3.R) ---
+# Uncertainty from two sources: band hazards ~ Beta(ev + 0.5, py - ev + 0.5) (an
+# empty band takes the max drawn hazard), and entrants bootstrapped from GRAD_URPS
+# then scaled by the scenario's entrant_multiplier. The recurrence is the REAL
+# wc_project_trajectory(); we take per-year 2.5% / 97.5% quantiles over the draws.
+SEED  <- 20260718L
+DRAWS <- 2000L
+mc_bounds <- function(entrant_multiplier, age_shift) {
+  m <- matrix(NA_real_, DRAWS, HORIZON)
+  for (i in seq_len(DRAWS)) {
+    hz <- stats::rbeta(length(BAND_EV), BAND_EV + 0.5, pmax(BAND_PY - BAND_EV, 0) + 0.5)
+    hz[BAND_PY == 0] <- max(hz[BAND_PY > 0]); hz <- setNames(pmin(1, hz), BAND_LABELS)
+    ent <- entrant_multiplier * mean(sample(GRAD_URPS, length(GRAD_URPS), replace = TRUE))
+    m[i, ] <- eng$wc_project_trajectory(ages, ent, hz, horizon = HORIZON, age_shift = age_shift)$active
+  }
+  data.frame(lower_95 = apply(m, 2, stats::quantile, probs = 0.025, names = FALSE),
+             upper_95 = apply(m, 2, stats::quantile, probs = 0.975, names = FALSE))
+}
+
 ## ---- run each executable scenario through the real trajectory ---------------
 sc   <- mufflyaccess::urps_scenarios()
 exec <- sc$scenario_id[!sc$requires_fte_model & !sc$requires_demand_model]
@@ -81,9 +102,12 @@ series_for <- function(id) {
   ent   <- ENTRANTS * lv$entrant_multiplier                 # entrant_multiplier lever
   shift <- as.integer(lv$retirement_shift_years)            # retirement_shift_years lever
   tr    <- eng$wc_project_trajectory(ages, ent, HZ_POINT, horizon = HORIZON, age_shift = shift)
+  bnd   <- mc_bounds(lv$entrant_multiplier, shift)          # per-year 95% interval on supply
   idx <- data.frame(year = INDEX_YEAR, supply_headcount = length(ages),
+                    lower_95 = NA_real_, upper_95 = NA_real_,
                     entrants = NA_real_, exits = NA_real_, net_change = NA_real_)  # index year: no flow
   fwd <- data.frame(year = INDEX_YEAR + tr$step, supply_headcount = tr$active,
+                    lower_95 = bnd$lower_95, upper_95 = bnd$upper_95,
                     entrants = tr$entrants, exits = tr$departures,
                     net_change = tr$entrants - tr$departures)
   out <- rbind(idx, fwd)
@@ -91,11 +115,12 @@ series_for <- function(id) {
     year = as.integer(out$year), scenario_id = id, specialty = SPECIALTY,
     certification_pathway = PATHWAY, geography_type = GEOG_TYPE, geography_id = GEOG_ID,
     supply_headcount = out$supply_headcount, supply_clinical_fte = NA_real_,
-    lower_95 = NA_real_, upper_95 = NA_real_,                # deterministic: no interval yet
+    lower_95 = out$lower_95, upper_95 = out$upper_95,
     entrants = out$entrants, exits = out$exits, net_change = out$net_change,
     stringsAsFactors = FALSE)
 }
 
+set.seed(SEED)                                              # reproducible MC across runs
 tbl <- do.call(rbind, lapply(exec, series_for))
 tbl <- tbl[order(match(tbl$scenario_id, exec), tbl$year), ]
 rownames(tbl) <- NULL
