@@ -84,6 +84,13 @@ if (sum(pw_tbl$n_active_2023) != ssot_active_2023)
   stop("[build] by-pathway cohort does not sum to the SSOT active count.", call. = FALSE)
 ages_pw <- lapply(split(pw_tbl, pw_tbl$pathway),
                   function(x) rep(x$age_proxy, x$n_active_2023))   # $ABOG, $ABU age vectors
+# The by-age table drives headcount / MC; the by-pathway table drives FTE. They
+# must describe the SAME cohort, or headcount and FTE would silently desync. Assert
+# the by-pathway table, summed over pathway, is the by-age table age-for-age.
+if (!isTRUE(all.equal(sort(ages), sort(unlist(ages_pw, use.names = FALSE)))))
+  stop("[build] the by-pathway cohort ages do not match the by-age cohort; the two ",
+       "frozen tables have drifted -- regenerate both from the same provider snapshot.",
+       call. = FALSE)
 PW_SHARE <- vapply(ages_pw, length, integer(1)) / ssot_active_2023 # entrant pathway split
 # reference (2023) counts for the FTE calc, one row per age x pathway
 REF_COUNTS <- data.frame(age = pw_tbl$age_proxy, pathway = pw_tbl$pathway,
