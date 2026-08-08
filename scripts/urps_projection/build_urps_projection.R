@@ -157,13 +157,31 @@ fte_series <- function(entrant_multiplier, age_shift, late_from_age, late_factor
 # and light up with zero code change once the equations are fit. Guard against a
 # silent placeholder: the day the model calibrates, this producer must be given a
 # projected age x sex demand population (and visits_per_fte) rather than the stub.
-DEMAND_CALIBRATED <- !all(mufflyaccess::urps_demand_params()$calibration_status == "not_calibrated")
-if (DEMAND_CALIBRATED)
-  stop("[build] the mufflyaccess demand model is now CALIBRATED. Replace the ",
-       "provisional demand population / visits_per_fte below with the projected ",
-       "age x sex population before emitting demand_clinical_fte.", call. = FALSE)
-DEMAND_POP     <- data.frame(age = 50L, sex = "female", n = NA_integer_)  # stub (unused while NA)
-VISITS_PER_FTE <- NA_real_                                                # stub (unused while NA)
+# Activate mufflyaccess's free LITERATURE_PROXY demand model (provisional; derived
+# from the Wu-2014 PFD prevalence age gradient + documented ambulatory priors) so
+# demand_clinical_fte / gap_fte FILL IN instead of NA. When the real MEPS/NAMCS
+# fit lands, point this option at the fitted CSV (or drop it) -- no other change.
+.demand_proxy <- system.file("extdata", "urps_demand_params_literature_proxy.csv",
+                             package = "mufflyaccess")
+if (nzchar(.demand_proxy))
+  options(mufflyaccess.urps_demand_params_path = .demand_proxy)
+DEMAND_MODE <- unique(mufflyaccess::urps_demand_params()$calibration_status)
+message("[build] demand model: ", DEMAND_MODE,
+        if (DEMAND_MODE == "not_calibrated") " (demand_clinical_fte / gap_fte will be NA)" else
+          " (demand_clinical_fte / gap_fte populated)")
+
+# Reference demand denominator: CONUS adult-female population by 5-year age band
+# (ACS 2016-2020 5-yr scale; an ILLUSTRATIVE reference for the proxy, not a precise
+# extract -- the proxy LEVEL is provisional). Design-matrix columns match the
+# demand model: age (band midpoint), sex_male, bmi (documented mean), ins_medicare
+# (age >= 65), n. Held CONSTANT across projection years (population aging is a
+# future refinement; the demand scenario levers still move demand between scenarios).
+.band_mid <- c(42, 47, 52, 57, 62, 67, 72, 77, 82, 88)
+.band_n   <- c(10.2, 10.0, 10.3, 10.9, 10.6, 9.3, 7.5, 5.0, 3.3, 3.7) * 1e6
+DEMAND_POP <- data.frame(age = .band_mid, sex_male = 0L, bmi = 29,
+                         ins_medicare = as.integer(.band_mid >= 65),
+                         n = round(.band_n))
+VISITS_PER_FTE <- 3000   # annual URPS ambulatory visits per clinical FTE (documented assumption)
 
 ## ---- run each scenario through the real trajectory --------------------------
 # Every registered scenario: the supply / FTE levers drive the projection; the
