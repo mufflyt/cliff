@@ -35,13 +35,25 @@ test_that("shape: ALL registered scenarios x 2023-2040, national ABOG_PLUS_ABU",
                     "demand_obesity_increase", "demand_managed_care_increase") %in% d$scenario_id))
 })
 
-test_that("demand + gap are wired and NA until the demand model calibrates", {
+test_that("demand + gap are populated (mufflyaccess literature_proxy) and gap = demand - supply", {
   expect_true(all(c("demand_clinical_fte", "gap_fte") %in% names(d)))
-  # the mufflyaccess demand model is a pre-calibration skeleton -> NA, and so is gap
-  skip_if_not(all(mufflyaccess::urps_demand_params()$calibration_status == "not_calibrated"),
-              "demand model is now calibrated; producer must wire a real demand population")
-  expect_true(all(is.na(d$demand_clinical_fte)))
-  expect_true(all(is.na(d$gap_fte)))
+  # the producer activates mufflyaccess's literature_proxy demand model, so these
+  # columns are filled (a provisional, Wu-2014-anchored demand -- see the producer
+  # header). They are NA only if built against a mufflyaccess without the proxy.
+  expect_true(all(!is.na(d$demand_clinical_fte)))
+  expect_true(all(is.finite(d$demand_clinical_fte) & d$demand_clinical_fte > 0))
+  expect_true(all(!is.na(d$gap_fte)))
+  # gap is the signed difference demand - supply, per row
+  expect_equal(d$gap_fte, d$demand_clinical_fte - d$supply_clinical_fte, tolerance = 1e-6)
+})
+
+test_that("demand-side scenarios move demand the right way (proxy levers)", {
+  dem <- function(id, yr = 2030) d$demand_clinical_fte[d$scenario_id == id & d$year == yr][1]
+  base <- dem("baseline")
+  expect_gt(dem("demand_insurance_expansion"),   base)  # more coverage -> more demand
+  expect_gt(dem("demand_obesity_increase"),      base)  # higher PFD incidence -> more
+  expect_lt(dem("demand_managed_care_increase"), base)  # gatekeeping -> less
+  expect_lt(dem("demand_retail_clinic_shift"),   base)  # shifts demand off URPS physicians
 })
 
 test_that("demand scenarios carry the baseline supply trajectory (only demand levers differ)", {
