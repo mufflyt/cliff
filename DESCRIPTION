@@ -17,6 +17,6 @@ Imports:
     tibble, tidycensus, tidygeocoder, tidyr, tidyverse, tigris, usethis, viridis,
     withr, yaml, zipangu
 Remotes:
-    mufflyt/mufflyaccess@f2d8302
+    mufflyt/mufflyaccess@19dcc17
 Note: 'exploratory' (Exploratory.io, non-CRAN) is used by one legacy script and
     is intentionally omitted from Imports; install separately if that script is run.
