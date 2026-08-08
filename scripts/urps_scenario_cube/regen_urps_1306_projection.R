@@ -15,6 +15,7 @@ root <- here::here(); sdir <- file.path(root, "scripts", "urps_scenario_cube")
 source(file.path(root, "scripts", "urps_baseline_scenarios", "wc_engine_loader.R"))
 eng <- load_real_wc_engine(file.path(root, "R", "workforce_cliff_engine.R"))
 wc_project <- eng$wc_project; wc_haz_for <- eng$wc_haz_for; WC_BAND_LABELS <- eng$WC_BAND_LABELS
+wc_project_micro <- eng$wc_project_micro   # per-provider stochastic engine for the MC
 source(file.path(root, "R", "workforce_uncertainty.R"))   # median + PI + decision probabilities
 
 # cohort age vectors (combined national) from the pathway/geo extract
@@ -45,7 +46,12 @@ mc <- function(ages) {
     hz <- stats::rbeta(length(BAND_EV), BAND_EV + 0.5, pmax(BAND_PY - BAND_EV, 0) + 0.5)
     hz[BAND_PY == 0] <- max(hz[BAND_PY > 0]); hz <- setNames(pmin(1, hz), WC_BAND_LABELS)
     ent <- mean(sample(GRAD_URPS, length(GRAD_URPS), replace = TRUE))
-    r <- wc_project(ages, entrants = ent, hz = hz, horizon = HORIZON)
+    # REAL microsimulation: one per-provider individual realization per parameter draw,
+    # so the 10,000 draws carry BOTH parameter uncertainty (Beta hazards + graduate
+    # bootstrap, above) AND individual/aleatory uncertainty (per-provider Bernoulli
+    # departures + Poisson entry). seed = NULL continues the MC_SEED-seeded stream.
+    r <- wc_project_micro(ages, entrants = ent, hz = hz, horizon = HORIZON,
+                          n_sims = 1L, seed = NULL)
     fin[i] <- r$active_2029; rat[i] <- ent / (r$departures_4yr / HORIZON)
   }
   list(final_lo = unname(stats::quantile(fin, .025)), final_hi = unname(stats::quantile(fin, .975)),

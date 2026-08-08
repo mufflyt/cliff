@@ -18,7 +18,7 @@ load_real_wc_engine <- function(engine_path) {
   env <- new.env(parent = baseenv())
   env$WC_ENTRY_AGE <- 34L    # WORKFORCE_ENTRY_AGE (workforce_constants.R)
   env$WC_HORIZON   <- 4L     # WORKFORCE_PROJECTION_HORIZON_YEARS (workforce_constants.R)
-  want <- c("WC_BANDS", "WC_BAND_LABELS", "wc_band_of", "wc_haz_for", "wc_project")
+  want <- c("WC_BANDS", "WC_BAND_LABELS", "wc_band_of", "wc_haz_for", "wc_project", "wc_project_micro")
   for (e in exprs) {
     if (is.call(e) && (identical(e[[1L]], as.name("<-")) || identical(e[[1L]], as.name("=")))) {
       lhs <- e[[2L]]
