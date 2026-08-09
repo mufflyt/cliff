@@ -93,9 +93,7 @@ load_abog_workforce_data <- function(
 ) {
 
   # BUG FIX #7 (2026-01-28): Load string normalization library
-  if (!exists("normalize_string", mode = "function")) {
-    source(here::here("R", "string_normalization.R"))
-  }
+  # (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
 
   # ============================================================================
   # VALIDATION STEP 1: Path Existence
@@ -293,7 +291,7 @@ load_abog_workforce_data <- function(
         }
 
         # Source and apply deduplication function
-        source(here::here("R", "deduplicate_abog_data.R"))
+        # (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
         abog_data <- deduplicate_abog_data(abog_data, verbose = verbose)
 
         if (verbose) {
