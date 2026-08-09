@@ -27,8 +27,37 @@ stopifnot(
   anyDuplicated(CONUS_EXCLUDE_FIPS) == 0L
 )
 
-#' TRUE for a state FIPS (or the leading 2 chars of a GEOID) that IS in the contiguous US.
-#' Vectorised; works for exact 2-digit STATEFP and for longer GEOIDs (county/tract).
+#' Is a FIPS code in the contiguous United States?
+#'
+#' @description
+#' `TRUE` for a state FIPS code, or the leading two characters of any longer
+#' GEOID, that is **not** Alaska, Hawaii, Puerto Rico, Guam, the US Virgin
+#' Islands, American Samoa or the Northern Mariana Islands.
+#'
+#' @details
+#' Vectorised, and works on exact 2-digit `STATEFP` as well as on county
+#' (5-digit) and tract (11-digit) GEOIDs, because it tests the leading two
+#' characters. Testing exclusion rather than membership means a new or
+#' unrecognised code is treated as CONUS; if you need the opposite, test against
+#' [mufflyaccess::CONUS_STATE_FIPS] instead.
+#'
+#' The excluded set is validated at package load (`CONUS_EXCLUDE_FIPS`): seven
+#' entries, all two-digit, no duplicates, with Alaska and Hawaii present.
+#'
+#' @param fips `character`/`numeric`: state FIPS codes or longer GEOIDs. Coerced
+#'   with `as.character()`, so numeric input loses a leading zero — pass
+#'   character for states below 10.
+#' @return `logical` the same length as `fips`.
+#' @examples
+#' is_conus_fips(c("08", "02", "15", "36"))
+#' #> TRUE FALSE FALSE TRUE
+#'
+#' # Works on county and tract GEOIDs too
+#' is_conus_fips(c("08031", "02020", "36061003800"))
+#' #> TRUE FALSE TRUE
+#' @seealso [in_conus_bbox()] for filtering raw coordinates.
+#' @family geography
+#' @export
 is_conus_fips <- function(fips) {
   !(substr(as.character(fips), 1L, 2L) %in% CONUS_EXCLUDE_FIPS)
 }
@@ -48,10 +77,33 @@ stopifnot(
   CONUS_LAT[1] >= 20,   CONUS_LAT[2] <= 55
 )
 
-#' TRUE for a point strictly inside the CONUS bounding box. Preserves 3-valued logic:
-#' an NA lon/lat yields NA (never silently kept/dropped), so callers keep their own
-#' is.na() handling exactly as before. De Morgan holds, so `!in_conus_bbox(...)` is the
-#' exact prior "outside the box" test.
+#' Is a coordinate inside the contiguous-US bounding box?
+#'
+#' @description
+#' `TRUE` for a point strictly inside a coarse rectangle enclosing the
+#' contiguous United States (lon -125 to -66, lat 24 to 50, WGS84).
+#'
+#' @details
+#' **This is a coarse filter, not authoritative geography.** The box includes
+#' parts of Canada, Mexico and open ocean, and excludes nothing that a spatial
+#' join would exclude. Use it to catch coordinates that are obviously wrong —
+#' geocoding failures, APO/AE military addresses that land in Europe, transposed
+#' longitude signs — not to decide whether a point is in a state. For that, join
+#' to boundaries.
+#'
+#' Three-valued logic is preserved: an `NA` coordinate yields `NA` rather than
+#' `FALSE`, so a caller's own `is.na()` handling still applies and points are
+#' never silently kept or dropped. De Morgan holds, so `!in_conus_bbox(...)` is
+#' exactly the "outside the box" test.
+#'
+#' @param lon,lat `numeric`: decimal degrees, WGS84.
+#' @return `logical` the same length as the inputs; `NA` where either is `NA`.
+#' @examples
+#' in_conus_bbox(c(-104.99, -157.86, NA), c(39.74, 21.31, 40))
+#' #> TRUE FALSE NA          # Denver, Honolulu, missing longitude
+#' @seealso [is_conus_fips()] when a FIPS code is available — always prefer it.
+#' @family geography
+#' @export
 in_conus_bbox <- function(lon, lat) {
   lon > CONUS_LON[1] & lon < CONUS_LON[2] & lat > CONUS_LAT[1] & lat < CONUS_LAT[2]
 }
