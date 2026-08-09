@@ -6,10 +6,16 @@
 # (Per ARCHITECTURE.md: isochrones builds the roster, mufflyaccess serves the
 #  number, cliff models what happens next.)
 #
-# CONTRACT v2.1.0: the baseline is a (measure, year, geography, pathway) cell.
-# The canonical 2023 active count is 1332 (national) / 1329 (conus) WITH urology.
+# CONTRACT: the baseline is a (measure, year, geography, pathway) cell.
+# The canonical 2023 active count is 1306 (national) / 1303 (conus) WITH urology,
+# as served by mufflyaccess v3.0.0+ (package version >= 0.7.1; 0.10.0 installed).
+# 1332 / 1329 are the RETIRED v2.1.0 primary-cert cells and must never be used.
 # 1339 is the 2025 roster_snapshot -- NOT the 2023 active baseline. Do not use it
 # as the projection starting value.
+#
+# These numbers are documentation only. urps_baseline() below asks mufflyaccess
+# for the value and never hardcodes it, so the function stayed correct while this
+# comment went stale after the v2.1.0 -> v3.0.0 migration.
 
 #' National URPS baseline for cliff (sourced from mufflyaccess).
 #' @param include_urology FALSE = ABOG-only; TRUE = ABOG + ABU net-new.
@@ -17,7 +23,7 @@
 #' @param year measure year (default 2023).
 #' @param measure "board_certified_active" (default; the active-workforce baseline)
 #'   or "roster_snapshot".
-#' @return integer active count (e.g. 2023/national/with-urology = 1332).
+#' @return integer active count (e.g. 2023/national/with-urology = 1306).
 urps_baseline <- function(include_urology = FALSE, geography = "national",
                           year = 2023L, measure = "board_certified_active") {
   if (!requireNamespace("mufflyaccess", quietly = TRUE))
@@ -33,6 +39,6 @@ urps_baseline <- function(include_urology = FALSE, geography = "national",
 # Example replacement inside manuscript/R/workforce_statistics.R:
 #   get_baseline <- function(sub) {
 #     if (identical(sub, "URPS"))
-#       return(urps_baseline(include_urology = TRUE, geography = "national"))  # 1332 (2023 active)
+#       return(urps_baseline(include_urology = TRUE, geography = "national"))  # 1306 (2023 active)
 #     ... existing logic for other subspecialties ...
 #   }
