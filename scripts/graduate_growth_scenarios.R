@@ -36,7 +36,7 @@ grad_scenarios <- function(k){
   g <- GRAD[[k]]; m <- mean(g); slope <- coef(lm(g ~ seq_along(g)))[2]
   cautious <- min(max(g), m + 0.5*slope*(HORIZON/2))
   c(flat_recent_mean=m, cohort_accounting=g[length(g)], contraction=min(g),
-    cautious_trend=cautious, conservative_70pct=WORKFORCE_CONVERSION_FLOOR*m, optimistic_nrmp=ENTRANTS_NRMP[[k]])
+    cautious_trend=cautious, conservative_70pct=WORKFORCE_CONVERSION_FLOOR * m, optimistic_nrmp=ENTRANTS_NRMP[[k]])
 }
 SC_LABELS <- c(flat_recent_mean="Flat recent mean (status-quo)", cohort_accounting="Cohort accounting (most recent year)",
                contraction="Contraction (recent low)", cautious_trend="Cautious trend",

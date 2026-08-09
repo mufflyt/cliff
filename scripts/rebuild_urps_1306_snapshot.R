@@ -14,6 +14,7 @@
 # After running, run scripts/sync_urps_model_data.R to update the byte-identical
 # replicas (drift-guarded by tests/testthat/test-ssot-urps-model-data-sync.R).
 suppressPackageStartupMessages({library(here); library(readr)})
+source(here::here("R", "workforce_cliff_engine.R"))
 
 coh <- readr::read_csv(here::here("data", "urps_1306_active_cohort.csv"),
                        show_col_types = FALSE)
@@ -22,13 +23,14 @@ ages <- sort(as.integer(coh$age))
 
 hz <- readr::read_csv(here::here("data", "hazard_by_band_pooled_vs_unpooled.csv"),
                       show_col_types = FALSE)
-band_labels <- c("<45", "45-49", "50-54", "55-59", "60-64", "65-69", "70+")
+band_labels <- WC_BAND_LABELS
 stopifnot(identical(hz$band, band_labels))
 pooled_ev <- as.integer(hz$pooled_events)
 pooled_py <- as.integer(hz$pooled_py)
 stopifnot(sum(pooled_ev) == 71L)   # 36 GO + 35 URPS pooled departure events
 
 vec <- function(x) paste0("c(", paste(x, collapse = ","), ")")
+vec_chr <- function(x) paste0("c(", paste(sprintf('"%s"', x), collapse = ","), ")")
 lines <- c(
   "# URPS model-data snapshot for the standalone Shiny apps. Values originate from",
   "# R/workforce_cliff_engine.R + the hierarchical-hazard pipeline.",
@@ -41,8 +43,8 @@ lines <- c(
   "# (active_2023 == TRUE in the isochrones urps_provider_snapshot: 1,027 ABOG +",
   "# 279 ABU net-new), vendored to data/urps_1306_active_cohort.csv. Supersedes the",
   "# retired 1,339 roster snapshot. Ages = age_proxy_from_cert.",
-  'BAND_LABELS <- c("<45","45-49","50-54","55-59","60-64","65-69","70+")',
-  "BANDS <- c(0, 45, 50, 55, 60, 65, 70, Inf)  # age-band breakpoints (== engine WC_BANDS; parity-guarded in test-ssot-age-bands.R); length == BAND_LABELS + 1",
+  paste0("BAND_LABELS <- ", vec_chr(WC_BAND_LABELS)),
+  paste0("BANDS <- ", vec(WC_BANDS), "  # age-band breakpoints (== engine WC_BANDS; parity-guarded in test-ssot-age-bands.R); length == BAND_LABELS + 1"),
   "GRAD_URPS <- c(61,66,63,66)  # OB/GYN+urology completers AY2020-24",
   "# Age-band event / person-year counts per observation window (for the Beta-posterior MC).",
   "# PRIMARY window (fully_obs) is the POOLED GO+URPS age-band hazard (manuscript",
