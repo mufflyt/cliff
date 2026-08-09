@@ -1,5 +1,12 @@
 # Gynecologic Subspecialty Workforce Cliff
 
+<!-- badges: start -->
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Version](https://img.shields.io/badge/version-0.1.0-informational.svg)](DESCRIPTION)
+[![Status: under review](https://img.shields.io/badge/status-under%20review-yellow.svg)](#)
+<!-- badges: end -->
+
 **Title:** Gynecologic Subspecialty Workforce Vulnerability: Retirement Approaches or Exceeds Fellowship Replacement Capacity
 
 **Authors:** Tyler Muffly, MD · Sydney Archer, MD, MPH  
@@ -365,3 +372,62 @@ All data sources are publicly available and de-identified.
 ---
 
 *Last updated: 2026-08-02*
+
+---
+
+## Installation
+
+**This repository does not currently install as an R package**, and that is a
+known defect rather than a design choice:
+
+* there is no `NAMESPACE` in the repository — it is roxygen-generated and has
+  never been committed, so `R CMD INSTALL` stops with *"a 'NAMESPACE' file is
+  required"*;
+* six files under `R/` call `source()` on files that are absent from the
+  repository (`R/utils/load_paths.R`, `R/utils/extract_year_safely.R`,
+  `R/utils/sql_state_normalize.R`, `R/string_normalization.R`,
+  `R/deduplicate_abog_data.R`, `R/freida_program_loader.R`), several at top
+  level, so they run at package load.
+
+Until both are fixed, use the analysis scripts directly:
+
+```r
+source("R/workforce_cliff_engine.R")
+```
+
+The repository also carries an `renv` lockfile. Running R **from inside** it
+activates an isolated library; if packages appear to be missing, run from the
+parent directory or set `RENV_CONFIG_AUTOLOADER_ENABLED=FALSE`.
+
+## Figures are generated, not pasted
+
+Every figure in this README is produced by a script in `code/`, named in its
+caption. Regenerate before trusting one:
+
+```sh
+Rscript code/03_create_abstract_figure.R
+```
+
+## How to cite
+
+```r
+citation("cliff")
+```
+
+`CITATION.cff` and `CITATION.bib` carry the same entry for GitHub and reference
+managers, including the manuscript reference. ORCID
+[0000-0002-2044-1693](https://orcid.org/0000-0002-2044-1693).
+
+## Licence
+
+MIT — see [LICENSE.md](LICENSE.md). `LICENSE` holds the R-convention
+year/copyright stub that `DESCRIPTION` points at.
+
+## Related
+
+| Package | Owns |
+|---|---|
+| [`mufflyaccess`](https://github.com/mufflyt/mufflyaccess) | constants and safe arithmetic shared across these projects |
+| [`twostep`](https://github.com/mufflyt/twostep) | E2SFCA accessibility |
+| [`isochrones`](https://github.com/mufflyt/isochrones) | routing and the isochrone pipeline |
+| [`mysterymaps`](https://github.com/mufflyt/mysterymaps) | map construction |
