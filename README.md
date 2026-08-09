@@ -377,27 +377,28 @@ All data sources are publicly available and de-identified.
 
 ## Installation
 
-**This repository does not currently install as an R package**, and that is a
-known defect rather than a design choice:
-
-* there is no `NAMESPACE` in the repository — it is roxygen-generated and has
-  never been committed, so `R CMD INSTALL` stops with *"a 'NAMESPACE' file is
-  required"*;
-* six files under `R/` call `source()` on files that are absent from the
-  repository (`R/utils/load_paths.R`, `R/utils/extract_year_safely.R`,
-  `R/utils/sql_state_normalize.R`, `R/string_normalization.R`,
-  `R/deduplicate_abog_data.R`, `R/freida_program_loader.R`), several at top
-  level, so they run at package load.
-
-Until both are fixed, use the analysis scripts directly:
-
 ```r
-source("R/workforce_cliff_engine.R")
+# install.packages("remotes")
+remotes::install_github("mufflyt/cliff")
 ```
 
-The repository also carries an `renv` lockfile. Running R **from inside** it
-activates an isolated library; if packages appear to be missing, run from the
-parent directory or set `RENV_CONFIG_AUTOLOADER_ENABLED=FALSE`.
+The repository carries an `renv` lockfile. Running R **from inside** it activates
+an isolated library; if packages appear to be missing, run from the parent
+directory or set `RENV_CONFIG_AUTOLOADER_ENABLED=FALSE`.
+
+### Seven helpers are stubs
+
+`cliff` was extracted from the isochrones pipeline and seven helpers came along
+as `source()` calls rather than as code — `load_paths()`,
+`load_freida_programs()`, `find_nearest_program()`, `sql_state_normalize()`,
+`extract_year_safely()`, `normalize_string()` and `deduplicate_abog_data()`.
+They still live in [`isochrones`](https://github.com/mufflyt/isochrones).
+
+Rather than copy them here — this ecosystem has been repeatedly damaged by the
+same helper existing in several repositories, with load order deciding which one
+runs — each is defined in `R/unported_helpers.R` as a stub that fails at call
+time naming the function and where it lives. Everything that does not depend on
+them works normally. See that file's header for the two ways to make them real.
 
 ## Figures are generated, not pasted
 
