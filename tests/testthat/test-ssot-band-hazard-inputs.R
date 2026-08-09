@@ -7,10 +7,10 @@
 # and, for the manuscript-primary window, with the frozen hazard artifact that is their true origin.
 #
 # INTENTIONALLY NOT collapsed: the three observation windows differ by design —
-#   fully_obs = URPS-specific HIERARCHICAL PARTIAL-POOLED expected events (non-integer, penalized; manuscript
-#               primary), with person-years == the frozen CSV's urps_py column;
-#   drop2 / full = RAW integer event/person-year counts under alternative observation windows.
-# Collapsing them would destroy the pooled-vs-raw distinction.
+#   fully_obs = the manuscript-primary POOLED GO+URPS event/person-year life table (71 observed events);
+#   drop2 / full = pooled GO+URPS event/person-year counts under alternative observation windows.
+# Hierarchical partial pooling is an explicitly reported sensitivity, not the primary model. Collapsing the
+# primary and alternative windows would destroy the observation-window sensitivity analysis.
 library(testthat)
 library(here)
 
@@ -30,17 +30,18 @@ test_that("[structure] BAND_EV / BAND_PY share window names and are one value pe
   expect_true(all(lengths(sc$BAND_PY) == n))
 })
 
-test_that("[cross-artifact origin] BAND_PY[fully_obs] equals the frozen hazard CSV's urps_py column, in order", {
+test_that("[cross-artifact origin] fully_obs equals the frozen pooled hazard CSV columns, in order", {
   csv <- read.csv(here::here("data", "hazard_by_band_pooled_vs_unpooled.csv"), stringsAsFactors = FALSE)
   # the CSV band order must match the model's band order for the comparison to be meaningful
   expect_identical(as.character(csv$band), sc$BAND_LABELS)
-  expect_identical(as.numeric(sc$BAND_PY[["fully_obs"]]), as.numeric(csv$urps_py))
+  expect_identical(as.numeric(sc$BAND_EV[["fully_obs"]]), as.numeric(csv$pooled_events))
+  expect_identical(as.numeric(sc$BAND_PY[["fully_obs"]]), as.numeric(csv$pooled_py))
 })
 
-test_that("[intentional differences preserved] fully_obs EV is pooled (non-integer); full EV is raw counts", {
+test_that("[intentional differences preserved] fully_obs and full represent distinct pooled windows", {
   fo <- sc$BAND_EV[["fully_obs"]]; fu <- sc$BAND_EV[["full"]]
-  expect_false(isTRUE(all.equal(fo, round(fo))))    # partial-pooled expected events are NOT whole numbers
-  expect_true(isTRUE(all.equal(fu, round(fu))))     # the raw window IS integer counts
+  expect_true(isTRUE(all.equal(fo, round(fo))))     # observed pooled event counts are whole numbers
+  expect_true(isTRUE(all.equal(fu, round(fu))))     # observed pooled event counts are whole numbers
   expect_false(isTRUE(all.equal(fo, fu)))           # the two windows are genuinely different, not copies
 })
 

@@ -24,7 +24,7 @@ APC    <- fread(dpath("urps_module_a_age_productivity_2026-07-23.csv"))
 DEMAND <- fread(dpath("urps_supply_demand_national_2026-07-23.csv"))
 
 ## ── fixed model pieces ───────────────────────────────────────────────────────
-N_OBGYN <- 1031; N_URO <- 308; N_TOT <- N_OBGYN + N_URO             # ssot-ok: frozen reproduction of mufflyaccess urps_count(2025,"roster_snapshot","national") = 1,339 (ABOG 1,031 + ABU net-new 308); self-contained deployed app
+N_OBGYN <- 1031; N_URO <- 308; N_TOT <- N_OBGYN + N_URO             # ssot-ok: frozen reproduction of the roster_snapshot national baseline = 1,339 (ABOG 1,031 + ABU net-new 308); self-contained deployed app
 OB_BASE_SHARE <- N_OBGYN / N_TOT                                    # 0.770
 # Reference urology-pathway clinical-time FTE: fraction of a urology-pathway urogynecologist's clinical time
 # spent in urogynecology (the rest is general urology). This is the reference/frozen-manuscript default that

@@ -29,7 +29,6 @@ URPS_BASELINE_SSOT <- mufflyaccess::urps_count(
   year = 2025, measure = "roster_snapshot", geography = "national",
   include_urology = TRUE, incomplete = "error")
 
-BANDS <- c(0, 45, 50, 55, 60, 65, 70, Inf)
 # plain-language display labels for the age bands (BAND_LABELS stays the model key)
 BAND_DISPLAY <- c("<45" = "Under 45", "45-49" = "45 to 49", "50-54" = "50 to 54",
                   "55-59" = "55 to 59", "60-64" = "60 to 64", "65-69" = "65 to 69", "70+" = "70 years or older")
