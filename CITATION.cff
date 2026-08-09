@@ -12,13 +12,14 @@ type: software
 authors:
   - family-names: Muffly
     given-names: Tyler
+    orcid: "https://orcid.org/0000-0002-2044-1693"
     email: tyler.muffly@dhha.org
     affiliation: >-
       Department of Obstetrics and Gynecology, Denver Health Medical Center,
       University of Colorado School of Medicine
 version: 0.1.0
 date-released: "2026-08-02"
-license: "file LICENSE"
+license: MIT
 repository-code: "https://github.com/mufflyt/cliff"
 keywords:
   - urogynecology
@@ -35,5 +36,6 @@ preferred-citation:
   authors:
     - family-names: Muffly
       given-names: Tyler
+      orcid: "https://orcid.org/0000-0002-2044-1693"
   year: 2026
   notes: Manuscript in preparation; figure and data provenance in docs/FIGURE_PROVENANCE.md.
