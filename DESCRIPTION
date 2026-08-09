@@ -1,11 +1,14 @@
 Package: cliff
 Title: Gynecologic Surgical Subspecialty Workforce Cliff Analysis
 Version: 0.1.0
-Authors@R: person("Tyler", "Muffly", role = c("aut", "cre"), email = "tyler.muffly@dhha.org")
+Authors@R: person("Tyler", "Muffly", role = c("aut", "cre"), email = "tyler.muffly@dhha.org",
+           comment = c(ORCID = "0000-0002-2044-1693"))
 Description: Reproducible analysis and manuscript for near-term fellowship-completion
     versus clinical-practice-departure balance in gynecologic oncology and
     urogynecology (2025-2029). Extracted from the isochrones monorepo.
-License: file LICENSE
+License: MIT + file LICENSE
+URL: https://github.com/mufflyt/cliff
+BugReports: https://github.com/mufflyt/cliff/issues
 Encoding: UTF-8
 Imports:
     bit64,
