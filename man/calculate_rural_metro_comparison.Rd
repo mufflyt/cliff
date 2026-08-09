@@ -21,7 +21,15 @@ calculate_rural_metro_comparison(
 \item{metro_total}{`integer`: Total number of physicians in metro areas}
 }
 \value{
-
+A nested list with three components:
+  \describe{
+    \item{rural}{List with: at_risk, total, rate_pct, ci_lower (\%),
+      ci_upper (\%)}
+    \item{metro}{List with: at_risk, total, rate_pct, ci_lower (\%),
+      ci_upper (\%)}
+    \item{comparison}{List with: rate_difference_pct, p_value,
+      p_value_formatted, significant (logical), test_method, note}
+  }
 }
 \description{
 Compares retirement-at-risk rates between rural and metropolitan areas.
@@ -32,7 +40,7 @@ impending physician retirement cliff.
 The function computes:
 \itemize{
   \item Point estimates for retirement-at-risk rates in each area type
-  \item 95% confidence intervals using Wilson score method
+  \item 95\% confidence intervals using Wilson score method
   \item Statistical significance test (two-proportion z-test)
   \item Rate difference (rural - metro)
 }

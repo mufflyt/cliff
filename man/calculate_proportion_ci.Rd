@@ -12,7 +12,7 @@ calculate_proportion_ci(x, n, conf_level = 0.95)
 \item{n}{`integer`: Total number of trials (e.g., all physicians in area)}
 
 \item{conf_level}{`numeric`: Confidence level between 0 and 1 (default: 0.95
-for 95% CI)}
+for 95\% CI)}
 }
 \value{
 A list containing:

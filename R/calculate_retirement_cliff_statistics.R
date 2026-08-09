@@ -233,7 +233,7 @@ calculate_two_prop_test <- function(x1, n1, x2, n2, min_sample_size = 30) {
 #' @param x `integer`: Number of successes (e.g., at-risk physicians)
 #' @param n `integer`: Total number of trials (e.g., all physicians in area)
 #' @param conf_level `numeric`: Confidence level between 0 and 1 (default: 0.95
-#'   for 95% CI)
+#'   for 95\% CI)
 #'
 #' @return A list containing:
 #'   \describe{
@@ -339,7 +339,7 @@ calculate_proportion_ci <- function(x, n, conf_level = 0.95) {
 #' The function computes:
 #' \itemize{
 #'   \item Point estimates for retirement-at-risk rates in each area type
-#'   \item 95% confidence intervals using Wilson score method
+#'   \item 95\% confidence intervals using Wilson score method
 #'   \item Statistical significance test (two-proportion z-test)
 #'   \item Rate difference (rural - metro)
 #' }
@@ -351,13 +351,12 @@ calculate_proportion_ci <- function(x, n, conf_level = 0.95) {
 #'
 #' @return A nested list with three components:
 #'   \describe{
-#'     \item{rural}{List with: at_risk, total, rate_pct, ci_lower (%), ci_upper
-#' (%)}
-#'     \item{metro}{List with: at_risk, total, rate_pct, ci_lower (%), ci_upper
-#' (%)}
+#'     \item{rural}{List with: at_risk, total, rate_pct, ci_lower (\%),
+#'       ci_upper (\%)}
+#'     \item{metro}{List with: at_risk, total, rate_pct, ci_lower (\%),
+#'       ci_upper (\%)}
 #'     \item{comparison}{List with: rate_difference_pct, p_value,
-#' p_value_formatted,
-#'           significant (logical), test_method, note}
+#'       p_value_formatted, significant (logical), test_method, note}
 #'   }
 #'
 #' @details
