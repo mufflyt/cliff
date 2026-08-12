@@ -64,6 +64,18 @@ source(file.path(ROOT, "scripts", "urps_baseline_scenarios", "wc_engine_loader.R
 eng <- load_real_wc_engine(file.path(ROOT, "R", "workforce_cliff_engine.R"))
 BAND_LABELS <- eng$WC_BAND_LABELS
 
+## ---- retirement-hazard SOURCE seam ------------------------------------------
+# Historical exits are OBSERVED in mufflyaccess; future exits are SIMULATED here
+# from a hazard calibrated to them. CLIFF_RETIREMENT_SOURCE selects which hazard
+# the projection runs on -- default "legacy_modeled" (the reviewed frozen band
+# model, byte-identical to the prior artifact). "observed_hazard" reads only
+# mufflyaccess::urps_exit_hazard_by_age_year() and fails loud unless retirement is
+# observed. It is NOT the production default: promote it only after the real
+# provider-month evidence is populated, the hazard is validated, and the back-test
+# beats the frozen model. See scripts/urps_projection/RETIREMENT_SOURCE.md.
+source(file.path(ROOT, "R", "wc_retirement_hazard.R"))
+RETIREMENT_SOURCE <- Sys.getenv("CLIFF_RETIREMENT_SOURCE", "legacy_modeled")
+
 ## ---- starting cohort ages (parquet-derived, sums to 1306) -------------------
 ages_tbl <- utils::read.csv(
   file.path(ROOT, "scripts", "urps_baseline_scenarios", "urps_cohort_ages_v3.0.0.csv"),
@@ -96,14 +108,26 @@ PW_SHARE <- vapply(ages_pw, length, integer(1)) / ssot_active_2023 # entrant pat
 REF_COUNTS <- data.frame(age = pw_tbl$age_proxy, pathway = pw_tbl$pathway,
                          n = pw_tbl$n_active_2023, stringsAsFactors = FALSE)
 
-## ---- frozen retirement hazards + entrants (cliff's reviewed model) ----------
-# Verbatim from urps_scenario_analysis_v3.R (HAZARD_VERSION "fully_obs
-# (BAND_EV/BAND_PY, 2016-2021 primary window)"); deterministic point estimate.
+## ---- retirement hazards + entrants ------------------------------------------
+# Entrants are independent of the retirement-hazard source (graduate supply, not
+# departures), so they are unchanged regardless of CLIFF_RETIREMENT_SOURCE.
 GRAD_URPS <- c(61, 66, 63, 66)
 ENTRANTS  <- mean(GRAD_URPS)                                 # 64
-BAND_EV   <- c(13.058, 2.853, 3.508, 4.002, 5.192, 4.388, 0)
-BAND_PY   <- c(3854, 973, 811, 488, 221, 53, 3)
-HZ_POINT  <- setNames(ifelse(BAND_PY > 0, BAND_EV / BAND_PY, NA_real_), BAND_LABELS)
+# The frozen band model, verbatim from urps_scenario_analysis_v3.R (HAZARD_VERSION
+# "fully_obs (BAND_EV/BAND_PY, 2016-2021 primary window)"). For source=="legacy_modeled"
+# the resolver echoes these back unchanged (byte-identical projection); for
+# "observed_hazard" they are ignored and the hazard comes from mufflyaccess.
+LEGACY_BAND_EV <- c(13.058, 2.853, 3.508, 4.002, 5.192, 4.388, 0)
+LEGACY_BAND_PY <- c(3854, 973, 811, 488, 221, 53, 3)
+HAZ       <- wc_retirement_hazard(RETIREMENT_SOURCE, band_labels = BAND_LABELS,
+                                  band_of = eng$wc_band_of,
+                                  legacy_band_ev = LEGACY_BAND_EV,
+                                  legacy_band_py = LEGACY_BAND_PY)
+BAND_EV   <- unname(HAZ$band_ev)
+BAND_PY   <- unname(HAZ$band_py)
+HZ_POINT  <- HAZ$hz_point
+message("[build] retirement_source: ", RETIREMENT_SOURCE,
+        " (", HAZ$provenance$hazard_artifact, ")")
 
 ## ---- Monte Carlo 95% interval (same scheme as urps_scenario_analysis_v3.R) ---
 # Uncertainty from two sources: band hazards ~ Beta(ev + 0.5, py - ev + 0.5) (an
@@ -243,6 +267,28 @@ out_dir <- file.path(ROOT, "scripts", "urps_projection")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 out_csv <- file.path(out_dir, "urps_projection_2023_2040_v1.csv")
 utils::write.csv(tbl, out_csv, row.names = FALSE, na = "")
+
+## ---- provenance sidecar (req 7): what retirement process produced this run ---
+# Recorded next to the artifact, NOT as contract columns (the projection contract
+# has a fixed schema). Every projection carries at least: retirement_source, the
+# hazard artifact / version / hash, ascertainment status, confirmation window, and
+# the uncertainty method -- so an "observed_hazard" run can never be mistaken for a
+# frozen-model run, and vice versa.
+prov <- c(HAZ$provenance, list(
+  seed = SEED, mc_draws = DRAWS, horizon = HORIZON,
+  index_year = INDEX_YEAR, end_year = END_YEAR,
+  entrants_mean = ENTRANTS, engine = "R/workforce_cliff_engine.R::wc_project_trajectory",
+  artifact = basename(out_csv)))
+prov_json <- file.path(out_dir, "urps_projection_2023_2040_v1.provenance.json")
+if (requireNamespace("jsonlite", quietly = TRUE)) {
+  jsonlite::write_json(prov, prov_json, auto_unbox = TRUE, pretty = TRUE,
+                       null = "null", na = "null")
+} else {
+  writeLines(vapply(names(prov), function(k) paste0(k, ": ", paste(prov[[k]], collapse = ", ")),
+                    character(1)), prov_json)
+}
 cat(sprintf("[build] wrote %d rows (%d scenarios x %d years) -> %s; contract validated.\n",
             nrow(tbl), length(exec), HORIZON + 1L, out_csv))
+cat(sprintf("[build] retirement_source=%s; provenance -> %s\n",
+            RETIREMENT_SOURCE, basename(prov_json)))
 invisible(tbl)
