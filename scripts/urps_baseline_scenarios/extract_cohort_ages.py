@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
-"""Materialize AGGREGATE age-band counts for the URPS baseline scenarios.
+"""Materialize AGGREGATE ESTIMATED-AGE-PROXY band counts for the URPS scenarios.
 
-Reads the isochrones v3.0.0 provider snapshot and emits an AGGREGATE table
-(one row per age, counts per cohort) -- no physician-level rows leave here.
-The two reconstructable cohorts:
-  * roster (2025 snapshot)          -- all identified providers        -> 1339
-  * active_2023 (v3.0.0 canonical)  -- active_2023 == TRUE             -> 1306
+`age_proxy_from_cert` is a MODELED age PROXY (derived from certification timing +
+the prespecified age-proxy method), NOT an observed age. This emits an AGGREGATE
+table (one row per proxy-age, counts per cohort) -- no physician-level rows.
 
-The legacy 1295 cohort (primary-cert reconciliation, 1031 ABOG + 264 ABU) is NOT
-reconstructable from the v3.0.0 artifact; its projection comes from the frozen
-published record, not a re-run (see the R driver).
+The two cohorts reconstructable from the isochrones v3.0.0 provider snapshot:
+  * roster_2025  -- all identified providers                 -> 1339 (2025 roster)
+  * active_2023  -- active_2023 == TRUE (URPS-subspecialty-cert basis) -> 1306
+
+Inclusion criteria are asserted here: active_2023 excludes the future-certified
+providers (roster - active = 33), and the same age-proxy rule is applied to both.
+The legacy 1,295 cohort (primary-cert reconciliation) is NOT reconstructable from
+this artifact; its projection comes from the frozen published record (see the R
+driver), and its rerun is a clearly-labeled SYNTHETIC count-scaled cohort.
 """
 import csv
 import sys
@@ -25,23 +29,29 @@ t = pq.read_table(PARQUET)
 age = t.column("age_proxy_from_cert").to_pylist()
 a2 = t.column("active_2023").to_pylist()
 
-roster = defaultdict(int)
-active = defaultdict(int)
+roster, active = defaultdict(int), defaultdict(int)
 for a, act in zip(age, a2):
     if a is None:
         continue
+    assert 25 <= a <= 100, f"impossible proxy age {a}"        # no impossible ages
     roster[a] += 1
     if act:
         active[a] += 1
 
-assert sum(roster.values()) == 1339, sum(roster.values())
-assert sum(active.values()) == 1306, sum(active.values())
+n_roster, n_active = sum(roster.values()), sum(active.values())
+assert n_roster == 1339, n_roster
+assert n_active == 1306, n_active
+assert n_roster - n_active == 33, "roster minus active must equal the 33 future-certified"
+# active is a strict subset of roster at every age
+for a in active:
+    assert active[a] <= roster[a], f"active exceeds roster at age {a}"
 
 with open(OUT, "w", newline="") as fh:
     w = csv.writer(fh)
-    w.writerow(["age", "n_roster_2025", "n_active_2023"])
+    w.writerow(["age_proxy", "n_roster_2025", "n_active_2023"])
     for a in sorted(roster):
         w.writerow([a, roster[a], active.get(a, 0)])
 
-print(f"wrote {OUT}: roster={sum(roster.values())} active_2023={sum(active.values())} "
-      f"(age-band aggregate, no PII)")
+print(f"wrote {OUT}: roster_2025={n_roster} active_2023={n_active} "
+      f"excluded_future_certified={n_roster - n_active} "
+      f"(estimated age-proxy band aggregate, no PII)")
