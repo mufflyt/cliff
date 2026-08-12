@@ -1,0 +1,17 @@
+{
+  "retirement_source": "legacy_modeled",
+  "hazard_artifact": "cliff frozen band model (BAND_EV/BAND_PY, 2016-2021 primary window)",
+  "hazard_version": "fully_obs (BAND_EV/BAND_PY, 2016-2021 primary window)",
+  "hazard_hash": "30561550ff97daff029055fd907226cb6e4c6e101cfb558b4b834641bc18e5ba",
+  "ascertainment_status": "modeled (frozen 2016-2021 window; not the observed exit panel)",
+  "confirmation_window_months": null,
+  "uncertainty_method": "beta_posterior_band: hz ~ Beta(band_ev + 0.5, band_py - band_ev + 0.5), drawn per MC iteration",
+  "seed": 20260718,
+  "mc_draws": 2000,
+  "horizon": 17,
+  "index_year": 2023,
+  "end_year": 2040,
+  "entrants_mean": 64,
+  "engine": "R/workforce_cliff_engine.R::wc_project_trajectory",
+  "artifact": "urps_projection_2023_2040_v1.csv"
+}
