@@ -1,0 +1,5 @@
+"contrast","note","baseline_count","index_year","horizon","target_year","projected_count","avg_annual_retirements","age_structure","status","d_projected_vs_ref","d_avg_ret_vs_ref"
+"reference_active_2023","2023-active age structure, reference count",1306,2023,6,2029,1605.1,14.15,"2023-active","SYNTHETIC controlled (common 2023 origin; not observed estimates)",0,0
+"count_effect","reduced count, SAME 2023-active structure (isolates count)",1295,2023,6,2029,1594.3,14.11,"2023-active","SYNTHETIC controlled (common 2023 origin; not observed estimates)",-10.8,-0.04
+"age_effect_roster","reference count, 2025-roster structure (isolates age composition)",1306,2023,6,2029,1606.5,13.92,"2025-roster","SYNTHETIC controlled (common 2023 origin; not observed estimates)",1.4,-0.23
+"combined_roster","roster count, 2025-roster structure (count + age)",1339,2023,6,2029,1637.4,14.27,"2025-roster","SYNTHETIC controlled (common 2023 origin; not observed estimates)",32.3,0.12

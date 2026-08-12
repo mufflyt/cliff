@@ -1,0 +1,47 @@
+name: contract-tests
+
+# cliff has no full CI (its main suite needs local roster data + a heavy
+# dependency tree). This job gates the DATA-INDEPENDENT contract-integration
+# layer that protects the cliff -> mufflyaccess projection work: the workforce
+# engine additions (loader-based, pure functions), the URPS projection producer
+# (reads the committed artifact + the mufflyaccess projection contract), the
+# mufflyaccess version/pin gate, and the unqualified-baseline guard. These need
+# only base R + mufflyaccess + testthat, so they run without the local cohort CSV
+# or the sf/dplyr/duckdb stack.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out cliff
+        uses: actions/checkout@v4
+      - name: Check out mufflyaccess (the SSOT the projection contract lives in)
+        uses: actions/checkout@v4
+        with:
+          repository: mufflyt/mufflyaccess
+          path: .mufflyaccess
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: .mufflyaccess      # install mufflyaccess's imports + testthat
+          extra-packages: any::testthat
+      - name: Install mufflyaccess
+        run: R CMD INSTALL --with-keep.source .mufflyaccess
+      - name: Run the data-independent contract + engine tests
+        run: >
+          Rscript -e 'library(testthat);
+          testthat::test_dir("tests/testthat",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline",
+          stop_on_failure = TRUE);
+          cat("cliff contract integration: OK\n")'
