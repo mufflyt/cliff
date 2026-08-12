@@ -76,27 +76,26 @@ WORKFORCE_SUBSPECIALTIES <- c("URPS", "GO", "MIGS")
 # Centralized headline constants (#9). The pinned expected values live ONCE here so a
 # value change (e.g. after a rerun) touches one place instead of many test files.
 # Raw SSOT values (display rounds ratios to 1 decimal in the manuscript).
-WORKFORCE_HEADLINE_RATIO    <- c(URPS = 5.61,  GO = 7.11,  MIGS = 11.06)   # completion-to-departure
-# -- URPS baseline: LEGACY FROZEN PROJECTION COHORT (not a mufflyaccess cell) --
-# URPS = 1295 is the legacy reconciliation cohort (1031 ABOG + 264 model-included
-# ABU net-new) that the frozen, published SGS-deck Monte Carlo projection was run
-# on. It is a projection-cohort baseline, NOT an "active-workforce" count and NOT
-# a mufflyaccess canonical cell. It is intentionally preserved unchanged:
-# re-baselining onto the current SSOT would require re-running that frozen
-# projection (a separate, deliberate task -- do NOT do it in a plumbing migration).
-# The current SSOT cohorts are different and are sourced via mufflyaccess::urps_count()
-# (contract v3.0.0, URPS-subspecialty-cert basis):
-#   2023 board_certified_active / national / +urology = 1306 (ABU 279)  <- current 2023 active
-#   2025 roster_snapshot        / national / +urology = 1339 (ABU 308)  <- 2025 roster
-# 1295 is a legacy projection cohort, not a current active-workforce count, and
-# 1339 (the 2025 roster) is not the 2023 board-certified active count.
-URPS_LEGACY_PROJECTION_BASELINE <- 1295L  # ssot-ok: legacy frozen SGS projection cohort
+WORKFORCE_HEADLINE_RATIO    <- c(URPS = 5.38,  GO = 7.11,  MIGS = 11.06)   # completion-to-departure (URPS 1306 pooled-hazard basis)
+# -- URPS baseline: canonical v3.0.0 2023 board-certified active workforce --
+# cliff#1 (adopt 1306): the headline URPS baseline is now the mufflyaccess v3.0.0
+# canonical 2023 board_certified_active / national count = 1306 (1027 ABOG + 279
+# ABU_NET_NEW, URPS-subspecialty-cert basis), projected with the SAME pooled GO+URPS
+# age-band hazard as the frozen primary, applied to the 1306 active-age distribution.
+# Ratio moves 5.61 (1295) -> 5.38 (1306): a small age-distribution effect.
+#   2023 board_certified_active / national / +urology = 1306 (ABU 279)  <- HEADLINE
+#   2025 roster_snapshot        / national / +urology = 1339 (ABU 308)  <- roster
+# The prior headline 1295 (1031 ABOG + 264 datable ABU) is retained below as the
+# LEGACY frozen SGS projection cohort, for reproducibility of the published deck
+# only -- it is no longer the manuscript headline.
+URPS_LEGACY_PROJECTION_BASELINE <- 1295L  # ssot-ok: legacy frozen SGS projection cohort (historical, superseded by 1306)
 attr(URPS_LEGACY_PROJECTION_BASELINE, "metadata") <- list(
   measure         = "legacy_projection_cohort",
   cohort          = "1031 ABOG + 264 ABU net-new",
-  purpose         = "reproduce frozen SGS projection",
+  purpose         = "reproduce frozen SGS projection (historical comparison only)",
+  superseded_by   = "1306 (v3.0.0 2023 board_certified_active)",
   contract_status = "not a mufflyaccess v3.0.0 canonical cell")
-WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1295L, GO = 1052L, MIGS = 605L)    # ssot-ok: legacy frozen SGS projection cohort (URPS); see URPS_LEGACY_PROJECTION_BASELINE
+WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1306L, GO = 1052L, MIGS = 605L)    # URPS = v3.0.0 2023 board_certified_active (urps_count(2023,"board_certified_active","national",TRUE))
 
 # NEW SCENARIO (contract v3.0.0): the CURRENT 2023 board-certified active workforce,
 # sourced live from mufflyaccess. This is a SEPARATE scenario from the frozen 1295

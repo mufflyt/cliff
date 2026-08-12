@@ -1,0 +1,9 @@
+source,metric,population,age_or_band,value,ci_low,ci_high,confidence,citation,use_as
+Nygaard 2008,prevalence_any_pfd,US women >=20,>=20,0.237,NA,NA,high,"Nygaard I et al. JAMA 2008;300(11):1311-1316 (NHANES 2005-06)","cross-sectional prevalence anchor"
+Nygaard 2008,prevalence_ui,US women >=20,>=20,0.157,NA,NA,high,"Nygaard I et al. JAMA 2008","cross-sectional prevalence anchor"
+Nygaard 2008,prevalence_pop,US women >=20,>=20,0.029,NA,NA,high,"Nygaard I et al. JAMA 2008","cross-sectional prevalence anchor"
+Nygaard 2008,prevalence_fi,US women >=20,>=20,0.090,NA,NA,high,"Nygaard I et al. JAMA 2008","cross-sectional prevalence anchor"
+SWAN Waetjen 2007,prevalence_ui_monthly,US midlife women (multiethnic),~46,0.467,NA,NA,high,"Waetjen LE et al. Am J Epidemiol 2007;165(3):309-318 (SWAN)","longitudinal prevalence target (mean baseline age 45.8)"
+SWAN Waetjen 2007,incidence_ui_annual,US midlife women (multiethnic),42-64,0.111,NA,NA,high,"Waetjen LE et al. Am J Epidemiol 2007 (SWAN)","annual incidence target"
+SWAN 9yr,prevalence_ui_ever_monthly,US midlife women,42-64,0.68,NA,NA,low,"SWAN 9-year UI analyses (fact-sheet; confirm primary Waetjen paper)","SECONDARY; direction/magnitude check only"
+SWAN 2025,parity_mode_direction,US midlife women,midlife,NA,NA,NA,medium,"Sci Rep 2025;15:s41598-025-85603-0 (SWAN)","DIRECTION check: no significant UI difference for parity/mode vs nulliparous; vaginal vs cesarean -> higher STRESS UI. Exact ORs not captured; retrieve from full text."

@@ -195,7 +195,7 @@ test_that("[contract] sensitivity-artifact contract passes for committed artifac
 test_that("[adversarial] hierarchical partial-pooling stays above replacement and shrinks between unpooled and pooled", {
   hh <- csv("hierarchical_hazard_comparison.csv")
   for (m in c("unpooled", "pooled", "partial_pooled")) expect_true(all(c("GO","URPS") %in% hh$subspecialty_abbrev[hh$method == m]), info = m)
-  # pooled method must reconcile to the SSOT primary ratios (7.11 / 5.61)
+  # pooled method must reconcile to the SSOT primary ratios (7.11 / 5.38)
   expect_equal(round(hh$replacement_ratio[hh$method=="pooled" & hh$subspecialty_abbrev=="GO"],1), 7.1)
   expect_equal(round(hh$replacement_ratio[hh$method=="pooled" & hh$subspecialty_abbrev=="URPS"],1), 5.6)
   for (ab in c("GO","URPS")) {

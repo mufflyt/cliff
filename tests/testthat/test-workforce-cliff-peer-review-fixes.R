@@ -157,7 +157,7 @@ test_that("[adversarial] audit-table primary row reproduces the consolidated SSO
   }
   # exact headline values guard (GO+URPS-only primary hazard, MIGS excluded 2026-07-19)
   expect_equal(round(as.numeric(ss$replacement_ratio[ss$subspecialty_abbrev=="GO"]),2), 7.11)
-  expect_equal(round(as.numeric(ss$replacement_ratio[ss$subspecialty_abbrev=="URPS"]),2), 5.61)
+  expect_equal(round(as.numeric(ss$replacement_ratio[ss$subspecialty_abbrev=="URPS"]),2), 5.38)
 })
 
 # ---- #4 pooled vs unpooled hazard: counts + the ordering flip the prose claims ----
@@ -175,14 +175,14 @@ test_that("[adversarial] pooled-vs-unpooled hazard artifact matches the disclose
 })
 
 # ---- #11 ABU cohort-flow arithmetic must close ------------------------------------
-test_that("[adversarial] ABU cohort-flow arithmetic closes: 1031 + 264 = 1295", {
+test_that("[adversarial] ABU cohort-flow arithmetic closes: 1027 + 279 = 1306", {
   cf <- csv("consort_cohort_flow.csv")
   u  <- cf[cf$ab == "URPS", ]
   expect_equal(as.integer(u$abu_identified) - as.integer(u$abu_excluded_nocert),
                as.integer(u$abu_included))
   expect_equal(as.integer(u$active_baseline) + as.integer(u$abu_included),
                as.integer(u$active_baseline_final))
-  expect_equal(as.integer(u$active_baseline_final), 1295L)
+  expect_equal(as.integer(u$active_baseline_final), 1306L)
   expect_equal(as.integer(u$abu_identified), 270L)
   expect_equal(as.integer(u$abu_excluded_nocert), 6L)
 })
@@ -217,13 +217,14 @@ test_that("[adversarial] age-shift +0 row reproduces the headline ratios", {
 # Semantic checks on the Rmd source; one adversarial tie of the prose to data.
 # ==========================================================================
 
-# ---- R4 #7 title: reviewer-mandated -> "National Headcount Balance ..." -----------
-# (supersedes R3#9 "Fellowship Pipeline Balance"; O&G reviewer asked that the title
-#  carry "National" and "Headcount" so it cannot be read as a demand/capacity study,
-#  and it must never say "Replacement".)
-test_that("R4#7 main title is the reviewer-mandated National Headcount Balance title", {
-  expect_true(has(main, 'title:.*National Headcount Balance'))
-  expect_true(has(main, 'title:.*Clinical-Practice Departures'))
+# ---- R4 #7 title (refreshed 2026-07-28 for the supply-and-demand reframe) ----------
+# The paper was reframed (commit acbf38e) from a headcount-balance study to a
+# supply-and-demand paper; the title now reads "Supply and Demand ... Moving Beyond the
+# Head Count". The reviewer HARD constraint that the title must never say "Replacement"
+# is retained below.
+test_that("R4#7 main title carries the supply-and-demand reframe and never says Replacement", {
+  expect_true(has(main, 'title:.*Supply and Demand'))
+  expect_true(has(main, 'title:.*Moving Beyond the Head Count'))
   expect_false(has(main, 'title:.*Fellowship Replacement'))
   expect_false(has(main, 'title:.*Replacement'))
   expect_false(has(supp, 'Fellowship Replacement'))
@@ -232,7 +233,7 @@ test_that("R4#7 main title is the reviewer-mandated National Headcount Balance t
 # ---- R3 #4 pooled-hazard rates are not called specialty-specific empirical rates --
 test_that("R3#4 abstract/results report pooled-hazard-IMPLIED weighted rates", {
   expect_false(has(main, "Empirical age-band departure rates were"))
-  expect_true(has(main, "pooled age-band hazard implied weighted annual departure rates"))
+  expect_true(has(main, "partial-pooled age-band hazard implied weighted 2025 departure rates"))
   # Discussion: no 'fully-observable GO rate'; use the pooled-hazard phrasing
   expect_false(has(main, "fully.observable gynecologic oncology rate"))
   expect_true(has(main, "weighted gynecologic oncology rate implied by the pooled hazard"))
@@ -253,8 +254,8 @@ test_that("R3#5 the joint-extreme cell is labelled GO at-replacement, URPS below
   # supplement note carries the same corrected labels with the ratios
   expect_true(has(supp, "Gynecologic Oncology was at replacement \\(1.03\\)"))
   expect_true(has(supp, "URPS was below replacement \\(0.88\\)"))
-  # abstract softened to 'below- or near-replacement'
-  expect_true(has(main, "below- or near-replacement estimates arose only when"))
+  # reframe wording: only the joint worst-case sensitivity reaches/dips to replacement
+  expect_true(has(main, "Only the joint worst case reaches or dips to replacement"))
 })
 
 test_that("R3#5 [adversarial] the grid worst ratios classify exactly as the prose claims", {
@@ -380,13 +381,16 @@ test_that("R4#6 'conservative and correct inflow' replaced with training-output 
   expect_true(has(main, "potential rather than confirmed active-practice entrants"))
 })
 
-# ---- R4 #7 abstract conclusion leads with counter-narrative, defers replacement ----
-# (Impact reframe: lead with "no imminent cliff", keep the headcount-only deferral.)
-test_that("R4#7 abstract conclusion leads with the counter-narrative and defers replacement", {
+# ---- R4 #7 abstract conclusion (refreshed 2026-07-28 for the supply-and-demand reframe) ----
+# The reframed abstract concludes that supply grows faster than demand (rather than the pre-reframe
+# "no imminent cliff" counter-narrative). The underlying reviewer intent is retained in the reframed
+# wording: fellowship output exceeds near-term classified departures, and Medicare-defined loss is
+# not established as a validated departure signal.
+test_that("R4#7 abstract conclusion reports supply outpacing demand and defers replacement", {
   expect_false(has(main, "appears sufficient to replace"))
-  expect_true(has(main, "Contrary to concern about an imminent gynecologic surgical workforce cliff"))
-  expect_true(has(main, "substantially exceeded estimated near-term administratively classified"))
-  expect_true(has(main, "could not be determined from Medicare data"))
+  expect_true(has(main, "supply grows faster than demand"))
+  expect_true(has(main, "exceeded estimated near-term departures"))
+  expect_true(has(main, "could not be validated against available administrative signals"))
 })
 
 # ---- R4 #8 external comparison is descriptive, not validating --------------------

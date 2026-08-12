@@ -49,9 +49,7 @@ NULL
 # applies the MufflySamsung volume-name corrector at
 # R/utils/load_paths.R:101. See test-regression-integrate-retirement
 # -load-paths-2026-05-22.R for the original bug that motivated this.
-if (!base::exists("load_paths", mode = "function")) {
-  source(here::here("R", "utils", "load_paths.R"))
-}
+# (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
 
 suppressPackageStartupMessages({
   library(dplyr)
@@ -60,14 +58,14 @@ suppressPackageStartupMessages({
   library(here)
 })
 
-# Source shared FREIDA loader (provides load_freida_programs + find_nearest_program)
-source(here::here("R", "freida_program_loader.R"))
+# FREIDA loader (load_freida_programs, find_nearest_program)
+# (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
 
 # Bug #6 (audit, 2026-05-19): the historical-address scan reads
 # nber_all.plocstatename (full state name) and aliases it AS state, but
 # downstream fellowship-state inference and FREIDA program joins expect
 # 2-letter USPS codes. Without normalisation, joins fail silently.
-source(here::here("R", "utils", "sql_state_normalize.R"))
+# (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
 
 # =============================================================================
 # SECTION 1: ACGME Otolaryngology FELLOWSHIP PROGRAMS LOOKUP TABLE
@@ -576,9 +574,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
     # FIX 2026-05-22 (batch-50 R3): use shared extract_year_safely()
     # helper instead of substr(date, 1, 4). Handles MM/DD/YYYY, text
     # dates, etc. — same Round-28 bug class.
-    if (!exists("extract_year_safely", mode = "function", inherits = TRUE)) {
-      source(here::here("R", "utils", "extract_year_safely.R"))
-    }
+    # (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
     physicians <- physicians %>%
       mutate(cert_year = extract_year_safely(startDate))
   } else if ("last_year_fellowship" %in% names(physicians)) {
@@ -1062,31 +1058,14 @@ add_fellowship_to_table1 <- function(physicians, temporal_db_path = NULL) {
   return(results)
 }
 
-
 # =============================================================================
-# MAIN EXECUTION (when run as script)
+# The "MAIN EXECUTION (when run as script)" block that used to end this file has
+# moved to inst/scripts/build_fellowship_lookup.R.
+#
+# It was wrapped in `if (!interactive())`, which is a script's main guard and
+# the wrong thing in package code: interactive() is FALSE during R CMD INSTALL
+# and pkgload::load_all(), so the block RAN AT BUILD TIME -- printing banners,
+# calling create_otolaryngology_fellowship_programs(), creating directories
+# under data/ and writing an RDS and a CSV. That is why the package could not be
+# installed or documented.
 # =============================================================================
-
-if (!interactive()) {
-  cat("\n")
-  cat(strrep("=", 70), "\n")
-  cat("FELLOWSHIP TRAINING INFERENCE MODULE\n")
-  cat(strrep("=", 70), "\n\n")
-
-  # Create and save programs lookup
-  programs <- create_otolaryngology_fellowship_programs()
-
-  # Save lookup table
-  output_dir <- here("data", "fellowship_lookup")
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE)
-  }
-
-  saveRDS(programs, file.path(output_dir, "acgme_otolaryngology_programs.rds"))
-  write.csv(programs, file.path(output_dir, "acgme_otolaryngology_programs.csv"), row.names = FALSE)
-
-  cat(sprintf("\nSaved programs lookup to: %s\n", output_dir))
-  cat("\nTo use in Table 1 pipeline, add:\n")
-  cat("  source(here('R', 'infer_fellowship_training.R'))\n")
-  cat("  physicians <- add_fellowship_to_table1(physicians)\n")
-}

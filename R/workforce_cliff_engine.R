@@ -21,9 +21,9 @@ WC_WIN         <- c(2016L, 2021L)
 WC_AGE_AT_CERT <- 30L
 WC_HORIZON     <- WORKFORCE_PROJECTION_HORIZON_YEARS   # SSOT: shared with the data contract
 WC_ENTRY_AGE   <- WORKFORCE_ENTRY_AGE   # SSOT: shared entry age (workforce_constants.R)
-WC_REF_YEAR    <- 2024L
+WC_REF_YEAR    <- WORKFORCE_REFERENCE_YEAR   # SSOT: shared reference / latest-data year (workforce_constants.R)
 WC_YEAR0       <- PROJECTION_BASELINE_YEAR   # SSOT: shared projection baseline (workforce_constants.R)
-WC_OBS_END     <- 2023L
+WC_OBS_END     <- WORKFORCE_OBSERVED_END_YEAR   # SSOT: shared observation-confirmable end (workforce_constants.R)
 # WC_SUBS / WC_SUBS_FULL are the canonical subspecialty mappings, now defined in
 # R/workforce_constants.R (sourced above) so both the engine and manuscript lineages share them.
 WC_GRAD      <- list(GO = c(70,73,78,79), URPS = c(61,66,63,66), MIGS = c(47,50,45,47))
@@ -39,8 +39,21 @@ source(here::here("R", "wc_path.R"))
 WC_COHORT_CSV  <- wc_path("cohort_csv")
 WC_ABU_CW      <- wc_path("abu_crosswalk")
 WC_ABU_NN      <- wc_path("abu_net_new")
-wc_duckdb_path <- function() wc_path("signals_duckdb")
+# wc_duckdb_path() is provided by the sourced R/wc_path.R (line above) — do not redefine it here.
 
+#' Assign an age to its workforce age-band label
+#'
+#' Bucket one or more physician ages into the study age bands using the canonical
+#' breakpoints `WC_BANDS` and labels `WC_BAND_LABELS` (right-open intervals, so an
+#' age equal to a breakpoint falls in the upper band).
+#'
+#' @param age Numeric vector of ages in years.
+#' @return A character vector of `WC_BAND_LABELS` values the same length as `age`
+#'   (`"<45"`, `"45-49"`, ..., `"70+"`); `NA` for ages outside the band range.
+#' @seealso `WC_BANDS`, `WC_BAND_LABELS`; guarded by
+#'   `tests/testthat/test-ssot-age-bands.R`.
+#' @examples
+#' \dontrun{ wc_band_of(c(42, 47, 71)) }   # "<45" "45-49" "70+"
 wc_band_of <- function(age) as.character(cut(age, breaks = WC_BANDS, labels = WC_BAND_LABELS, right = FALSE))
 
 .wc_norm_sex <- function(x) { x <- toupper(trimws(as.character(x)))
@@ -151,4 +164,61 @@ wc_project_ages <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift 
     out[[h]] <- data.frame(step = h, age = av, n = count)
   }
   do.call(rbind, out)
+}
+
+#' Per-provider (individual-level) stochastic MICROSIMULATION of the same projection.
+#'
+#' `wc_project()` above is an expected-value recurrence: it collapses the individual
+#' ages to a count vector and removes the fraction `count * hazard` each year. This
+#' function instead carries EACH provider as an individual and, every year, draws a
+#' Bernoulli departure per provider from their age-band hazard, ages the survivors,
+#' and adds a stochastic cohort of entrants (Poisson mean = `entrants`). Repeated
+#' `n_sims` times it yields the full sampling distribution of the 2029 workforce, with
+#' individual (aleatory) uncertainty the aggregate model cannot express.
+#'
+#' Reduction guarantee (the "is it real, and is it right" check): because
+#' `E[Bernoulli(h)] = h` and `E[Poisson(entrants)] = entrants`, the MEAN of this
+#' microsimulation converges to `wc_project()`'s deterministic `active_2029`. The
+#' regression test `test-wc-project-micro.R` asserts they agree within Monte Carlo
+#' error, so the per-provider engine is a true refinement of (not a departure from)
+#' the validated aggregate model. Pass `stochastic_entry = FALSE` for deterministic
+#' entry (round(entrants)/yr) when isolating departure variance.
+#'
+#' @param ages Integer vector of individual provider ages (one element per provider),
+#'   e.g. an element of `wc_active_ages()`.
+#' @param entrants Mean annual entrants (fellowship completers).
+#' @param hz Named age-band hazard vector (as consumed by [wc_haz_for()]).
+#' @param horizon Projection years (default [WC_HORIZON]).
+#' @param n_sims Number of individual-level realizations (default 2000).
+#' @param seed RNG seed for reproducibility.
+#' @param stochastic_entry If TRUE (default) entrants ~ Poisson(entrants) each year;
+#'   if FALSE, exactly `round(entrants)` enter each year.
+#' @return list: `active_2029` (mean), `active_sd`, `active_ci` (2.5/97.5 pct),
+#'   `departures_4yr` (mean), and the raw `active_draws` / `departures_draws`.
+#' @family workforce-projection
+#' @export
+wc_project_micro <- function(ages, entrants, hz, horizon = WC_HORIZON,
+                             n_sims = 2000L, seed = 1L, stochastic_entry = TRUE) {
+  stopifnot(length(ages) > 0)
+  ages <- as.integer(ages[!is.na(ages)])
+  if (!is.null(seed)) set.seed(seed)   # seed = NULL lets a caller (e.g. the MC loop) own the RNG stream
+  active <- integer(n_sims); deps <- integer(n_sims)
+  for (s in seq_len(n_sims)) {
+    a <- ages; dep <- 0L
+    for (h in seq_len(horizon)) {
+      hz_a  <- wc_haz_for(a, hz)                       # per-provider hazard
+      leave <- stats::runif(length(a)) < hz_a          # Bernoulli departure per provider
+      dep   <- dep + sum(leave)
+      a     <- a[!leave] + 1L                          # survivors age one year
+      n_new <- if (stochastic_entry) stats::rpois(1L, entrants) else as.integer(round(entrants))
+      if (n_new > 0L) a <- c(a, rep.int(WC_ENTRY_AGE, n_new))
+    }
+    active[s] <- length(a); deps[s] <- dep
+  }
+  list(active_2029    = mean(active),
+       active_sd      = stats::sd(active),
+       active_ci      = unname(stats::quantile(active, c(0.025, 0.975))),
+       departures_4yr = mean(deps),
+       active_draws   = active,
+       departures_draws = deps)
 }

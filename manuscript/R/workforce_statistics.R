@@ -21,11 +21,14 @@ suppressPackageStartupMessages({
 # Data contract: constants, canonical path, and the fail-loud validator.
 source(here::here("manuscript", "R", "workforce_data_contract.R"))
 
-# Monte Carlo iteration count. As of the Tier-3 dynamic-model integration
-# (2026-07-18) the SD/CI columns in the SSOT ARE a live re-runnable simulation:
-# scripts/rebuild_ssot_dynamic_acgme.R runs a 1,000-iteration seeded microsimulation
-# of the age-structured departure process and writes the 95% PREDICTION interval
-# (ci95_lower/upper) and its SD into data/workforce_projections_consolidated.csv.
+# Monte Carlo iteration count. The SD/CI columns in the SSOT
+# (ci95_lower/ci95_upper) are a cohort-level Monte Carlo PARAMETER-UNCERTAINTY
+# interval, NOT a microsimulation: the canonical writer scripts/rebuild_ssot_revised.R
+# runs a WORKFORCE_MONTE_CARLO_ITERATIONS-iteration (10,000) seeded Monte Carlo over
+# aggregate age-band flows (Beta posteriors on the band hazards + empirical resampling
+# of the annual graduate counts) and writes ci95_lower/ci95_upper into
+# data/workforce_projections_consolidated.csv. (scripts/rebuild_ssot_dynamic_acgme.R
+# is a non-canonical stub that only re-emits the frozen table under an override.)
 # The count lives once in workforce_data_contract.R; keep this alias for callers.
 N_MONTE_CARLO_ITERATIONS <- WORKFORCE_MONTE_CARLO_ITERATIONS
 
@@ -612,6 +615,64 @@ get_hier_ci <- function(method, subspecialty) {
   r <- .hier_row(method, subspecialty); if (is.null(r) || is.na(r$ci_lo)) return(NA)
   sprintf("%.1f to %.1f", r$ci_lo, r$ci_hi)
 }
+
+# ---- Primary age-band hazard method: single source of truth -----------------
+# The headline fellowship-completion-to-departure ratios (Table 2, abstract,
+# Discussion, Conclusion) come from the dynamic model driven by ONE hazard
+# method. That method is named here, once. Every place the manuscript names the
+# primary hazard reads its LABEL from primary_hazard_adjective() and its NUMBERS
+# from get_primary_ratio()/get_primary_ci(), so the word and the value can never
+# disagree. The load-time guard below stops the render if the headline table and
+# the named primary method's hierarchical row ever diverge. To change the primary
+# estimator, flip this one constant AND regenerate the workforce table on that
+# hazard; the guard enforces that both moved together.
+WORKFORCE_PRIMARY_HAZARD_METHOD <- "pooled"
+
+#' Human-readable adjective for the primary hazard method (matches the number).
+primary_hazard_adjective <- function(method = WORKFORCE_PRIMARY_HAZARD_METHOD) {
+  switch(method,
+    pooled         = "pooled",
+    partial_pooled = "hierarchical partial-pooled",
+    unpooled       = "fully unpooled",
+    stop("unknown WORKFORCE_PRIMARY_HAZARD_METHOD: ", method))
+}
+
+#' Headline completion-to-departure ratio via the declared primary hazard method.
+get_primary_ratio <- function(subspecialty) get_hier_ratio(WORKFORCE_PRIMARY_HAZARD_METHOD, subspecialty)
+#' 95% interval for the declared primary hazard method's ratio.
+get_primary_ci    <- function(subspecialty) get_hier_ci(WORKFORCE_PRIMARY_HAZARD_METHOD, subspecialty)
+
+# ABU-pathway (separate deterministic) hazard-scaling range, Appendix S11.5 /
+# Appendix Table S16 (data/abu_pathway_sensitivity.csv). Distinct from the
+# hierarchical ABU-scaling in Appendix Table S28; read live so the main-text
+# range can never drift from the supplement table.
+.abu_pathway <- tryCatch(
+  readr::read_csv(here::here("data", "abu_pathway_sensitivity.csv"), show_col_types = FALSE),
+  error = function(e) NULL)
+#' "lo to hi" completion-to-departure range over the scaled ABU scenarios (x0.5, x2.0).
+get_abu_pathway_range <- function() {
+  if (is.null(.abu_pathway)) return(NA_character_)
+  scaled <- .abu_pathway[grepl("hazard x", .abu_pathway$scenario, ignore.case = TRUE), ]
+  if (nrow(scaled) < 2) return(NA_character_)
+  sprintf("%.1f to %.1f", min(scaled$replacement_ratio), max(scaled$replacement_ratio))
+}
+
+# Fail-closed SSOT guard: the headline replacement_ratio (dynamic model, Table 2,
+# get_replacement_ratio) MUST equal the primary hazard method's hierarchical row,
+# so the reported headline and the word "primary" can never contradict.
+local({
+  for (ab in c("GO", "URPS")) {
+    head_r <- suppressWarnings(as.numeric(get_replacement_ratio(ab)))
+    prim_r <- suppressWarnings(as.numeric(get_primary_ratio(ab)))
+    if (is.na(head_r) || is.na(prim_r) || abs(head_r - prim_r) > 0.05) {
+      stop(sprintf(
+        paste0("SSOT guard: headline ratio (%s) != primary '%s' hazard ratio (%s) for %s. ",
+               "The manuscript's primary hazard label and its number have drifted. ",
+               "Reconcile the workforce table with WORKFORCE_PRIMARY_HAZARD_METHOD."),
+        head_r, WORKFORCE_PRIMARY_HAZARD_METHOD, prim_r, ab))
+    }
+  }
+})
 
 # Raw departure-event count in the primary 2016-2021 hazard window, read from the
 # frozen band table so the manuscript count can never drift from the hazard data.

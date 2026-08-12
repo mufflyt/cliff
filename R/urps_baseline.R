@@ -6,13 +6,16 @@
 # (Per ARCHITECTURE.md: isochrones builds the roster, mufflyaccess serves the
 #  number, cliff models what happens next.)
 #
-# CONTRACT v3.0.0: the baseline is a (measure, year, geography, pathway) cell.
-# The canonical 2023 board_certified_active count is 1306 (national) / 1303 (conus)
-# WITH urology (ABOG_PLUS_ABU), keyed on the URPS subspecialty cert year.
-# 1339 is the 2025 roster_snapshot -- NOT the 2023 active baseline; do not use it
-# as the projection starting value. 1332 / 1329 are RETIRED v2.1.0 cells (primary-
-# cert basis) and must never be presented as current (see mufflyaccess::urps_lineage()
-# / urps_retired_values()).
+# CONTRACT: the baseline is a (measure, year, geography, pathway) cell.
+# The canonical 2023 active count is 1306 (national) / 1303 (conus) WITH urology,
+# as served by mufflyaccess v3.0.0+ (package version >= 0.7.1; 0.10.0 installed).
+# 1332 / 1329 are the RETIRED v2.1.0 primary-cert cells and must never be used.
+# 1339 is the 2025 roster_snapshot -- NOT the 2023 active baseline. Do not use it
+# as the projection starting value.
+#
+# These numbers are documentation only. urps_baseline() below asks mufflyaccess
+# for the value and never hardcodes it, so the function stayed correct while this
+# comment went stale after the v2.1.0 -> v3.0.0 migration.
 
 #' National URPS baseline for cliff (sourced from mufflyaccess).
 #' @param include_urology FALSE = ABOG-only; TRUE = ABOG + ABU net-new.

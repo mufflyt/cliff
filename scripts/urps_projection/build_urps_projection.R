@@ -80,7 +80,10 @@ RETIREMENT_SOURCE <- Sys.getenv("CLIFF_RETIREMENT_SOURCE", "legacy_modeled")
 ages_tbl <- utils::read.csv(
   file.path(ROOT, "scripts", "urps_baseline_scenarios", "urps_cohort_ages_v3.0.0.csv"),
   stringsAsFactors = FALSE)
-ages <- rep(ages_tbl$age_proxy, ages_tbl$n_active_2023)      # integer age-proxy vector
+# The canonical SSOT cohort table names the estimated age-proxy column `age`
+# (older revisions called it `age_proxy`; tolerate either for reproducibility).
+ages_tbl$age <- if (!is.null(ages_tbl$age)) ages_tbl$age else ages_tbl$age_proxy
+ages <- rep(ages_tbl$age, ages_tbl$n_active_2023)           # integer age-proxy vector
 ssot_active_2023 <- mufflyaccess::urps_count(INDEX_YEAR, "board_certified_active", GEOG_TYPE, TRUE)
 if (length(ages) != ssot_active_2023)
   stop(sprintf("[build] seed cohort (%d) != urps_count(%d) (%d); the frozen ages table is out of sync with the SSOT.",

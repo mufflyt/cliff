@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use this analysis or its code, please cite it as below."
+title: "cliff: Gynecologic Surgical Subspecialty Workforce Cliff Analysis"
+abstract: >-
+  Reproducible analysis and manuscript projecting near-term fellowship-completion
+  versus clinical-practice-departure balance, and supply against demographic
+  demand, for the United States urogynecology and reconstructive pelvic surgery
+  (URPS) and gynecologic oncology workforces. The URPS board-certified-active
+  roster and count (1,306 national / 1,303 CONUS, 2023) are produced upstream in
+  the isochrones pipeline and served through the mufflyaccess package.
+type: software
+authors:
+  - family-names: Muffly
+    given-names: Tyler
+    orcid: "https://orcid.org/0000-0002-2044-1693"
+    email: tyler.muffly@dhha.org
+    affiliation: >-
+      Department of Obstetrics and Gynecology, Denver Health Medical Center,
+      University of Colorado School of Medicine
+version: 0.1.0
+date-released: "2026-08-02"
+license: MIT
+repository-code: "https://github.com/mufflyt/cliff"
+keywords:
+  - urogynecology
+  - pelvic floor disorders
+  - physician workforce projection
+  - workforce supply and demand
+  - clinical practice departure
+  - fellowship training
+preferred-citation:
+  type: article
+  title: >-
+    Supply and Demand for the United States Urogynecology Workforce, 2025-2050:
+    Moving Beyond the Head Count
+  authors:
+    - family-names: Muffly
+      given-names: Tyler
+      orcid: "https://orcid.org/0000-0002-2044-1693"
+  year: 2026
+  notes: Manuscript in preparation; figure and data provenance in docs/FIGURE_PROVENANCE.md.

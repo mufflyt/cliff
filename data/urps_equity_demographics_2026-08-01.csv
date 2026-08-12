@@ -1,0 +1,19 @@
+characteristic,level,ABOG_n,ABOG_pct,ABU_n,ABU_pct,overall_n,overall_pct
+gender,F,560,54.3,150,48.7,710,53
+gender,M,471,45.7,157,51,628,46.9
+gender,Missing,0,0,1,0.3,1,0.1
+med_school_class,US_MD,800,77.6,247,80.2,1047,78.2
+med_school_class,US_DO,38,3.7,4,1.3,42,3.1
+med_school_class,CAN_MD,31,3,7,2.3,38,2.8
+med_school_class,IMG,44,4.3,0,0,44,3.3
+med_school_class,Unknown,118,11.4,50,16.2,168,12.5
+img_us,US,838,81.3,257,83.4,1095,81.8
+img_us,IMG,75,7.3,1,0.3,76,5.7
+img_us,Unknown,118,11.4,50,16.2,168,12.5
+rurality,Urban,993,96.3,294,95.5,1287,96.1
+rurality,Suburban,23,2.2,11,3.6,34,2.5
+rurality,Rural,13,1.3,2,0.6,15,1.1
+rurality,Unknown,2,0.2,1,0.3,3,0.2
+designated_hpsa,In HPSA,317,30.7,78,25.3,395,29.5
+designated_hpsa,Not in HPSA,714,69.3,207,67.2,921,68.8
+designated_hpsa,Missing,0,0,23,7.5,23,1.7

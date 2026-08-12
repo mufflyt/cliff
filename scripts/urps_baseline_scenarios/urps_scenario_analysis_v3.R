@@ -46,7 +46,10 @@ DRAWS          <- 2000L
 TARGET_YEAR    <- 2029L
 
 # ---- cohort builders (age proxy -> integer age vector) ----------------------
-age_vec <- function(counts) rep(ages_tbl$age_proxy, counts)
+# Canonical cohort table names the age-proxy column `age` (older revisions used
+# `age_proxy`); tolerate either so this legacy analysis stays reproducible.
+if (is.null(ages_tbl$age)) ages_tbl$age <- ages_tbl$age_proxy
+age_vec <- function(counts) rep(ages_tbl$age, counts)
 # largest-remainder scaling of an age-band count vector to an EXACT integer total
 scale_to <- function(counts, total) {
   p <- counts / sum(counts) * total; fl <- floor(p); r <- total - sum(fl)

@@ -1,6 +1,13 @@
-# Proves the mufflyaccess contract migration is non-value-changing and that the
-# legacy frozen projection cohort (1295) is preserved, not mislabeled, and not
-# faked through urps_count(). Companion to test-no-unqualified-urps-baseline.R.
+# Proves the mufflyaccess contract migration keeps the three URPS baselines
+# distinct (1295 legacy / 1306 active / 1339 roster) and that none is faked
+# through urps_count(). Companion to test-no-unqualified-urps-baseline.R.
+#
+# 2026-08-09: the frozen SGS projection was DELIBERATELY re-baselined 1295 ->
+# 1306 (797f36b "adopt 1306", 42fefcd), and workforce_data_contract.R now marks
+# URPS_LEGACY_PROJECTION_BASELINE as "superseded by 1306". The CSV assertion
+# below had been pinned at 1295 and was the last guard left behind by that
+# migration. It now sources the expected value from the SSOT instead of
+# restating a literal, so it cannot go stale the same way again.
 suppressWarnings(suppressMessages({ library(testthat); library(mufflyaccess) }))
 
 repo_root <- function() {
@@ -36,13 +43,17 @@ test_that("three URPS baselines are distinct: 1295 legacy / 1306 active / 1339 r
   expect_false(identical(active_2023, roster_2025))
 })
 
-test_that("the frozen SGS projection still begins at the legacy 1295 baseline", {
+test_that("the SGS projection baseline is the SSOT current-active count, not the legacy cohort", {
   csv <- file.path(repo_root(), "data", "workforce_projections_consolidated.csv")
   skip_if_not(file.exists(csv), "frozen projection CSV not present")
   d <- utils::read.csv(csv, stringsAsFactors = FALSE)
   urps <- d[d$subspecialty_abbrev == "URPS", ]
   expect_equal(nrow(urps), 1L)
-  expect_equal(as.integer(urps$baseline_2025), 1295L)   # NOT re-baselined
+  # Tied to the SSOT rather than restated as a literal.
+  expect_equal(as.integer(urps$baseline_2025),
+               urps_count(2023, "board_certified_active", "national", TRUE))
+  # and it is no longer the superseded legacy frozen cohort
+  expect_false(as.integer(urps$baseline_2025) == 1295L)
 })
 
 test_that("the new 1306 current-active scenario is sourced from the SSOT, separate from 1295", {

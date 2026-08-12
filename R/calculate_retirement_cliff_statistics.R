@@ -233,7 +233,7 @@ calculate_two_prop_test <- function(x1, n1, x2, n2, min_sample_size = 30) {
 #' @param x `integer`: Number of successes (e.g., at-risk physicians)
 #' @param n `integer`: Total number of trials (e.g., all physicians in area)
 #' @param conf_level `numeric`: Confidence level between 0 and 1 (default: 0.95
-#'   for 95% CI)
+#'   for 95\% CI)
 #'
 #' @return A list containing:
 #'   \describe{
@@ -339,7 +339,7 @@ calculate_proportion_ci <- function(x, n, conf_level = 0.95) {
 #' The function computes:
 #' \itemize{
 #'   \item Point estimates for retirement-at-risk rates in each area type
-#'   \item 95% confidence intervals using Wilson score method
+#'   \item 95\% confidence intervals using Wilson score method
 #'   \item Statistical significance test (two-proportion z-test)
 #'   \item Rate difference (rural - metro)
 #' }
@@ -351,13 +351,12 @@ calculate_proportion_ci <- function(x, n, conf_level = 0.95) {
 #'
 #' @return A nested list with three components:
 #'   \describe{
-#'     \item{rural}{List with: at_risk, total, rate_pct, ci_lower (%), ci_upper
-#' (%)}
-#'     \item{metro}{List with: at_risk, total, rate_pct, ci_lower (%), ci_upper
-#' (%)}
+#'     \item{rural}{List with: at_risk, total, rate_pct, ci_lower (\%),
+#'       ci_upper (\%)}
+#'     \item{metro}{List with: at_risk, total, rate_pct, ci_lower (\%),
+#'       ci_upper (\%)}
 #'     \item{comparison}{List with: rate_difference_pct, p_value,
-#' p_value_formatted,
-#'           significant (logical), test_method, note}
+#'       p_value_formatted, significant (logical), test_method, note}
 #'   }
 #'
 #' @details
@@ -531,61 +530,24 @@ calculate_rural_metro_comparison <- function(rural_at_risk, rural_total,
 #' @family retirement cliff analysis functions
 #' @seealso \code{\link{calculate_rural_metro_comparison}} for geographic analysis
 #' @export
-calculate_replacement_gap <- function(retirees_by_subspec, fellowship_grads) {
-  base::message("[STAT] Calculating replacement gap analysis...")
-
-  # Aggregate fellowship graduates (2022-2024)
-  grad_summary <- fellowship_grads %>%
-    dplyr::group_by(.data$subspecialty) %>%
-    dplyr::summarise(
-      annual_grads = mean(.data$graduates, na.rm = TRUE),
-      total_grads_3yr = sum(.data$graduates, na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  # Join with retirement projections
-  replacement_analysis <- retirees_by_subspec %>%
-    dplyr::left_join(grad_summary, by = "subspecialty", relationship = "many-to-one") %>%
-    dplyr::mutate(
-      annual_grads = tidyr::replace_na(.data$annual_grads, 0),
-      total_grads_3yr = tidyr::replace_na(.data$total_grads_3yr, 0),
-
-      # 5-year replacement projection (horizon - reference = 5 years)
-      projected_grads_5yr = .data$annual_grads * 5,
-
-      # Replacement ratio
-      replacement_ratio = safe_divide(.data$projected_grads_5yr, .data$retiring_count, NA_real_),
-
-      # Gap analysis
-      net_gap = .data$retiring_count - .data$projected_grads_5yr,
-      gap_percentage = safe_percentage(.data$net_gap, .data$retiring_count),
-
-      # Adequacy flag
-      adequate_replacement = .data$replacement_ratio >= 1.0
-    ) %>%
-    dplyr::arrange(.data$subspecialty)
-
-  # Overall summary
-  total_retiring <- sum(replacement_analysis$retiring_count, na.rm = TRUE)
-  total_grad_proj <- sum(replacement_analysis$projected_grads_5yr, na.rm = TRUE)
-  overall_gap <- total_retiring - total_grad_proj
-  overall_gap_pct <- safe_percentage(overall_gap, total_retiring)
-
-  results <- list(
-    by_subspecialty = replacement_analysis,
-    overall = list(
-      total_retiring = total_retiring,
-      total_graduates_projected = total_grad_proj,
-      net_gap = overall_gap,
-      gap_percentage = overall_gap_pct,
-      replacement_ratio = safe_divide(total_grad_proj, total_retiring, NA_real_)
-    )
-  )
-
-  base::message(sprintf("[STAT] Overall replacement: %d retiring, %d graduates projected, gap: %d (%.1f%%)",
-                       as.integer(total_retiring), as.integer(total_grad_proj), as.integer(overall_gap), overall_gap_pct %||% NA))
-
-  return(results)
+calculate_replacement_gap <- function(retirees_by_subspec, fellowship_grads,
+                                      horizon_years = 5) {
+  # SSOT: mufflyaccess owns this. The same function lived here, in isochrones
+  # (a byte-identical copy of this file), and in simulation -- and the three
+  # DISAGREED. One name, one apparent meaning, three answers.
+  #
+  # The horizon is now a PARAMETER. This version multiplied by a literal 5 next
+  # to a comment reading "horizon - reference = 5 years", so moving the horizon
+  # silently left the arithmetic behind. Two output columns are renamed to match:
+  # projected_grads_5yr -> projected_grads, total_grads_3yr -> total_grads.
+  # Names that hardcode a window are wrong the moment the window is an argument.
+  #
+  # DEN-055 is preserved: retiring_count = 0 yields replacement_ratio = NA (not
+  # 0), so adequate_replacement is NA rather than FALSE. An infinite surplus is
+  # not "inadequate". mufflyaccess uses safe_divide(default = NA_real_) and the
+  # behavioural tests in this repo still assert it.
+  mufflyaccess::calculate_replacement_gap(retirees_by_subspec, fellowship_grads,
+                                          horizon_years = horizon_years)
 }
 
 #' State Vulnerability Ranking

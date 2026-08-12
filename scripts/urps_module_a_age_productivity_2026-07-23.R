@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 source(here::here("R", "wc_path.R"))
+source(here::here("R", "workforce_constants.R"))   # SSOT: WORKFORCE_OBSERVED_START_YEAR (2013)
+source(here::here("R", "in_model_baseline.R"))     # SSOT: inmodel() active-baseline cohort filter
 # Module A, step 1: within-physician AGE-PRODUCTIVITY curve for URPS, 2013-2024.
 # Panel: each cohort NPI x year -> urogyn procedure WORKLOAD (allowed $, a work
 # proxy) across the 89 FPMRS-defining codes. Model:
@@ -8,7 +10,6 @@ source(here::here("R", "wc_path.R"))
 # workload changes with age (ACS "declining capacity before formal retirement"),
 # net of calendar-year shocks (COVID 2020). Medicare FFS only; allowed-$ weighted.
 suppressPackageStartupMessages({library(DBI); library(duckdb); library(data.table); library(yaml); library(splines); library(lme4)})
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 codes <- vapply(yaml::read_yaml("config/subspecialty_hcpcs_codes.yml")$
                 female_pelvic_medicine_reconstructive_surgery$codes, function(x) as.character(x$code), character(1))
 
@@ -19,12 +20,12 @@ abog<- fread("data/abog_all_urps_ENRICHED_2026-07-22.csv",colClasses=list(charac
 # age in 2024 (graduation-year age; certification-proxy fallback) -> birth year
 ages <- rbind(abu[inmodel(in_model_baseline), .(npi=as.character(npi), age24=fifelse(!is.na(age_from_grad_year),as.numeric(age_from_grad_year),as.numeric(age_proxy_from_cert)))],
               abog[inmodel(in_model_baseline),.(npi=as.character(npi), age24=fifelse(!is.na(age_from_grad_year),as.numeric(age_from_grad_year),as.numeric(age_proxy_from_cert)))])
-ages <- unique(ages[!is.na(age24)], by="npi"); ages[, birth := 2024-age24]
+ages <- unique(ages[!is.na(age24)], by="npi"); ages[, birth := WORKFORCE_REFERENCE_YEAR-age24]   # SSOT: age reckoned as-of the reference year
 dbWriteTable(con, "coh", ages[,.(npi,birth)], temporary=TRUE, overwrite=TRUE)
 
 ## ── build the panel: cohort x year urogyn workload (allowed $) ───────────────
 cds <- paste0("(", paste0("'", codes, "'", collapse=","), ")")
-yrs <- 2013:2024
+yrs <- WORKFORCE_OBSERVED_START_YEAR:WORKFORCE_REFERENCE_YEAR   # SSOT: observed start .. latest-Medicare/reference year (distinct from the 2023 study-scope end)
 panel <- rbindlist(lapply(yrs, function(y){
   t <- paste0("medicare_part_b_by_service_", y)
   if (!(t %in% dbListTables(con))) return(NULL)

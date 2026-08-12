@@ -190,6 +190,41 @@ step4_duration <- as.numeric(difftime(Sys.time(), step4_start, units = "secs"))
 cat(sprintf("\n✓ Step 4 completed in %.1f seconds\n\n", step4_duration))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Step 5: Geographic Concentration & Equity Metrics
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Supplementary distribution/equity analysis (Gini, HHI, Lorenz, demographic
+# and access composition) computed from the committed enriched URPS rosters.
+# Additive and non-fatal: a failure here never blocks the core manuscript
+# outputs above. Skips cleanly if the enriched rosters are absent.
+
+cat(paste0(rep("=", 80), collapse = ""), "\n")
+cat("STEP 5: Geographic Concentration & Equity Metrics\n")
+cat(paste0(rep("=", 80), collapse = ""), "\n")
+cat("\n")
+
+step5_start          <- Sys.time()
+concentration_script <- here("scripts/urps_concentration_equity_2026-08-01.R")
+roster_inputs        <- c(
+  here("data/abog_all_urps_ENRICHED_2026-07-22.csv"),
+  here("data/abu_all_urps_ENRICHED_2026-07-22.csv")
+)
+
+if (!all(file.exists(roster_inputs))) {
+  cat("⚠ Skipping Step 5 — enriched URPS rosters not found:\n")
+  cat(sprintf("    %s\n", roster_inputs[!file.exists(roster_inputs)]))
+  cat("\n")
+} else {
+  step5_status <- system(sprintf("Rscript %s", concentration_script))
+  if (step5_status != 0) {
+    warning("Step 5 (concentration & equity) failed with exit code ", step5_status,
+            " — continuing; core manuscript outputs are unaffected.")
+  } else {
+    step5_duration <- as.numeric(difftime(Sys.time(), step5_start, units = "secs"))
+    cat(sprintf("\n✓ Step 5 completed in %.1f seconds\n\n", step5_duration))
+  }
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Final Summary
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -210,6 +245,9 @@ cat("    - figure2_replacement_gap.png/tiff\n")
 cat("    - workforce_crisis_abstract.png/tiff (SGS style)\n")
 cat("  ✓ Manuscript HTML: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html\n")
 cat("  ✓ Manuscript Word: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx\n")
+cat("  ✓ Concentration & equity: data/urps_concentration_by_geography_2026-08-01.csv,\n")
+cat("      urps_equity_demographics_*, urps_lorenz_states_*, urps_provider_rate_dispersion_*\n")
+cat("      figures/urps_concentration_lorenz_2026-08-01.png/tiff\n")
 cat("\n")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

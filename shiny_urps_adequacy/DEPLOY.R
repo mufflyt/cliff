@@ -58,6 +58,18 @@ missing <- app_files[!file.exists(app_files)]
 if (length(missing) > 0) stop(sprintf("Missing required files: %s", paste(missing, collapse = ", ")))
 for (f in app_files) cat(sprintf("     - %s (%.1f KB)\n", f, file.size(f) / 1024))
 
+# data/urps_model_data.R is a REPLICA of the canonical scenarios copy (see
+# scripts/sync_urps_model_data.R). When deploying from within the repo, refuse to ship a
+# replica that has drifted from canonical — run the sync first. (Skipped if the canonical
+# is not reachable, e.g. the app dir was copied out of the repo.)
+canon_model_data <- file.path("..", "shiny_urps_scenarios", "urps_model_data.R")
+if (file.exists(canon_model_data)) {
+  if (!identical(unname(tools::md5sum("data/urps_model_data.R")), unname(tools::md5sum(canon_model_data))))
+    stop("data/urps_model_data.R has drifted from the canonical shiny_urps_scenarios/urps_model_data.R. ",
+         "Run: Rscript ../scripts/sync_urps_model_data.R  then redeploy.")
+  cat("     (model-data replica verified against canonical)\n")
+}
+
 # ---- Step 3: pre-flight validation ----------------------------------------
 # Confirm the model builds from the bundled data before shipping a broken app.
 cat("\n[STEP 3/4] Pre-flight: confirming model.R loads and computes...\n")

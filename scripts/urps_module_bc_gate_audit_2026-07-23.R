@@ -11,6 +11,8 @@
 suppressPackageStartupMessages({library(data.table); library(digest)})
 h <- function(p){ for(r in c(".","..","../..")) if(file.exists(file.path(r,p))) return(file.path(r,p)); p }
 source(h("R/demand_denominator.R"))   # SSOT: DEMAND_AGE_MIN / NPP_MAX_AGE for the 65+ definition gate
+source(h("R/urps_procedure_codes.R")) # SSOT: anchor codes + surgical/functional (SURG/FUNC) split
+source(h("R/in_model_baseline.R"))    # SSOT: inmodel() active-baseline cohort filter
 
 FROZEN <- fread(h("data/urps_module_bc_FROZEN_2026-07-23.csv"), colClasses=list(character="code"))
 PROV   <- fread(h("data/urps_module_bc_FROZEN_provenance_2026-07-23.csv"))
@@ -22,8 +24,8 @@ POP    <- fread(h("data/urps_supply_demand_national_2026-07-23.csv"))
 MANIFEST <- tryCatch(fread(h("data/urps_module_bc_INPUT_MANIFEST_2026-07-23.csv")), error=function(e) data.table())
 OBS      <- tryCatch(fread(h("data/urps_module_bc_observability_2026-07-23.csv")), error=function(e) data.table())
 SPARAMS  <- tryCatch(fread(h("data/urps_module_bc_scenario_params_2026-07-23.csv")), error=function(e) data.table())
-ANCHORS <- c("57288","57282","51728","52287")
-FUNC <- c("51728","52287"); SURG <- c("57288","57282")
+ANCHORS <- urps_anchor_codes()                               # SSOT: R/urps_procedure_codes.R
+FUNC <- urps_anchor_codes("functional"); SURG <- urps_anchor_codes("surgical")   # SSOT: same split
 
 AUD <- list()
 G <- function(id, level, desc, pass, observed="", expected="", evidence=""){
@@ -61,7 +63,7 @@ G(14,"FATAL","NPI format valid (10 digits)", npi_ok, "", "^[0-9]{10}$")
 G(15,"FATAL","Numeric fields numeric", all(sapply(FROZEN[,.(provider_visible_all,geography_national_all,psps_allowed_all)], is.numeric)))
 G(16,"FATAL","No negative service counts", all(FROZEN$provider_visible_all>=0 & FROZEN$geography_national_all>=0 & FROZEN$psps_allowed_all>=0))
 G(17,"REVIEW","Fractional service counts documented", all(FROZEN$psps_allowed_all==round(FROZEN$psps_allowed_all)), "integers", "int unless CMS-fractional")
-DICT <- data.table(code=ANCHORS, family=c("Sling","Apical","Urodynamics","BOTOX"), field=c("OBG","OBG","URO","URO"))
+DICT <- data.table(code=ANCHORS, family=c("Sling","Apical","Urodynamics","BOTOX"), field=urps_anchor_field(ANCHORS))  # SSOT field (R/urps_procedure_codes.R)
 G(18,"FATAL","Procedure dictionary complete (anchors have family+field)", all(ANCHORS %in% DICT$code) && all(nchar(DICT$field)>0))
 G(19,"FATAL","No unmapped anchor codes", all(FROZEN$code %in% DICT$code))
 G(20,"FATAL","No procedure mapped to two families", !any(duplicated(DICT$code)))
@@ -112,7 +114,6 @@ G(52,"FATAL","Calibrated denominator label present", "national_calibrated_primar
 
 # ── F. Cohort integrity ─────────────────────────────────────────────────────
 abu <- fread(h("data/abu_all_urps_ENRICHED_2026-07-22.csv"), colClasses=list(character="npi"))
-inmodel <- function(x) x %in% c(TRUE,"TRUE","true",1,"1")
 coh <- unique(c(abu$npi[inmodel(abu$in_model_baseline)], abog$npi[inmodel(abog$in_model_baseline)]))
 G(53,"FATAL","Cohort NPIs unique", length(coh)==length(unique(coh)))
 G(54,"FATAL","Certification pathway valid (ABOG/ABU)", all(grepl("ABU",abu$pathway)) && all(grepl("ABOG",abog$pathway)), paste(unique(c(abu$pathway,abog$pathway)),collapse=","), "ABU*/ABOG*")
