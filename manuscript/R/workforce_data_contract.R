@@ -93,7 +93,7 @@ attr(URPS_LEGACY_PROJECTION_BASELINE, "metadata") <- list(
   measure         = "legacy_projection_cohort",
   cohort          = "1031 ABOG + 264 ABU net-new",
   purpose         = "reproduce frozen SGS projection (historical comparison only)",
-  superseded_by   = "1306 (v3.0.0 2023 board_certified_active)",
+  superseded_by   = "1306 (v3.0.0 2023 board_certified_active)",   # ssot-ok: doc metadata naming the superseding cell, not a live baseline literal
   contract_status = "not a mufflyaccess v3.0.0 canonical cell")
 WORKFORCE_HEADLINE_BASELINE <- c(URPS = 1306L, GO = 1052L, MIGS = 605L)    # URPS = v3.0.0 2023 board_certified_active (urps_count(2023,"board_certified_active","national",TRUE))
 

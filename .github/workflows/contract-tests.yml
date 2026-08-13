@@ -42,7 +42,7 @@ jobs:
       - name: Install mufflyaccess dependencies (remotes + RSPM binaries, no pak)
         shell: Rscript {0}
         run: |
-          install.packages(c("remotes", "testthat"))
+          install.packages(c("remotes", "testthat", "here"))
           remotes::install_deps(
             ".mufflyaccess",
             dependencies = c("Depends", "Imports", "LinkingTo")

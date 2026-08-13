@@ -16,9 +16,9 @@
 suppressPackageStartupMessages({library(here); library(readr)})
 source(here::here("R", "workforce_cliff_engine.R"))
 
-coh <- readr::read_csv(here::here("data", "urps_1306_active_cohort.csv"),
+coh <- readr::read_csv(here::here("data", "urps_1306_active_cohort.csv"),   # ssot-ok: data-file path literal, not a baseline count
                        show_col_types = FALSE)
-stopifnot(nrow(coh) == 1306L)
+stopifnot(nrow(coh) == 1306L)   # ssot-ok: asserts the historical cohort file's row count, not a live baseline
 ages <- sort(as.integer(coh$age))
 
 hz <- readr::read_csv(here::here("data", "hazard_by_band_pooled_vs_unpooled.csv"),
