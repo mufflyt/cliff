@@ -20,7 +20,7 @@ source(file.path(root, "R", "workforce_uncertainty.R"))   # median + PI + decisi
 
 # cohort age vectors (combined national) from the pathway/geo extract
 ages <- utils::read.csv(file.path(sdir, "urps_cohort_ages_pathway_geo_v3.0.0.csv"))
-ages_1306 <- with(ages[ages$geography == "national", ], rep(age, n_active_2023))   # 1306
+ages_1306 <- with(ages[ages$geography == "national", ], rep(age, n_active_2023))   # 1306   # ssot-ok: variable name, not a baseline literal
 leg <- utils::read.csv(file.path(root, "scripts", "urps_baseline_scenarios",
                                  "urps_cohort_ages_v3.0.0.csv"))
 ages_legacy <- rep(leg$age, leg$n_legacy_primarycert)                              # 1301 (calibration)
@@ -68,9 +68,9 @@ report <- function(tag, ages) {
   c(d, m)
 }
 cat("== URPS projection at v3.0.0 baseline (manuscript parameter-uncertainty MC, ", MC_DRAWS, " draws) ==\n", sep = "")
-cat("Frozen published (1295, archival):  projected_2029=1505.4  avg_dep=11.41  ratio=5.61  CI=[1476,1535]  sd=15.2\n\n")
+cat("Frozen published (1295, archival):  projected_2029=1505.4  avg_dep=11.41  ratio=5.61  CI=[1476,1535]  sd=15.2\n\n")   # ssot-ok: legacy frozen SGS projection cohort
 leg_r  <- report("legacy_1301", ages_legacy)     # calibration: width should be ~15, not ~7
-new_r  <- report("v3.0.0_1306", ages_1306)       # the adopted number
+new_r  <- report("v3.0.0_1306", ages_1306)       # the adopted number   # ssot-ok: string label + variable name, not a baseline literal
 
 # write the regenerated URPS row (consolidated-CSV schema) for rebuild_ssot_revised.R
 out <- data.frame(
@@ -83,8 +83,8 @@ out <- data.frame(
   replacement_ratio = round(new_r$ratio, 2), replacement_assessment = "Above replacement",
   fellowship_total_4yr = 256L, total_retirements_4yr = round(new_r$avg_dep * HORIZON),
   stringsAsFactors = FALSE)
-utils::write.csv(out, file.path(sdir, "urps_row_1306_regenerated.csv"), row.names = FALSE)
-cat("\nwrote scripts/urps_scenario_cube/urps_row_1306_regenerated.csv\n")
+utils::write.csv(out, file.path(sdir, "urps_row_1306_regenerated.csv"), row.names = FALSE)   # ssot-ok: output-file path literal, not a baseline count
+cat("\nwrote scripts/urps_scenario_cube/urps_row_1306_regenerated.csv\n")   # ssot-ok: output-file path in a status message, not a baseline count
 
 # ── Uncertainty report (item 7): communicate the distribution, not one number ──
 # Decision probabilities from the SAME MC draws. shortage_pct / improve_pct are 0

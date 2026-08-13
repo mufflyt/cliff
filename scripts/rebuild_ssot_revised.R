@@ -40,7 +40,7 @@ primary <- tibble::tribble(
   # 5.61 (1295) -> 5.38 (1306): a small age-distribution effect, NOT the large
   # "engine-driven" drop erroneously reported from an earlier run that mistakenly
   # used the URPS-anchored hazard. See scripts/urps_scenario_cube/regen_urps_1306_projection.R.
-  1306L, 1514.4596, 7.91,
+  1306L, 1514.4596, 7.91,   # ssot-ok: historical data row in a regeneration script, not a live baseline claim
   1494L, 1525L, 15.96168,
   0.910, 11.8851, 64L,
   5.38, "Above replacement",

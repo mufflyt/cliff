@@ -20,7 +20,7 @@ ssot_ratio <- function(ab) ssot$replacement_ratio[ssot$subspecialty_abbrev == ab
 
 # Cohort active-age vectors on the current baseline.
 urps_ages <- sort(as.integer(readr::read_csv(
-  here::here("data", "urps_1306_active_cohort.csv"), show_col_types = FALSE)$age))
+  here::here("data", "urps_1306_active_cohort.csv"), show_col_types = FALSE)$age))   # ssot-ok: data-file path literal, not a baseline count
 go_ages <- wc_active_ages(wc_load_cohort())$GO
 ages_of <- list(URPS = urps_ages, GO = go_ages)
 base_of <- c(URPS = length(urps_ages), GO = length(go_ages))
