@@ -5,9 +5,10 @@ name: contract-tests
 # layer that protects the cliff -> mufflyaccess projection work: the workforce
 # engine additions (loader-based, pure functions), the URPS projection producer
 # (reads the committed artifact + the mufflyaccess projection contract), the
-# mufflyaccess version/pin gate, and the unqualified-baseline guard. These need
-# only base R + mufflyaccess + testthat, so they run without the local cohort CSV
-# or the sf/dplyr/duckdb stack.
+# mufflyaccess version/pin gate, the unqualified-baseline guard, and the
+# wait-adequacy inverse (pure base-R M/M/s queueing). These need only base R +
+# mufflyaccess + testthat, so they run without the local cohort CSV or the
+# sf/dplyr/duckdb stack.
 
 on:
   push:
@@ -32,16 +33,26 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          working-directory: .mufflyaccess      # install mufflyaccess's imports + testthat
-          extra-packages: any::testthat
+      # Install mufflyaccess's dependencies WITHOUT pak. The r-lib
+      # setup-r-dependencies action bootstraps pak, which has been failing
+      # repo-wide ("there is no package called 'pak'") and blocking this gate.
+      # use-public-rspm above points the default repo at Posit Package Manager,
+      # so install.packages() pulls precompiled ubuntu binaries -- fast, no
+      # compilation, no pak. remotes reads mufflyaccess's DESCRIPTION for us.
+      - name: Install mufflyaccess dependencies (remotes + RSPM binaries, no pak)
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "testthat", "here"))
+          remotes::install_deps(
+            ".mufflyaccess",
+            dependencies = c("Depends", "Imports", "LinkingTo")
+          )
       - name: Install mufflyaccess
         run: R CMD INSTALL --with-keep.source .mufflyaccess
       - name: Run the data-independent contract + engine tests
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'
