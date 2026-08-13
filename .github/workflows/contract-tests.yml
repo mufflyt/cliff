@@ -6,10 +6,10 @@ name: contract-tests
 # engine additions (loader-based, pure functions), the URPS projection producer
 # (reads the committed artifact + the mufflyaccess projection contract), the
 # mufflyaccess version/pin gate, the unqualified-baseline guard, the
-# wait-adequacy inverse (pure base-R M/M/s queueing), and the CHIA<->Medicare
-# all-payer workload bridge (pure base R). These need only base R + mufflyaccess
-# + testthat, so they run without the local cohort CSV or the sf/dplyr/duckdb
-# stack.
+# wait-adequacy inverse (pure base-R M/M/s queueing), the CHIA<->Medicare
+# all-payer workload bridge, and the capacity-evidence adequacy gate (pure base
+# R). These need only base R + mufflyaccess + testthat, so they run without the
+# local cohort CSV or the sf/dplyr/duckdb stack.
 
 on:
   push:
@@ -54,6 +54,6 @@ jobs:
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|capacity-evidence",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'
