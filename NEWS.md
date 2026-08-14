@@ -1,5 +1,34 @@
 # cliff (development version)
 
+## Recovered generators
+
+* Five artifact generators that the isochrones extraction left behind are now in
+  `scripts/`: `build_audit_table.R`, `baseline_lag_decomposition.R`,
+  `age_shift_sensitivity.R`, `breakeven_thresholds.R` and
+  `open_payments_sensitivity.R`. Their outputs had been committed here without
+  the code that produces them, which is why four of them sat stranded on the
+  retired 1,295 baseline while the SSOT moved to 1,306.
+
+* Monorepo inputs now resolve under `CLIFF_ISOCHRONES_ROOT` (and
+  `CLIFF_URPS_SNAPSHOT` for the v3.0.0 parquet) and fail loudly when absent,
+  rather than being hardcoded absolute paths that silently rebuild on whatever
+  is there.
+
+* The URPS active-age distribution is taken from the v3.0.0 cohort that DEFINES
+  the 1,306 baseline, not reconstructed from the ABU rosters. Reconstruction
+  gives 1,031 + 302 = 1,333: it keeps the 4 providers the active gate drops and
+  excludes only 6 ABU NPIs for a missing certification year where the snapshot
+  excludes 29 -- exactly the `consort_cohort_flow` removals.
+
+* `departure_audit_table.csv`, `baseline_lag_decomposition.csv`,
+  `age_shift_sensitivity.csv` and `breakeven_thresholds.csv` are regenerated on
+  1,306. All now reconcile to the SSOT at 5.38, as do the artifacts that were
+  already current. Appendix Table S4b renders again.
+
+* `open_payments_sensitivity.csv` is NOT regenerated: its generator needs the
+  derived DuckDB table `credentials.retirement_signals_pivot`, which is not in
+  the available database. The script is committed so the dependency is visible.
+
 ## Publication integrity
 
 * `scripts/rebuild_ssot_revised.R`, the canonical SSOT writer, hand-entered six
