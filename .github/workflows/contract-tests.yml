@@ -10,6 +10,12 @@ name: contract-tests
 # all-payer workload bridge, and the capacity-evidence adequacy gate (pure base
 # R). These need only base R + mufflyaccess + testthat, so they run without the
 # local cohort CSV or the sf/dplyr/duckdb stack.
+#
+# The CHIA all-payer demand-bridge CALIBRATION engine (chia-demand-bridge) is
+# also filtered in, but its calibration path needs the tidyverse + splines +
+# broom stack; its test skips cleanly (skip_if_not_installed) where that stack
+# is absent, so it never fails this minimal runner and runs for real wherever
+# the full dependency tree is installed.
 
 on:
   push:
@@ -54,6 +60,6 @@ jobs:
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|capacity-evidence",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|chia-demand-bridge|capacity-evidence",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'
