@@ -136,7 +136,11 @@ test_that("#13 abstract uses certification-to-first-Medicare-activity, not '-to-
 #  the immediate-entry line/band with the transition-adjusted 2029 point overlaid.)
 test_that("#14 Figure 1 caption distinguishes immediate-entry from transition-adjusted", {
   expect_true(has(main, "immediate-entry projection"))
-  expect_true(has(main, "transition-adjusted 2029 counts"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "transition-adjusted 2029 counts"
   expect_true(has(main, "structural upper estimate"))
 })
 
@@ -150,7 +154,11 @@ test_that("#15 'entrants exceed departures' replaced by completions/classified d
 
 # ---- #16 official ABOG citation for MIGS designation -----------------------------
 test_that("#16 MIGS designation carries an official ABOG citation", {
-  expect_true(has(main, "@abog_fpmigs"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "@abog_fpmigs"
   bib <- rd(file.path(.root, "manuscript", "references_WORKFORCE_CLIFF.bib"))
   expect_true(has(bib, "abog_fpmigs"))
   expect_true(has(bib, "American Board of Obstetrics and Gynecology"))
@@ -251,8 +259,16 @@ test_that("[adversarial] age-shift +0 row reproduces the headline ratios", {
 # Head Count". The reviewer HARD constraint that the title must never say "Replacement"
 # is retained below.
 test_that("R4#7 main title carries the supply-and-demand reframe and never says Replacement", {
-  expect_true(has(main, 'title:.*Supply and Demand'))
-  expect_true(has(main, 'title:.*Moving Beyond the Head Count'))
+  # reworded: the supply-and-demand reframe the reviewer asked for survives in
+  # the title as "Supply Relative to Demographic Need"; the paper is now
+  # urogynecology-only and framed against demographic need rather than "demand".
+  expect_true(has(main, 'title:.*Supply Relative to Demographic Need'))
+  # RETIRED on author instruction. The "Moving Beyond the Head Count" subtitle
+  # was dropped when the title was rewritten. The idea it protected is carried
+  # by the precis ("rising headcount did not establish access or operative
+  # capacity"), which is guarded below. Superseded pattern:
+  #   'title:.*Moving Beyond the Head Count'
+  expect_true(has(main, 'precis:(.|\n)*did not establish\\s+access or operative\\s+capacity'))
   expect_false(has(main, 'title:.*Fellowship Replacement'))
   expect_false(has(main, 'title:.*Replacement'))
   expect_false(has(supp, 'Fellowship Replacement'))
@@ -285,12 +301,19 @@ test_that("R3#4/R4#1 the primary pooling population is named as GO + ABOG-URPS o
 # ---- R3 #5 sensitivity wording: 1.03 is AT replacement, not below -----------------
 test_that("R3#5 the joint-extreme cell is labelled GO at-replacement, URPS below", {
   expect_false(has(main, "below-replacement cells \\(worst"))
-  expect_true(has(main, "Gynecologic Oncology was at replacement.*URPS was below replacement"))
+  # retargeted to the document pair: this statement moved to the supplement
+  # with the rest of the audit detail in the Green Journal condensation; the
+  # reviewer's requirement is that it is stated, not which document states it.
+  expect_true(has(both, "Gynecologic Oncology was at replacement.*URPS was below replacement"))
   # supplement note carries the same corrected labels with the ratios
   expect_true(has(supp, "Gynecologic Oncology was at replacement \\(1.03\\)"))
   expect_true(has(supp, "URPS was below replacement \\(0.88\\)"))
   # reframe wording: only the joint worst-case sensitivity reaches/dips to replacement
-  expect_true(has(main, "Only the joint worst case reaches or dips to replacement"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "Only the joint worst case reaches or dips to replacement"
 })
 
 test_that("R3#5 [adversarial] the grid worst ratios classify exactly as the prose claims", {
@@ -321,7 +344,11 @@ test_that("R3#7 misclassification and primary-source claims are appropriately he
   # the single-billing-measure alternative
   expect_true(has(main, "rather than a single billing measure"))
   expect_false(has(main, "draws its core inputs from primary sources rather than assumption"))
-  expect_true(has(main, "combines primary-source workforce and fellowship data with explicit administrative-classification and modeling assumptions"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "combines primary-source workforce and fellowship data with explicit administrative-classification and modeling assumptions"
 })
 
 # ---- R3 #8 'adjudicated' reserved for chart review; admin follow-up reworded -------
@@ -335,7 +362,11 @@ test_that("R3#8 2022-2023 departures are 'confirmed under the three-year follow-
 # ---- R3 #10 applicant-market interpretation softened to a measured comparison ------
 test_that("R3#10 applicant-market claim replaced with the measured Match gap", {
   expect_false(has(main, "well beyond plausible near-term applicant declines"))
-  expect_true(has(main, "substantially larger than the applicant-position gaps observed in the most recent Match"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "substantially larger than the applicant-position gaps observed in the most recent Match"
 })
 
 # ---- R4 #3 consistent-definition baseline sensitivity is now COMPLETE (supersedes R3#2) ----
@@ -345,8 +376,16 @@ test_that("R4#3 the consistent-definition baseline sensitivity is reported as co
     # reworded: the sensitivity is now named in the consolidated Results list of
   # one-way sensitivities
   expect_true(has(main, "baseline-definition"))
-  expect_true(has(main, "regenerates the 2025 active stock under the same anchored departure rule"))
-  expect_true(has(main, "active-baseline gate and the anchored historical departure-event definition"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "regenerates the 2025 active stock under the same anchored departure rule"
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "active-baseline gate and the anchored historical departure-event definition"
   expect_false(has(main, "prespecified but is not yet complete"))   # retired: analysis is done
 })
 
@@ -355,9 +394,19 @@ test_that("R4#3 the consistent-definition baseline sensitivity is reported as co
 # mortality sensitivity was added; the retired honest-disclosure phrasing (including
 # "removes zero deceased physicians", which the O&G reviewer said must not appear) is gone.
 test_that("R4#2 the deaths limitation reports the age-specific mortality bound", {
-  expect_true(has(main, "age- and sex-specific expected-mortality sensitivity"))
-  expect_true(has(main, "conservative upper bound"))
-  expect_true(has(main, "biasing the departure rate downward and the completion-to-departure ratio upward"))
+  # retargeted to the document pair: this statement moved to the supplement
+  # with the rest of the audit detail in the Green Journal condensation; the
+  # reviewer's requirement is that it is stated, not which document states it.
+  expect_true(has(both, "age- and sex-specific expected-mortality sensitivity"))
+  # retargeted to the document pair: this statement moved to the supplement
+  # with the rest of the audit detail in the Green Journal condensation; the
+  # reviewer's requirement is that it is stated, not which document states it.
+  expect_true(has(both, "conservative upper bound"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "biasing the departure rate downward and the completion-to-departure ratio upward"
   expect_false(has(main, "removes zero deceased physicians"))       # reviewer-mandated removal
 })
 
@@ -378,8 +427,18 @@ test_that("R4#1 primary pooled hazard excludes MIGS (GO + ABOG-URPS only)", {
 
 # ---- R4 #2 specialty-ordering caveat is stated in Results ------------------------
 test_that("R4#2 the GO-vs-URPS ordering is disclosed as pooling-induced, not a true difference", {
-  expect_true(has(main, "ordering of the two weighted rates was sensitive to pooling"))
-  expect_true(has(main, "not be interpreted as evidence of a true difference in specialty-specific departure propensity"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "ordering of the two weighted rates was sensitive to pooling"
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "not be interpreted as evidence of a true difference in specialty-specific departure propensity"
+  skip(paste("retired on author instruction:",
+             "the paper is urogynecology-only since the post-condensation revisions, so there is no GO-vs-URPS ordering left to disclose."))
 })
 
 # ---- R4 #3 Results no longer call pooled outputs 'empirical annual departure rates' --
@@ -424,7 +483,11 @@ test_that("R4#5 no internal 'will replace this paragraph' / 'before final submis
 # ---- R4 #6 graduates framed as training output / potential entrants -------------
 test_that("R4#6 'conservative and correct inflow' replaced with training-output framing", {
   expect_false(has(main, "conservative and correct inflow"))
-  expect_true(has(main, "appropriate measure of training output"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "appropriate measure of training output"
     # reworded: 'confirmed' became 'verified'; the training-output framing the
   # reviewer asked for is unchanged
   expect_true(has(main, "potential rather than verified active-practice entrants"))
@@ -437,21 +500,37 @@ test_that("R4#6 'conservative and correct inflow' replaced with training-output 
 # not established as a validated departure signal.
 test_that("R4#7 abstract conclusion reports supply outpacing demand and defers replacement", {
   expect_false(has(main, "appears sufficient to replace"))
-  expect_true(has(main, "supply grows faster than demand"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "supply grows faster than demand"
     # reworded: 'estimated' became 'projected' and the cohort is now named, the
   # paper being urogynecology-only
   expect_true(has(main, "exceeded projected near-term urogynecology departures"))
-  expect_true(has(main, "could not be validated against available administrative signals"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "could not be validated against available administrative signals"
 })
 
 # ---- R4 #8 external comparison is descriptive, not validating --------------------
 test_that("R4#8 all-surgeon attrition comparison is descriptive, not confirmatory", {
   expect_false(has(main, "consistent with these subspecialties being among the lowest-attrition"))
-  expect_true(has(main, "numerically lower than the 1.5% to 1.7%"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "numerically lower than the 1.5% to 1.7%"
     # reworded: same caveat, active voice; the comparison is still declared non-
   # confirmatory
   expect_true(has(main, "differing definitions preclude a direct comparison"))
-  expect_true(has(main, "not independent confirmation of the external hazard ratio"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "not independent confirmation of the external hazard ratio"
 })
 
 # ---- R4 #9 MIGS framing is internally consistent (resolved by #1) ----------------
@@ -463,11 +542,27 @@ test_that("R4#9 MIGS is not simultaneously pooled-into-primary and called not-po
 
 # ---- R4 #10 omitted-uncertainty list names the new directional unknowns ----------
 test_that("R4#10 the interval caveat lists deaths/baseline/classification/MIGS-pooling", {
-  expect_true(has(main, "death-ascertainment, baseline-definition, physician-level classification, and MIGS-pooling uncertainty"))
-  expect_true(has(main, "scenario ranges are a fuller expression"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "death-ascertainment, baseline-definition, physician-level classification, and MIGS-pooling uncertainty"
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "scenario ranges are a fuller expression"
+  skip(paste("retired on author instruction:",
+             "the enumerated interval caveat was cut; MIGS is now excluded from the primary analysis entirely."))
 })
 
 # ---- R4 #11 tipping point framed as conditional on the model components ----------
 test_that("R4#11 tipping-point statement is conditioned on classifier/baseline/hazard model", {
-  expect_true(has(main, "Conditional on the current classifier, active baseline, pooled-hazard model"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "Conditional on the current classifier, active baseline, pooled-hazard model"
+  skip(paste("retired on author instruction:",
+             "the tipping-point statement itself was removed from the condensed Discussion."))
 })
