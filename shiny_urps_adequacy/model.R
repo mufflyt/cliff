@@ -20,6 +20,7 @@ dpath <- function(f) {
 }
 
 source(dpath("urps_model_data.R"))                                   # URPS_AGES, BAND_*, HAZ_WINDOWS
+source(dpath("absolute_adequacy.R"))                                 # app-local port of the absolute-adequacy gate + seam
 APC    <- fread(dpath("urps_module_a_age_productivity_2026-07-23.csv"))
 DEMAND <- fread(dpath("urps_supply_demand_national_2026-07-23.csv"))
 

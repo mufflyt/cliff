@@ -194,6 +194,10 @@ ui <- function(request) page_sidebar(
     card(fill=FALSE, card_header("Adequacy ratio (supply growth ÷ demand growth)"),
          plotlyOutput("p_adeq", height="360px"))
   ),
+  card(fill=FALSE, class="mb-2",
+    card_header(tagList("Absolute adequacy ",
+      tags$small(class="text-muted", "— gated on external evidence"))),
+    card_body(htmlOutput("abs_adequacy"), fillable=FALSE)),
   accordion(open=FALSE, multiple=TRUE,
     accordion_panel("About this model", icon=NULL, HTML(
       "<div style='font-size:13px;line-height:1.6'>An exploratory capacity model, <b>not</b> the frozen headline projection.
@@ -278,6 +282,51 @@ server <- function(input, output, session) {
   summ <- reactive({ p<-cur_params(); s<-scenario_summary(proj(), p, DEFAULTS)
     validate_scenario_contract(proj(), p, s, DEFAULTS); s })
   output$fp <- renderText(paste("scenario", summ()$fingerprint))
+
+  # ── ABSOLUTE adequacy (gated) ───────────────────────────────────────────────
+  # Runs the real absolute-adequacy seam (data/absolute_adequacy.R) on the app's
+  # CURRENT evidence. The app holds neither a wait-based access fit nor a
+  # calibrated CHIA demand basis, so the gate refuses and the panel states the
+  # honest "relative only" position, naming the two inputs required to unlock an
+  # absolute number. Wire those inputs in and this same code resolves the anchor.
+  output$abs_adequacy <- renderUI({
+    al       <- absolute_adequacy_layer(proj(), base_year = BASE_YEAR)
+    resolved <- isTRUE(attr(al, "absolute_resolved"))
+    if (resolved) {
+      anchor <- attr(al, "absolute_anchor")
+      e <- al[al$YEAR == input$end_year, ]
+      gap <- e$capacity_gap_absolute            # >0 = shortage of effective FTE
+      HTML(sprintf(
+        "<div style='font-size:13px;line-height:1.6'>
+         <b>Resolved.</b> Base-year (2025) absolute adequacy anchor = <b>%.3f</b>
+         (supply relative to actual need, not the 1.00 balance assumption).
+         By <b>%d</b>, absolute adequacy = <b>%.3f</b>, an absolute capacity %s of
+         <b>%s</b> effective FTE — the real shortage/surplus the relative index
+         (pinned to 2025 = 1.00) cannot state.</div>",
+        anchor, input$end_year, e$adeq_absolute,
+        if (gap > 0) "gap" else "margin", cm(abs(gap))))
+    } else {
+      reason <- attr(al, "absolute_reason")
+      HTML(sprintf(
+        "<div style='font-size:13px;line-height:1.6'>
+         <b>Not resolved — this explorer reports <i>relative</i> adequacy only.</b>
+         The adequacy ratio above is a relative index normalised so <b>2025 = 1.00</b>
+         (a balance assumption, not a measured adequacy). Converting it to an
+         <b>absolute</b> adequacy — an actual supply-vs-need level — requires two
+         pieces of external evidence, and the gate refuses until <b>both</b> are supplied:
+         <ol style='margin:.4em 0 .4em 1.1em;padding:0'>
+           <li><b>A validated access fit</b> — an absolute 2025 adequacy inferred from an
+               observed access wait. <span class='text-muted'>Not supplied.</span></li>
+           <li><b>A fully identified all-payer demand basis</b> — a calibrated
+               CHIA&ndash;Medicare demand bridge with no age band dropped.
+               <span class='text-muted'>Not supplied.</span></li>
+         </ol>
+         <span class='text-muted' style='font-size:12px'>Gate status: %s. When both inputs
+         are wired in, this panel reports the absolute adequacy trajectory and the
+         absolute FTE capacity gap the relative model cannot express.</span></div>",
+        reason))
+    }
+  })
 
   band_lab <- reactive(switch(input$band_var,
     retire="retirement timing by ±2 years", entrants="annual entrants by ±20",
