@@ -50,6 +50,30 @@ Corroborating evidence lives in `~/isochrones/docs/HANDOFF_*.md`, which names
 generators per artifact. If a handoff names a script, it exists; believe the
 handoff over a failed search.
 
+### Two more ways the search goes wrong
+
+**Wrong write idiom.** `grep` for `write_csv|write.csv` misses `fwrite`
+(data.table), `write_delim`, `write_tsv`, `write.table`, `saveRDS`, and any call
+that builds the path in a variable. Both `urps_module_a_effective_supply` and
+`urps_supply_demand_national` were sitting in the corpus I had already built; the
+pattern, not the corpus, was the problem. Match on the filename first, then check
+whether the surrounding call writes.
+
+**Wrong repository.** Before searching isochrones, search cliff's OWN history.
+The de-hardcoded versions of both urps module scripts were at cliff `de51351` the
+whole time. Porting the isochrones originals instead broke 41 tests, because
+cliff's SSOT guards name those two scripts by path and require the de-hardcoded
+form (`ENTRY_AGE <- WORKFORCE_ENTRY_AGE`, `YEAR==DEMAND_INDEX_BASE_YEAR`,
+`npp_projection_path()`, `RATE_PER_100K*`). If a guard names a file that is not
+on disk, the file was deleted from this repo, not missing from the monorepo:
+
+```sh
+git log --all --format=%H -1 -- <path>     # in cliff, before going upstream
+```
+
+A guard that reads a file it expects to exist will SKIP silently when it does
+not. Green tests do not mean the file is absent by design.
+
 ### Before declaring anything unrecoverable
 
 Say "I did not find it with method X", not "it does not exist". A false "no
