@@ -1,4 +1,4 @@
 subspecialty_abbrev,replacement_ratio,breakeven_departure_rate_pct,breakeven_rate_multiple,breakeven_graduates,graduate_drop_pct,breakeven_effort_multiplier,compound_worstcase_ratio,compound_below_replacement
 GO,7.11,7.1,7.1,11,86,0.14,1.08,FALSE
-URPS,5.61,4.9,5.6,11,82,0.18,0.85,TRUE
+URPS,5.38,4.9,5.4,12,81,0.19,0.82,TRUE
 MIGS,11.06,7.8,11.1,4,91,0.09,1.68,FALSE
