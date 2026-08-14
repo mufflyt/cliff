@@ -113,7 +113,7 @@ Patient-level Markov onset/progression/mortality over urinary-incontinence state
 
 1. **Baseline reconciliation.** There are now **four** urogyn baselines in play
    (1,169 / 1,295 / 1,306 / 1,339). cliff already flags the 1,295-vs-1,339 clash as a required
-   **PI decision** (`URPS_CONTAINMENT_AND_BASELINE_NOTES.md:60-95`). Nothing can be coherently
+   **PI decision** (`dev/archive/URPS_CONTAINMENT_AND_BASELINE_NOTES.md:60-95` (archived; resolved to 1,306)). Nothing can be coherently
    incorporated until there is **one** agreed baseline cell (year, geography, pathway, measure).
    `simulation`'s 1,169@2022 must be roll-forwarded and pathway-decomposed to even be comparable.
 
@@ -165,7 +165,7 @@ population, years, transformation, uncertainty, **model version**, and a frozen 
 
 ### Stage 0 — Reconcile the baseline (blocker #1)
 - Make the PI decision on the canonical 2025 baseline cell; document in
-  `URPS_CONTAINMENT_AND_BASELINE_NOTES.md`.
+  `dev/archive/URPS_CONTAINMENT_AND_BASELINE_NOTES.md` (archived).
 - Roll `simulation`'s 1,169@2022 forward and split by ABOG/ABU so it is comparable; record the
   delta against cliff's chosen baseline as a reconciliation line, not a silent overwrite.
 

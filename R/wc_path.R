@@ -9,7 +9,8 @@
 # config/cliff_paths.local.yml (gitignored) or the WORKFORCE_* env var named in
 # each entry. Raw inputs (isochrones cohort/ABU files, the Medicare DuckDB and
 # provider-service download, the HRSA HPSA shapefile) are external by design and
-# do not live in this repo — see URPS_CONTAINMENT_AND_BASELINE_NOTES.md.
+# do not live in this repo — see dev/archive/URPS_CONTAINMENT_AND_BASELINE_NOTES.md
+# (archived; the baseline question it raises was resolved to 1,306).
 
 .wc_paths_cfg <- NULL
 
