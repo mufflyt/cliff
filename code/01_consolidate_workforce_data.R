@@ -49,6 +49,31 @@ INPUT_CSV <- here(
 
 OUTPUT_CSV <- here("data/workforce_projections_consolidated.csv")
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# NON-CANONICAL SSOT WRITER -- locked, matching scripts/rebuild_ssot_final.R and
+# scripts/rebuild_ssot_dynamic_acgme.R.
+#
+# This is the legacy "consolidated hazard pipeline" (lineage A in
+# SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md). It reads an archived 2025-09-28
+# Monte-Carlo table and would write the SSOT on the retired 1,295 basis. The
+# authoritative writer is scripts/rebuild_ssot_revised.R, which produces the
+# adopted 1,306 baseline.
+#
+# It was the only unlocked non-canonical writer. It cannot run today because its
+# archived input is absent from the repository, but restoring that archive would
+# have let code/00_RUN_ALL.R silently overwrite the SSOT.
+#
+# Usage (override -- historical reconstruction only):
+#   WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE=1 Rscript code/01_consolidate_workforce_data.R
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if (!identical(Sys.getenv("WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE"), "1")) {
+  stop("REFUSED: code/01_consolidate_workforce_data.R is not the canonical SSOT ",
+       "writer and would rebuild it on the retired 1,295 basis. Use ",
+       "scripts/rebuild_ssot_revised.R, or set ",
+       "WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE=1 to override.",
+       call. = FALSE)
+}
+
 # Load fellowship assumptions from config file
 # Command line usage: Rscript script.R [scenario_name]
 # Example: Rscript 01_consolidate_workforce_data.R optimistic
