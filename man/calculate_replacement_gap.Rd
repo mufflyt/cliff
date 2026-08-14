@@ -85,9 +85,13 @@ results <- calculate_replacement_gap(retirees, grads)
 # View subspecialty breakdown
 print(results$by_subspecialty)
 
-# Check overall gap
-sprintf("Overall gap: \%d physicians (\%.1f\%\% shortfall)",
-        results$overall$net_gap, results$overall$gap_percentage)
+# Check the overall balance. Per the Value section above, net_gap is
+# retiring_count - projected_grads, so a POSITIVE value is a shortage and a
+# negative one a surplus. It is a projection difference rather than a headcount
+# and is fractional in general, which is why this formats with \%.1f and not \%d.
+sprintf("Overall \%s: \%.1f physicians (\%.1f\%\%)",
+        ifelse(results$overall$net_gap > 0, "shortfall", "surplus"),
+        abs(results$overall$net_gap), abs(results$overall$gap_percentage))
 
 }
 \seealso{

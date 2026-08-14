@@ -97,6 +97,7 @@ suppressPackageStartupMessages({
 #' @examples
 #' gini(c(25, 25, 25, 25))   # 0 (perfectly even)
 #' gini(c(100, 0, 0, 0))     # 0.75
+#' @export
 gini <- function(x) {
   if (!is.numeric(x)) stop("gini(): x must be numeric.", call. = FALSE)
   x <- x[is.finite(x)]
@@ -120,6 +121,7 @@ gini <- function(x) {
 #' @examples
 #' herfindahl_index(c(50, 30, 20))              # 0.38
 #' herfindahl_index(c(50, 30, 20), TRUE)        # normalized
+#' @export
 herfindahl_index <- function(counts, normalized = FALSE) {
   counts <- counts[is.finite(counts) & counts > 0]
   total <- sum(counts)

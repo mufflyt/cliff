@@ -70,6 +70,7 @@ local({
 #' urps_anchor_codes()             # c("57288", "57282", "51728", "52287")
 #' urps_anchor_codes("surgical")   # c("57288", "57282")
 #' urps_anchor_codes("functional") # c("51728", "52287")
+#' @export
 urps_anchor_codes <- function(class = c("all", "surgical", "functional")) {
   class <- match.arg(class)
   d <- URPS_ANCHOR_PROCEDURES
@@ -90,6 +91,7 @@ urps_anchor_codes <- function(class = c("all", "surgical", "functional")) {
 #' @seealso [urps_anchor_codes()]; the `URPS_ANCHOR_PROCEDURES` lookup table.
 #' @examples
 #' urps_anchor_field(c("57288", "51728"))   # c("OBG", "URO")
+#' @export
 urps_anchor_field <- function(codes) {
   URPS_ANCHOR_PROCEDURES$field[match(codes, URPS_ANCHOR_PROCEDURES$code)]
 }

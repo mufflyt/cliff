@@ -92,7 +92,12 @@ safe_percentage <- function(part, whole, round_digits = 1) {
   if (is.null(part) || is.null(whole)) return(NA_real_)
   if (!is.numeric(part)) part <- suppressWarnings(as.numeric(part))
   if (!is.numeric(whole)) whole <- suppressWarnings(as.numeric(whole))
-  pct <- safe_divide(part, whole, NA_real_) * 100
+  # Qualified, not bare. R/safe_divide.R attaches mufflyaccess with library() at
+  # file scope, which runs when the package is BUILT, not when an installed copy
+  # is loaded, so a bare safe_divide() resolves during development and fails with
+  # "could not find function" in the installed package. R CMD check caught this
+  # through the calculate_rural_metro_comparison example.
+  pct <- mufflyaccess::safe_divide(part, whole, NA_real_) * 100
   ifelse(is.na(pct), NA_real_, round(pct, round_digits))
 }
 
@@ -523,9 +528,13 @@ calculate_rural_metro_comparison <- function(rural_at_risk, rural_total,
 #' # View subspecialty breakdown
 #' print(results$by_subspecialty)
 #'
-#' # Check overall gap
-#' sprintf("Overall gap: %d physicians (%.1f%% shortfall)",
-#'         results$overall$net_gap, results$overall$gap_percentage)
+#' # Check the overall balance. Per the Value section above, net_gap is
+#' retiring_count - projected_grads, so a POSITIVE value is a shortage and a
+#' negative one a surplus. It is a projection difference rather than a headcount
+#' and is fractional in general, which is why this formats with %.1f and not %d.
+#' sprintf("Overall %s: %.1f physicians (%.1f%%)",
+#'         ifelse(results$overall$net_gap > 0, "shortfall", "surplus"),
+#'         abs(results$overall$net_gap), abs(results$overall$gap_percentage))
 #'
 #' @family retirement cliff analysis functions
 #' @seealso \code{\link{calculate_rural_metro_comparison}} for geographic analysis
