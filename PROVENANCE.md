@@ -10,23 +10,28 @@ second look before submission.
 ## 1. The single source of truth (SSOT)
 
 **`data/workforce_projections_consolidated.csv`** — the one table every manuscript number,
-figure, and table is computed from. It is **hand-frozen** (a deliberate, PI-sanctioned
-freeze), validated on load by the fail-loud contract in
+figure, and table is computed from. Validated on load by the fail-loud contract in
 `manuscript/R/workforce_data_contract.R` (structure, no-placeholder, and the arithmetic that
-ties the columns together).
+ties the columns together), and by `tests/testthat/test-ssot-derived-column-identities.R`,
+which checks each derived column against its defining expression at full precision.
 
-**⚠ There is no committed script that regenerates the live SSOT from raw inputs.** Two
-*candidate* producers exist but neither writes this file:
-- `R/manuscript_consolidate_existing_results.R` → writes a **historical-scenario** table
-  (entrants 47/60/51) to `manuscript/data/`, NOT the SSOT. Its input is a **154-byte** archival
-  CSV (`enhanced_comparison_table_20250928_030546.csv`) from the 2025-09-28 forecasting run.
-- `scripts/rebuild_ssot_from_nrmp.R` → writes an **NRMP-corrected candidate**
-  (`workforce_projections_NRMP_corrected.csv`, entrants 70/86/47) but does **not** overwrite
-  the SSOT (adopting it reverses the GO finding and needs a contract-test update).
+**Producer: `scripts/rebuild_ssot_revised.R`** — the only script authorised to write it.
+Only measured inputs are typed there; `annual_retirement_rate`, `replacement_ratio`,
+`percent_change`, `replacement_assessment`, `fellowship_total_4yr` and
+`total_retirements_4yr` are computed, and the identities are asserted before the write.
 
-So the live SSOT's entrant values (default **60/50/45**) are a frozen editorial choice, not a
-script output. **Rebuild note:** to reproduce, treat the CSV as an input artifact; to *re-derive*
-it, you must reconcile the three scenarios (default 60/50/45, historical 47/60/51, NRMP 70/86/47).
+> **Corrected 2026-08-14.** This section previously stated that the SSOT was hand-frozen
+> with no committed regeneration script, and that its entrant vector was 60/50/45. Both were
+> true when written and are now false: the producer above exists, and the entrants are
+> **64 / 75 / 47** (URPS / GO / MIGS). That is precisely the drift this document exists to
+> prevent, in this document. The generator-to-artifact map is therefore **generated**, not
+> written by hand: see **[`docs/PIPELINE.md`](docs/PIPELINE.md)**, rebuilt by
+> `scripts/build_pipeline_map.R` and guarded by `tests/testthat/test-pipeline-map-current.R`.
+
+Every artifact the manuscript and supplement read now has a generator in `scripts/`. Most
+were recovered from isochrones history after the extraction carried their outputs across
+without their code; `CLAUDE.md` records how to search for one, and the ways that search
+goes wrong.
 
 ---
 
@@ -36,8 +41,8 @@ it, you must reconcile the three scenarios (default 60/50/45, historical 47/60/5
 |---|---|---|
 | `baseline_2025` | **ABOG board certification** — count of active board-certified subspecialists (subspecialty is the gold standard, superseding taxonomy codes) | through Dec 2024; active-practice restricted |
 | `annual_retirement_rate` | **6-source hierarchical departure detection**: ABMS cert lapse, NPPES deactivation, CMS Open Payments cessation, PECOS disenrollment, Medicare Part D + Part B claims cessation | Medicare 2013-2022; Open Payments 2013-2023; hazard estimated on the fully-observable window (see revised model note) |
-| `avg_annual_retirements` | `baseline_2025 × annual_retirement_rate` | derived (verify: 1283×.044≈56.5, 1352×.052≈70.3, 767×.034≈26.1) |
-| `annual_entrants` | **ACGME** accredited fellowship positions (default scenario 60/50/45); NRMP "positions filled" is the alternative (70/86/47, see `rebuild_ssot_from_nrmp.R`) | steady-state caps assumed |
+| `avg_annual_retirements` | measured; `annual_retirement_rate` is derived from it as `100 × avg_annual_retirements / baseline_2025` | the arithmetic is guarded, not hand-verified |
+| `annual_entrants` | **ACGME** accredited fellowship completions, multi-year means: URPS 64 (OB/GYN-sponsored 48 + urology-sponsored ~16), GO 75, MIGS 47. The NRMP filled-position benchmark (74/88/51) is reported separately in `data/workforce_projection_benchmark_nrmp.csv` | steady-state caps assumed |
 | `sd_2029` | **Frozen Monte-Carlo run** (2025-09-28, `enhanced_workforce_statistical_summaries`); **manually transcribed** into `manuscript_consolidate_existing_results.R` (FPMRS 15.2 / GO 16.1 / MIG 11.0) | no live re-runnable simulation exists in the repo |
 | `projected_2029` | `baseline + 4×(entrants − retirements)` via the contract formula | derived |
 | `ci95_lower/upper` | **⚠ parametric** `projected ± 1.96 × SD` | **contradiction to reconcile — see §4** |
@@ -71,11 +76,12 @@ contract/tests point at the right one.
 1. **CI method contradiction.** The manuscript Methods state 95% CIs are the **5th/95th
    empirical percentiles** of the simulation, but the code computes **parametric `mean ± 1.96·SD`**
    (`manuscript_consolidate_existing_results.R`; SDs manually transcribed). One is wrong — reconcile.
-2. **No SSOT producer.** The live SSOT is hand-frozen with no committed regeneration script (§1).
+2. ~~**No SSOT producer.**~~ **Resolved 2026-08-14** — `scripts/rebuild_ssot_revised.R` (§1).
 3. **154-byte archival input.** The historical-scenario producer depends entirely on a 154-byte
    CSV from a 2025-09-28 run that no longer has a live simulation behind it.
-4. **Entrant-scenario ambiguity.** Three coexisting entrant vectors: default 60/50/45 (frozen),
-   historical 47/60/51, NRMP 70/86/47. Document which the paper adopts and why.
+4. ~~**Entrant-scenario ambiguity.**~~ **Resolved** — the paper adopts the ACGME multi-year
+   means (64/75/47). The NRMP benchmark is reported as a named alternative, not a competing
+   default, in `data/workforce_projection_benchmark_nrmp.csv`.
 5. **HRSA citation** (if used) was flagged provisional pending a primary-source PDF.
 
 ---

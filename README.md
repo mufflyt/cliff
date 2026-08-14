@@ -88,6 +88,52 @@ cliff/
 
 ---
 
+## Rebuilding the data
+
+Every artifact under `data/` that the manuscript or supplement reads has a generator in
+`scripts/`. **[`docs/PIPELINE.md`](docs/PIPELINE.md)** is the map: generator, what it
+writes, what it reads, and what it requires. That map is generated, not hand-written:
+
+```bash
+Rscript scripts/build_pipeline_map.R     # rebuild docs/PIPELINE.md
+```
+
+`tests/testthat/test-pipeline-map-current.R` regenerates and compares it, so adding or
+renaming a generator fails the suite until the map is rebuilt.
+
+### The single source of truth
+
+`data/workforce_projections_consolidated.csv` is the one table every manuscript number is
+computed from. `scripts/rebuild_ssot_revised.R` is the only script authorised to write it.
+Only measured inputs are typed there; every algebraically derived column is computed and
+its identity asserted before the write. See [`PROVENANCE.md`](PROVENANCE.md) for per-column
+lineage.
+
+### Inputs that do not live here
+
+Some generators read from the isochrones monorepo this repository was extracted from, or
+from an external database. They resolve those through environment variables and fail loudly
+rather than silently rebuilding on whatever is present:
+
+| Variable | Default | Needed by |
+|---|---|---|
+| `CLIFF_ISOCHRONES_ROOT` | `~/isochrones` | generators reading the provider roster or ABU crosswalks |
+| `CLIFF_URPS_SNAPSHOT` | `~/mufflyaccess/tests/testthat/fixtures/isochrones-v3.0.0/urps_provider_snapshot.parquet` | generators needing per-physician v3.0.0 cohort membership |
+| `CLIFF_RENDER_TESTS` | unset | opt-in: renders the supplement as part of the test suite |
+
+The Requires column in `docs/PIPELINE.md` says which generators need which. Generators with
+no requirement run from a clean checkout.
+
+### Numbers are never restated in prose
+
+Manuscript and supplement read their headline figures inline from the artifacts rather than
+quoting them. `tests/testthat/test-ssot-no-stale-published-numbers.R` enforces this: a
+literal in rendered prose, in a table caption, or embedded in a data file fails the suite.
+The same file carries a Hall of Shame of values that were once published, were wrong, and
+must never reappear.
+
+---
+
 ## Pipeline Scenarios
 
 ```bash
