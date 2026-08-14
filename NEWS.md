@@ -41,6 +41,22 @@
   prototype that no manuscript table or Shiny app reads, so no published value
   moves. The invariant and cross-pathway additivity are now guarded by tests.
 
+## Restored
+
+* `load_workforce_baseline()` and `project_urps_workforce()`, the consumer seams
+  that route cliff's models through `mufflyaccess::urps_count()`, were dropped
+  from `R/urps_baseline.R` by the conflict resolution in `215110c` (the file went
+  90 lines to 44). Nothing referenced them afterwards except the contract tests,
+  which had been erroring ever since. Both are restored verbatim from `cae0afc`;
+  they call the surviving `urps_baseline()` and need no adaptation to the v3.0.0
+  contract.
+
+* `get_fellowship_total_5yr()` was a compat alias kept across the 5-year to
+  4-year horizon standardisation and has since been removed on purpose. The two
+  tests calling it now use `get_fellowship_total_4yr()`, which is the
+  entrants x horizon computation they assert and is named for the horizon it
+  uses. The alias is not resurrected.
+
 ## Housekeeping
 
 * Added `tests/testthat.R`, so the 88-file `tests/testthat/` suite is actually
