@@ -57,6 +57,48 @@ test_that("net_change reconciles as entrants - exits (contract flow identity)", 
   expect_true(all(ok))
 })
 
+test_that("clinical FTE never exceeds headcount in any cell (a head is at most 1.0 FTE)", {
+  skip_if_not(file.exists(cube_path), "cube not generated")
+  d <- utils::read.csv(cube_path, stringsAsFactors = FALSE)
+  # The model invariant, stated positively: clinical FTE is measured in units of a
+  # peak-age, full-clinical-time provider, and both factors that build it
+  # (rel_to_peak and the pathway clinical-time share) are in [0, 1]. So per-head
+  # FTE is <= 1 by construction, in EVERY pathway/geography/scenario/year cell,
+  # not merely in aggregate. mufflyaccess::validate_urps_projection enforces the
+  # same rule; this guard catches a break without needing that package installed.
+  #
+  # A global scale that pinned combined-national-2023 FTE to that cell's headcount
+  # used to violate this: it is unsatisfiable when the ABU clinical-time share is
+  # 0.70, so the ABOG component absorbed the residual at 1.068 FTE/head and 59 of
+  # 972 rows exceeded headcount. Do not reintroduce a normalisation that targets a
+  # combined total; normalise per head or not at all.
+  expect_true(all(d$supply_clinical_fte <= d$supply_headcount))
+  expect_lte(max(d$supply_clinical_fte / d$supply_headcount), 1)
+  expect_true(all(d$supply_clinical_fte >= 0))
+})
+
+test_that("clinical FTE stays additive across pathways", {
+  skip_if_not(file.exists(cube_path), "cube not generated")
+  d <- utils::read.csv(cube_path, stringsAsFactors = FALSE)
+  key <- function(x) paste(x$year, x$scenario_id, x$geography_type)
+  a <- d[d$certification_pathway == "ABOG", ]
+  b <- d[d$certification_pathway == "ABU_NET_NEW", ]
+  k <- d[d$certification_pathway == "ABOG_PLUS_ABU", ]
+  i <- match(key(k), key(a)); j <- match(key(k), key(b))
+  # combined == ABOG + ABU, to the 0.1 the cube is written at (the +1e-9 keeps a
+  # deviation of exactly 0.1 from failing on binary representation)
+  expect_lte(max(abs(a$supply_clinical_fte[i] + b$supply_clinical_fte[j] -
+                       k$supply_clinical_fte)), 0.1 + 1e-9)
+  # Headcounts are rounded per pathway independently, so the parts can miss the
+  # rounded whole by 1 in a projected year. Exact at the 2023 anchor, which is
+  # the cell tied to the SSOT.
+  expect_lte(max(abs(a$supply_headcount[i] + b$supply_headcount[j] -
+                       k$supply_headcount)), 1L)
+  is23 <- k$year == 2023
+  expect_equal(a$supply_headcount[i][is23] + b$supply_headcount[j][is23],
+               k$supply_headcount[is23])
+})
+
 test_that("the 2023 baseline combined cells equal the SSOT active counts", {
   skip_if_not(file.exists(cube_path), "cube not generated")
   d <- utils::read.csv(cube_path, stringsAsFactors = FALSE)

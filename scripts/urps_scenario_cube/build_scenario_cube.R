@@ -22,9 +22,9 @@
 #                from the isochrones v3.0.0 provider snapshot; reconciles to the SSOT
 #                cells (ABOG 1027/1026, ABU 279/277, combined 1306/1303)
 #   * clinical : age-productivity curve from shiny_urps_adequacy, with the pathway
-#                clinical-time factor (ABOG 1.0, ABU 0.70). A single global scale
-#                sets combined-national-2023 effective FTE == headcount (1,306), so
-#                FTE is additive across pathway/geography rows.
+#                clinical-time factor (ABOG 1.0, ABU 0.70). Both are shares in
+#                [0, 1], so clinical FTE never exceeds headcount in any cell and
+#                stays additive across pathway/geography rows.
 #
 # Scenarios (prototype definitions):
 #   baseline                   : observed age-band exit; standard FTE
@@ -32,8 +32,9 @@
 #   lower_late_career_fte      : clinical FTE reduced 15% from age 60 (headcount same)
 #   fellowship_expansion_10pct : entrants +10%
 #
-# PROTOTYPE, not a published estimand. FTE is a normalized capacity index (effective
-# providers, combined-national-2023 = headcount), NOT absolute hours. Entrants are
+# PROTOTYPE, not a published estimand. FTE is a capacity index in units of
+# peak-age full-clinical-time providers (per head: rel_to_peak x clinical-time
+# share, so at most 1.0), NOT absolute hours. Entrants are
 # split by pathway using the national active-stock share (ABOG ~50, ABU ~14 per yr)
 # and applied identically to conus (the 3 non-conus providers are negligible). No
 # demand saturation -> do NOT read the 2040 level as a forecast. See README.md.
@@ -64,10 +65,19 @@ N_NAT  <- sum(ages$n_active_2023[ages$geography == "national"])         # 1,306
 shr    <- function(p) sum(ages$n_active_2023[ages$pathway == p & ages$geography == "national"]) / N_NAT
 ENTR   <- c(ABOG = round(ENTRANTS_TOTAL * shr("ABOG")), ABU = round(ENTRANTS_TOTAL * shr("ABU")))
 
-# FTE global scale: combined-national-2023 effective FTE == headcount (1,306)
-raw23 <- sum(vapply(c("ABOG", "ABU"), function(p) { c <- cohort(p, "national"); sum(c$n * wfun(c$av) * CT[[p]]) }, numeric(1)))
-SCALE <- N_NAT / raw23
-fte_of <- function(av, n, p, late_factor) SCALE * sum(n * wfun(av) * CT[[p]] * ifelse(av >= LATE_ONSET, late_factor, 1))
+# Clinical FTE is measured against a peak-age, full-clinical-time provider: both
+# wfun() (rel_to_peak) and CT are shares in [0, 1], so per-head FTE <= 1 and hence
+# supply_clinical_fte <= supply_headcount holds by construction, for every
+# pathway/geography/year cell. That is the invariant mufflyaccess enforces in
+# validate_urps_projection ("a head is at most 1.0 clinical FTE").
+#
+# There used to be a global SCALE here that forced combined-national-2023 FTE to
+# equal that cell's headcount (1,306). It could not be satisfied: CT is 0.70 for
+# ABU, so pinning the COMBINED mean to 1.0 FTE/head forces the ABOG component
+# above 1.0 to absorb the residual. It did -- ABOG ran at 1.068 FTE/head and 59
+# of 972 rows violated the invariant, with the whole series inflated by ~7%.
+# Normalising to a contradictory target is dropped rather than retuned.
+fte_of <- function(av, n, p, late_factor) sum(n * wfun(av) * CT[[p]] * ifelse(av >= LATE_ONSET, late_factor, 1))
 
 # deterministic per-year age structure + flows
 project_years <- function(coh, entrants, haz_shift = 0L) {

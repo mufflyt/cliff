@@ -30,6 +30,17 @@
   baseline change (`abu_identified` 270/6, and a hardcoded URPS ratio of 5.6
   that contradicted its own comment's 5.38). They now read the SSOT.
 
+* `build_scenario_cube.R` applied a global scale that forced combined-national
+  2023 clinical FTE to equal that cell's headcount. The target is unsatisfiable:
+  the ABU clinical-time share is 0.70, so pinning the combined mean to 1.0
+  FTE/head forces the ABOG component above it. ABOG ran at 1.068 FTE/head, 59 of
+  972 rows exceeded headcount, and the whole series was inflated 1.393x. The
+  scale is removed, so clinical FTE is now in units of a peak-age full-clinical-
+  time provider and the `<= 1.0 FTE/head` invariant holds by construction.
+  Headcounts, entrants and exits are unchanged; the cube is a documented
+  prototype that no manuscript table or Shiny app reads, so no published value
+  moves. The invariant and cross-pathway additivity are now guarded by tests.
+
 ## Housekeeping
 
 * Added `tests/testthat.R`, so the 88-file `tests/testthat/` suite is actually
