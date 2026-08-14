@@ -93,3 +93,55 @@ test_that("no artifact the manuscript reads is missing from the map", {
         paste0("   ", missing, collapse = "\n"), "\n")
   expect_length(missing, 0L)
 })
+
+# ---- collision guard ---------------------------------------------------------
+# An artifact with two writers is a silent-overwrite hazard: whichever ran last
+# wins, and nothing says which was meant to. The SSOT had FOUR writers, and one
+# of them (code/01_consolidate_workforce_data.R) was unguarded and would have
+# rebuilt it on the retired 1,295 basis.
+#
+# The convention this repository already uses is that exactly one writer is
+# canonical and every other enforces
+#   if (!identical(Sys.getenv("WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE"), "1")) stop(...)
+# Merely MENTIONING that variable is not enforcement: the canonical writer names
+# it in its header to document the others, which is why this checks for the
+# guard expression rather than the string.
+test_that("no manuscript-read artifact has two unguarded writers", {
+  skip_if_not(file.exists(.map), "docs/PIPELINE.md not generated yet")
+  rows <- grep("^\\| `", readLines(.map, warn = FALSE), value = TRUE)
+  gen <- vapply(rows, function(r) gsub("`", "", trimws(strsplit(r, "\\|")[[1]][2])), character(1))
+  wr <- lapply(rows, function(r) {
+    cell <- trimws(strsplit(r, "\\|")[[1]][3])
+    x <- gsub("`", "", strsplit(cell, "<br>")[[1]])
+    x[nzchar(x) & x != "--"]
+  })
+  names(wr) <- gen
+
+  docs <- c(file.path(.root, "manuscript",
+                      c("manuscript_WORKFORCE_CLIFF.Rmd", "supplement_WORKFORCE_CLIFF.Rmd")),
+            list.files(file.path(.root, "manuscript", "R"), "[.]R$", full.names = TRUE))
+  docs <- docs[file.exists(docs)]
+  skip_if_not(length(docs) > 0, "manuscript sources not present")
+  doctxt <- paste(unlist(lapply(docs, readLines, warn = FALSE)), collapse = "\n")
+
+  GUARD <- 'if *\\(!identical\\(Sys.getenv\\("WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE"\\)'
+  enforces <- function(f) {
+    p <- file.path(.root, f)
+    file.exists(p) && any(grepl(GUARD, readLines(p, warn = FALSE), perl = TRUE))
+  }
+
+  inv <- list()
+  for (g in names(wr)) for (a in wr[[g]]) inv[[a]] <- unique(c(inv[[a]], g))
+  offenders <- character(0)
+  for (a in names(inv)) {
+    if (length(inv[[a]]) < 2L) next
+    if (!grepl(a, doctxt, fixed = TRUE)) next          # not reader-facing
+    unguarded <- inv[[a]][!vapply(inv[[a]], enforces, logical(1))]
+    if (length(unguarded) > 1L)
+      offenders <- c(offenders, sprintf("%s <- %s", a, paste(unguarded, collapse = ", ")))
+  }
+  if (length(offenders))
+    cat("\n  artifacts the manuscript reads that have >1 unguarded writer:\n",
+        paste0("   ", offenders, collapse = "\n"), "\n")
+  expect_length(offenders, 0L)
+})

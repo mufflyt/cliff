@@ -27,7 +27,13 @@ READ_FNS  <- "read[._]csv|fread|read_delim|read_tsv|read\\.table|readRDS|read_pa
 # Scan every directory that can write into data/, not just scripts/. code/ holds
 # the legacy pipeline, and it contains a second writer of the SSOT; a map that
 # only looked at scripts/ hid that.
-SRC_DIRS <- c("scripts", "code", "R")
+# Every directory that contains a writer. Determined by searching, not assumed:
+# scripts/ and code/ hold the pipelines, R/ the package, and the Shiny apps,
+# analysis/ and benchmark/ each write too. A map that scans a subset hides
+# writers, which is how an unlocked SSOT writer in code/ went unnoticed.
+SRC_DIRS <- c("scripts", "code", "R", "shiny_urps_adequacy", "shiny_urps_scenarios",
+              "analysis", "benchmark", "manuscript/R", "demand_lifecourse",
+              "augs_application", "data-raw")
 scripts <- sort(unlist(lapply(SRC_DIRS, function(d) {
   p <- here::here(d)
   if (dir.exists(p)) list.files(p, pattern = "[.]R$", recursive = TRUE, full.names = TRUE)
@@ -103,7 +109,7 @@ lines <- c(
   sprintf("%d generators writing %d artifacts.",
           length(rows), length(unique(unlist(lapply(rows, `[[`, "writes"))))),
   "",
-  "Sources scanned: `scripts/`, `code/`, `R/`.",
+  paste("Sources scanned:", paste(sprintf("`%s/`", SRC_DIRS), collapse = ", ")),
   "",
   "| Generator | Writes | Reads | Requires |",
   "|---|---|---|---|")
