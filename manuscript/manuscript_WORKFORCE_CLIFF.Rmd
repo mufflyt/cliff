@@ -78,6 +78,20 @@ consort_n <- function(col) {
   as.integer(v)
 }
 nfmt <- function(x) format(x, big.mark = ",", trim = TRUE)
+
+# 2050 supply-versus-need extension. These five figures are the abstract's and
+# the Results paragraph's headline numbers for the exploratory horizon; they were
+# hand-written against this artifact and are now read from it.
+.sd <- utils::read.csv(here("data", "urps_supply_demand_national_2026-07-23.csv"),
+                       stringsAsFactors = FALSE)
+sd_at <- function(year, col) {
+  v <- .sd[[col]][.sd$YEAR == year]
+  if (length(v) != 1L) stop("[manuscript] no unique supply-demand value for ", col, " ", year)
+  v
+}
+sd_growth <- function(col) round(sd_at(2050, col) - 100)          # index, 2025 = 100
+sd_per100k <- function(year) sprintf("%.1f", sd_at(year, "urogyn_per_100k_w65"))
+sd_pfd_per <- function(year) nfmt(signif(sd_at(year, "women_pfd_per_urogyn"), 3))
 # Fail closed if the parts stop summing to the baseline the prose reports.
 stopifnot(consort_n("active_baseline") + consort_n("abu_included") == consort_n("active_baseline_final"))
 ```
@@ -110,7 +124,7 @@ stopifnot(consort_n("active_baseline") + consort_n("abu_included") == consort_n(
 
 **METHODS:** We linked American Board of Obstetrics and Gynecology and American Board of Urology certification records to six national administrative data sources. Sustained clinical-practice departure was classified during the fully observable 2016–2021 period. Because departures were sparse, age-band hazards were pooled with a gynecologic oncology comparator and applied in a dynamic stock-and-flow model beginning with the estimated 2025 active workforce. Annual entrants were based on recent Accreditation Council for Graduate Medical Education fellowship completions. The primary projection covered 2025–2029; an exploratory extension through 2050 compared supply with the number of United States women aged 65 years or older and the estimated number living with a pelvic floor disorder. Uncertainty was evaluated using Monte Carlo simulation and adverse-scenario analyses.
 
-**RESULTS:** The estimated 2025 workforce included `r get_baseline("URPS")` urogynecologists. During 2016–2021, `r get_departure_events("URPS")` classified departures informed a model-implied weighted annual departure rate of `r get_annual_rate("URPS")`%, corresponding to `r get_avg_retirements("URPS")` projected departures annually. Fellowship programs produced `r get_annual_entrants("URPS")` graduates annually, yielding a completion-to-departure ratio of `r get_replacement_ratio("URPS")` (95% uncertainty interval `r get_primary_ci("URPS")`). The transition-adjusted workforce increased to `r get_transition_ramped_2029("URPS")` by 2029. Every one-way sensitivity remained above one-for-one replacement; only the most adverse combined scenario (tripled departures and 70% graduate conversion) fell below replacement. In the exploratory 2050 extension, workforce supply increased 84%, compared with increases of 29% in women aged 65 years or older and 19% in women living with a pelvic floor disorder. Urogynecologists per 100,000 older women increased from 3.8 to 5.4, while women with a pelvic floor disorder per urogynecologist decreased from approximately 25,400 to 16,500.
+**RESULTS:** The estimated 2025 workforce included `r get_baseline("URPS")` urogynecologists. During 2016–2021, `r get_departure_events("URPS")` classified departures informed a model-implied weighted annual departure rate of `r get_annual_rate("URPS")`%, corresponding to `r get_avg_retirements("URPS")` projected departures annually. Fellowship programs produced `r get_annual_entrants("URPS")` graduates annually, yielding a completion-to-departure ratio of `r get_replacement_ratio("URPS")` (95% uncertainty interval `r get_primary_ci("URPS")`). The transition-adjusted workforce increased to `r get_transition_ramped_2029("URPS")` by 2029. Every one-way sensitivity remained above one-for-one replacement; only the most adverse combined scenario (tripled departures and 70% graduate conversion) fell below replacement. In the exploratory 2050 extension, workforce supply increased `r sd_growth("supply_index")`%, compared with increases of `r sd_growth("w65_index")`% in women aged 65 years or older and `r sd_growth("pfd_index")`% in women living with a pelvic floor disorder. Urogynecologists per 100,000 older women increased from `r sd_per100k(2025)` to `r sd_per100k(2050)`, while women with a pelvic floor disorder per urogynecologist decreased from approximately `r sd_pfd_per(2025)` to `r sd_pfd_per(2050)`.
 
 **CONCLUSION:** Under the modeled assumptions, the United States urogynecology workforce is not approaching a near-term national replacement cliff. Projected supply also grew faster than population-based measures of need through 2050. However, more physicians nationally does not establish workforce adequacy: the analysis does not measure utilization, wait times, geographic access, clinical effort, or operative capacity, and both the departure classification and long-horizon projection remain provisional.
 
@@ -219,7 +233,7 @@ fig_robustness()
 
 ## Supply Relative to Demographic Need
 
-In the exploratory 2030–2050 scenario extension, projected urogynecology supply (immediate-entry headcount) increased 84% (index 184, 2025 = 100), compared with 29% growth in women aged 65 years or older and 19% in women living with a pelvic floor disorder. Urogynecologists per 100,000 older women increased from 3.8 to 5.4, and women with a pelvic floor disorder per urogynecologist decreased from approximately 25,400 to 16,500 (Figure 3). Productivity-adjusted capacity also increased under the modeled assumptions, remaining above its 2025 value across the horizon. These are national aggregates under stable prevalence and care-seeking; they do not measure utilization or geographic access.
+In the exploratory 2030–2050 scenario extension, projected urogynecology supply (immediate-entry headcount) increased `r sd_growth("supply_index")`% (index `r round(sd_at(2050, "supply_index"))`, 2025 = 100), compared with `r sd_growth("w65_index")`% growth in women aged 65 years or older and `r sd_growth("pfd_index")`% in women living with a pelvic floor disorder. Urogynecologists per 100,000 older women increased from `r sd_per100k(2025)` to `r sd_per100k(2050)`, and women with a pelvic floor disorder per urogynecologist decreased from approximately `r sd_pfd_per(2025)` to `r sd_pfd_per(2050)` (Figure 3). Productivity-adjusted capacity also increased under the modeled assumptions, remaining above its 2025 value across the horizon. These are national aggregates under stable prevalence and care-seeking; they do not measure utilization or geographic access.
 
 <!-- LIVE on the 1,306 cohort (supply + capacity rebuilt 2026-08-02 via
 scripts/rebuild_urps_1306_snapshot.R; fig_supply_demand_integrated() fails closed
