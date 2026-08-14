@@ -159,6 +159,8 @@ audit_row <- function(defn, sub, win, hz, bc_pooled, both_pathway=TRUE){
     graduate_input=ent,
     completion_to_departure_ratio=round(ent/avg_dep,2),
     projected_2029=round(base + HORIZON*(ent-avg_dep),1),
+    # carried for the Open-Payments sensitivity below, stripped before writing
+    .avg_dep=avg_dep,
     stringsAsFactors=FALSE)
 }
 
@@ -185,6 +187,32 @@ out <- do.call(rbind, lapply(variants, function(v){
     audit_row(v$defn, s, v$win, hz, bc, v$both)))
 }))
 
+# ---- Open-Payments sensitivity ---------------------------------------------
+# data/open_payments_sensitivity.csv is not an independent analysis: it is this
+# table's first two definitions, renamed. Verified against the pre-regeneration
+# pair, where 3 of 4 cells reproduce exactly and the fourth differs by 0.1 only
+# because the artifact used the UNROUNDED four-year departures, as here.
+#
+# The monorepo's scripts/open_payments_sensitivity.R (isochrones 0d8fa3662) is a
+# different, five-rule analysis (primary / op_excluded / op_only_out /
+# claims_anchor / two_source) that writes the same path with an incompatible
+# schema, and it needs credentials.retirement_signals_pivot, a derived table
+# absent from the available database. It is not the generator of the committed
+# artifact -- the rule labels below appear in no generator in either repository.
+OP_RULES <- c("non_op_anchored (primary)" = "primary (non-OP anchored)",
+              "op_inclusive"              = "OP-inclusive consensus")
+op <- do.call(rbind, lapply(names(OP_RULES), function(rn) {
+  r <- out[out$definition == OP_RULES[[rn]], ]
+  data.frame(rule = rn, subspecialty_abbrev = r$subspecialty_abbrev,
+             departure_rate_pct    = r$dynamic_annual_rate_pct,
+             avg_annual_departures = round(r$.avg_dep, 1),
+             replacement_ratio     = r$completion_to_departure_ratio,
+             stringsAsFactors = FALSE)
+}))
+write_csv(op, here::here("data","open_payments_sensitivity.csv"))
+cat("\nWrote data/open_payments_sensitivity.csv\n"); print(op, row.names = FALSE)
+
+out$.avg_dep <- NULL
 write_csv(out, here::here("data","departure_audit_table.csv"))
 cat("=== DEPARTURE / REPLACEMENT AUDIT TABLE (all definitions through the one dynamic model) ===\n")
 print(out, row.names=FALSE)
