@@ -1,4 +1,4 @@
-"ab","certified_matched","removed_deceased","removed_inactive","active_baseline","abu_net_new_active","active_baseline_final","abu_identified","abu_excluded_nocert","abu_included"
-"GO",1190,0,138,1052,0,1052,0,0,0
-"MIGS",660,0,55,605,0,605,0,0,0
-"URPS",1031,0,4,1027,308,1306,308,29,279
+ab,certified_matched,removed_deceased,removed_inactive,active_baseline,abu_net_new_active,active_baseline_final,abu_identified,abu_excluded_nocert,abu_included
+GO,1190,0,138,1052,0,1052,0,0,0
+MIGS,660,0,55,605,0,605,0,0,0
+URPS,1031,0,4,1027,308,1306,308,29,279
