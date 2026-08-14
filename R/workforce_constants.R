@@ -165,6 +165,7 @@ stopifnot(
 #'   Guarded by `tests/testthat/test-ssot-workforce-outlook.R`.
 #' @examples
 #' classify_workforce_outlook(c(0.7, 1.0, 1.3))  # "Insufficient" "Marginal" "Adequate"
+#' @export
 classify_workforce_outlook <- function(ratio) {
   ifelse(ratio >= WORKFORCE_OUTLOOK_ADEQUATE_MIN, "Adequate",
          ifelse(ratio >= WORKFORCE_OUTLOOK_MARGINAL_MIN, "Marginal", "Insufficient"))
