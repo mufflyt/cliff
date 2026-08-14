@@ -9,7 +9,9 @@ name: contract-tests
 # wait-adequacy inverse (pure base-R M/M/s queueing), the CHIA<->Medicare
 # all-payer workload bridge, the capacity-evidence adequacy gate, and the
 # absolute-adequacy seam that anchors project()'s relative index to a gated
-# absolute adequacy (all pure base R). These need only base R + mufflyaccess +
+# absolute adequacy, and the app-absolute-parity guard that pins the Shiny app's
+# standalone port of that seam to the canonical package implementation (all pure
+# base R). These need only base R + mufflyaccess +
 # testthat, so they run without the local cohort CSV or the sf/dplyr/duckdb
 # stack. (The absolute-adequacy seam's end-to-end block additionally drives the
 # calibration stack and skips cleanly where it is absent.)
@@ -63,6 +65,6 @@ jobs:
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'
