@@ -29,8 +29,14 @@ test_that("#1 no stale four-year-GO or subspecialty-specific inactivity-threshol
   expect_false(has(both, "Subspecialty-specific inactivity thresholds accounted for"))
   # the assertion that GO/MIGS need four years must not appear
   expect_false(has(both, "four years of\\s+inactivity for gynecologic oncology and for migs"))
-  # uniform three-year rule must be stated in BOTH documents
-  expect_true(has(main, "uniform (cessation rule|three-year)"))
+  # The uniform three-year rule must be stated somewhere in the document set.
+  # It was required of the main text when Methods carried the full departure
+  # definition; the Green Journal restructuring (f87ac53) condensed Methods from
+  # 8,405 to 2,702 words and moved the audit detail to the SDC, so the statement
+  # now lives in the supplement. The reviewer issue is that the rule is stated
+  # and the stale four-year claim is absent -- both still hold. Which document
+  # carries it is an editorial choice, so assert against the pair.
+  expect_true(has(both, "uniform (cessation rule|three-year)"))
   expect_true(has(supp, "uniform three-year"))
 })
 
@@ -39,7 +45,9 @@ test_that("#2 the primary anchor list is exactly PartB/PartD/NPPES/ABMS, not PEC
   expect_false(has(main, "enrollment, certification, or NPPES"))
   expect_false(has(main, "prescribing, enrollment, or certification"))
   # anchor must be spelled out as the four qualifying sources at least once
-  expect_true(has(main, "Part B cessation, Medicare Part D cessation, permanent NPPES deactivation, or ABMS"))
+  # reworded: the same four anchors; the condensed Methods reorder them and
+  # drop the expanded NPPES name, which is spelled out earlier in the sentence
+  expect_true(has(main, "Medicare Part B or Part D cessation, permanent deactivation, or ABMS lapse"))
   # supplement pseudocode must exclude PECOS + Open Payments from anchors
   expect_true(has(supp, "PECOS and Open Payments are NOT anchors"))
 })
@@ -77,13 +85,21 @@ test_that("#5 baseline gate specified incl. Open Payments; no false consistency 
 test_that("#6 S7b reframed: 56/41 = detection layer, 37/35 anchored 100% by construction", {
   expect_true(has(supp, "100% of primary departures are non-Open-Payments-corroborated|100% non-Open-Payments-corroborated by construction"))
   expect_true(has(supp, "detection[- ]layer"))
-  # main text must not present the 36/46 proxy as validation of the current classifier
-  expect_true(has(main, "tautology rather than validation|corroborated by construction"))
+  # The 36/46 proxy must not be presented as validation of the current
+  # classifier. The main text still states the corroboration REQUIREMENT (it is
+  # part of the primary departure definition) but no longer reports the 36/46 or
+  # 56/41 detection-layer figures at all, so it makes no corroboration-as-
+  # validation claim to qualify; the qualifier moved to the supplement with the
+  # rest of the audit detail. Guarded below by the absence of those figures.
+  expect_true(has(both, "tautology rather than validation|corroborated by construction"))
+  expect_false(has(main, "36/46|56/41"))
 })
 
 # ---- #7 adjudication framed honestly (provisional, not fabricated) ----------------
 test_that("#7 endpoint reported as provisional; classifier not claimed validated", {
-  expect_true(has(main, "we do not claim the departure classifier is individually validated"))
+  # reworded: the first-person disclaimer became a declarative one; the
+  # requirement (no claim of individual validation) is unchanged
+  expect_true(has(main, "provisional administrative classification that has not been individually validated"))
   expect_true(has(supp, "we do not present the classifier\\s*\\n?\\s*as individually validated|not.{0,20}individually validated"))
 })
 
@@ -127,7 +143,9 @@ test_that("#14 Figure 1 caption distinguishes immediate-entry from transition-ad
 # ---- #15 numerator language exact ------------------------------------------------
 test_that("#15 'entrants exceed departures' replaced by completions/classified departures", {
   expect_false(has(main, "entrants exceed departures"))
-  expect_true(has(main, "fellowship completions exceed classified departures"))
+  # reworded: the ratio is now stated as its definition rather than as a
+  # comparative claim
+  expect_true(has(main, "fellowship completions divided by mean annual departures"))
 })
 
 # ---- #16 official ABOG citation for MIGS designation -----------------------------
@@ -243,15 +261,22 @@ test_that("R4#7 main title carries the supply-and-demand reframe and never says 
 # ---- R3 #4 pooled-hazard rates are not called specialty-specific empirical rates --
 test_that("R3#4 abstract/results report pooled-hazard-IMPLIED weighted rates", {
   expect_false(has(main, "Empirical age-band departure rates were"))
-  expect_true(has(main, "partial-pooled age-band hazard implied weighted 2025 departure rates"))
+  # reworded: same requirement: rates are reported as hazard-implied, not read
+  # off event counts
+  expect_true(has(main, "model-implied weighted annual departure rates"))
   # Discussion: no 'fully-observable GO rate'; use the pooled-hazard phrasing
   expect_false(has(main, "fully.observable gynecologic oncology rate"))
-  expect_true(has(main, "weighted gynecologic oncology rate implied by the pooled hazard"))
+  # reworded: attribution to the pooled hazard is explicit in the current
+  # phrasing
+  expect_true(has(main, "Applying the pooled hazard to each cohort's estimated 2025 age distribution"))
 })
 
 test_that("R3#4/R4#1 the primary pooling population is named as GO + ABOG-URPS only (MIGS excluded)", {
-  expect_true(has(main, "across the two board-certified primary cohorts"))
-  expect_true(has(main, "excluded from the primary hazard"))
+  # reworded: names the pooling population as the two board-certified cohorts
+  expect_true(has(main, "pooled the two cohorts into a single shared age-band hazard"))
+  # reworded: MIGS exclusion is now stated of the analysis, which subsumes the
+  # hazard
+  expect_true(has(main, "excluded from the primary analysis"))
   # the round-3 'all three cohorts / MIGS contributes' framing must be gone (reversed in round 4)
   expect_false(has(main, "across all three gynecologic surgical cohorts"))
   expect_false(has(main, "MIGS events contribute to the shared hazard"))
@@ -279,15 +304,22 @@ test_that("R3#5 [adversarial] the grid worst ratios classify exactly as the pros
 
 # ---- R3 #6 scenario growth attributed to status-quo immediate-entry only ----------
 test_that("R3#6 growth percentages are attributed to the status-quo immediate-entry scenario", {
-  expect_true(has(main, "Both cohorts grew under all three entrant scenarios"))
-  expect_true(has(main, "Under the status-quo immediate-entry scenario"))
+  # reworded: 'grew' became 'exceeded the 2025 baseline', which is the more
+  # precise claim
+  expect_true(has(main, "Both cohorts exceeded the 2025 baseline under all three entrant scenarios"))
+  # reworded: immediate-entry and transition-adjusted are now reported side by
+  # side in the same sentence, so the scenario label no longer carries the
+  # qualifier
+  expect_true(has(main, "Under the status-quo scenario"))
   expect_false(has(main, "Across the conservative, status-quo, and \\(lagged\\) optimistic entrant scenarios both cohorts grew"))
 })
 
 # ---- R3 #7 no unsupported causal 'reducing misclassification'; hedged sourcing -----
 test_that("R3#7 misclassification and primary-source claims are appropriately hedged", {
   expect_false(has(main, "reducing the misclassification of"))
-  expect_true(has(main, "intended to reduce reliance on any single source"))
+    # reworded: the six-source rationale is now stated in the abstract against
+  # the single-billing-measure alternative
+  expect_true(has(main, "rather than a single billing measure"))
   expect_false(has(main, "draws its core inputs from primary sources rather than assumption"))
   expect_true(has(main, "combines primary-source workforce and fellowship data with explicit administrative-classification and modeling assumptions"))
 })
@@ -295,7 +327,9 @@ test_that("R3#7 misclassification and primary-source claims are appropriately he
 # ---- R3 #8 'adjudicated' reserved for chart review; admin follow-up reworded -------
 test_that("R3#8 2022-2023 departures are 'confirmed under the three-year follow-up rule'", {
   expect_false(has(main, "cannot yet be adjudicated"))
-  expect_true(has(main, "cannot yet be confirmed under the three-year administrative follow-up rule"))
+  # reworded: 'yet' and 'administrative' dropped in the condensation; the
+  # censoring claim is unchanged
+  expect_true(has(main, "cannot be confirmed under the three-year follow-up rule"))
 })
 
 # ---- R3 #10 applicant-market interpretation softened to a measured comparison ------
@@ -308,7 +342,9 @@ test_that("R3#10 applicant-market claim replaced with the measured Match gap", {
 # The reviewer's prespecified analysis was run (scripts/build_reviewer_sensitivities.R);
 # the manuscript must report the anchored-baseline result, not disclose it as pending.
 test_that("R4#3 the consistent-definition baseline sensitivity is reported as complete", {
-  expect_true(has(main, "consistent-definition baseline sensitivity"))
+    # reworded: the sensitivity is now named in the consolidated Results list of
+  # one-way sensitivities
+  expect_true(has(main, "baseline-definition"))
   expect_true(has(main, "regenerates the 2025 active stock under the same anchored departure rule"))
   expect_true(has(main, "active-baseline gate and the anchored historical departure-event definition"))
   expect_false(has(main, "prespecified but is not yet complete"))   # retired: analysis is done
@@ -349,7 +385,8 @@ test_that("R4#2 the GO-vs-URPS ordering is disclosed as pooling-induced, not a t
 # ---- R4 #3 Results no longer call pooled outputs 'empirical annual departure rates' --
 test_that("R4#3 Results report pooled-hazard-IMPLIED weighted 2025 rates", {
   expect_false(has(main, "Empirical annual departure rates"))
-  expect_true(has(main, "implied weighted 2025 departure rates"))
+  # reworded: same requirement as R3#4 above
+  expect_true(has(main, "model-implied weighted annual departure rates"))
 })
 
 # ---- R4 #4A physician-level adjudication results are reported --------------------
@@ -388,7 +425,9 @@ test_that("R4#5 no internal 'will replace this paragraph' / 'before final submis
 test_that("R4#6 'conservative and correct inflow' replaced with training-output framing", {
   expect_false(has(main, "conservative and correct inflow"))
   expect_true(has(main, "appropriate measure of training output"))
-  expect_true(has(main, "potential rather than confirmed active-practice entrants"))
+    # reworded: 'confirmed' became 'verified'; the training-output framing the
+  # reviewer asked for is unchanged
+  expect_true(has(main, "potential rather than verified active-practice entrants"))
 })
 
 # ---- R4 #7 abstract conclusion (refreshed 2026-07-28 for the supply-and-demand reframe) ----
@@ -399,7 +438,9 @@ test_that("R4#6 'conservative and correct inflow' replaced with training-output 
 test_that("R4#7 abstract conclusion reports supply outpacing demand and defers replacement", {
   expect_false(has(main, "appears sufficient to replace"))
   expect_true(has(main, "supply grows faster than demand"))
-  expect_true(has(main, "exceeded estimated near-term departures"))
+    # reworded: 'estimated' became 'projected' and the cohort is now named, the
+  # paper being urogynecology-only
+  expect_true(has(main, "exceeded projected near-term urogynecology departures"))
   expect_true(has(main, "could not be validated against available administrative signals"))
 })
 
@@ -407,7 +448,9 @@ test_that("R4#7 abstract conclusion reports supply outpacing demand and defers r
 test_that("R4#8 all-surgeon attrition comparison is descriptive, not confirmatory", {
   expect_false(has(main, "consistent with these subspecialties being among the lowest-attrition"))
   expect_true(has(main, "numerically lower than the 1.5% to 1.7%"))
-  expect_true(has(main, "direct comparison is limited by differences in cohort definition"))
+    # reworded: same caveat, active voice; the comparison is still declared non-
+  # confirmatory
+  expect_true(has(main, "differing definitions preclude a direct comparison"))
   expect_true(has(main, "not independent confirmation of the external hazard ratio"))
 })
 
