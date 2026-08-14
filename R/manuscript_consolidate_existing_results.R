@@ -29,7 +29,17 @@ suppressPackageStartupMessages({
 source(here::here("R", "test_mode_contracts.R"))
 
 # Shared data contract: constants + fail-loud validator.
-source(here::here("manuscript", "R", "workforce_data_contract.R"))
+#
+# manuscript/ is excluded from the built package (.Rbuildignore), so this source()
+# MUST NOT be unconditional: at install time the file is absent and lazy-loading
+# the package fails with "unable to load R code in package 'cliff'". This file is
+# a script (see the shebang) that runs from the source tree, where the contract is
+# present; main() below is what needs the constants, and it is never called during
+# installation. Guarded rather than moved because
+# tests/testthat/test-step-5.0-workforce-saboteur-bugs.R reads this file at
+# here::here("R", "manuscript_consolidate_existing_results.R").
+.contract_path <- here::here("manuscript", "R", "workforce_data_contract.R")
+if (file.exists(.contract_path)) source(.contract_path)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # main() — all processing is inside here; sourcing this file does NOT run it.

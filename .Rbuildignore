@@ -11,12 +11,16 @@
 ^\.github$
 ^LICENSE\.md$
 
+# config/ is deliberately NOT excluded: R/wc_path.R reads config/cliff_paths.yml
+# at load time, so excluding it breaks installation (lazy-load failure). It is
+# 60K of runtime configuration. Conventionally it would live in inst/config,
+# but every here("config", ...) call across the repo points at the root copy.
+
 # --- Analysis / manuscript trees: not package code ---
 ^analysis$
 ^augs_application$
 ^benchmark$
 ^code$
-^config$
 ^demand_lifecourse$
 ^figures$
 ^manuscript$
