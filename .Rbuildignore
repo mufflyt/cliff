@@ -10,3 +10,55 @@
 ^CITATION\.bib$
 ^\.github$
 ^LICENSE\.md$
+
+# --- Analysis / manuscript trees: not package code ---
+^analysis$
+^augs_application$
+^benchmark$
+^code$
+^config$
+^demand_lifecourse$
+^figures$
+^manuscript$
+^manuscript_submission_[0-9_]+$
+^outputs$
+^scripts$
+^shiny_urps_adequacy$
+^shiny_urps_scenarios$
+
+# --- Project / editor scaffolding ---
+^\.claude$
+^\.DS_Store$
+^\.here$
+^\.renvignore$
+^\.Rprofile$
+^.*\.Rproj$
+^\.Rproj\.user$
+
+# --- Standalone scripts and pipeline drivers ---
+^PACKAGE_FOR_SUBMISSION\.sh$
+^TEST_FULL_PIPELINE\.sh$
+^RUN_FROM_RSTUDIO\.R$
+^setup_renv\.R$
+^SHA256SUMS$
+
+# --- Root data extracts (the package ships its own in inst/extdata) ---
+^obgyn_fellowship_directors_comprehensive\.csv$
+^obgyn_fellowship_directors_redcap\.csv$
+
+# --- Working notes, handoffs and design documents ---
+^ARCHIVED_CODE_DISCOVERY\.md$
+^DEMAND_LIFECOURSE_MODEL_SPEC\.md$
+^FELLOWSHIP_ASSUMPTIONS_COMPARISON\.md$
+^FINAL_PACKAGE_SUMMARY\.md$
+^HANDOFF_.*\.md$
+^MANUSCRIPT_SUMMARY\.txt$
+^PEDS_SUBSPEC_MICROSIMULATION_COMPARISON\.md$
+^PIPELINE_IMPROVEMENTS\.md$
+^PROVENANCE\.md$
+^QUICK_START\.txt$
+^RECONSTRUCTION_REPORT\.md$
+^SENSITIVITY_ANALYSES\.md$
+^SIMULATION_TO_CLIFF_INTEGRATION_PLAN\.md$
+^URPS_.*\.md$
+^WORKFORCE_CONCENTRATION_EQUITY\.md$

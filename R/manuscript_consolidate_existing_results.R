@@ -14,10 +14,14 @@
 # Author: Tyler Muffly, MD / Claude Code
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# Attach only what this file actually uses. Every call below is namespace
+# qualified except tribble(), so dplyr/readr/tibble are the whole surface;
+# tidyverse and glue were attached but never called.
 suppressPackageStartupMessages({
-  library(tidyverse)
+  library(dplyr)
+  library(readr)
+  library(tibble)
   library(here)
-  library(glue)
 })
 
 # Bug 1: is_test_mode() must be sourced unconditionally at file scope so it is
