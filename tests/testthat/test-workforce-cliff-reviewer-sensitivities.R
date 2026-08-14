@@ -15,7 +15,12 @@ library(testthat)
        dirname(d) != d) d <- dirname(d); d })
 DATA <- file.path(.root, "data")
 MAIN <- file.path(.root, "manuscript", "manuscript_WORKFORCE_CLIFF.Rmd")
+SUPP <- file.path(.root, "manuscript", "supplement_WORKFORCE_CLIFF.Rmd")
 main <- paste(readLines(MAIN, warn = FALSE), collapse = "\n")
+# The Green Journal condensation moved several of the statements guarded here
+# from the main text to the SDC, so some guards assert against the document pair.
+supp <- paste(readLines(SUPP, warn = FALSE), collapse = "\n")
+both <- paste(main, supp)
 csv  <- function(f) read.csv(file.path(DATA, f), stringsAsFactors = FALSE, check.names = FALSE)
 has  <- function(txt, pat) grepl(pat, txt, ignore.case = TRUE, perl = TRUE)
 SSOT <- csv("workforce_projections_consolidated.csv")
@@ -101,7 +106,11 @@ test_that("[adversarial] age-band back-test calibrates in the well-populated ban
   ok <- tryCatch({ source(file.path(.root, "manuscript", "R", "workforce_statistics.R")); TRUE }, error = function(e) FALSE)
   if (ok) {
     expect_identical(get_backtest_band_maxerr(50), sprintf("%.0f", max(abs(well$pct_error), na.rm = TRUE)))
-    expect_true(has(main, "Stratifying the back-test by age band"))
+    # RETIRED on author instruction. The main text no longer carries this; it
+    # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+    # and the urogynecology-only revisions after it. Not reinstated in the
+    # manuscript. Superseded pattern:
+    #   "Stratifying the back-test by age band"
   }
 })
 
@@ -151,7 +160,9 @@ test_that("[semantic] the graduate-scenario getter binds the prose to the artifa
     r <- gs[gs$subspecialty_abbrev == ab & gs$scenario == s, ]
     expect_identical(get_grad_scenario_ratio(s, ab), sprintf("%.1f", r$replacement_ratio))
   }
-  expect_true(has(main, "distinct graduate-supply assumptions"))
+  # reworded: the graduate-supply sensitivity is now named in the consolidated
+  # one-way sensitivity list rather than described in its own sentence
+  expect_true(has(main, "graduate-supply sensitiv"))
 })
 
 # ======================= #9 INACTIVITY THRESHOLD =========================
@@ -177,7 +188,11 @@ test_that("[semantic] the inactivity getter binds the prose to the artifact", {
     r <- it[it$subspecialty_abbrev == ab & it$threshold_years == T, ]
     expect_identical(get_inactivity_ratio(T, ab), sprintf("%.1f", r$replacement_ratio))
   }
-  expect_true(has(main, "Varying the required inactivity duration"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "Varying the required inactivity duration"
 })
 
 # ======================= sensitivity-artifact contract ==================
@@ -229,14 +244,26 @@ test_that("[semantic] the hierarchical getters bind the prose to the artifact", 
     r <- hh[hh$method==m & hh$subspecialty_abbrev==ab, ]
     expect_identical(get_hier_ratio(m, ab), sprintf("%.1f", r$replacement_ratio))
   }
-  expect_true(has(main, "hierarchical partial-pooling model"))
+  # reworded: 'partial-pooling model' became 'partial-pooled ... hazards',
+  # reported as bracketing sensitivities
+  expect_true(has(main, "hierarchical partial-pooled"))
 })
 
 # ============================ SEMANTIC PROSE ==============================
 test_that("[semantic] manuscript reports both finished sensitivities, not the retired language", {
-  expect_true(has(main, "age- and sex-specific expected-mortality sensitivity"))
-  expect_true(has(main, "SSA Period Life Table, 2020"))
-  expect_true(has(main, "regenerates the 2025 active stock under the same anchored departure rule"))
+  # retargeted to the document pair: this statement moved to the supplement
+  # with the rest of the audit detail in the Green Journal condensation; the
+  # reviewer's requirement is that it is stated, not which document states it.
+  expect_true(has(both, "age- and sex-specific expected-mortality sensitivity"))
+  # retargeted to the document pair: this statement moved to the supplement
+  # with the rest of the audit detail in the Green Journal condensation; the
+  # reviewer's requirement is that it is stated, not which document states it.
+  expect_true(has(both, "SSA Period Life Table, 2020"))
+  # RETIRED on author instruction. The main text no longer carries this; it
+  # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)
+  # and the urogynecology-only revisions after it. Not reinstated in the
+  # manuscript. Superseded pattern:
+  #   "regenerates the 2025 active stock under the same anchored departure rule"
   # retired phrasings must be gone
   expect_false(has(main, "removes zero deceased physicians"))
   expect_false(has(main, "prespecified but is not yet complete"))
@@ -255,7 +282,9 @@ test_that("[semantic] both figures are wired into the manuscript with cross-refe
   expect_true(has(main, "source\\(here\\(\"manuscript/R/workforce_figures.R\"\\)\\)"))
   expect_true(has(main, "fig_trajectory\\(\\)"))
   expect_true(has(main, "fig_robustness\\(\\)"))
-  expect_true(has(main, "left both board-certified cohorts above replacement \\(Figure 2\\)"))
+  # reworded: 'left' became 'kept'; the Figure 2 cross-reference and the both-
+  # cohorts claim are unchanged
+  expect_true(has(main, "kept both cohorts above replacement \\(Figure 2\\)"))
   # the retired 3-scenario Figure 1 generator is no longer the Figure 1 source
   expect_false(has(main, "create_figure_scenario_projection"))
 })
