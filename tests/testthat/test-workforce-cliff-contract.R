@@ -229,7 +229,11 @@ test_that("SEM9: helpers report graduates (sum entrants), not total workforce", 
   # 4-year fellowship totals use the horizon constant.
   for (ab in c("URPS", "GO", "MIGS")) {
     ent <- df$annual_entrants[df$subspecialty_abbrev == ab]
-    expect_equal(get_fellowship_total_5yr(ab),
+    # get_fellowship_total_5yr() was a compat alias kept across the 5-year ->
+    # 4-year horizon standardisation (2026-07-15) and has since been removed.
+    # get_fellowship_total_4yr() is the entrants x horizon computation this
+    # assertion is about, and is named for the horizon it actually uses.
+    expect_equal(get_fellowship_total_4yr(ab),
                  format(ent * WORKFORCE_PROJECTION_HORIZON_YEARS, big.mark = ","))
   }
 })
@@ -300,7 +304,7 @@ test_that("SEM14: fellowship totals are 4-year and the two getters agree", {
     expect_equal(get_fellowship_total(ab),
                  format(targets[[ab]], big.mark = ","))
     # Column reader and entrants*horizon computation must agree.
-    expect_equal(get_fellowship_total(ab), get_fellowship_total_5yr(ab))
+    expect_equal(get_fellowship_total(ab), get_fellowship_total_4yr(ab))
   }
 })
 
