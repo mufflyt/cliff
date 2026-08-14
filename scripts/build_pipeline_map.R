@@ -24,8 +24,15 @@ READ_FNS  <- "read[._]csv|fread|read_delim|read_tsv|read\\.table|readRDS|read_pa
 
 # radix sort = C collation, so the order does not depend on the caller's locale.
 # A locale-dependent order makes the guard in test-pipeline-map-current.R flap.
-scripts <- sort(list.files(here::here("scripts"), pattern = "[.]R$",
-                           recursive = TRUE, full.names = TRUE), method = "radix")
+# Scan every directory that can write into data/, not just scripts/. code/ holds
+# the legacy pipeline, and it contains a second writer of the SSOT; a map that
+# only looked at scripts/ hid that.
+SRC_DIRS <- c("scripts", "code", "R")
+scripts <- sort(unlist(lapply(SRC_DIRS, function(d) {
+  p <- here::here(d)
+  if (dir.exists(p)) list.files(p, pattern = "[.]R$", recursive = TRUE, full.names = TRUE)
+  else character(0)
+})), method = "radix")
 rd <- function(p) paste(readLines(p, warn = FALSE), collapse = "\n")
 
 # Resolve one level of variable indirection: OUT <- here::here("data","x.csv")
@@ -95,6 +102,8 @@ lines <- c(
   "",
   sprintf("%d generators writing %d artifacts.",
           length(rows), length(unique(unlist(lapply(rows, `[[`, "writes"))))),
+  "",
+  "Sources scanned: `scripts/`, `code/`, `R/`.",
   "",
   "| Generator | Writes | Reads | Requires |",
   "|---|---|---|---|")

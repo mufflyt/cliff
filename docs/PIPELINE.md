@@ -12,10 +12,29 @@ inputs under `CLIFF_ISOCHRONES_ROOT` (default `~/isochrones`); *v3.0.0 parquet*
 means `CLIFF_URPS_SNAPSHOT`; *DuckDB* means the external credentials database.
 Scripts with no requirements run from a clean checkout.
 
-49 generators writing 77 artifacts.
+66 generators writing 100 artifacts.
+
+Sources scanned: `scripts/`, `code/`, `R/`.
 
 | Generator | Writes | Reads | Requires |
 |---|---|---|---|
+| `R/infer_fellowship_training.R` | `fellowship_duplicate_npi_report.csv` | `zip_centroids.csv` | `DuckDB` |
+| `code/01_consolidate_workforce_data.R` | `workforce_projections_consolidated.csv` | -- | -- |
+| `code/04_compare_scenarios.R` | `scenario_comparison.csv` | `workforce_projections_consolidated.csv` | -- |
+| `code/06_retirement_sensitivity.R` | `retirement_sensitivity.csv` | `workforce_projections_consolidated.csv` | -- |
+| `code/07_create_table1.R` | `table1_physicians.csv` | -- | -- |
+| `code/archived/analyze_colorado_radiation_oncology_cancer_integration.R` | `cancer_coverage_analysis.csv`<br>`colorado_radiation_oncologists_processed.csv`<br>`geographic_summary_with_cancer_data.csv`<br>`health_system_coverage.csv` | `colorado_cervical_cancer_by_county.csv`<br>`colorado_radiation_oncologists_real.csv` | -- |
+| `code/archived/comprehensive_colorado_analysis.R` | `accessibility_summary.csv`<br>`critical_intervention_areas.csv`<br>`integrated_priority_analysis.csv` | `accessibility_analysis.csv`<br>`acs_demographics.csv`<br>`cancer_coverage_analysis.csv`<br>`provider_locations.csv` | -- |
+| `code/archived/demo_cancer_workforce_integration.R` | `example_colorado_gyn_onc_providers.csv` | `colorado_cervical_cancer_by_county.csv` | -- |
+| `code/archived/example_colorado_radiation_oncology.R` | `enriched_providers.csv`<br>`example_colorado_radiation_oncologists.csv` | -- | -- |
+| `code/archived/geocode_colorado_radiation_oncologists.R` | `colorado_radiation_oncology_geocoded.csv` | `colorado_radiation_oncologists_real.csv` | -- |
+| `code/archived/geocode_colorado_radiation_oncologists_proper.R` | `colorado_radiation_oncology_geocoded.csv` | `colorado_radiation_oncologists_real.csv` | -- |
+| `code/archived/geocode_failed_addresses_here_api.R` | `colorado_radiation_oncology_complete.csv` | `colorado_radiation_oncologists_real.csv`<br>`colorado_radiation_oncology_simple.csv` | -- |
+| `code/archived/process_colorado_cancer_data.R` | `colorado_cervical_cancer_by_county.csv` | -- | -- |
+| `code/archived/quick_geocode_for_isochrones.R` | `colorado_radiation_oncology_simple.csv` | `colorado_radiation_oncologists_real.csv` | -- |
+| `code/archived/run_specialty_analysis.R` | `01_enriched_providers.csv`<br>`02_retirement_analysis.csv`<br>`04_workforce_projections.csv` | -- | -- |
+| `code/archived/test_pipeline_simple.R` | `simple_pipeline_test.csv` | -- | `DuckDB` |
+| `code/archived/validate_age_estimation.R` | `age_estimation_validation_data.csv` | -- | `DuckDB` |
 | `scripts/abu_pathway_sensitivity.R` | `abu_pathway_sensitivity.csv` | `departure_anchor.csv`<br>`urps_ages_v3_279_abu.csv` | -- |
 | `scripts/age_proxy_validation.R` | `age_proxy_validation.csv` | `table1_physician_characteristics.csv` | `isochrones checkout`<br>`DuckDB` |
 | `scripts/age_shift_sensitivity.R` | `age_shift_sensitivity.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`workforce_projections_consolidated.csv` | `isochrones checkout`<br>`mufflyaccess` |

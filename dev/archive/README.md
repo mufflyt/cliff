@@ -70,8 +70,20 @@ of 1,295 / 1,332 / 1,339 in production code.
 
 ---
 
-## Not archived, but worth knowing
+## Not archived
 
-`SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md` (root) is a live plan and stays there,
-but one row of its lineage table still gives the consolidated hazard pipeline a
-baseline of **1,295**. That row is stale; the rest of the document is not.
+`SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md` (root) is a live plan and stays there.
+Its stale 1,295 rows were corrected in place on 2026-08-14 rather than archived,
+because the rest of the document is current: lineage A is marked retired and
+un-runnable, the side-by-side gives 1,306 as adopted, and the baseline
+reconciliation is closed on the cliff side with `simulation`'s 1,169@2022 noted
+as still open.
+
+Chasing that one row found something else: lineage A
+(`code/01_consolidate_workforce_data.R`) writes the SSOT, and was the only
+non-canonical writer of it that was **not** locked. It is now locked behind
+`WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE=1`, matching
+`scripts/rebuild_ssot_final.R` and `scripts/rebuild_ssot_dynamic_acgme.R`. It
+cannot run today because its archived input is absent, but restoring that archive
+would have let `code/00_RUN_ALL.R` silently rebuild the SSOT on the retired 1,295
+basis.

@@ -73,7 +73,7 @@ Patient-level Markov onset/progression/mortality over urinary-incontinence state
 
 | Lineage | Baseline (2025) | Engine | Where |
 |---|---|---|---|
-| A. Consolidated hazard pipeline | **1,295** | Reads archived Monte-Carlo table; `projected = base − 4·retire + 4·entrants` | `code/01_consolidate_workforce_data.R:43-48,146-148` |
+| A. Consolidated hazard pipeline | ~~**1,295**~~ **retired** | Reads an archived 2025-09-28 Monte-Carlo table. **Cannot run: that archive is absent from the repository.** It also wrote the SSOT, and was the only non-canonical writer not locked; it is now locked behind `WORKFORCE_ALLOW_NONCANONICAL_SSOT_WRITE=1` like the other two | `code/01_consolidate_workforce_data.R:43-48,146-148` |
 | B. Age-structured supply | **1,339** | `length(URPS_AGES)` + age-band Beta-posterior hazards + entrant inflow (`GRAD_URPS` mean 64/yr) | `shiny_urps_scenarios/urps_model_data.R:7,13,19-20`; `scripts/urps_supply_demand_national_2026-07-23.R:40-64` |
 | C. mufflyaccess contract | **1,306** (2023 active, v3.0.0) / 1,027 ABOG-only / **1,339** (2025 roster snapshot); 1,332/1,329 are RETIRED v2.1.0 cells | `mufflyaccess::urps_count()` — the intended canonical server | `R/urps_baseline.R:21-29`; `tests/testthat/test-mufflyaccess-contract.R` |
 | — Figure literals | 1,700; 1,283/1,301; 1,196 | Standalone hardcoded series | `scripts/fig_urogyn_supply_demand.R:13-15`; `scripts/fig_fpmrs_supply_line.R:24-44` |
@@ -97,7 +97,7 @@ Patient-level Markov onset/progression/mortality over urinary-incontinence state
 
 | | `simulation` (DPMM) | `cliff` |
 |---|---|---|
-| Supply baseline | 1,169 (2022) | 1,295 / 1,306 / 1,339 (2025) |
+| Supply baseline | 1,169 (2022) | **1,306** (2023 active, adopted); 1,295 legacy-frozen, 1,339 roster snapshot |
 | Supply CIs | No | Yes |
 | Age structure / hazards | No | Yes (Module A + Beta hazards) |
 | Productivity-adjusted FTE | No (label only) | Yes (Module A "effective") |
@@ -111,10 +111,14 @@ Patient-level Markov onset/progression/mortality over urinary-incontinence state
 
 ## 2. Three blockers before *any* number can be incorporated
 
-1. **Baseline reconciliation.** There are now **four** urogyn baselines in play
-   (1,169 / 1,295 / 1,306 / 1,339). cliff already flags the 1,295-vs-1,339 clash as a required
-   **PI decision** (`dev/archive/URPS_CONTAINMENT_AND_BASELINE_NOTES.md:60-95` (archived; resolved to 1,306)). Nothing can be coherently
-   incorporated until there is **one** agreed baseline cell (year, geography, pathway, measure).
+1. **Baseline reconciliation.** ✅ **Resolved on the cliff side (2026-08-14).** The agreed
+   cell is **1,306** = 2023 board-certified active, national, both-pathway (ABOG 1,027 + ABU
+   net-new 279), defined by the isochrones v3.0.0 snapshot's `active_2023` gate and served by
+   `mufflyaccess::urps_count()`. Neither candidate in the old 1,295-vs-1,339 clash won: 1,295
+   is retained only as the frozen legacy SGS projection cohort, and 1,339 is the 2025 roster
+   snapshot, a different measure. `tests/testthat/test-no-unqualified-urps-baseline.R` fails on
+   any unqualified use of either in production code. **Still open:** `simulation`'s 1,169@2022
+   must be roll-forwarded and pathway-decomposed to be comparable.
    `simulation`'s 1,169@2022 must be roll-forwarded and pathway-decomposed to even be comparable.
 
 2. **`simulation`'s demand engine must be (a) calibrated and (b) wired to FTE.** The prevalence
@@ -232,8 +236,10 @@ population, years, transformation, uncertainty, **model version**, and a frozen 
 
 ## 5. Concrete first PRs (smallest useful units)
 
-1. **Baseline reconciliation note** — one table reconciling 1,169/1,295/1,306/1,339 with the PI's
-   chosen cell (cliff, docs only).
+1. ~~**Baseline reconciliation note**~~ — ✅ **landed on the cliff side**: the chosen cell is
+   1,306, its derivation is in `data/consort_cohort_flow.csv` (written by
+   `scripts/algorithm_supplement_data.R`), and `PROVENANCE.md` carries the per-column lineage.
+   What remains is reconciling `simulation`'s 1,169@2022 against it.
 2. **`simulation` versioned demand export** — ✅ **landed** (`R/export_demand_contract.R`,
    `export_dpmm_demand_contract()`): writes tidy `dpmm_demand_contract_v<ver>.csv`
    (`model, model_version, calibration_status, denominator_tier, calendar_year, prevalence,
