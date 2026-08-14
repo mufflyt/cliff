@@ -157,21 +157,41 @@ test_that("GATE: every artifact carrying a URPS baseline agrees with the SSOT", 
 })
 
 # ---- known-stale, tracked rather than hidden ---------------------------------
-test_that("feminization_sensitivity reconciles to the SSOT", {
+test_that("feminization_sensitivity is on the ABOG-pathway cohort the supplement claims", {
   skip_if_no_ssot()
   skip_if_not(file.exists(.data("feminization_sensitivity.csv")), "artifact not present")
-  # KNOWN STALE, awaiting a decision (2026-08-14). This artifact carries URPS
-  # baseline 1,031 / ratio 5.00 and GO 7.35 -- an even older vintage than the
-  # 1,295 one, and the ORIGIN of the "Gynecologic Oncology 7.35" that survived
-  # in the S4b sentence. It has no generator in this repository or in isochrones,
-  # so regenerating it would mean inventing the sex-composition derivation.
-  # It is rendered in the supplement, so this is reader-facing.
-  skip("PENDING: feminization_sensitivity.csv is on a pre-1,306 basis and has no generator")
   d <- utils::read.csv(.data("feminization_sensitivity.csv"), stringsAsFactors = FALSE)
+  urps <- d[d$subspecialty_abbrev == "URPS", ]
+
+  # This artifact must NOT reconcile to the headline ratio, and an earlier version
+  # of this gate was wrong to demand it. The URPS row is deliberately
+  # ABOG-PATHWAY ONLY: sex is ascertainable only for the ABOG-certified cohort
+  # (the ABU roster carries no sex field), and its entrant count is the 48
+  # OB/GYN-sponsored fellows, not the both-pathway 64. The supplement states this
+  # and states the consequence -- that the ratio here is LOWER than the headline.
+  # What must hold is that the cohort is the ABOG-pathway active count, which is
+  # where this artifact really had drifted: it carried the pre-v3.0.0 1,031 while
+  # the prose beside it read the v3.0.0 count from the consort flow.
+  skip_if_not(requireNamespace("mufflyaccess", quietly = TRUE), "mufflyaccess not installed")
+  abog_only <- mufflyaccess::urps_count(
+    year = 2023L, measure = "board_certified_active", geography = "national",
+    include_urology = FALSE, incomplete = "error")
+  expect_equal(as.integer(urps$baseline), as.integer(abog_only))
+  # and the disclosed relation to the headline still holds
+  expect_lt(urps$ratio_sexneutral, sv("URPS", "replacement_ratio"))
+  # every cohort stays above replacement, which is what the appendix asserts
+  expect_true(all(d$ratio_fem_entrants85 > 1.05))
+})
+
+test_that("the supplement's ABOG-only cohort size matches the feminization artifact", {
+  skip_if_not(file.exists(.data("feminization_sensitivity.csv")), "artifact not present")
+  skip_if_not(file.exists(.data("consort_cohort_flow.csv")), "consort flow not present")
+  d <- utils::read.csv(.data("feminization_sensitivity.csv"), stringsAsFactors = FALSE)
+  cflow <- utils::read.csv(.data("consort_cohort_flow.csv"), stringsAsFactors = FALSE)
+  # the prose beside Appendix Table S8 reads active_baseline from the consort
+  # flow; the table beneath it must be computed on the same cohort
   expect_equal(as.integer(d$baseline[d$subspecialty_abbrev == "URPS"]),
-               as.integer(sv("URPS", "baseline_2025")))
-  expect_equal(round(d$ratio_sexneutral[d$subspecialty_abbrev == "URPS"], 2),
-               round(sv("URPS", "replacement_ratio"), 2), tolerance = 5e-3)
+               as.integer(cflow$active_baseline[cflow$ab == "URPS"]))
 })
 
 # ---- Hall of Shame: values that were once published and must never return -----
