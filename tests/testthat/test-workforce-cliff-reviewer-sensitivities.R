@@ -134,7 +134,10 @@ test_that("[adversarial] every graduate-supply scenario stays above replacement"
     expect_true(all(r$replacement_ratio > 1.0), info = ab)          # above one-for-one
     # flat recent mean reconciles to the primary headline ratio
     fm <- r$replacement_ratio[r$scenario == "flat_recent_mean"]
-    expect_equal(round(fm, 1), if (ab == "GO") 7.1 else 5.6)
+    # Tie to the SSOT rather than a literal: the URPS ratio moved 5.61 -> 5.38
+    # when the baseline was migrated 1295 -> 1306, and a hardcoded 5.6 here
+    # silently outlived that migration.
+    expect_equal(round(fm, 1), round(ssot_ratio(ab), 1), info = ab)
     # cohort accounting (most recent year) >= contraction (recent low)
     expect_gte(r$replacement_ratio[r$scenario=="cohort_accounting"], r$replacement_ratio[r$scenario=="contraction"])
   }
@@ -195,9 +198,13 @@ test_that("[contract] sensitivity-artifact contract passes for committed artifac
 test_that("[adversarial] hierarchical partial-pooling stays above replacement and shrinks between unpooled and pooled", {
   hh <- csv("hierarchical_hazard_comparison.csv")
   for (m in c("unpooled", "pooled", "partial_pooled")) expect_true(all(c("GO","URPS") %in% hh$subspecialty_abbrev[hh$method == m]), info = m)
-  # pooled method must reconcile to the SSOT primary ratios (7.11 / 5.38)
-  expect_equal(round(hh$replacement_ratio[hh$method=="pooled" & hh$subspecialty_abbrev=="GO"],1), 7.1)
-  expect_equal(round(hh$replacement_ratio[hh$method=="pooled" & hh$subspecialty_abbrev=="URPS"],1), 5.6)
+  # pooled method must reconcile to the SSOT primary ratios, read from the SSOT
+  # rather than restated here (the literal 5.6 was the pre-1306 vintage, and
+  # contradicted this comment's own "5.38" the moment the baseline moved)
+  for (ab in c("GO", "URPS"))
+    expect_equal(round(hh$replacement_ratio[hh$method == "pooled" &
+                                            hh$subspecialty_abbrev == ab], 1),
+                 round(ssot_ratio(ab), 1), info = ab)
   for (ab in c("GO","URPS")) {
     un <- hh$replacement_ratio[hh$method=="unpooled" & hh$subspecialty_abbrev==ab]
     po <- hh$replacement_ratio[hh$method=="pooled"   & hh$subspecialty_abbrev==ab]

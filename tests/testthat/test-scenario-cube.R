@@ -71,7 +71,16 @@ test_that("the builder's scenario levers match the mufflyaccess registry", {
                 utils::packageVersion("mufflyaccess") >= "0.9.0" &&
                 "urps_scenarios" %in% getNamespaceExports("mufflyaccess"),
               "requires mufflyaccess >= 0.9.0 (scenario registry)")
-  expect_setequal(REGISTRY_IDS, mufflyaccess::urps_scenario_ids())
+  # This cube is a SUPPLY projection: it varies retirement timing, entry and
+  # late-career FTE. mufflyaccess 0.10.0 added five family == "demand" scenarios
+  # that move the demand side only and carry requires_demand_model == TRUE; they
+  # are out of scope for a supply cube. Tie to the supply subset, derived from
+  # the registry rather than re-listed here, so a future supply lever added
+  # upstream still fails this guard.
+  reg <- mufflyaccess::urps_scenarios()
+  expect_setequal(REGISTRY_IDS, reg$scenario_id[!reg$requires_demand_model])
+  # every demand scenario is genuinely absent from the cube, not silently dropped
+  expect_length(intersect(REGISTRY_IDS, reg$scenario_id[reg$requires_demand_model]), 0L)
 })
 
 test_that("the cube passes the mufflyaccess projection contract (validate + baseline_tie)", {
