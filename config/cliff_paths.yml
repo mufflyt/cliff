@@ -84,3 +84,16 @@ dmdm_demand_contract:
   # calibration_status. Point it at your local simulation checkout output.
   path: /Users/tylermuffly/simulation/dpmm_outputs/dmdm_demand_contract_v0.1.0.csv
   env: WORKFORCE_DMDM_DEMAND_CONTRACT
+
+access_surface:
+  # Tract-level drive-time access surface emitted by the simulation repo's E2SFCA
+  # layer (run_geographic_access()$access), whose decay + wait response are fitted
+  # and geographically validated by the isochrone access-response pipeline
+  # (simulation/R/calibration-isochrone_access_response.R). Columns: demand_id
+  # (11-digit tract GEOID), access, population (+ optional access_scaled,
+  # n_providers, and provenance: isochrone_run_id/sigma/wait_scale/
+  # calibration_status). Consumed by Module D v2 as the drive-time refinement of
+  # the straight-line county access metric, behind CLIFF_USE_ACCESS_SURFACE.
+  # Optional by design: absent file -> Module D v1 (straight-line) only.
+  path: /Users/tylermuffly/simulation/dpmm_outputs/access_surface_v0.1.0.csv
+  env: WORKFORCE_ACCESS_SURFACE

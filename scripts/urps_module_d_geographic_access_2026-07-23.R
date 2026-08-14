@@ -5,17 +5,22 @@
 # live. Metric: for each CONUS county, straight-line distance (county centroid)
 # to the nearest urogynecologist, and the women-65+-per-urogyn catchment ratio.
 #
-# Straight-line (great-circle) access, NOT drive-time. Drive-time refinement via
-# the project's Valhalla isochrone pipeline is the natural Module D v2; this v1
-# gives the first defensible national picture of geographic concentration.
+# Straight-line (great-circle) access is the v1 metric. Drive-time refinement via
+# the project's Valhalla isochrone pipeline is Module D v2, now wired: when the
+# simulation repo's fitted+validated drive-time access surface is available, this
+# script joins a population-weighted county drive-time-access column alongside the
+# straight-line metric (opt-in; see step 4b). v1 stands alone when it is absent.
 #
 # Inputs : data/{abu,abog}_all_urps_ENRICHED_2026-07-22.csv (active only)
 #          data/reference/zcta_centroids_2020.csv  (ZIP -> lat/lon)
 #          ACS 2019-2023 5-yr B01001 female 65+ by county (tidycensus)
 #          tigris county cartographic boundaries (2023)
+#          [optional] simulation access surface (CLIFF_USE_ACCESS_SURFACE=1 +
+#          config/cliff_paths.yml::access_surface) -> drive_time_access column
 # Outputs: data/urps_module_d_county_access_2026-07-23.csv
 #          data/urps_module_d_points_2026-07-23.csv  (map layer)
 #          data/urps_module_d_summary_2026-07-23.csv
+#          [optional] data/urps_module_d_drivetime_access_2026-07-23.csv (v2)
 suppressPackageStartupMessages({
   library(data.table); library(tidycensus); library(tigris); library(sf); library(dplyr)
 })
@@ -89,6 +94,31 @@ out[, women65_per_urogyn_100mi := ifelse(n_urogyn_within_100mi>0,
                                           round(women_65plus / n_urogyn_within_100mi), NA_integer_)]
 lon <- st_coordinates(ctr)[,1]; lat <- st_coordinates(ctr)[,2]
 out[, `:=`(centroid_lon=round(lon,4), centroid_lat=round(lat,4))]
+
+## ── 4b. drive-time access surface refinement (Module D v2), optional ──────────
+# When the simulation repo's isochrone access-response pipeline has emitted a
+# tract-level drive-time access surface, join a population-weighted county
+# drive-time-access column alongside the straight-line metric. Off by default:
+# enable with CLIFF_USE_ACCESS_SURFACE=1 and a resolvable access_surface path
+# (config/cliff_paths.yml). Absent -> straight-line (v1) only, unchanged.
+source("R/access_surface.R")
+surface_flag <- tolower(Sys.getenv("CLIFF_USE_ACCESS_SURFACE", "")) %in% c("1","true","yes","on")
+surface_path <- if (surface_flag && file.exists("R/wc_path.R")) {
+  source("R/wc_path.R"); tryCatch(wc_path("access_surface"), error=function(e) NULL)
+} else NULL
+surface <- read_access_surface(surface_path)
+if (surface_flag && is.null(surface))
+  message("CLIFF_USE_ACCESS_SURFACE set but access surface not found; Module D straight-line (v1) only.")
+if (access_surface_usable(surface)) {
+  cty_dt <- as.data.table(county_drive_time_access(surface))
+  cty_dt[, drive_time_access := round(drive_time_access, 3)]
+  out <- merge(out, cty_dt[, .(GEOID, drive_time_access, n_tracts)], by="GEOID", all.x=TRUE)
+  run_id <- if (!is.null(surface$provenance$isochrone_run_id)) surface$provenance$isochrone_run_id else "NA"
+  cstat  <- if (!is.null(surface$provenance$calibration_status)) surface$provenance$calibration_status else "NA"
+  message(sprintf("Drive-time access surface joined: %d/%d counties covered (isochrone run %s, status %s).",
+                  sum(!is.na(out$drive_time_access)), nrow(out), run_id, cstat))
+}
+
 setorder(out, -miles_to_nearest)
 fwrite(out, "data/urps_module_d_county_access_2026-07-23.csv")
 fwrite(uro[, .(npi, pathway, state, zip5, lat, lon)],
@@ -130,4 +160,19 @@ print(summ, nrow=99)
 cat("\n--- 10 most access-poor counties (highest women 65+ furthest from a urogyn) ---\n")
 print(out[miles_to_nearest>60][order(-women_65plus)][1:10,
          .(county, state, women_65plus, miles_to_nearest, n_urogyn_within_100mi)])
+if ("drive_time_access" %in% names(out)) {
+  cov <- out[!is.na(drive_time_access)]
+  # Direction check: drive-time access (higher = better) should fall as the
+  # straight-line distance to the nearest urogyn (higher = worse) rises, so a
+  # negative Spearman rho confirms the two measures agree on where access is poor.
+  rho <- if (nrow(cov) > 2L)
+    suppressWarnings(cor(cov$miles_to_nearest, cov$drive_time_access, method="spearman"))
+    else NA_real_
+  cat(sprintf("\n--- MODULE D v2: drive-time access surface ---\n%d/%d counties covered; Spearman(miles_to_nearest, drive_time_access) = %.2f (expect < 0).\n",
+              nrow(cov), nrow(out), rho))
+  fwrite(cov[, .(GEOID, county, state, women_65plus, miles_to_nearest,
+                 drive_time_access, n_tracts)][order(drive_time_access)],
+         "data/urps_module_d_drivetime_access_2026-07-23.csv")
+  cat("Wrote v2 drive-time access CSV to data/urps_module_d_drivetime_access_2026-07-23.csv\n")
+}
 cat("\nWrote county / points / summary CSVs to data/urps_module_d_*_2026-07-23.csv\n")
