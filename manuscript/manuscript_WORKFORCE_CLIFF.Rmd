@@ -65,6 +65,21 @@ knitr::opts_chunk$set(
   fig.path = "figures/",
   dpi = 300
 )
+
+# Cohort-derivation counts, read from the consort flow rather than restated in
+# prose. get_baseline("URPS") was already inline, but its two components were
+# hand-written, so a change in the ABOG/ABU split would have updated the total
+# and silently left the parts stale.
+.consort <- utils::read.csv(here("data", "consort_cohort_flow.csv"),
+                            stringsAsFactors = FALSE)
+cf <- function(col) {
+  v <- .consort[[col]][.consort$ab == "URPS"]
+  if (length(v) != 1L) stop("[manuscript] no unique consort value for ", col)
+  as.integer(v)
+}
+nfmt <- function(x) format(x, big.mark = ",", trim = TRUE)
+# Fail closed if the parts stop summing to the baseline the prose reports.
+stopifnot(cf("active_baseline") + cf("abu_included") == cf("active_baseline_final"))
 ```
 
 # Title Page
@@ -115,7 +130,7 @@ This was a dynamic stock-and-flow projection built from retrospective administra
 
 ## Physician Cohort and Both-Pathway Urogynecology Roster
 
-Subspecialty was defined by board certification rather than administrative taxonomy codes. Urogynecology and reconstructive pelvic surgery is certified through both the American Board of Obstetrics and Gynecology (ABOG) and the American Board of Urology (ABU); because the Accreditation Council for Graduate Medical Education (ACGME) graduate count spans both, we built a both-pathway roster of ABOG-certified urogynecologists plus ABU-certified urogynecologists not already included. ABU physicians were matched to National Provider Identifiers and de-duplicated against the ABOG cohort, with taxonomy-based adjudication of same-name matches (Appendix S1). The estimated 2025 active urogynecology workforce was `r get_baseline("URPS")`, comprising 1,027 ABOG-certified urogynecologists and 279 ABU physicians whose subspecialty certification was effective by 2023.[@plaska2025] Each physician's age was reconstructed from the subspecialty certification year where recorded and otherwise from a fellowship-timing proxy. As external evidence of active practice, most urology-pathway physicians had Medicare fee-for-service procedure activity in the empirically defined pelvic floor code set in 2024. **[[AUTHOR QUERY: Clarify the 2024 Medicare procedure-validation source versus the 2013–2023 Medicare Part B analysis window.]]** Gynecologic oncology was identified from ABOG records as a supply-side comparator. Minimally invasive gynecologic surgery is a voluntary focused-practice designation, not a board certification, and was excluded from the primary analysis (Appendix S13). No geographic restriction was applied; fewer than three subspecialists practiced outside the contiguous states.
+Subspecialty was defined by board certification rather than administrative taxonomy codes. Urogynecology and reconstructive pelvic surgery is certified through both the American Board of Obstetrics and Gynecology (ABOG) and the American Board of Urology (ABU); because the Accreditation Council for Graduate Medical Education (ACGME) graduate count spans both, we built a both-pathway roster of ABOG-certified urogynecologists plus ABU-certified urogynecologists not already included. ABU physicians were matched to National Provider Identifiers and de-duplicated against the ABOG cohort, with taxonomy-based adjudication of same-name matches (Appendix S1). The estimated 2025 active urogynecology workforce was `r get_baseline("URPS")`, comprising `r nfmt(cf("active_baseline"))` ABOG-certified urogynecologists and `r nfmt(cf("abu_included"))` ABU physicians whose subspecialty certification was effective by 2023.[@plaska2025] Each physician's age was reconstructed from the subspecialty certification year where recorded and otherwise from a fellowship-timing proxy. As external evidence of active practice, most urology-pathway physicians had Medicare fee-for-service procedure activity in the empirically defined pelvic floor code set in 2024. **[[AUTHOR QUERY: Clarify the 2024 Medicare procedure-validation source versus the 2013–2023 Medicare Part B analysis window.]]** Gynecologic oncology was identified from ABOG records as a supply-side comparator. Minimally invasive gynecologic surgery is a voluntary focused-practice designation, not a board certification, and was excluded from the primary analysis (Appendix S13). No geographic restriction was applied; fewer than three subspecialists practiced outside the contiguous states.
 
 ## Departure Classification and the Fully Observable 2016–2021 Period
 
