@@ -16,6 +16,15 @@ name: contract-tests
 # stack. (The absolute-adequacy seam's end-to-end block additionally drives the
 # calibration stack and skips cleanly where it is absent.)
 #
+# Also gated: the publication-integrity guards (no-stale-published-numbers,
+# derived-column-identities). They read only committed CSVs and the manuscript
+# sources with base R, so they need no cohort data and no tidyverse. They exist
+# because the 1,295 -> 1,306 baseline migration left stale copies of the headline
+# numbers in six different kinds of place -- a rounded derived column, orphaned
+# artifacts, hand-written prose, a kable caption, cohort parts beside an inline
+# total, and prose embedded in a data file -- and each kind hid from the checks
+# that would have caught the others.
+#
 # The CHIA all-payer demand-bridge CALIBRATION engine (chia-demand-bridge) is
 # also filtered in, but its calibration path needs the tidyverse + splines +
 # broom stack; its test skips cleanly (skip_if_not_installed) where that stack
@@ -65,6 +74,6 @@ jobs:
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity|no-stale-published-numbers|derived-column-identities",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'
