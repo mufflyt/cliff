@@ -51,6 +51,7 @@ app_files <- c(
   "app.R",
   "model.R",
   "data/urps_model_data.R",
+  "data/absolute_adequacy.R",
   "data/urps_module_a_age_productivity_2026-07-23.csv",
   "data/urps_supply_demand_national_2026-07-23.csv"
 )
