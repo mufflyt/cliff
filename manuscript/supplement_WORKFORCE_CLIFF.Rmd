@@ -23,6 +23,16 @@ source(here("manuscript/R/create_figure_stock_flow_design.R"))
 source(here("manuscript/R/workforce_figures_expanded.R"))
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 workforce_summary <- load_workforce_data()
+
+# Read the headline ratio from the SSOT rather than restating it in prose. The
+# S4b sentence used to carry a hand-written 7.35 / 5.83, which matched neither
+# the audit table it introduced nor the consolidated projection it claimed to
+# reproduce; deriving it here means it cannot go stale again.
+ssot_ratio_of <- function(ab) {
+  v <- workforce_summary$replacement_ratio[workforce_summary$subspecialty_abbrev == ab]
+  if (length(v) != 1L) stop("[supplement] no unique SSOT replacement_ratio for ", ab)
+  v
+}
 ```
 
 # Appendix S1. Supplemental Methods
@@ -492,7 +502,8 @@ board-certified cohorts, gynecologic oncology and both-pathway urogynecology, to
 strength over the sparse per-band events; MIGS excluded), applied by dynamic aging of
 each cohort's own active-age distribution with annual graduate entry. The primary
 non-Open-Payments-anchored row reproduces the consolidated projection table exactly
-(Gynecologic Oncology 7.35, URPS 5.83). The static single-year rate is shown alongside
+(Gynecologic Oncology `r sprintf("%.2f", ssot_ratio_of("GO"))`,
+URPS `r sprintf("%.2f", ssot_ratio_of("URPS"))`). The static single-year rate is shown alongside
 the dynamic four-year departures to make the difference between the two explicit; earlier
 drafts reported some sensitivities on a static, subspecialty-specific hazard, which is
 the source of any small numerical differences a reader may recall.
@@ -500,6 +511,27 @@ the source of any small numerical differences a reader may recall.
 ```{r table-s4b-audit}
 au <- readr::read_csv(here::here("data","departure_audit_table.csv"),
                       show_col_types = FALSE)
+
+# Fail closed on the claim the prose above makes. The primary row is asserted to
+# reproduce the consolidated projection; if the audit artifact and the SSOT have
+# drifted apart, the supplement must not render a table that silently contradicts
+# its own introductory sentence. departure_audit_table.csv currently has no
+# generator in this repository (it arrived with the isochrones migration), so
+# this guard is what stops a stale vintage reaching a reader.
+local({
+  prim <- au[au$definition == "primary (non-OP anchored)", ]
+  for (ab in c("GO", "URPS")) {
+    got <- prim$completion_to_departure_ratio[prim$subspecialty_abbrev == ab]
+    want <- ssot_ratio_of(ab)
+    if (length(got) != 1L || !isTRUE(all.equal(round(got, 2), round(want, 2))))
+      stop(sprintf(paste0("[supplement S4b] the primary audit row does not reproduce ",
+                          "the consolidated projection for %s: audit table %s vs SSOT %.2f. ",
+                          "Regenerate data/departure_audit_table.csv on the current ",
+                          "baseline before rendering."),
+                   ab, if (length(got) == 1L) sprintf("%.2f", got) else "<missing>", want),
+           call. = FALSE)
+  }
+})
 auv <- au %>% transmute(
   Definition = definition,
   Subspecialty = subspecialty_abbrev,
