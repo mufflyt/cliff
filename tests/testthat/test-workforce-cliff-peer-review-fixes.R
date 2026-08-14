@@ -183,8 +183,18 @@ test_that("[adversarial] ABU cohort-flow arithmetic closes: 1027 + 279 = 1306", 
   expect_equal(as.integer(u$active_baseline) + as.integer(u$abu_included),
                as.integer(u$active_baseline_final))
   expect_equal(as.integer(u$active_baseline_final), 1306L)
-  expect_equal(as.integer(u$abu_identified), 270L)
-  expect_equal(as.integer(u$abu_excluded_nocert), 6L)
+  # Component counts on the adopted 1306 baseline. The 270/6 pair pinned here
+  # previously was the pre-migration 1295 vintage (270 - 6 = 264 net new); the
+  # arithmetic assertions above and this test's own title were moved to 1306
+  # but these two constants were missed. The identity checks above are the real
+  # guard; these pin the composition so a silent recomposition that still
+  # happens to close is caught too.
+  expect_equal(as.integer(u$abu_identified), 308L)
+  expect_equal(as.integer(u$abu_excluded_nocert), 29L)
+  # and the composition must agree with the SSOT baseline it feeds
+  expect_equal(as.integer(u$active_baseline_final),
+               as.integer(csv("workforce_projections_consolidated.csv")$baseline_2025[
+                 csv("workforce_projections_consolidated.csv")$subspecialty_abbrev == "URPS"]))
 })
 
 # ---- #10/#12 OP-sensitivity: primary reproduces headline; both above replacement --
