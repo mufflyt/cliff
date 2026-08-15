@@ -78,7 +78,7 @@ Suggests:
     withr,
     zipangu
 Remotes:
-    mufflyt/mufflyaccess@b1f33acf918d71031ed7cbed79cb76d525503d4c
+    mufflyt/mufflyaccess@2b551f3ba119ddcf550612e7ea9480ac83735f7a
 Note: 'exploratory' (Exploratory.io, non-CRAN) is used by one legacy script and
     is intentionally omitted from Imports; install separately if that script is run.
 RoxygenNote: 7.3.3

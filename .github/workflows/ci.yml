@@ -1,0 +1,26 @@
+# Per-push / per-PR CI. Fast tiers only; the wide matrix and the slow gates
+# run nightly (see nightly.yml). Both call the same reusable workflow, so what
+# runs here is a strict subset of what runs at 02:17 — the nightly cannot
+# silently diverge from what contributors see.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    name: core
+    uses: ./.github/workflows/_core.yml
+    with:
+      deep: false

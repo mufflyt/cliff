@@ -1,0 +1,217 @@
+# Nightly deep CI — 02:17 America/Denver, every day.
+#
+# GitHub cron is UTC only and has no concept of daylight saving, so a single
+# entry drifts by an hour twice a year. Two entries are registered — one for
+# each Denver offset — and a guard job lets exactly one of them through by
+# checking the local hour. The alternative, picking one UTC time and accepting
+# the drift, would mean the run lands at 03:17 for eight months of the year.
+#
+#   17 08 UTC = 02:17 MDT (Mar-Nov, UTC-6)
+#   17 09 UTC = 02:17 MST (Nov-Mar, UTC-7)
+#
+# GitHub delays scheduled runs under load, sometimes by tens of minutes, so the
+# guard matches the local HOUR rather than the exact minute. A late run still
+# fires; the wrong-offset run is still filtered out.
+
+name: Nightly
+
+on:
+  schedule:
+    - cron: '17 8 * * *'    # 02:17 MDT
+    - cron: '17 9 * * *'    # 02:17 MST
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Run regardless of the local-hour guard
+        type: boolean
+        default: true
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Let exactly one of the two cron entries through per day.
+  # ---------------------------------------------------------------------------
+  when:
+    name: schedule guard
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.g.outputs.go }}
+      local: ${{ steps.g.outputs.local }}
+    steps:
+      - id: g
+        run: |
+          local_time=$(TZ=America/Denver date '+%Y-%m-%d %H:%M %Z')
+          local_hour=$(TZ=America/Denver date '+%H')
+          echo "local=$local_time" >> "$GITHUB_OUTPUT"
+          echo "Denver local time: $local_time"
+
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "manual dispatch — running"
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          elif [ "$local_hour" = "02" ]; then
+            echo "correct offset for today — running"
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "other offset's cron (local hour $local_hour) — skipping"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Everything the per-push CI runs, at the wide matrix, plus the slow tiers.
+  # ---------------------------------------------------------------------------
+  core:
+    name: core
+    needs: when
+    if: needs.when.outputs.go == 'true'
+    uses: ./.github/workflows/_core.yml
+    with:
+      deep: true
+
+  # ---------------------------------------------------------------------------
+  # The portable half of the acceptance gate: prove renv.lock itself restores
+  # into a brand-new library. scripts/acceptance/run_gate.sh is a macOS tool
+  # (framework paths, rig, Homebrew prefixes) and is not run here; this job
+  # tests the property that actually rots — the lockfile.
+  #
+  # The lockfile's repository is cloud.r-project.org, which serves SOURCE to
+  # Linux. Overriding to Posit Package Manager's binary repo turns a multi-hour
+  # compile (duckdb alone is 1802 .cpp files) into minutes without changing a
+  # single pinned version.
+  # ---------------------------------------------------------------------------
+  lockfile_restore:
+    name: renv.lock restores from nothing
+    needs: when
+    if: needs.when.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.4.2'      # the version renv.lock pins
+          use-public-rspm: true
+
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+
+      - name: Restore into a fresh library
+        env:
+          RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.posit.co/cran/__linux__/noble/latest
+          RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+          RENV_CONFIG_INSTALL_SHORTCUTS: "FALSE"
+        shell: Rscript {0}
+        run: |
+          lib <- file.path(Sys.getenv("RUNNER_TEMP"), "deplib")
+          dir.create(lib, recursive = TRUE, showWarnings = FALSE)
+          .libPaths(lib)
+          install.packages("renv")
+          cat("renv", as.character(packageVersion("renv")), "\n")
+          renv::restore(library = lib, prompt = FALSE, clean = FALSE)
+
+          ip <- rownames(installed.packages(lib.loc = lib))
+          cat("restored", length(ip), "packages\n")
+
+          # GenSA is why issue #27 stayed open: its pin was believed not to
+          # build on R >= 4.5. Report it every night so a regression surfaces.
+          if ("GenSA" %in% ip)
+            cat("GenSA:", as.character(packageVersion("GenSA", lib.loc = lib)), "OK\n")
+
+          summ <- Sys.getenv("GITHUB_STEP_SUMMARY")
+          if (nzchar(summ))
+            cat(sprintf("### Lockfile restore\n\n`renv.lock` restored **%d** packages into an empty library under R %s.\n\n",
+                        length(ip), getRversion()), file = summ, append = TRUE)
+
+  # ---------------------------------------------------------------------------
+  # Informational: how far the pinned dependencies have drifted from upstream.
+  # Never fails the run — an out-of-date pin is a decision, not a defect.
+  # ---------------------------------------------------------------------------
+  upstream_drift:
+    name: upstream pin drift (informational)
+    needs: when
+    if: needs.when.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+      - shell: Rscript {0}
+        run: install.packages("jsonlite")
+      - name: Compare pins to upstream default branches
+        run: |
+          Rscript --vanilla scripts/ci/check_pins.R --upstream | tee drift.txt
+          {
+            echo "### Upstream pin drift"
+            echo ""
+            echo '```'
+            cat drift.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # A nightly failure that nobody sees is not a gate. File one tracking issue
+  # and keep updating it, rather than opening a new issue every night.
+  # ---------------------------------------------------------------------------
+  report:
+    name: report failures
+    needs: [when, core, lockfile_restore]
+    if: ${{ always() && needs.when.outputs.go == 'true' && (needs.core.result == 'failure' || needs.lockfile_restore.result == 'failure') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Nightly CI is failing';
+            const run  = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `Nightly deep CI failed on \`${context.sha.slice(0,7)}\`.`,
+              '',
+              `| job | result |`,
+              `|---|---|`,
+              `| core (matrix, tests, smoke, render) | \`${{ needs.core.result }}\` |`,
+              `| renv.lock restores from nothing | \`${{ needs.lockfile_restore.result }}\` |`,
+              '',
+              `[Full run log](${run})`,
+              '',
+              '<sub>Filed automatically by `.github/workflows/nightly.yml`. ',
+              'This issue is reused, not reopened nightly — it will be updated ',
+              'with each subsequent failure and can be closed once the run is green.</sub>',
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'nightly-ci',
+            });
+
+            if (existing.data.length) {
+              const n = existing.data[0].number;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: n, body,
+              });
+              core.info(`Commented on existing issue #${n}`);
+            } else {
+              const made = await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['nightly-ci'],
+              });
+              core.info(`Opened issue #${made.data.number}`);
+            }

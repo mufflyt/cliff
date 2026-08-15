@@ -1,0 +1,18 @@
+# Keep the pinned action versions current. R dependencies are deliberately NOT
+# managed here: they are pinned in renv.lock and DESCRIPTION Remotes, and the
+# pin-drift guard (scripts/ci/check_pins.R) requires those two to agree. An
+# automated bump of one without the other would break that gate by design.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: sunday
+      time: "02:17"
+      timezone: America/Denver
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    labels:
+      - dependencies
