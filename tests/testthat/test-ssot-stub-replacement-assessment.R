@@ -1,4 +1,4 @@
-# SSOT guard: the TEST_MODE stub in R/manuscript_consolidate_existing_results.R used to hardcode each
+# SSOT guard: the TEST_MODE stub in scripts/manuscript_consolidate_existing_results.R used to hardcode each
 # subspecialty's replacement_assessment ("Above replacement") in parallel with its replacement_ratio. The
 # assessment is a PURE FUNCTION of the ratio (classify_replacement, manuscript/R/workforce_data_contract.R),
 # and the production path already derives it (line ~209). The stub now derives it too, so the fixture cannot
@@ -18,7 +18,7 @@ classify <- ce$classify_replacement
 # build the stub via the real code path (TEST_MODE), restoring the env afterwards
 old <- Sys.getenv("TEST_MODE", unset = NA_character_)
 Sys.setenv(TEST_MODE = "1")
-suppressMessages(source(here::here("R", "manuscript_consolidate_existing_results.R")))
+suppressMessages(source(here::here("scripts", "manuscript_consolidate_existing_results.R")))
 STUB <- suppressMessages(suppressWarnings(main()))
 if (is.na(old)) Sys.unsetenv("TEST_MODE") else Sys.setenv(TEST_MODE = old)
 
@@ -41,7 +41,7 @@ test_that("[semantic] a changed ratio would change the derived label (proves fun
 })
 
 test_that("[adversarial] the stub no longer hardcodes an assessment literal beside the ratio", {
-  ls <- readLines(here::here("R", "manuscript_consolidate_existing_results.R"), warn = FALSE)
+  ls <- readLines(here::here("scripts", "manuscript_consolidate_existing_results.R"), warn = FALSE)
   stub_block <- ls[seq_len(which(grepl("return\\(invisible\\(stub\\)\\)", ls))[1])]
   # no "Above replacement" (or any assessment label) typed inside the stub tribble
   expect_false(any(grepl('"Above replacement"|"At replacement"|"Below replacement"', stub_block)))

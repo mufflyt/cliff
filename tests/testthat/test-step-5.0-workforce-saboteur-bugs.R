@@ -5,7 +5,7 @@
 skip_if_no_repo()
 # =============================================================================
 # Regression tests for the 13 saboteur-audit bugs in
-# R/manuscript_consolidate_existing_results.R  (Step 5.0)
+# scripts/manuscript_consolidate_existing_results.R  (Step 5.0)
 # (audit date: 2026-04-25)
 # =============================================================================
 # Each test guards a specific defect that the saboteur audit identified. If
@@ -14,7 +14,7 @@ skip_if_no_repo()
 
 # (context() removed: deprecated in testthat 3)
 
-src_path <- here::here("R", "manuscript_consolidate_existing_results.R")
+src_path <- here::here("scripts", "manuscript_consolidate_existing_results.R")
 src_text <- readLines(src_path, warn = FALSE)
 
 contains <- function(pattern, text = src_text) {
