@@ -6,6 +6,11 @@
 \usage{
 wc_haz_for(age, hz)
 }
+\arguments{
+\item{age}{[numeric]: Ages to look the hazard up for.}
+
+\item{hz}{[numeric]: Named age-band hazard vector.}
+}
 \description{
 Per-band hazard lookup (missing bands filled with the max, capped at 1).
 }

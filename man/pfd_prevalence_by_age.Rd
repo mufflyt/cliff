@@ -6,6 +6,9 @@
 \usage{
 pfd_prevalence_by_age(age)
 }
+\arguments{
+\item{age}{[numeric]: Age in years, vectorised.}
+}
 \description{
 Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
 }

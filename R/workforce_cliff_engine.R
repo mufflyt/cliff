@@ -62,6 +62,8 @@ wc_band_of <- function(age) as.character(cut(age, breaks = WC_BANDS, labels = WC
 #' Load the ABOG cohort, optionally applying the non-Open-Payments departure anchor.
 #' Returns npi, ab, cert_year, ry (anchored), ret, age, sex. Identical to the block
 #' previously duplicated in each script (plus a harmless `sex` column).
+#' @param apply_anchor [logical]: Apply the non-Open-Payments departure anchor.
+#' @param here_fn [function]: Path resolver, injectable so a caller outside the source tree can supply its own.
 wc_load_cohort <- function(apply_anchor = TRUE, here_fn = here::here) {
   raw <- readr::read_csv(WC_COHORT_CSV, show_col_types = FALSE, guess_max = 1e5)
   for (nm in c("abog_gender", "npi_gender")) if (!nm %in% names(raw)) raw[[nm]] <- NA_character_
@@ -91,12 +93,17 @@ wc_load_abu_ages <- function() {
 }
 
 #' Primary active-age vectors per cohort (ret==FALSE + ABU net-new appended to URPS).
+#' @param coh [data.frame]: Cohort from `wc_load_cohort()`.
+#' @param abu_age [integer]: ABU urology-pathway ages to append for the both-pathway baseline.
 wc_active_ages <- function(coh, abu_age = wc_load_abu_ages()) {
   a <- coh %>% filter(ret == FALSE, !is.na(age))
   ages <- split(a$age, a$ab); ages$URPS <- c(ages$URPS, abu_age); ages
 }
 
 #' Age-band person-year + event counts over a window (GO+URPS primary rows by default).
+#' @param coh [data.frame]: Cohort from `wc_load_cohort()`.
+#' @param win [integer(2)]: Observation window, start and end year.
+#' @param rows [integer]: Row indices of `coh` to count; defaults to the primary cohorts.
 wc_band_counts <- function(coh, win = WC_WIN, rows = which(coh$ab %in% WC_PRIMARY)) {
   do.call(rbind, lapply(rows, function(i) {
     cy <- coh$cert_year[i]; ry <- coh$ry[i]
@@ -107,6 +114,8 @@ wc_band_counts <- function(coh, win = WC_WIN, rows = which(coh$ab %in% WC_PRIMAR
 }
 
 #' Per-band hazard lookup (missing bands filled with the max, capped at 1).
+#' @param age [numeric]: Ages to look the hazard up for.
+#' @param hz [numeric]: Named age-band hazard vector.
 wc_haz_for <- function(age, hz) { h <- hz[wc_band_of(age)]; h[is.na(h)] <- max(hz, na.rm = TRUE); pmin(1, h) }
 
 #' Deterministic age-structured projection. Returns list(active_2029, departures_4yr).
@@ -115,6 +124,11 @@ wc_haz_for <- function(age, hz) { h <- hz[wc_band_of(age)]; h[is.na(h)] <- max(h
 #' earlier (they face an older age's hazard). Default `0L` is byte-identical to the
 #' original engine. This is the lever mufflyaccess's scenario dictionary calls
 #' `retirement_shift_years` (pass it straight through).
+#' @param ages [numeric]: Active-age distribution at the projection start.
+#' @param entrants [numeric]: Annual entrants added at the entry age.
+#' @param hz [numeric]: Named age-band hazard vector.
+#' @param horizon [integer]: Projection horizon in years.
+#' @param age_shift [integer]: Shift of the retirement-hazard curve along age; negative retires earlier.
 wc_project <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L) {
   count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count); dep <- 0
   for (h in seq_len(horizon)) {
@@ -134,6 +148,11 @@ wc_project <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L)
 #' wc_project()$departures_4yr for the same inputs (asserted in
 #' test-wc-engine-equivalence.R); it just exposes the intermediate years the
 #' projection contract needs. `age_shift` behaves exactly as in wc_project().
+#' @param ages [numeric]: Active-age distribution at the projection start.
+#' @param entrants [numeric]: Annual entrants added at the entry age.
+#' @param hz [numeric]: Named age-band hazard vector.
+#' @param horizon [integer]: Projection horizon in years.
+#' @param age_shift [integer]: Shift of the retirement-hazard curve along age; negative retires earlier.
 wc_project_trajectory <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L) {
   count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count)
   out <- vector("list", horizon)
@@ -153,6 +172,11 @@ wc_project_trajectory <- function(ages, entrants, hz, horizon = WC_HORIZON, age_
 #' `sum(n)` equals wc_project_trajectory()$active exactly (asserted in
 #' test-wc-engine-additions.R); it exposes the age structure an age-weighted
 #' clinical-FTE calculation needs. `age_shift` behaves exactly as in wc_project().
+#' @param ages [numeric]: Active-age distribution at the projection start.
+#' @param entrants [numeric]: Annual entrants added at the entry age.
+#' @param hz [numeric]: Named age-band hazard vector.
+#' @param horizon [integer]: Projection horizon in years.
+#' @param age_shift [integer]: Shift of the retirement-hazard curve along age; negative retires earlier.
 wc_project_ages <- function(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L) {
   count <- table(ages); av <- as.integer(names(count)); count <- as.numeric(count)
   out <- vector("list", horizon)

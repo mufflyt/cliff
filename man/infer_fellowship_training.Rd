@@ -7,13 +7,15 @@
 infer_fellowship_training(physicians, programs = NULL, temporal_db_path = NULL)
 }
 \arguments{
+\item{physicians}{[data.frame]: Physician records to infer fellowship training for.
+temporal NPPES DuckDB database for Phase 0 ground truth lookup and
+Phase 2 address history. If \code{NULL}, those phases are skipped.}
+
 \item{programs}{Data frame or \code{NULL}. ACGME fellowship program
 data from \code{\link{create_otolaryngology_fellowship_programs}}. If
 \code{NULL}, loaded automatically via that function.}
 
-\item{temporal_db_path}{Character scalar or \code{NULL}. Path to the
-temporal NPPES DuckDB database for Phase 0 ground truth lookup and
-Phase 2 address history. If \code{NULL}, those phases are skipped.}
+\item{temporal_db_path}{Character scalar or \code{NULL}. Path to the}
 }
 \value{
 Data frame with original physician columns plus inferred
@@ -27,7 +29,7 @@ on their first practice location after board certification.
 
 Matches physicians to ACGME-accredited Otolaryngology fellowship programs
 using
-the same multi-phase approach as \code{\link{infer_residency_training}}:
+the same multi-phase approach as \code{infer_residency_training()}:
 \enumerate{
   \item \strong{Phase 0:} Ground truth lookup from GOBA/DOX/Healthgrades
         data in DuckDB (if \code{temporal_db_path} provided).

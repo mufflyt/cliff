@@ -6,6 +6,11 @@
 \usage{
 wc_uncertainty_sentence(u, unit = "urogynecologists")
 }
+\arguments{
+\item{u}{[list]: Uncertainty summary to render.}
+
+\item{unit}{[character]: Noun for the quantity being described.}
+}
 \description{
 One-line human phrasing of an uncertainty summary row, for logs / captions.
 }
