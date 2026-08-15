@@ -23,8 +23,10 @@ Same as haversine_distance() but returns meters instead of kilometers.
 Useful for clustering algorithms that expect meter-scale distances.
 }
 \examples{
-# Distance in meters (for clustering thresholds)
-haversine_distance_m(39.7392, -104.9903, 40.0150, -105.2705)
+if (requireNamespace("geosphere", quietly = TRUE)) {
+  # Distance in meters (for clustering thresholds)
+  print(haversine_distance_m(39.7392, -104.9903, 40.0150, -105.2705))
+}
 }
 \seealso{
 \code{\link{haversine_distance}} for kilometers,

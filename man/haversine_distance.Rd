@@ -28,11 +28,15 @@ single coordinate values (not vectors). For vectorized operations,
 see haversine_distance_vectorized().
 }
 \examples{
-# Distance from Denver to Boulder (approx 40 km)
-haversine_distance(39.7392, -104.9903, 40.0150, -105.2705)
+# geosphere is a suggested dependency, so the example guards on it: an
+# unguarded call is an R CMD check ERROR in a library that lacks it.
+if (requireNamespace("geosphere", quietly = TRUE)) {
+  # Distance from Denver to Boulder (approx 40 km)
+  print(haversine_distance(39.7392, -104.9903, 40.0150, -105.2705))
 
-# Distance from NYC to LA (approx 3936 km)
-haversine_distance(40.7128, -74.0060, 34.0522, -118.2437)
+  # Distance from NYC to LA (approx 3936 km)
+  print(haversine_distance(40.7128, -74.0060, 34.0522, -118.2437))
+}
 }
 \seealso{
 \code{\link{haversine_distance_m}} for meters,
