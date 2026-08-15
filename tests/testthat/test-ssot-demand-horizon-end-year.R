@@ -6,6 +6,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 de <- new.env(); source(here::here("R", "demand_denominator.R"), local = de)
 
 test_that("DEMAND_HORIZON_END_YEAR is the pinned 2050 horizon end (integer, after the index base)", {

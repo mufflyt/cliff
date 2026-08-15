@@ -8,6 +8,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 wc <- new.env(); source(here::here("R", "workforce_constants.R"), local = wc)
 
 test_that("canonical observed-start year is a well-formed 2013 that precedes the projection baseline", {

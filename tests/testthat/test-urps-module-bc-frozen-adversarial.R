@@ -9,6 +9,11 @@
 
 library(testthat); suppressPackageStartupMessages(library(data.table))
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 .here <- function(p) {
   # Resolve under either the isochrones layout (data/...) or the standalone
   # cliff repo layout (data/...), searched up to a few parent directories.

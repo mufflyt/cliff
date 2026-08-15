@@ -4,8 +4,14 @@
 library(testthat)
 library(here)
 
+# Repository integration test: sources R/ or data/ from the SOURCE TREE via
+# here(). An installed package has no R/*.R files, so this is inapplicable
+# rather than broken there. See helper-cliff-root.R.
+skip_if_no_repo()
+
 ee <- new.env()
 suppressPackageStartupMessages(source(here::here("R", "workforce_cliff_engine.R"), local = ee))
+
 
 test_that("WC_AGE_AT_CERT is a valid positive-integer assumption (30 years)", {
   expect_type(ee$WC_AGE_AT_CERT, "integer")

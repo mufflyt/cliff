@@ -5,6 +5,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 e <- new.env(); source(here::here("R", "access_surface.R"), local = e)
 
 # Three tracts across two counties (01001 x2, 01003 x1).

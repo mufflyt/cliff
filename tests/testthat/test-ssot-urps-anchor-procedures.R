@@ -8,6 +8,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 pc <- new.env(); source(here::here("R", "urps_procedure_codes.R"), local = pc)
 
 test_that("canonical anchor set is well-formed (4 unique codes, closed class/field, lockstep)", {

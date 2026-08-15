@@ -1,3 +1,8 @@
+
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
 # Proves the mufflyaccess contract migration keeps the three URPS baselines
 # distinct (1295 legacy / 1306 active / 1339 roster) and that none is faked
 # through urps_count(). Companion to test-no-unqualified-urps-baseline.R.

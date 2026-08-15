@@ -1,3 +1,8 @@
+
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
 # The scientific follow-up must PRESERVE the published projection while making the
 # baseline choice explicit through a CONTROLLED, same-engine comparison. These tests
 # fail if the frozen projection is ever re-baselined, or if the hardened Table 1

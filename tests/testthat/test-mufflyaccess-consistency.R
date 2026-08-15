@@ -5,6 +5,11 @@
 # test-mufflyaccess-consistency.R.
 suppressWarnings(suppressMessages(library(testthat)))
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 test_that("the shim loads mufflyaccess and every safe-division fn is reachable", {
   source(testthat::test_path("..", "..", "R", "safe_divide.R"))
   expect_true("mufflyaccess" %in% loadedNamespaces())

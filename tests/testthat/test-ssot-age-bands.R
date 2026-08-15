@@ -3,10 +3,16 @@
 # guards that every reachable copy matches the canonical and cannot silently drift.
 library(testthat)
 library(here)
+
+# Repository integration test: sources R/ or data/ from the SOURCE TREE via
+# here(). An installed package has no R/*.R files, so this is inapplicable
+# rather than broken there. See helper-cliff-root.R.
+skip_if_no_repo()
 suppressPackageStartupMessages(library(readr))
 
 ee <- new.env()
 suppressPackageStartupMessages(source(here::here("R", "workforce_cliff_engine.R"), local = ee))
+
 BANDS  <- ee$WC_BANDS
 LABELS <- ee$WC_BAND_LABELS
 

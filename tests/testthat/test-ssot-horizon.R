@@ -4,6 +4,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: sources R/ or data/ from the SOURCE TREE via
+# here(). An installed package has no R/*.R files, so this is inapplicable
+# rather than broken there. See helper-cliff-root.R.
+skip_if_no_repo()
+
 test_that("canonical horizon is a valid positive-integer scalar", {
   e <- new.env(); source(here::here("R", "workforce_constants.R"), local = e)
   expect_type(e$WORKFORCE_PROJECTION_HORIZON_YEARS, "integer")
@@ -15,6 +20,7 @@ test_that("canonical horizon is a valid positive-integer scalar", {
 test_that("engine WC_HORIZON derives from the canonical constant (== 4L for this study)", {
   e <- new.env()
   suppressPackageStartupMessages(source(here::here("R", "workforce_cliff_engine.R"), local = e))
+
   expect_identical(e$WC_HORIZON, e$WORKFORCE_PROJECTION_HORIZON_YEARS)
   expect_identical(e$WC_HORIZON, 4L)   # Hall-of-Shame pin: 2025 -> 2029 = 4 transitions
 })

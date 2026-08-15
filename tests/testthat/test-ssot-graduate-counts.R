@@ -3,10 +3,16 @@
 # self-contained Shiny copy must agree; engine-sourcing scripts must not re-hardcode it.
 library(testthat)
 library(here)
+
+# Repository integration test: sources R/ or data/ from the SOURCE TREE via
+# here(). An installed package has no R/*.R files, so this is inapplicable
+# rather than broken there. See helper-cliff-root.R.
+skip_if_no_repo()
 suppressPackageStartupMessages(library(readr))
 
 ee <- new.env()
 suppressPackageStartupMessages(source(here::here("R", "workforce_cliff_engine.R"), local = ee))
+
 GRAD <- ee$WC_GRAD
 
 test_that("WC_GRAD is the ACGME graduate-count source (named list, 4 years each)", {

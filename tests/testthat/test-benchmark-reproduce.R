@@ -12,6 +12,11 @@
 
 suppressPackageStartupMessages({ library(here) })
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 bdir <- here::here("benchmark")
 ages_csv   <- file.path(bdir, "urps_cohort_ages_v3.0.0.csv")
 golden_csv <- file.path(bdir, "urps_projection_golden.csv")

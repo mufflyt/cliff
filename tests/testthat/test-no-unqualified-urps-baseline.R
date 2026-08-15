@@ -13,6 +13,11 @@
 #                            geography = "national", include_urology = TRUE)  # 1332
 library(testthat)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 test_that("no unqualified canonical URPS workforce total in production code", {
   # testthat runs with the working dir at tests/testthat -- anchor at the repo
   # root (nearest ancestor with a DESCRIPTION) so production dirs resolve.

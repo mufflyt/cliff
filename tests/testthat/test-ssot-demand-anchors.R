@@ -4,6 +4,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 # Evaluate ONLY the scalar citation-anchor constant lines (not the age-specific rate tribble).
 src <- readLines(here::here("scripts", "urps_demand_denominators_sensitivity.R"), warn = FALSE)
 const_lines <- grep("^(KIRBY_VISITS_|WU2011_SURG_20)", src, value = TRUE)

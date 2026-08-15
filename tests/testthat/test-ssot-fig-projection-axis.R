@@ -6,6 +6,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 FIG <- here::here("scripts", "fig_fpmrs_supply_line.R")
 SIB <- here::here("scripts", "scenario_projection_trajectories.R")
 ls_fig <- readLines(FIG, warn = FALSE)
