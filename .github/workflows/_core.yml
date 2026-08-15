@@ -1,0 +1,419 @@
+# Reusable core of cliff's CI. Called by ci.yml (push/PR) and nightly.yml
+# (02:17 America/Denver). Everything shared lives here exactly once so the
+# nightly run cannot drift from the per-push run.
+#
+# `deep: true` widens the R/OS matrix and turns on the tiers that need extra
+# tooling or minutes: the manuscript render gate and installed-package smoke
+# across platforms.
+#
+# Dependency installation deliberately does NOT use pak. pak has failed
+# repo-wide here ("there is no package called 'pak'"); use-public-rspm points
+# the default repo at Posit Package Manager, so install.packages() pulls
+# precompiled Linux binaries and remotes reads DESCRIPTION for us. That also
+# sidesteps the reason a local restore takes ~45 minutes on Intel macOS: on
+# Ubuntu essentially everything, duckdb and sf included, arrives prebuilt.
+
+name: _core
+
+on:
+  workflow_call:
+    inputs:
+      deep:
+        description: Run the wide matrix and the slow tiers
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  R_KEEP_PKG_SOURCE: yes
+  _R_CHECK_FORCE_SUGGESTS_: false
+  # Tests that need the isochrones monorepo skip cleanly; make that explicit
+  # rather than accidental, so a CI pass means "everything runnable ran".
+  CLIFF_ISOCHRONES_ROOT: ""
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Cheap, fast-failing repository invariants. Nothing here compiles anything,
+  # so it reports in well under a minute and catches the classes of error that
+  # are embarrassing to discover after a 20-minute matrix.
+  # ---------------------------------------------------------------------------
+  preflight:
+    name: preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - name: Install the few packages the preflight checks need
+        shell: Rscript {0}
+        run: install.packages(c("jsonlite", "roxygen2", "desc"))
+
+      - name: Dependency pins agree (DESCRIPTION Remotes vs renv.lock)
+        run: Rscript --vanilla scripts/ci/check_pins.R
+
+      - name: DESCRIPTION is parseable and complete
+        shell: Rscript {0}
+        run: |
+          d <- desc::desc(file = "DESCRIPTION")
+          for (f in c("Package", "Version", "License", "Description", "Title")) {
+            v <- tryCatch(d$get_field(f), error = function(e) NA_character_)
+            if (is.na(v) || !nzchar(v)) stop("DESCRIPTION is missing ", f)
+          }
+          cat("DESCRIPTION OK:", d$get_field("Package"), d$get_field("Version"), "\n")
+
+      - name: .Rbuildignore entries are valid regular expressions
+        shell: Rscript {0}
+        run: |
+          # Every line of .Rbuildignore is a regex, comments included. A comment
+          # containing an unbalanced "(" once broke `R CMD build` outright.
+          ln <- readLines(".Rbuildignore", warn = FALSE)
+          ln <- ln[nzchar(trimws(ln))]
+          bad <- character(0)
+          for (l in ln) {
+            ok <- tryCatch({ grepl(l, "probe", perl = FALSE); TRUE },
+                           error = function(e) FALSE, warning = function(w) FALSE)
+            if (!ok) bad <- c(bad, l)
+          }
+          if (length(bad)) {
+            cat("Invalid .Rbuildignore regex(es):\n"); cat(paste0("  ", bad, collapse = "\n"), "\n")
+            stop("`.Rbuildignore` lines must be valid regular expressions")
+          }
+          cat(length(ln), ".Rbuildignore patterns, all valid\n")
+
+      - name: R sources contain no unescaped non-ASCII
+        shell: Rscript {0}
+        run: |
+          bad <- list()
+          for (f in list.files("R", pattern = "[.]R$", full.names = TRUE)) {
+            ln <- readLines(f, warn = FALSE)
+            for (i in seq_along(ln)) {
+              if (grepl("^\\s*#", ln[i])) next          # comments may be UTF-8
+              if (any(utf8ToInt(ln[i]) > 127))
+                bad[[length(bad) + 1L]] <- sprintf("%s:%d", f, i)
+            }
+          }
+          if (length(bad)) {
+            cat("Non-ASCII outside comments:\n", paste0("  ", unlist(bad), collapse = "\n"), "\n")
+            stop("escape non-ASCII in R code as \\uXXXX")
+          }
+          cat("no unescaped non-ASCII in R/\n")
+
+      - name: Documentation is current with roxygen comments
+        shell: Rscript {0}
+        run: |
+          # Catches the "edited the .Rd by hand" and "forgot to re-document"
+          # failure modes. roxygen2's own version is pinned by RoxygenNote so
+          # this compares like with like.
+          before <- sort(list.files("man", full.names = TRUE))
+          hash_before <- vapply(before, function(f) paste(tools::md5sum(f)), "")
+          suppressMessages(roxygen2::roxygenise(".", roclets = c("rd", "namespace")))
+          after <- sort(list.files("man", full.names = TRUE))
+          changed <- setdiff(after, before)
+          removed <- setdiff(before, after)
+          same <- intersect(before, after)
+          diffs <- same[vapply(same, function(f) paste(tools::md5sum(f)), "") != hash_before[same]]
+          if (length(c(changed, removed, diffs))) {
+            cat("man/ is out of date. Run devtools::document() and commit:\n")
+            for (f in diffs)   cat("  modified:", f, "\n")
+            for (f in changed) cat("  missing :", f, "\n")
+            for (f in removed) cat("  stale   :", f, "\n")
+            stop("documentation not current")
+          }
+          cat("man/ is current (", length(same), "topics )\n")
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Preflight"
+            echo ""
+            echo "Pins, DESCRIPTION, \`.Rbuildignore\` regexes, non-ASCII, and \`man/\` currency."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # R CMD check. The lockfile pins R 4.4.2; the acceptance gate validated 4.5.3.
+  # Both are checked on every push so neither can rot. `deep` adds macOS (a real
+  # platform difference for the spatial stack) and R devel as an early warning.
+  # ---------------------------------------------------------------------------
+  matrix_setup:
+    name: resolve check matrix
+    needs: preflight
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        run: |
+          # 4.4.2 is what renv.lock pins; 4.5.3 is what the acceptance gate
+          # validated. Both run always so neither can rot. `deep` adds macOS
+          # (a genuine platform difference for the spatial stack) and R devel
+          # as a non-blocking early warning.
+          base='{"os":"ubuntu-latest","r":"4.4.2","experimental":false},
+                {"os":"ubuntu-latest","r":"4.5.3","experimental":false},
+                {"os":"ubuntu-latest","r":"release","experimental":false}'
+          if [ "${{ inputs.deep }}" = "true" ]; then
+            extra=',{"os":"macos-latest","r":"release","experimental":false},
+                   {"os":"ubuntu-latest","r":"devel","experimental":true}'
+          else
+            extra=''
+          fi
+          echo "matrix=[$(echo "$base$extra" | tr -d '\n ')]" >> "$GITHUB_OUTPUT"
+
+  check:
+    name: check (${{ matrix.os }} · R ${{ matrix.r }})
+    needs: matrix_setup
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix_setup.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: System libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+
+      - name: Cache R library
+        uses: actions/cache@v4
+        with:
+          # setup-r exports R_LIBS_USER; this is where install.packages() and
+          # remotes::install_deps() put everything.
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-R${{ matrix.r }}-${{ hashFiles('DESCRIPTION', 'renv.lock') }}
+          restore-keys: ${{ runner.os }}-R${{ matrix.r }}-
+
+      - name: Install dependencies (remotes + RSPM binaries, no pak)
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "rcmdcheck"))
+          # Suggests are installed too so the suite runs as fully as possible;
+          # _R_CHECK_FORCE_SUGGESTS_=false keeps a single unavailable Suggest
+          # from failing the whole check.
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+
+      - name: R CMD check
+        shell: Rscript {0}
+        run: |
+          res <- rcmdcheck::rcmdcheck(
+            args        = c("--no-manual", "--as-cran"),
+            error_on    = "warning",         # NOTEs allowed, WARNINGs are not
+            check_dir   = "check"
+          )
+
+      - name: Upload check output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-${{ matrix.os }}-R${{ matrix.r }}
+          path: check/**/*.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # The full testthat suite, run against the SOURCE tree (so the ~89 files that
+  # need scripts/ and manuscript/ actually execute), plus coverage.
+  #
+  # Local baseline on a bare checkout with no isochrones monorepo:
+  #   2960 pass · 0 fail · 27 skip, in ~85 s.
+  # ---------------------------------------------------------------------------
+  test:
+    name: test suite + coverage
+    needs: preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+
+      - name: Install dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "testthat", "covr", "xml2"))
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+
+      - name: Install cliff
+        run: R CMD INSTALL --with-keep.source .
+
+      - name: Run the suite
+        shell: Rscript {0}
+        run: |
+          library(testthat); library(cliff)
+          res <- test_dir("tests/testthat", reporter = "summary", stop_on_failure = FALSE)
+          d   <- as.data.frame(res)
+          tot <- c(pass = sum(d$passed), fail = sum(d$failed),
+                   skip = sum(d$skipped), warn = sum(d$warning))
+          cat(sprintf("\nFILES %d | PASS %d | FAIL %d | SKIP %d | WARN %d\n",
+                      nrow(d), tot[["pass"]], tot[["fail"]], tot[["skip"]], tot[["warn"]]))
+
+          summ <- Sys.getenv("GITHUB_STEP_SUMMARY")
+          if (nzchar(summ)) {
+            cat(sprintf(paste0("### Test suite\n\n",
+                               "| files | pass | fail | skip | warn |\n",
+                               "|---:|---:|---:|---:|---:|\n",
+                               "| %d | %d | **%d** | %d | %d |\n\n"),
+                        nrow(d), tot[["pass"]], tot[["fail"]], tot[["skip"]], tot[["warn"]]),
+                file = summ, append = TRUE)
+            if (tot[["fail"]] > 0) {
+              bad <- d[d$failed > 0, c("file", "test", "failed")]
+              cat("<details><summary>Failing tests</summary>\n\n", file = summ, append = TRUE)
+              cat(paste0("- `", bad$file, "` — ", bad$test, " (", bad$failed, ")\n", collapse = ""),
+                  file = summ, append = TRUE)
+              cat("\n</details>\n\n", file = summ, append = TRUE)
+            }
+          }
+          if (tot[["fail"]] > 0) stop(tot[["fail"]], " test failure(s)")
+
+      - name: Coverage
+        if: ${{ inputs.deep }}
+        shell: Rscript {0}
+        run: |
+          # Reported, never enforced. A coverage threshold on a package whose
+          # suite is mostly repository-integrity guards would measure the wrong
+          # thing; the number is here to be watched for sudden drops.
+          cov <- covr::package_coverage(type = "tests", quiet = FALSE)
+          pct <- covr::percent_coverage(cov)
+          cat(sprintf("coverage: %.1f%%\n", pct))
+          summ <- Sys.getenv("GITHUB_STEP_SUMMARY")
+          if (nzchar(summ))
+            cat(sprintf("### Coverage\n\n**%.1f%%** of lines in `R/`.\n\n", pct),
+                file = summ, append = TRUE)
+
+  # ---------------------------------------------------------------------------
+  # Installed-package semantics. This is the gap that has produced nearly every
+  # real defect in this repo: devtools::load_all() sees the whole repository, an
+  # installed package sees only what shipped. The suite cannot detect it because
+  # the suite runs inside the repository.
+  # ---------------------------------------------------------------------------
+  smoke:
+    name: installed-package smoke
+    needs: preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev
+
+      - name: Install hard dependencies only (no Suggests)
+        shell: Rscript {0}
+        run: |
+          install.packages("remotes")
+          remotes::install_deps(
+            dependencies = c("Depends", "Imports", "LinkingTo"),
+            upgrade = "never")
+
+      - name: Build and install the tarball
+        run: |
+          R CMD build --no-build-vignettes .
+          mkdir -p "$RUNNER_TEMP/pkglib"
+          R CMD INSTALL --library="$RUNNER_TEMP/pkglib" cliff_*.tar.gz
+
+      - name: Smoke test with data.table/sf/tidycensus/tigris/geosphere absent
+        run: |
+          # The five packages are Suggests and were never installed above, so
+          # this proves cliff loads and its core helpers work without them, and
+          # that geosphere-dependent functions fail with their intended message
+          # rather than "could not find function".
+          SMOKELIB="$RUNNER_TEMP/pkglib" Rscript --vanilla scripts/smoke_installed_package.R
+
+      - name: Tarball size
+        run: |
+          sz=$(du -h cliff_*.tar.gz | cut -f1)
+          echo "### Installed-package smoke" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Tarball: \`$sz\` — loads with the five Suggests absent." >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # The manuscript render gate. rmarkdown::render() catches what parsing and
+  # unit tests cannot: a helper named cf() once passed 2,853 unit tests while
+  # the supplement could not render at all, because the document rebinds `cf`
+  # to a data.frame sixty lines below the setup chunk.
+  #
+  # Needs pandoc and the full tidyverse/gt/flextable stack, so it is a deep tier.
+  # ---------------------------------------------------------------------------
+  render:
+    name: manuscript render gate
+    if: ${{ inputs.deep }}
+    needs: preflight
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+
+      - name: Install dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "testthat", "rmarkdown"))
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+
+      - name: Install cliff
+        run: R CMD INSTALL --with-keep.source .
+
+      - name: Render gate
+        env:
+          CLIFF_RENDER_TESTS: "1"
+        shell: Rscript {0}
+        run: |
+          library(testthat); library(cliff)
+          res <- test_file("tests/testthat/test-ssot-no-stale-published-numbers.R",
+                           reporter = "summary", stop_on_failure = TRUE)
+          cat("render gate: OK\n")
