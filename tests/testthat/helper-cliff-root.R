@@ -43,7 +43,29 @@ cliff_repo_root <- function() {
   NA_character_
 }
 
-cliff_has_repo <- function() !is.na(cliff_repo_root())
+# The source tree being FINDABLE is not enough: here() has to point at it too.
+#
+# Under `R CMD check` run from inside the checkout -- which is exactly what CI
+# does -- the tests execute in cliff.Rcheck/tests/testthat. Walking up from
+# there reaches the real repository, so cliff_repo_root() succeeds. But
+# here::i_am() above anchors here() at cliff.Rcheck, which contains no R/,
+# scripts/ or manuscript/. The guard then said "repository present", the tests
+# proceeded, and every source(here::here("R", ...)) failed to open its file:
+# 108 failures that were entirely an artefact of the two disagreeing.
+#
+# It went unseen locally because a check run from a scratch directory OUTSIDE
+# the checkout finds no repository at all, so the guard fired and the same
+# tests skipped cleanly. Requiring agreement makes the answer independent of
+# where the check happens to be run from.
+cliff_has_repo <- function() {
+  root <- cliff_repo_root()
+  if (is.na(root)) return(FALSE)
+  hh <- tryCatch(
+    normalizePath(here::here(), winslash = "/", mustWork = FALSE),
+    error = function(e) NA_character_
+  )
+  !is.na(hh) && identical(hh, root)
+}
 
 #' Skip a test that needs the repository source tree, not just the package.
 skip_if_no_repo <- function() {
