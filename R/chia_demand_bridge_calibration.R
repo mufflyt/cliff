@@ -711,7 +711,7 @@ calibrate_chia_demand_bridge <- function(
     scales::comma(n_eligible),
     " eligible CHIA age-year cells from ",
     year_range[[1]],
-    "–",
+    "\u2013",
     year_range[[2]],
     ", the empirical all-payer/Medicare-FFS demand bridge ",
     direction,
