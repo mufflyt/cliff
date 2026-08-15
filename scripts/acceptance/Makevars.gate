@@ -1,0 +1,24 @@
+# Gate-only Makevars. Pointed at by R_MAKEVARS_USER; ~/.R/Makevars is untouched.
+#
+# The first attempt suppressed ~/.R/Makevars entirely. That was too blunt: the
+# file holds a contaminant AND a necessary fix, and dropping both broke
+# RcppArmadillo. This keeps the fix and drops the contaminant.
+#
+# DROPPED (machine-specific contaminant, must not influence an acceptance run):
+#   CC/CXX/CXX14/CXX17 = /usr/local/opt/llvm/bin/clang{,++}
+#   CXX14FLAGS/CXX17FLAGS = -O3 -march=native -mtune=native
+# Leaving these unset means R uses its own Makeconf toolchain (Apple clang),
+# which is what CRAN builds against.
+#
+# KEPT (genuine correction to a broken path in R's Makeconf):
+#   R 4.5.3's Makeconf points Fortran at /opt/gfortran/..., which does not
+#   exist on this machine. Homebrew's gfortran does. Without this,
+#   RcppArmadillo/lme4/blme fail to link.
+FC = /usr/local/bin/gfortran
+FLIBS = -L/usr/local/lib/gcc/current -lgfortran -lquadmath
+
+# ADDED: CRAN's static toolchain at /opt/R/x86_64 does not ship gettext, and
+# R's Makeconf does not look in Homebrew. Matrix, nlme and gdtools need
+# libintl; svglite needs libpng; gert needs libgit2. All are installed.
+CPPFLAGS = -I/usr/local/opt/gettext/include -I/usr/local/opt/libpng/include -I/usr/local/opt/libgit2/include -I/usr/local/opt/cairo/include -I/opt/R/x86_64/include
+LDFLAGS  = -L/usr/local/opt/gettext/lib -L/usr/local/opt/libpng/lib -L/usr/local/opt/libgit2/lib -L/usr/local/opt/cairo/lib -L/opt/R/x86_64/lib
