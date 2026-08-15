@@ -78,3 +78,16 @@
 ^data/census$
 ^data/freida$
 ^data/table1_urps_characteristics_2026-07-23\.docx$
+# --- data/ is repository material, not package data ---
+# Classified all 96 CSVs by who reads them. Exactly ONE is read by package code:
+# departure_anchor.csv, inside wc_load_cohort. That function cannot run from an
+# installed package regardless, because its primary input WC_COHORT_CSV resolves
+# into the isochrones monorepo. Everything else is read by manuscript/, scripts/,
+# code/, the Shiny apps or tests, none of which is installed. So nothing here is
+# needed by the installed package at runtime.
+# Excluding the directory also stops R parsing every CSV as a packaged dataset,
+# which five of them fail: three hard errors and two EOF-within-quoted-string.
+# The files stay on disk and all 128 in-repo references keep working; the tests
+# that read them skip under check via skip_if_no_repo.
+# Guarded by tests/testthat/test-package-runtime-inputs.R.
+^data$
