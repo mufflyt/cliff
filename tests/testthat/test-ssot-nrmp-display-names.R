@@ -6,6 +6,11 @@ library(testthat)
 library(here)
 suppressPackageStartupMessages(library(readr))
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 ce <- new.env(); source(here::here("R", "workforce_constants.R"), local = ce)
 SF <- ce$WC_SUBS_FULL
 

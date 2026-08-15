@@ -14,6 +14,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 sc <- new.env(); source(here::here("shiny_urps_scenarios", "urps_model_data.R"), local = sc)
 ad <- new.env(); source(here::here("shiny_urps_adequacy", "data", "urps_model_data.R"), local = ad)
 

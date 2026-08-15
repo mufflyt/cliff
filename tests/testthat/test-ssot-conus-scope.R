@@ -6,6 +6,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 ce <- new.env(); source(here::here("R", "conus.R"), local = ce)
 D_SCRIPTS <- c("urps_module_d_differential_distance.R", "urps_module_d_differential_map.R",
                "urps_module_d_geographic_access_2026-07-23.R", "urps_module_d_map_2026-07-23.R")

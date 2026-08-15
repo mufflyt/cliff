@@ -1,3 +1,8 @@
+
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
 # =============================================================================
 # Regression tests for the 13 saboteur-audit bugs in
 # R/manuscript_consolidate_existing_results.R  (Step 5.0)

@@ -6,6 +6,11 @@
 # longer a faithful refinement of the validated aggregate model and this fails.
 
 suppressPackageStartupMessages(library(here))
+
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
 source(here::here("R", "workforce_cliff_engine.R"))
 
 .hz  <- setNames(c(0.005, 0.008, 0.012, 0.02, 0.03, 0.05, 0.12), WC_BAND_LABELS)

@@ -9,6 +9,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 be <- new.env(); source(here::here("R", "in_model_baseline.R"), local = be)
 
 # every script that filters on in_model_baseline

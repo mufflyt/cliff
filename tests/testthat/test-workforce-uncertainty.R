@@ -4,6 +4,11 @@
 # vectors, probe the threshold boundaries, and negative-control the validation.
 
 suppressPackageStartupMessages({ library(here) })
+
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
 source(here::here("R", "workforce_uncertainty.R"))
 
 # ---- semantic: exact probabilities on known draws ----

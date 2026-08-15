@@ -4,10 +4,16 @@
 # NRMP filled/appointed counts (URPS 70 / GO 86 / MIGS 47) — an intentional difference.
 library(testthat)
 library(here)
+
+# Repository integration test: sources R/ or data/ from the SOURCE TREE via
+# here(). An installed package has no R/*.R files, so this is inapplicable
+# rather than broken there. See helper-cliff-root.R.
+skip_if_no_repo()
 suppressPackageStartupMessages(library(readr))
 
 ee <- new.env()
 suppressPackageStartupMessages(source(here::here("R", "workforce_cliff_engine.R"), local = ee))
+
 NRMP <- ee$WC_ENTRANTS_NRMP
 
 test_that("canonical NRMP benchmark is a named integer vector (74/88/51)", {

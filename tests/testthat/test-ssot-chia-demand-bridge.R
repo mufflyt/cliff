@@ -19,6 +19,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 heavy_stack <- c("dplyr", "tibble", "purrr", "scales", "splines", "broom", "readr")
 
 skip_unless_stack <- function() {

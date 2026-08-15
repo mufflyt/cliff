@@ -6,6 +6,11 @@
 # and every run records provenance.
 suppressWarnings(suppressMessages(library(testthat)))
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 repo_root <- function() {
   d <- normalizePath(getwd(), winslash = "/")
   for (i in 1:8) { if (file.exists(file.path(d, "DESCRIPTION"))) return(d)

@@ -7,6 +7,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: reads scripts/, manuscript/ or data/ from the
+# source tree, which a built package does not contain. Inapplicable rather
+# than broken when run against an installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 source(here::here("R/workforce_concentration_metrics.R"))
 source(here::here("demand_lifecourse/demand-birth_history.R"))
 source(here::here("demand_lifecourse/supply-staffing_conversion.R"))
