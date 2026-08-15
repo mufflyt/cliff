@@ -36,12 +36,12 @@
 #' `== TRUE` form returned NA (which data.table happened to treat as FALSE in `i`, but
 #' which propagates in a base-R subset).
 #'
-#'   Consumers: scripts/urps_module_{a_age_productivity,bc_corrected,bc_gate_audit}*.R,
-#'              scripts/urps_{demand_module_bc,plasticity_stage0_audit}*.R,
+#'   Consumers: \code{scripts/urps_module_[a_age_productivity,bc_corrected,bc_gate_audit]*.R},
+#'              \code{scripts/urps_[demand_module_bc,plasticity_stage0_audit]*.R},
 #'              scripts/urps_module_d_geographic_access_2026-07-23.R,
 #'              scripts/urps_concentration_equity_2026-08-01.R,
 #'              scripts/build_table1_urps_2026-07-23.R,
-#'              scripts/enrich_rosters_{hpsa_point_in_polygon,medicare_procedures_2024_refresh}*.R
+#'              \code{scripts/enrich_rosters_[hpsa_point_in_polygon,medicare_procedures_2024_refresh]*.R}
 #' @param x [vector]: Values to test for membership in the in-model baseline.
 inmodel <- function(x) {
   !is.na(x) & toupper(trimws(as.character(x))) %in% c("TRUE", "1")

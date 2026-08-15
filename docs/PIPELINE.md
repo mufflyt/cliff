@@ -12,12 +12,13 @@ inputs under `CLIFF_ISOCHRONES_ROOT` (default `~/isochrones`); *v3.0.0 parquet*
 means `CLIFF_URPS_SNAPSHOT`; *DuckDB* means the external credentials database.
 Scripts with no requirements run from a clean checkout.
 
-69 generators writing 108 artifacts.
+70 generators writing 111 artifacts.
 
 Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_scenarios/`, `analysis/`, `benchmark/`, `manuscript/R/`, `demand_lifecourse/`, `augs_application/`, `data-raw/`
 
 | Generator | Writes | Reads | Requires |
 |---|---|---|---|
+| `R/freida_program_loader.R` | `abog_ambiguous_crosswalk.csv`<br>`abog_phase_partition.csv`<br>`abog_unmapped_vote_names.csv` | -- | `DuckDB` |
 | `R/infer_fellowship_training.R` | `fellowship_duplicate_npi_report.csv` | `zip_centroids.csv` | `DuckDB` |
 | `analysis/taxonomy/analyze_urps_taxonomy.R` | `urps_physicians_correct_taxonomy.csv`<br>`urps_physicians_incorrect_taxonomy.csv`<br>`urps_taxonomy_full_analysis.csv`<br>`urps_taxonomy_summary.csv` | `abog_comprehensive_with_recent_grads_20250926_040524.csv` | `DuckDB` |
 | `analysis/taxonomy/analyze_urps_taxonomy_detailed.R` | `urps_detailed_position_analysis.csv`<br>`urps_position_summary.csv` | `abog_comprehensive_with_recent_grads_20250926_040524.csv` | `DuckDB` |
