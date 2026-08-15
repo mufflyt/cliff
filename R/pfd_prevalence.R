@@ -29,6 +29,7 @@ stopifnot(
 )
 
 #' Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
+#' @param age [numeric]: Age in years, vectorised.
 pfd_prevalence_by_age <- function(age) {
   idx <- findInterval(age, PFD_PREVALENCE_BY_AGE$lower)
   idx[idx < 1L] <- 1L

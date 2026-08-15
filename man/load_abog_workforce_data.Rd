@@ -17,7 +17,9 @@ load_abog_workforce_data(
 \item{required_columns}{`character vector`: Columns that must be present in
 the ABOG data. Defaults to critical columns for NPI matching.}
 
-\item{allow_duplicates}{`logical`: If FALSE (default), duplicates on the
+\item{allow_duplicates}{`logical`: If FALSE (default), duplicates on the}
+
+\item{verbose}{[logical]: Emit progress messages while loading.
 primary identifier (`physician_name` + `city` + `state`) trigger a fatal
 error with example rows. Set TRUE only for exploratory analysis.}
 }
@@ -102,6 +104,6 @@ abog_names_only <- load_abog_workforce_data(
 
 }
 \seealso{
-\code{\link{canonical_abog_npi_pipeline_STABLE}} for the full matching pipeline
-\code{\link{validate_pipeline_inputs}} for broader input validation
+\code{canonical_abog_npi_pipeline_STABLE()} for the full matching pipeline
+\code{validate_pipeline_inputs()} for broader input validation
 }

@@ -6,6 +6,11 @@
 \usage{
 wc_active_ages(coh, abu_age = wc_load_abu_ages())
 }
+\arguments{
+\item{coh}{[data.frame]: Cohort from `wc_load_cohort()`.}
+
+\item{abu_age}{[integer]: ABU urology-pathway ages to append for the both-pathway baseline.}
+}
 \description{
 Primary active-age vectors per cohort (ret==FALSE + ABU net-new appended to URPS).
 }

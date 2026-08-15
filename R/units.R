@@ -22,9 +22,11 @@ stopifnot(
 )
 
 #' Convert metres to statute miles (vectorised; NA-preserving).
+#' @param m [numeric]: Distance in metres.
 meters_to_miles <- function(m) m / METERS_PER_MILE
 
 #' Convert statute miles to metres (vectorised; NA-preserving).
+#' @param mi [numeric]: Distance in miles.
 miles_to_meters <- function(mi) mi * METERS_PER_MILE
 
 # RATE_PER_100K

@@ -7,6 +7,8 @@
 add_fellowship_to_table1(physicians, temporal_db_path = NULL)
 }
 \arguments{
+\item{physicians}{[data.frame]: Physician table to augment with inferred fellowship columns.}
+
 \item{temporal_db_path}{Path to temporal NPPES database}
 }
 \value{

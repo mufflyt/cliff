@@ -2,10 +2,31 @@
 % Please edit documentation in R/workforce_cliff_engine.R
 \name{wc_project}
 \alias{wc_project}
-\title{Deterministic age-structured projection. Returns list(active_2029, departures_4yr).}
+\title{Deterministic age-structured projection. Returns list(active_2029, departures_4yr).
+`age_shift` shifts the retirement-hazard curve along age: at age `a` a provider
+faces the hazard of age `a - age_shift`, so a NEGATIVE age_shift retires people
+earlier (they face an older age's hazard). Default `0L` is byte-identical to the
+original engine. This is the lever mufflyaccess's scenario dictionary calls
+`retirement_shift_years` (pass it straight through).}
 \usage{
-wc_project(ages, entrants, hz, horizon = WC_HORIZON)
+wc_project(ages, entrants, hz, horizon = WC_HORIZON, age_shift = 0L)
+}
+\arguments{
+\item{ages}{[numeric]: Active-age distribution at the projection start.}
+
+\item{entrants}{[numeric]: Annual entrants added at the entry age.}
+
+\item{hz}{[numeric]: Named age-band hazard vector.}
+
+\item{horizon}{[integer]: Projection horizon in years.}
+
+\item{age_shift}{[integer]: Shift of the retirement-hazard curve along age; negative retires earlier.}
 }
 \description{
 Deterministic age-structured projection. Returns list(active_2029, departures_4yr).
+`age_shift` shifts the retirement-hazard curve along age: at age `a` a provider
+faces the hazard of age `a - age_shift`, so a NEGATIVE age_shift retires people
+earlier (they face an older age's hazard). Default `0L` is byte-identical to the
+original engine. This is the lever mufflyaccess's scenario dictionary calls
+`retirement_shift_years` (pass it straight through).
 }

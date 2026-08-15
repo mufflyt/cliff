@@ -6,6 +6,9 @@
 \usage{
 inmodel(x)
 }
+\arguments{
+\item{x}{[vector]: Values to test for membership in the in-model baseline.}
+}
 \description{
 Vectorised, type-agnostic, and total: accepts the flag as `logical`, `numeric`,
 `character`, or `factor`, and always returns `TRUE`/`FALSE` — never `NA`.

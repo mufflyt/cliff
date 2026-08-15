@@ -473,6 +473,7 @@ calculate_rural_metro_comparison <- function(rural_at_risk, rural_total,
 #' in 5-year window}
 #'   }
 #' @param fellowship_grads A tibble/data.frame with columns:
+#' @param horizon_years [integer]: Projection horizon in years; graduates are accumulated over this window.
 #'   \describe{
 #'     \item{subspecialty}{Character. Name of the subspecialty (must match
 #' retirees_by_subspec)}
@@ -529,9 +530,9 @@ calculate_rural_metro_comparison <- function(rural_at_risk, rural_total,
 #' print(results$by_subspecialty)
 #'
 #' # Check the overall balance. Per the Value section above, net_gap is
-#' retiring_count - projected_grads, so a POSITIVE value is a shortage and a
-#' negative one a surplus. It is a projection difference rather than a headcount
-#' and is fractional in general, which is why this formats with %.1f and not %d.
+#' # retiring_count - projected_grads, so a POSITIVE value is a shortage and a
+#' # negative one a surplus. It is a projection difference rather than a
+#' # headcount and is fractional in general, hence %.1f rather than %d.
 #' sprintf("Overall %s: %.1f physicians (%.1f%%)",
 #'         ifelse(results$overall$net_gap > 0, "shortfall", "surplus"),
 #'         abs(results$overall$net_gap), abs(results$overall$gap_percentage))

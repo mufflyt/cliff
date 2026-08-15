@@ -6,6 +6,13 @@
 \usage{
 wc_band_counts(coh, win = WC_WIN, rows = which(coh$ab \%in\% WC_PRIMARY))
 }
+\arguments{
+\item{coh}{[data.frame]: Cohort from `wc_load_cohort()`.}
+
+\item{win}{[integer(2)]: Observation window, start and end year.}
+
+\item{rows}{[integer]: Row indices of `coh` to count; defaults to the primary cohorts.}
+}
 \description{
 Age-band person-year + event counts over a window (GO+URPS primary rows by default).
 }

@@ -89,6 +89,8 @@ wc_uncertainty_summary <- function(final_draws, ratio_draws = NULL, baseline,
 }
 
 #' One-line human phrasing of an uncertainty summary row, for logs / captions.
+#' @param u [list]: Uncertainty summary to render.
+#' @param unit [character]: Noun for the quantity being described.
 wc_uncertainty_sentence <- function(u, unit = "urogynecologists") {
   sprintf(
     paste0("Median %d %s by the horizon (%.0f%% PI %d-%d); ",

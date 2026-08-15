@@ -93,7 +93,7 @@ create_otolaryngology_fellowship_programs <- function() {
 #'
 #' Matches physicians to ACGME-accredited Otolaryngology fellowship programs
 #' using
-#' the same multi-phase approach as \code{\link{infer_residency_training}}:
+#' the same multi-phase approach as \code{infer_residency_training()}:
 #' \enumerate{
 #'   \item \strong{Phase 0:} Ground truth lookup from GOBA/DOX/Healthgrades
 #'         data in DuckDB (if \code{temporal_db_path} provided).
@@ -109,6 +109,7 @@ create_otolaryngology_fellowship_programs <- function() {
 #'   data from \code{\link{create_otolaryngology_fellowship_programs}}. If
 #'   \code{NULL}, loaded automatically via that function.
 #' @param temporal_db_path Character scalar or \code{NULL}. Path to the
+#' @param physicians [data.frame]: Physician records to infer fellowship training for.
 #'   temporal NPPES DuckDB database for Phase 0 ground truth lookup and
 #'   Phase 2 address history. If \code{NULL}, those phases are skipped.
 #'
@@ -964,6 +965,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
 
 #' Add fellowship inference to Table 1 pipeline
 #' @param temporal_db_path Path to temporal NPPES database
+#' @param physicians [data.frame]: Physician table to augment with inferred fellowship columns.
 #' @return Enhanced data frame with fellowship inference columns
 #' @export
 add_fellowship_to_table1 <- function(physicians, temporal_db_path = NULL) {

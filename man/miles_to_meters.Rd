@@ -6,6 +6,9 @@
 \usage{
 miles_to_meters(mi)
 }
+\arguments{
+\item{mi}{[numeric]: Distance in miles.}
+}
 \description{
 Convert statute miles to metres (vectorised; NA-preserving).
 }
