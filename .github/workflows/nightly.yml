@@ -74,6 +74,19 @@ jobs:
       deep: true
 
   # ---------------------------------------------------------------------------
+  # Frozen evidence, SSOT regeneration, generator classes, clean-checkout
+  # artifact reproduction. This is the half of cliff that is a scientific
+  # repository rather than an R package.
+  # ---------------------------------------------------------------------------
+  reproducibility:
+    name: reproducibility
+    needs: when
+    if: needs.when.outputs.go == 'true'
+    uses: ./.github/workflows/_reproducibility.yml
+    with:
+      deep: true
+
+  # ---------------------------------------------------------------------------
   # The portable half of the acceptance gate: prove renv.lock itself restores
   # into a brand-new library. scripts/acceptance/run_gate.sh is a macOS tool
   # (framework paths, rig, Homebrew prefixes) and is not run here; this job
@@ -167,19 +180,67 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # ---------------------------------------------------------------------------
-  # A nightly failure that nobody sees is not a gate. File one tracking issue
-  # and keep updating it, rather than opening a new issue every night.
+  # Final aggregator (gate 78). needs: every gate, if: always().
+  #
+  # The point is that a MISSING result is a failure. A cancelled job, a job that
+  # never started because its dependency died, or a job removed from the
+  # workflow by accident all produce a null result -- and a nightly that reports
+  # success in those cases is worse than no nightly, because it is trusted.
+  #
+  # Correctness gates fail the run. Compatibility signals (R devel, upstream
+  # main) are reported separately so that red always means something.
   # ---------------------------------------------------------------------------
-  report:
-    name: report failures
-    needs: [when, core, lockfile_restore]
-    if: ${{ always() && needs.when.outputs.go == 'true' && (needs.core.result == 'failure' || needs.lockfile_restore.result == 'failure') }}
+  summary:
+    name: nightly summary
+    needs: [when, core, reproducibility, lockfile_restore, upstream_drift]
+    if: ${{ always() && needs.when.outputs.go == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       issues: write
     steps:
-      - uses: actions/github-script@v7
+      - name: Aggregate
+        id: agg
+        run: |
+          core='${{ needs.core.result }}'
+          repro='${{ needs.reproducibility.result }}'
+          lock='${{ needs.lockfile_restore.result }}'
+          drift='${{ needs.upstream_drift.result }}'
+
+          verdict=PASS
+          detail=""
+          for pair in "core:$core" "reproducibility:$repro" "lockfile_restore:$lock"; do
+            name="${pair%%:*}"; res="${pair#*:}"
+            case "$res" in
+              success) ;;
+              "")        verdict=FAIL; detail="$detail\n- \`$name\` produced NO RESULT (cancelled, skipped, or never started)" ;;
+              cancelled) verdict=FAIL; detail="$detail\n- \`$name\` was cancelled" ;;
+              *)         verdict=FAIL; detail="$detail\n- \`$name\` = \`$res\`" ;;
+            esac
+          done
+          # Advisory only: never turns the nightly red.
+          [ "$drift" = "success" ] || detail="$detail\n- (advisory) upstream pin drift = \`$drift\`"
+
+          {
+            echo "## Nightly $verdict"
+            echo ""
+            echo "| gate | result |"
+            echo "|---|---|"
+            echo "| core (matrix, tests, smoke, render) | \`$core\` |"
+            echo "| reproducibility (hashes, SSOT, artifacts) | \`$repro\` |"
+            echo "| renv.lock restores from nothing | \`$lock\` |"
+            echo "| upstream pin drift (advisory) | \`$drift\` |"
+            echo ""
+            printf '%b\n' "$detail"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+          printf 'verdict: %s%b\n' "$verdict" "$detail"
+
+      - name: File or update the tracking issue
+        if: steps.agg.outputs.verdict != 'PASS'
+        uses: actions/github-script@v7
         with:
           script: |
             const title = 'Nightly CI is failing';
@@ -187,34 +248,34 @@ jobs:
             const body = [
               `Nightly deep CI failed on \`${context.sha.slice(0,7)}\`.`,
               '',
-              `| job | result |`,
-              `|---|---|`,
-              `| core (matrix, tests, smoke, render) | \`${{ needs.core.result }}\` |`,
-              `| renv.lock restores from nothing | \`${{ needs.lockfile_restore.result }}\` |`,
+              '| gate | result |',
+              '|---|---|',
+              `| core | \`${{ needs.core.result }}\` |`,
+              `| reproducibility | \`${{ needs.reproducibility.result }}\` |`,
+              `| lockfile restore | \`${{ needs.lockfile_restore.result }}\` |`,
               '',
               `[Full run log](${run})`,
               '',
-              '<sub>Filed automatically by `.github/workflows/nightly.yml`. ',
-              'This issue is reused, not reopened nightly — it will be updated ',
-              'with each subsequent failure and can be closed once the run is green.</sub>',
+              '<sub>Filed by `.github/workflows/nightly.yml`. This issue is reused, ',
+              'not reopened nightly; close it once the run is green.</sub>',
             ].join('\n');
 
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
               state: 'open', labels: 'nightly-ci',
             });
-
             if (existing.data.length) {
-              const n = existing.data[0].number;
               await github.rest.issues.createComment({
                 owner: context.repo.owner, repo: context.repo.repo,
-                issue_number: n, body,
+                issue_number: existing.data[0].number, body,
               });
-              core.info(`Commented on existing issue #${n}`);
             } else {
-              const made = await github.rest.issues.create({
+              await github.rest.issues.create({
                 owner: context.repo.owner, repo: context.repo.repo,
                 title, body, labels: ['nightly-ci'],
               });
-              core.info(`Opened issue #${made.data.number}`);
             }
+
+      - name: Fail the run if any correctness gate did not pass
+        if: steps.agg.outputs.verdict != 'PASS'
+        run: exit 1

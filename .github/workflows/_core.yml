@@ -150,6 +150,7 @@ jobs:
                 {"os":"ubuntu-latest","r":"release","experimental":false}'
           if [ "${{ inputs.deep }}" = "true" ]; then
             extra=',{"os":"macos-latest","r":"release","experimental":false},
+                   {"os":"windows-latest","r":"release","experimental":false},
                    {"os":"ubuntu-latest","r":"devel","experimental":true}'
           else
             extra=''
@@ -219,6 +220,17 @@ jobs:
             error_on    = "warning",         # NOTEs allowed, WARNINGs are not
             check_dir   = "check"
           )
+
+      - name: NOTE fingerprint
+        if: always() && runner.os == 'Linux' && matrix.r == '4.4.2'
+        shell: bash
+        run: |
+          # One configuration owns the fingerprint. NOTEs legitimately differ
+          # across platforms and R versions (installed size, available Suggests),
+          # so comparing every job against one baseline would be noise.
+          log=$(find check -name 00check.log | head -1)
+          if [ -z "$log" ]; then echo "no 00check.log found"; exit 1; fi
+          Rscript --no-init-file scripts/ci/check_note_fingerprint.R "$log"
 
       - name: Upload check output
         if: always()
@@ -305,34 +317,39 @@ jobs:
           }
           cat("man/ is current (", length(same), "topics )\n")
 
-      - name: Run the suite
-        shell: Rscript {0}
-        run: |
-          library(testthat); library(cliff)
-          res <- test_dir("tests/testthat", reporter = "summary", stop_on_failure = FALSE)
-          d   <- as.data.frame(res)
-          tot <- c(pass = sum(d$passed), fail = sum(d$failed),
-                   skip = sum(d$skipped), warn = sum(d$warning))
-          cat(sprintf("\nFILES %d | PASS %d | FAIL %d | SKIP %d | WARN %d\n",
-                      nrow(d), tot[["pass"]], tot[["fail"]], tot[["skip"]], tot[["warn"]]))
+      - name: Run the suite (with completion accounting)
+        env:
+          CLIFF_CI_OUT: ${{ runner.temp }}/ci-out
+        run: Rscript --no-init-file scripts/ci/run_suite.R
 
-          summ <- Sys.getenv("GITHUB_STEP_SUMMARY")
-          if (nzchar(summ)) {
-            cat(sprintf(paste0("### Test suite\n\n",
-                               "| files | pass | fail | skip | warn |\n",
-                               "|---:|---:|---:|---:|---:|\n",
-                               "| %d | %d | **%d** | %d | %d |\n\n"),
-                        nrow(d), tot[["pass"]], tot[["fail"]], tot[["skip"]], tot[["warn"]]),
-                file = summ, append = TRUE)
-            if (tot[["fail"]] > 0) {
-              bad <- d[d$failed > 0, c("file", "test", "failed")]
-              cat("<details><summary>Failing tests</summary>\n\n", file = summ, append = TRUE)
-              cat(paste0("- `", bad$file, "` — ", bad$test, " (", bad$failed, ")\n", collapse = ""),
-                  file = summ, append = TRUE)
-              cat("\n</details>\n\n", file = summ, append = TRUE)
-            }
-          }
-          if (tot[["fail"]] > 0) stop(tot[["fail"]], " test failure(s)")
+      - name: Assert the suite actually finished
+        env:
+          CLIFF_CI_OUT: ${{ runner.temp }}/ci-out
+        run: |
+          # The sentinel is written only after test_dir() returns. A quit(),
+          # segfault, OOM kill, job timeout or reporter crash all leave it
+          # absent, and none of those may be reported as a pass.
+          if [ ! -f "$CLIFF_CI_OUT/suite-completed.txt" ]; then
+            echo "::error::suite completion sentinel missing - the suite did not run to completion"
+            exit 1
+          fi
+          echo "sentinel:"; cat "$CLIFF_CI_OUT/suite-completed.txt"
+          {
+            echo "### Test suite"
+            echo ""
+            echo '```'
+            cat "$CLIFF_CI_OUT/suite-completed.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test accounting
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-accounting
+          path: ${{ runner.temp }}/ci-out/*
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Coverage
         if: ${{ inputs.deep }}

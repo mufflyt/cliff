@@ -1,0 +1,6 @@
+# Frozen inputs that are not yet in SHA256SUMS.
+# CI fails when this set GROWS. Shrink it by hashing the file and
+# deleting its line here; never add a line to make CI pass.
+#
+# Regenerate deliberately with:
+#   Rscript scripts/ci/verify_hashes.R --write-debt

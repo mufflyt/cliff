@@ -17,3 +17,7 @@ data/enrichment_inputs/
 
 # Microsoft Word lock/owner files
 ~$*
+
+# Download caches created by generators at run time, not artifacts.
+data/nrmp_cache/
+data/tigris/

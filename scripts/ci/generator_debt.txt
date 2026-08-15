@@ -1,0 +1,11 @@
+# Clean-checkout generators that do not currently run in a bare checkout.
+# CI fails when this set GROWS. Shrink it by fixing the generator and
+# deleting its line; never add a line just to make CI pass.
+#   CLIFF_ALLOW_MUTATION=1 Rscript scripts/ci/regenerate_clean_checkout.R --write-debt
+code/01_consolidate_workforce_data.R
+code/07_create_table1.R
+scripts/rebuild_ssot_dynamic_acgme.R
+scripts/rebuild_ssot_final.R
+scripts/urps_baseline_scenarios/urps_scenario_analysis_v3.R
+scripts/urps_demand_denominators_sensitivity.R
+scripts/urps_module_d_geographic_access_2026-07-23.R

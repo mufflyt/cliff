@@ -6,9 +6,17 @@ contributors see on a pull request.
 
 ```
 ci.yml        push to main, PRs, manual   ->  _core.yml (deep: false)
-nightly.yml   02:17 America/Denver        ->  _core.yml (deep: true) + extras
+nightly.yml   02:17 America/Denver        ->  _core.yml            (deep: true)
+                                          ->  _reproducibility.yml (deep: true)
+                                          ->  lockfile restore, upstream drift
+                                          ->  nightly summary (aggregator)
 contract-tests.yml  push, PRs             ->  minimal-dependency canary
 ```
+
+`_core.yml` asks *is this a healthy R package*. `_reproducibility.yml` asks the
+question that actually matters for cliff, which is also a projection engine, a
+set of frozen artifacts and an SSOT system: *can a clean machine still reproduce
+the evidence the manuscript rests on?*
 
 ## What runs where
 
@@ -35,6 +43,36 @@ hour twice a year. Two are registered — `17 8` and `17 9` UTC — and the `whe
 job lets exactly one through by checking the Denver local hour. Scheduled runs
 are often delayed under load, so the guard matches the local **hour**, not the
 exact minute: a late run still fires, the wrong-offset run is still filtered.
+
+## Debt registries, not permanent red
+
+Three gates would be red from a standing start because the repository has real,
+pre-existing drift. A permanently red job teaches people to ignore red, so each
+records its current state in a committed registry and fails only when the set
+**grows**:
+
+| Registry | Currently | Meaning |
+|---|--:|---|
+| `scripts/ci/skip_baseline.json` | 13 reasons / 27 skips | approved test skips; a NEW reason fails |
+| `scripts/ci/generator_debt.txt` | 7 | clean-checkout generators that no longer run |
+| `scripts/ci/artifact_drift_debt.txt` | 13 | committed artifacts that do not reproduce from their own generator |
+| `scripts/ci/data_hash_debt.txt` | 0 | in-scope inputs with no hash coverage |
+| `scripts/ci/check_notes_baseline.txt` | 4 | accepted `R CMD check` NOTEs; a NEW one fails |
+
+Every line in `artifact_drift_debt.txt` is an open scientific question, not a
+formatting nit. `classifier_validation_external.csv`, for example, regenerates
+with URPS n=499 against a committed 415. Shrink these by fixing the underlying
+issue and deleting the line — never by adding a line to make CI pass.
+
+## The completion sentinel
+
+`scripts/ci/run_suite.R` writes `suite-completed.txt` only after `test_dir()`
+returns, and a separate step asserts it exists. A `quit()`, segfault, OOM kill,
+job timeout or reporter crash all leave it absent. Exit status alone cannot
+distinguish "ran everything and passed" from "died before finishing", and the
+suite pass count is deliberately **not** asserted — the suite may grow or shrink
+on purpose. The invariants are: it finished, zero failures, and the skips are
+the approved ones.
 
 ## Design notes
 

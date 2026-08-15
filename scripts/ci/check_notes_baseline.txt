@@ -1,0 +1,8 @@
+# Known, accepted R CMD check NOTEs, one normalised fingerprint per line.
+# A NEW fingerprint fails CI; a disappeared one is only reported.
+# Re-approve deliberately:
+#   Rscript scripts/ci/check_note_fingerprint.R <log> --write-baseline
+package dependencies :: Package suggested but not available for checking: ‘zipangu’
+installed package size :: installed size is <size> sub-directories of <size> or more: extdata <size>
+top-level files :: Non-standard file<path> found at top level: ‘config’
+R code for possible problems :: add_fellowship_to_table1: no visible binding for global variable ‘inferred_state’ (<path> add_fellowship_to_table1: no visible binding for global variable ‘inferred_acgme_id’ (<path> add_fellowship_to_table1: no visible 

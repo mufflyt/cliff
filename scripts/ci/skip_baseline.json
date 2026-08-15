@@ -1,0 +1,15 @@
+{
+  "build_year_coord_map.R not found": 12,
+  "STATS_OK is not TRUE": 4,
+  "apply_cohort_inclusion_exclusion_criteria.R not found": 1,
+  "engine not loaded": 1,
+  "PENDING R<n>#<n>A: two-reviewer chart adjudication results not yet available (human review)": 1,
+  "PENDING R<n>#<n>B: death correction blocked on signals DuckDB access": 1,
+  "raw ABOG export not present in this checkout": 1,
+  "retired on author instruction: the enumerated interval caveat was cut; MIGS is now excluded from the primary analysis entirely.": 1,
+  "retired on author instruction: the paper is urogynecology-only since the post-condensation revisions, so there is no GO-vs-URPS ordering left to disclose.": 1,
+  "retired on author instruction: the tipping-point statement itself was removed from the condensed Discussion.": 1,
+  "set CLIFF_RENDER_TESTS=<n> to run renders": 1,
+  "slow: set CLIFF_SLOW_TESTS=<n> to re-run the <n>-draw builder": 1,
+  "Table <n> sub-pipeline script not present in this environment": 1
+}
