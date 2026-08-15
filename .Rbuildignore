@@ -67,3 +67,14 @@
 ^SIMULATION_TO_CLIFF_INTEGRATION_PLAN\.md$
 ^URPS_.*\.md$
 ^WORKFORCE_CONCENTRATION_EQUITY\.md$
+# --- non-dataset material inside data/ ---
+# NOTE: every line here is a regex, comments included. Avoid parentheses and
+# other metacharacters or R CMD build fails with "invalid regular expression".
+# R treats everything in data/ as packaged datasets and rejects anything that is
+# not one. These four are working material: a README, the Census NP2023
+# projection inputs, a FREIDA extract, and a rendered table. They stay on disk
+# because generators read them from the source tree, but must not enter the build.
+^data/README\.md$
+^data/census$
+^data/freida$
+^data/table1_urps_characteristics_2026-07-23\.docx$
