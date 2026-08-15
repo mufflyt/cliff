@@ -39,6 +39,11 @@ env:
   # by remotes against RSPM binaries. The one job that DOES want renv
   # (nightly's lockfile_restore) calls renv:: explicitly.
   RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+  # mufflyaccess is a GitHub dependency (DESCRIPTION Remotes). remotes resolves
+  # that pin through the GitHub API, which returns 401 unauthenticated from
+  # Actions runners. github.token is always present and needs no secret
+  # inheritance, unlike secrets.GITHUB_TOKEN in a called workflow.
+  GITHUB_PAT: ${{ github.token }}
 
 jobs:
   # ---------------------------------------------------------------------------

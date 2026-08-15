@@ -93,8 +93,19 @@ for (pkg in sort(all_pkgs)) {
     url <- sprintf("https://api.github.com/repos/%s/%s/commits/%s",
                    l$RemoteUsername, l$RemoteRepo,
                    if (!is.null(l$RemoteRef)) l$RemoteRef else "HEAD")
-    up <- tryCatch(jsonlite::fromJSON(url, simplifyVector = FALSE),
-                   error = function(e) NULL)
+    # Unauthenticated GitHub API calls are rate-limited to 60/hour per IP and
+    # return 401/403 from shared CI runners. GITHUB_PAT is set by the workflow.
+    pat <- Sys.getenv("GITHUB_PAT", Sys.getenv("GITHUB_TOKEN", ""))
+    up <- tryCatch({
+      con <- if (nzchar(pat)) {
+        url(url, headers = c(Authorization = paste("Bearer", pat),
+                             "User-Agent" = "cliff-ci"))
+      } else {
+        url(url, headers = c("User-Agent" = "cliff-ci"))
+      }
+      on.exit(try(close(con), silent = TRUE), add = TRUE)
+      jsonlite::fromJSON(readLines(con, warn = FALSE), simplifyVector = FALSE)
+    }, error = function(e) NULL)
     if (!is.null(up$sha)) {
       same <- identical(up$sha, l_sha)
       cat(sprintf("    upstream %-10s : %s%s\n",
