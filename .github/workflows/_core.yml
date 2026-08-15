@@ -208,8 +208,14 @@ jobs:
       - name: R CMD check
         shell: Rscript {0}
         run: |
+          # Deliberately NOT --as-cran. cliff is not going to CRAN, and there is
+          # already an unrelated package named `cliff` there (Randy Lai's, now
+          # 0.1.2). --as-cran's incoming-feasibility check compares against it
+          # and emits a WARNING about "insufficient package version" and a
+          # changed maintainer, plus one for `Remotes` being an unknown field --
+          # none of which say anything about this package's health.
           res <- rcmdcheck::rcmdcheck(
-            args        = c("--no-manual", "--as-cran"),
+            args        = "--no-manual",
             error_on    = "warning",         # NOTEs allowed, WARNINGs are not
             check_dir   = "check"
           )
