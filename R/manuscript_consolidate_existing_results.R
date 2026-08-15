@@ -51,7 +51,7 @@ main <- function() {
   # Uses doubles (not integers) for ci95 columns to match production column TYPES.
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is_test_mode()) {
-    message("[Step 5.0] TEST_MODE active — returning stub data.")
+    message("[Step 5.0] TEST_MODE active \u2014 returning stub data.")
     stub <- tibble::tribble(
       ~subspecialty,                                       ~subspecialty_abbrev,
       ~baseline_2025, ~projected_2029, ~sd_2029,
@@ -294,7 +294,7 @@ main <- function() {
   width_ratio <- (consolidated$ci95_upper - consolidated$ci95_lower) / consolidated$projected_2029
   if (any(width_ratio > 2.0, na.rm = TRUE)) {
     bad <- consolidated$subspecialty_abbrev[width_ratio > 2.0]
-    stop(sprintf("[Gate 6 CI width] CI spans >200%% of projection for: %s — check SD values.",
+    stop(sprintf("[Gate 6 CI width] CI spans >200%% of projection for: %s \u2014 check SD values.",
                  paste(bad, collapse = ", ")), call. = FALSE)
   } else {
     cat("  \u2713 Gate 6 CI width: all < 200%% of projection\n")

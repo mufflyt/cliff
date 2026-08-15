@@ -432,7 +432,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
         abog_required_cols <- inference_output_columns()
         abog_missing_cols <- setdiff(abog_required_cols, names(abog_results))
         if (length(abog_missing_cols) > 0) {
-          warning(sprintf("Phase 0.5 (fellowship): ABOG results missing columns: %s — skipping ABOG merge",
+          warning(sprintf("Phase 0.5 (fellowship): ABOG results missing columns: %s \u2014 skipping ABOG merge",
                           paste(abog_missing_cols, collapse = ", ")))
           abog_results <- NULL
         }
@@ -450,7 +450,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
               "Phase 0.5 OVERLAP VIOLATION (fellowship): %d NPIs in both GT and ABOG sets. ",
               length(overlap_npis)),
               "Sample: ", paste(utils::head(overlap_npis, 5), collapse = ", "), ". ",
-              "ABOG was called on physicians AFTER GT removal — overlap = pipeline bug.")
+              "ABOG was called on physicians AFTER GT removal \u2014 overlap = pipeline bug.")
           }
         }
 
@@ -556,7 +556,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
 
   # If all physicians were GT-resolved, skip NPPES inference
   if (nrow(physicians) == 0 && !is.null(gt_resolved)) {
-    cat("\nAll physicians resolved via GT — skipping NPPES inference.\n")
+    cat("\nAll physicians resolved via GT \u2014 skipping NPPES inference.\n")
     results <- gt_resolved
     if (!"inference_source" %in% names(results)) {
       results$inference_source <- "ground_truth_hg_dox"

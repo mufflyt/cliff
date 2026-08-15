@@ -138,8 +138,8 @@ load_abog_workforce_data <- function(
   }
 
   if (verbose) {
-    cat(sprintf("  ✓ File exists: %s\n", basename(abog_file)))
-    cat(sprintf("  ℹ️  File size: %.1f MB\n", file.size(abog_file) / 1024^2))
+    cat(sprintf("  \u2713 File exists: %s\n", basename(abog_file)))
+    cat(sprintf("  \u2139\ufe0f  File size: %.1f MB\n", file.size(abog_file) / 1024^2))
   }
 
   # ============================================================================
@@ -179,7 +179,7 @@ load_abog_workforce_data <- function(
   n_cols_raw <- ncol(abog_data)
 
   if (verbose) {
-    cat(sprintf("  ✓ Successfully read %s rows × %s columns\n",
+    cat(sprintf("  \u2713 Successfully read %s rows \u00d7 %s columns\n",
                 format(n_rows_raw, big.mark = ","),
                 n_cols_raw))
   }
@@ -219,7 +219,7 @@ load_abog_workforce_data <- function(
   }
 
   if (verbose) {
-    cat(sprintf("  ✓ All %s required columns present\n", length(required_columns)))
+    cat(sprintf("  \u2713 All %s required columns present\n", length(required_columns)))
   }
 
   # ============================================================================
@@ -234,7 +234,7 @@ load_abog_workforce_data <- function(
   for (col in character_cols_present) {
     if (!is.character(abog_data[[col]])) {
       if (verbose) {
-        cat(sprintf("  ⚠️  Coercing %s to character (was %s)\n",
+        cat(sprintf("  \u26a0\ufe0f  Coercing %s to character (was %s)\n",
                     col, class(abog_data[[col]])[1]))
       }
       abog_data[[col]] <- as.character(abog_data[[col]])
@@ -245,14 +245,14 @@ load_abog_workforce_data <- function(
   if ("certification_year" %in% names(abog_data)) {
     if (!is.integer(abog_data$certification_year)) {
       if (verbose) {
-        cat("  ⚠️  Coercing certification_year to integer\n")
+        cat("  \u26a0\ufe0f  Coercing certification_year to integer\n")
       }
       abog_data$certification_year <- as.integer(abog_data$certification_year)
     }
   }
 
   if (verbose) {
-    cat("  ✓ Column types validated\n")
+    cat("  \u2713 Column types validated\n")
   }
 
   # ============================================================================
@@ -286,7 +286,7 @@ load_abog_workforce_data <- function(
         abog_data$..composite_key <- NULL
 
         if (verbose) {
-          cat(sprintf("\n  ⚠️  Found %s duplicate groups affecting %s rows\n",
+          cat(sprintf("\n  \u26a0\ufe0f  Found %s duplicate groups affecting %s rows\n",
                       n_dup_groups, n_dup_rows))
           cat("  Applying automatic deduplication (keeps best record per physician)\n")
         }
@@ -296,26 +296,26 @@ load_abog_workforce_data <- function(
         abog_data <- deduplicate_abog_data(abog_data, verbose = verbose)
 
         if (verbose) {
-          cat("  ✓ Deduplication complete\n")
+          cat("  \u2713 Deduplication complete\n")
         }
       } else {
         # Remove temporary composite key
         abog_data$..composite_key <- NULL
 
         if (verbose) {
-          cat(sprintf("  ✓ No duplicates found (%s unique physicians)\n",
+          cat(sprintf("  \u2713 No duplicates found (%s unique physicians)\n",
                       format(n_rows_raw, big.mark = ",")))
         }
       }
 
     } else {
       if (verbose) {
-        cat("  ⚠️  Skipping duplicate check (missing physician_name, city, or state)\n")
+        cat("  \u26a0\ufe0f  Skipping duplicate check (missing physician_name, city, or state)\n")
       }
     }
   } else {
     if (verbose) {
-      cat("\n[ABOG LOADER] ⚠️  Duplicate checking DISABLED (allow_duplicates=TRUE)\n")
+      cat("\n[ABOG LOADER] \u26a0\ufe0f  Duplicate checking DISABLED (allow_duplicates=TRUE)\n")
       cat("  This mode is for exploratory analysis only - NOT for production\n")
     }
   }
@@ -337,7 +337,7 @@ load_abog_workforce_data <- function(
     if (n_pr_fixed > 0) {
       abog_data$state[pr_mask] <- "PR"
       if (verbose) {
-        cat(sprintf("  ✓ Auto-corrected %s Puerto Rico typos (PU, UM → PR)\n", n_pr_fixed))
+        cat(sprintf("  \u2713 Auto-corrected %s Puerto Rico typos (PU, UM \u2192 PR)\n", n_pr_fixed))
       }
     }
 
@@ -357,7 +357,7 @@ load_abog_workforce_data <- function(
     if (n_canadian > 0) {
       abog_data <- abog_data[!canadian_mask, ]
       if (verbose) {
-        cat(sprintf("  ✓ Excluded %s Canadian physicians (%.1f%% of loaded)\n",
+        cat(sprintf("  \u2713 Excluded %s Canadian physicians (%.1f%% of loaded)\n",
                     n_canadian,
                     100 * n_canadian / n_before_state_cleaning))
       }
@@ -372,7 +372,7 @@ load_abog_workforce_data <- function(
     if (n_international > 0) {
       abog_data <- abog_data[!intl_mask, ]
       if (verbose) {
-        cat(sprintf("  ✓ Excluded %s international physicians (%.1f%% of loaded)\n",
+        cat(sprintf("  \u2713 Excluded %s international physicians (%.1f%% of loaded)\n",
                     n_international,
                     100 * n_international / n_before_state_cleaning))
       }
@@ -421,7 +421,7 @@ load_abog_workforce_data <- function(
     }
 
     if (verbose) {
-      cat(sprintf("  ✓ All %s state codes are valid US states/territories\n",
+      cat(sprintf("  \u2713 All %s state codes are valid US states/territories\n",
                   nrow(abog_data)))
     }
 
@@ -443,11 +443,11 @@ load_abog_workforce_data <- function(
       pct_missing <- 100 * n_missing / nrow(abog_data)
 
       status_icon <- if (pct_missing == 0) {
-        "✓"
+        "\u2713"
       } else if (pct_missing < 5) {
-        "⚠️"
+        "\u26a0\ufe0f"
       } else {
-        "❌"
+        "\u274c"
       }
 
       cat(sprintf("  %s %-20s: %s missing (%.1f%%)\n",
@@ -462,8 +462,8 @@ load_abog_workforce_data <- function(
   # Final Summary
   # ============================================================================
   if (verbose) {
-    cat("\n[ABOG LOADER] ✅ Validation complete\n")
-    cat(sprintf("  Final dataset: %s rows × %s columns\n",
+    cat("\n[ABOG LOADER] \u2705 Validation complete\n")
+    cat(sprintf("  Final dataset: %s rows \u00d7 %s columns\n",
                 format(nrow(abog_data), big.mark = ","),
                 ncol(abog_data)))
     cat(sprintf("  File: %s\n", basename(abog_file)))

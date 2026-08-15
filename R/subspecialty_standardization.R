@@ -368,12 +368,12 @@ apply_subspecialty_standardization <- function(data,
 
   # Assertion: prevent drift in ABOG subspecialties
   if (length(abog_found) > 0) {
-    message(paste("✅ ABOG subspecialties found:", paste(abog_found, collapse = ", ")))
+    message(paste("\u2705 ABOG subspecialties found:", paste(abog_found, collapse = ", ")))
   }
 
   # Warning if unrecognized labels remain
   if (length(unrecognized) > 0) {
-    warning(paste("⚠️ Unrecognized subspecialties after standardization:",
+    warning(paste("\u26a0\ufe0f Unrecognized subspecialties after standardization:",
                  paste(unrecognized, collapse = ", "),
                  "- consider adding mappings to standardize_abog_subspecialty()"))
   }
