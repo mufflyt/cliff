@@ -1,0 +1,150 @@
+# Reproducibility gates: does the frozen scientific evidence still hold together?
+#
+# _core.yml answers "is this a healthy R package". This answers the question
+# that actually matters for cliff, which is a package AND a projection engine
+# AND a set of frozen artifacts AND an SSOT system: can a clean machine still
+# reproduce the evidence the manuscript rests on?
+#
+# Policy on debt registries. Three gates here would be red from a standing
+# start, because the repository has real, pre-existing drift. A permanently red
+# job teaches people to ignore red, so each records its current state in a
+# committed registry and fails only when the set GROWS. The debt is visible and
+# shrinkable instead of implicit and permanent.
+
+name: _reproducibility
+
+on:
+  workflow_call:
+    inputs:
+      deep:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+  GITHUB_PAT: ${{ github.token }}
+  _R_CHECK_FORCE_SUGGESTS_: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Frozen evidence. Both directions: everything listed still hashes correctly,
+  # and everything in scope is listed. SHA256SUMS had no generator and had gone
+  # 21 commits stale before this existed.
+  # ---------------------------------------------------------------------------
+  evidence:
+    name: frozen evidence (SHA256SUMS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+      - shell: Rscript {0}
+        run: install.packages("digest")
+      - name: Verify hashes and audit coverage
+        run: Rscript --no-init-file scripts/ci/verify_hashes.R
+
+      - name: Independent cross-check with shasum
+        run: |
+          # Deliberately not the same implementation as the R check above: a bug
+          # in verify_hashes.R should not be able to certify itself.
+          shasum -a 256 -c SHA256SUMS --quiet
+
+  # ---------------------------------------------------------------------------
+  # PROVENANCE.md names an SSOT and its canonical producer. Make that executable.
+  # ---------------------------------------------------------------------------
+  ssot:
+    name: SSOT regenerates from its producer
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev
+      - name: Install dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages("remotes")
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+      - run: R CMD INSTALL --with-keep.source .
+
+      - name: Regenerate the SSOT and compare
+        run: Rscript --no-init-file scripts/ci/regenerate_ssot.R
+
+      - name: Pipeline map is current
+        shell: Rscript {0}
+        run: |
+          library(testthat); library(cliff)
+          test_file("tests/testthat/test-pipeline-map-current.R",
+                    reporter = "summary", stop_on_failure = TRUE)
+
+      - name: Generator reproducibility classes
+        run: |
+          Rscript --no-init-file scripts/ci/classify_generators.R | tee classes.txt
+          { echo "### Generator classes"; echo ""; echo '```'; cat classes.txt; echo '```'; } \
+            >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # Re-run every generator that needs no external input and compare its output
+  # to what is committed. Nightly only: it is mutating and slow.
+  # ---------------------------------------------------------------------------
+  regenerate:
+    name: clean-checkout artifacts reproduce
+    if: ${{ inputs.deep }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-pandoc@v2
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+      - name: Install dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages("remotes")
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+      - run: R CMD INSTALL --with-keep.source .
+
+      - name: Re-run clean-checkout generators
+        env:
+          CLIFF_ALLOW_MUTATION: "1"     # the runner's checkout is disposable
+        run: Rscript --no-init-file scripts/ci/regenerate_clean_checkout.R
+
+      - name: Upload regenerated diffs on failure
+        if: failure()
+        run: |
+          git diff > regeneration.diff || true
+          echo "### Artifact regeneration diff" >> "$GITHUB_STEP_SUMMARY"
+          echo '```diff' >> "$GITHUB_STEP_SUMMARY"
+          head -c 40000 regeneration.diff >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: regeneration-diff
+          path: regeneration.diff
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,7 +1,11 @@
 name: contract-tests
 
-# cliff has no full CI (its main suite needs local roster data + a heavy
-# dependency tree). This job gates the DATA-INDEPENDENT contract-integration
+# A MINIMAL-DEPENDENCY canary. cliff does now have full CI (ci.yml, nightly.yml,
+# _core.yml, _reproducibility.yml); this job is kept because it proves something
+# those cannot: that the contract-integration layer still works with base R +
+# mufflyaccess + testthat alone, with no tidyverse, sf or duckdb anywhere.
+#
+# It gates the DATA-INDEPENDENT contract-integration
 # layer that protects the cliff -> mufflyaccess projection work: the workforce
 # engine additions (loader-based, pure functions), the URPS projection producer
 # (reads the committed artifact + the mufflyaccess projection contract), the
