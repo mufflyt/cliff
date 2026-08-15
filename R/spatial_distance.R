@@ -153,11 +153,15 @@ NULL
 #' @export
 #'
 #' @examples
-#' # Distance from Denver to Boulder (approx 40 km)
-#' haversine_distance(39.7392, -104.9903, 40.0150, -105.2705)
+#' # geosphere is a suggested dependency, so the example guards on it: an
+#' # unguarded call is an R CMD check ERROR in a library that lacks it.
+#' if (requireNamespace("geosphere", quietly = TRUE)) {
+#'   # Distance from Denver to Boulder (approx 40 km)
+#'   print(haversine_distance(39.7392, -104.9903, 40.0150, -105.2705))
 #'
-#' # Distance from NYC to LA (approx 3936 km)
-#' haversine_distance(40.7128, -74.0060, 34.0522, -118.2437)
+#'   # Distance from NYC to LA (approx 3936 km)
+#'   print(haversine_distance(40.7128, -74.0060, 34.0522, -118.2437))
+#' }
 haversine_distance <- function(lat1, lon1, lat2, lon2) {
   .validate_lat_lon_scalar(lat1, lon1)
   .validate_lat_lon_scalar(lat2, lon2)
@@ -194,8 +198,10 @@ haversine_distance <- function(lat1, lon1, lat2, lon2) {
 #' @export
 #'
 #' @examples
-#' # Distance in meters (for clustering thresholds)
-#' haversine_distance_m(39.7392, -104.9903, 40.0150, -105.2705)
+#' if (requireNamespace("geosphere", quietly = TRUE)) {
+#'   # Distance in meters (for clustering thresholds)
+#'   print(haversine_distance_m(39.7392, -104.9903, 40.0150, -105.2705))
+#' }
 haversine_distance_m <- function(lat1, lon1, lat2, lon2) {
   .validate_lat_lon_scalar(lat1, lon1)
   .validate_lat_lon_scalar(lat2, lon2)
@@ -252,12 +258,14 @@ calculate_haversine_distance <- function(lat1, lng1, lat2, lng2) {
 #' @export
 #'
 #' @examples
-#' # Calculate multiple distances at once
-#' lats1 <- c(39.7392, 40.7128)
-#' lons1 <- c(-104.9903, -74.0060)
-#' lats2 <- c(40.0150, 34.0522)
-#' lons2 <- c(-105.2705, -118.2437)
-#' haversine_distance_vectorized(lats1, lons1, lats2, lons2)
+#' if (requireNamespace("geosphere", quietly = TRUE)) {
+#'   # Calculate multiple distances at once
+#'   lats1 <- c(39.7392, 40.7128)
+#'   lons1 <- c(-104.9903, -74.0060)
+#'   lats2 <- c(40.0150, 34.0522)
+#'   lons2 <- c(-105.2705, -118.2437)
+#'   print(haversine_distance_vectorized(lats1, lons1, lats2, lons2))
+#' }
 haversine_distance_vectorized <- function(lat1, lon1, lat2, lon2, units = "km") {
   .validate_lat_lon_vector(lat1, lon1)
   .validate_lat_lon_vector(lat2, lon2)

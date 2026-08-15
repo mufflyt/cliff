@@ -25,12 +25,14 @@ Calculates distances between pairs of coordinates (vectorized).
 Uses geosphere::distHaversine which handles vectors efficiently.
 }
 \examples{
-# Calculate multiple distances at once
-lats1 <- c(39.7392, 40.7128)
-lons1 <- c(-104.9903, -74.0060)
-lats2 <- c(40.0150, 34.0522)
-lons2 <- c(-105.2705, -118.2437)
-haversine_distance_vectorized(lats1, lons1, lats2, lons2)
+if (requireNamespace("geosphere", quietly = TRUE)) {
+  # Calculate multiple distances at once
+  lats1 <- c(39.7392, 40.7128)
+  lons1 <- c(-104.9903, -74.0060)
+  lats2 <- c(40.0150, 34.0522)
+  lons2 <- c(-105.2705, -118.2437)
+  print(haversine_distance_vectorized(lats1, lons1, lats2, lons2))
+}
 }
 \seealso{
 \code{\link{haversine_distance}} for single-point
