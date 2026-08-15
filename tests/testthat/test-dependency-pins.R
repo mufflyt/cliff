@@ -21,7 +21,7 @@ test_that("GATE: DESCRIPTION Remotes and renv.lock agree on every GitHub pin", {
 
   out <- suppressWarnings(system2(
     file.path(R.home("bin"), "Rscript"),
-    c("--vanilla", shQuote(script)),
+    c("--no-init-file", shQuote(script)),
     stdout = TRUE, stderr = TRUE,
     env = c(paste0("CLIFF_ROOT=", root))
   ))

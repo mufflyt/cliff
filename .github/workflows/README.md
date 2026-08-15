@@ -67,8 +67,8 @@ which is the part that actually rots.
 ## Running the checks locally
 
 ```sh
-Rscript --vanilla scripts/ci/check_pins.R            # pin agreement
-Rscript --vanilla scripts/ci/check_pins.R --upstream # + drift vs upstream
+Rscript --no-init-file scripts/ci/check_pins.R            # pin agreement
+Rscript --no-init-file scripts/ci/check_pins.R --upstream # + drift vs upstream
 Rscript -e 'devtools::document()'                    # before pushing, if R/ changed
 Rscript -e 'testthat::test_dir("tests/testthat")'    # ~85 s, 2960 assertions
 SMOKELIB=<lib> Rscript scripts/smoke_installed_package.R

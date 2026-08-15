@@ -32,6 +32,13 @@ env:
   # Tests that need the isochrones monorepo skip cleanly; make that explicit
   # rather than accidental, so a CI pass means "everything runnable ran".
   CLIFF_ISOCHRONES_ROOT: ""
+  # The repo's .Rprofile activates renv. In CI that is actively harmful: it
+  # redirects install.packages() into renv's own cache library, which any
+  # Rscript run that skips .Rprofile (or runs from another directory) then
+  # cannot see. Dependencies here are installed into R_LIBS_USER on purpose,
+  # by remotes against RSPM binaries. The one job that DOES want renv
+  # (nightly's lockfile_restore) calls renv:: explicitly.
+  RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -55,7 +62,7 @@ jobs:
         run: install.packages(c("jsonlite", "roxygen2", "desc"))
 
       - name: Dependency pins agree (DESCRIPTION Remotes vs renv.lock)
-        run: Rscript --vanilla scripts/ci/check_pins.R
+        run: Rscript --no-init-file scripts/ci/check_pins.R
 
       - name: DESCRIPTION is parseable and complete
         shell: Rscript {0}

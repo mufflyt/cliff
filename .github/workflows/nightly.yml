@@ -154,7 +154,7 @@ jobs:
         run: install.packages("jsonlite")
       - name: Compare pins to upstream default branches
         run: |
-          Rscript --vanilla scripts/ci/check_pins.R --upstream | tee drift.txt
+          Rscript --no-init-file scripts/ci/check_pins.R --upstream | tee drift.txt
           {
             echo "### Upstream pin drift"
             echo ""
