@@ -263,8 +263,21 @@ jobs:
       - name: Install dependencies
         shell: Rscript {0}
         run: |
-          install.packages(c("remotes", "testthat", "covr", "xml2", "roxygen2"))
+          install.packages(c("remotes", "testthat", "covr", "xml2"))
           remotes::install_deps(dependencies = TRUE, upgrade = "never")
+
+          # roxygen2 must match RoxygenNote exactly. Different roxygen versions
+          # emit different .Rd for identical sources, so installing whatever is
+          # current on CRAN (8.1.0 today, against RoxygenNote 7.3.3) makes the
+          # docs-currency check report every topic as stale. RoxygenNote is not
+          # a dependency pin, but it does record which generator produced man/,
+          # and that is exactly what this check needs to compare against.
+          note <- read.dcf("DESCRIPTION")[1, "RoxygenNote"]
+          cat("RoxygenNote:", note, "\n")
+          remotes::install_version("roxygen2", version = note,
+                                   upgrade = "never", quiet = TRUE)
+          cat("roxygen2 installed:", as.character(packageVersion("roxygen2")), "\n")
+          stopifnot(identical(as.character(packageVersion("roxygen2")), unname(note)))
 
       - name: Install cliff
         run: R CMD INSTALL --with-keep.source .
@@ -375,13 +388,28 @@ jobs:
           mkdir -p "$RUNNER_TEMP/pkglib"
           R CMD INSTALL --library="$RUNNER_TEMP/pkglib" cliff_*.tar.gz
 
+      - name: Assemble a library holding cliff and its hard dependencies only
+        run: |
+          # smoke_installed_package.R does .libPaths(SMOKELIB) — a single
+          # directory — so SMOKELIB must contain cliff AND everything it
+          # Imports, or the failure is just "cannot load cliff" and proves
+          # nothing. The five Suggests were never installed in this job, so
+          # linking both libraries wholesale still leaves them absent.
+          mkdir -p "$RUNNER_TEMP/smokelib"
+          for d in "$R_LIBS_USER"/*/ "$RUNNER_TEMP/pkglib"/*/; do
+            [ -d "$d" ] || continue
+            ln -sfn "${d%/}" "$RUNNER_TEMP/smokelib/$(basename "$d")"
+          done
+          echo "smokelib entries: $(ls -A "$RUNNER_TEMP/smokelib" | wc -l)"
+          for p in data.table sf tidycensus tigris geosphere; do
+            if [ -e "$RUNNER_TEMP/smokelib/$p" ]; then
+              echo "ERROR: $p must be absent from the smoke library"; exit 1
+            fi
+          done
+
       - name: Smoke test with data.table/sf/tidycensus/tigris/geosphere absent
         run: |
-          # The five packages are Suggests and were never installed above, so
-          # this proves cliff loads and its core helpers work without them, and
-          # that geosphere-dependent functions fail with their intended message
-          # rather than "could not find function".
-          SMOKELIB="$RUNNER_TEMP/pkglib" Rscript --vanilla scripts/smoke_installed_package.R
+          SMOKELIB="$RUNNER_TEMP/smokelib" Rscript --vanilla scripts/smoke_installed_package.R
 
       - name: Tarball size
         run: |
