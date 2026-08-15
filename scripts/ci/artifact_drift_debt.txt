@@ -1,19 +1,22 @@
 # Committed artifacts that do NOT reproduce from their own generator.
 #
 # Every line here is an open scientific reproducibility question, not a
-# formatting nit: the values differ. classifier_validation_external.csv,
-# for instance, regenerates with URPS n=499 against a committed 415.
+# formatting nit: the values differ. On macOS, classifier_validation_external.csv
+# regenerates with URPS n=499 against a committed 415.
+#
+# Baselined on ubuntu-latest, the CI reference platform. Three further
+# artifacts drift on macOS but not Linux, which is itself worth knowing:
+#   data/classifier_validation_external.csv
+#   data/scenario_projection_trajectories.csv
+#   data/urps_module_d_differential_distance_2026-07-23.csv
 #
 # CI fails when this set GROWS. Shrink it by determining, per artifact,
 # whether the generator or the committed file is right -- then fixing one
 # and deleting the line.
-data/classifier_validation_external.csv
-data/scenario_projection_trajectories.csv
-data/sensitivity_grid_summary.csv
 data/sensitivity_grid.csv
+data/sensitivity_grid_summary.csv
 data/table1_urps_characteristics_2026-07-23.csv
 data/urps_demand_denominators_sensitivity_2026-07-24.csv
-data/urps_module_d_differential_distance_2026-07-23.csv
 scripts/urps_baseline_scenarios/table1_published_preservation_v3.0.0.csv
 scripts/urps_baseline_scenarios/table2_controlled_sensitivity_v3.0.0.csv
 scripts/urps_baseline_scenarios/table3_count_age_decomposition_v3.0.0.csv

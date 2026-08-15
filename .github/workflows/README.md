@@ -55,7 +55,7 @@ records its current state in a committed registry and fails only when the set
 |---|--:|---|
 | `scripts/ci/skip_baseline.json` | 13 reasons / 27 skips | approved test skips; a NEW reason fails |
 | `scripts/ci/generator_debt.txt` | 7 | clean-checkout generators that no longer run |
-| `scripts/ci/artifact_drift_debt.txt` | 13 | committed artifacts that do not reproduce from their own generator |
+| `scripts/ci/artifact_drift_debt.txt` | 10 | committed artifacts that do not reproduce from their own generator |
 | `scripts/ci/data_hash_debt.txt` | 0 | in-scope inputs with no hash coverage |
 | `scripts/ci/check_notes_baseline.txt` | 4 | accepted `R CMD check` NOTEs; a NEW one fails |
 

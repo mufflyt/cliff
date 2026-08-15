@@ -76,6 +76,14 @@ dirty_after <- system2("git", c("status", "--porcelain"), stdout = TRUE)
 new_dirty <- setdiff(dirty_after, dirty_before)
 drifted <- sub("^\\s*\\S+\\s+", "", new_dirty)
 
+# Rendered images are excluded. PNG/TIFF output differs byte-for-byte between
+# platforms and graphics-device versions for identical data -- Linux and macOS
+# disagree on every figure here -- so comparing them measures the renderer, not
+# the science. The CSVs those figures are drawn from ARE compared, which is the
+# check that has content.
+drifted <- drifted[!grepl("\\.(png|tiff|tif|jpg|jpeg|pdf|svg)$", drifted,
+                          ignore.case = TRUE)]
+
 cat("\n== results ==\n")
 cat("  ran      :", length(ran), "\n")
 cat("  ERRORED  :", length(errored), "\n")
