@@ -112,6 +112,7 @@ jobs:
           RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.posit.co/cran/__linux__/noble/latest
           RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
           RENV_CONFIG_INSTALL_SHORTCUTS: "FALSE"
+          GITHUB_PAT: ${{ github.token }}
         shell: Rscript {0}
         run: |
           lib <- file.path(Sys.getenv("RUNNER_TEMP"), "deplib")
@@ -153,6 +154,8 @@ jobs:
       - shell: Rscript {0}
         run: install.packages("jsonlite")
       - name: Compare pins to upstream default branches
+        env:
+          GITHUB_PAT: ${{ github.token }}
         run: |
           Rscript --no-init-file scripts/ci/check_pins.R --upstream | tee drift.txt
           {
