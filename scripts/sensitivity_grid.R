@@ -42,7 +42,43 @@ worst_cell <- grid %>% group_by(subspecialty_abbrev) %>%
   slice_min(ratio, n=1, with_ties=FALSE) %>%
   transmute(subspecialty_abbrev, worst_window=label, worst_mult=mult, worst_conv=conv)
 summ <- summ %>% left_join(worst_cell, by="subspecialty_abbrev")
-summ <- summ[match(c("GO","URPS","MIGS"), summ$subspecialty_abbrev), ]
+
+# ---- publication cohort contract: FAIL CLOSED --------------------------------
+# This line used to read
+#     summ[match(c("GO","URPS","MIGS"), summ$subspecialty_abbrev), ]
+# and that is a defect, not a convenience. When a named cohort is absent from the
+# source data match() returns NA and the reindex MANUFACTURES a row of NAs, which
+# was then written to CSV and rendered into Appendix Table S17 as though it were a
+# result. Nothing errored.
+#
+# MIGS was intentionally withdrawn upstream (exploratory focused-practice cohort,
+# not pooled with the board-certified ones -- reviewer decision 2026-07-19;
+# build_departure_window_sensitivity.R builds only URPS and GO). That scope change
+# was correct. Silently rendering the consequence as NA was not.
+#
+# A change in scientific SCOPE must be decided by a person and declared here. A
+# cohort that is required, absent, and not explicitly withdrawn stops the run.
+REQUIRED_COHORTS  <- c("GO", "URPS", "MIGS")
+WITHDRAWN_COHORTS <- character(0)   # add a cohort here, WITH ITS REASON, once decided
+
+wanted  <- setdiff(REQUIRED_COHORTS, WITHDRAWN_COHORTS)
+missing <- setdiff(wanted, unique(summ$subspecialty_abbrev))
+if (length(missing)) {
+  stop(sprintf(paste0(
+    "[sensitivity_grid] cohort(s) unavailable in the source data: %s\n",
+    "  source     : data/departure_window_sensitivity.csv\n",
+    "  present    : %s\n",
+    "  required   : %s\n",
+    "This is a change in scientific SCOPE and will not be rendered as an NA row.\n",
+    "Either restore the cohort upstream, or declare it in WITHDRAWN_COHORTS above\n",
+    "and update Appendix Table S17 and its prose to match.\n",
+    "See docs/adjudication/sensitivity_grid.md."),
+    paste(missing, collapse = ", "),
+    paste(sort(unique(summ$subspecialty_abbrev)), collapse = ", "),
+    paste(wanted, collapse = ", ")), call. = FALSE)
+}
+summ <- summ[match(wanted, summ$subspecialty_abbrev), ]
+stopifnot(!anyNA(summ$subspecialty_abbrev))
 write_csv(summ, here::here("data","sensitivity_grid_summary.csv"))
 
 cat("=== #1 multidimensional sensitivity grid (window x rate-mult x conversion) ===\n")

@@ -617,7 +617,14 @@ s7 <- readr::read_csv(here::here("data","consort_cohort_flow.csv"),
                       show_col_types = FALSE)
 lab <- c(URPS="Urogynecology and Reconstructive Pelvic Surgery",
          GO="Gynecologic Oncology", MIGS="Minimally Invasive Gynecologic Surgery")
-s7 <- s7[match(c("GO","URPS","MIGS"), s7$ab), ]
+# FAIL CLOSED: see the note on Table S17. A cohort missing from the CONSORT flow must
+# stop the render, not appear as a row of NAs.
+.want7 <- c("GO","URPS","MIGS")
+.miss7 <- setdiff(.want7, s7$ab)
+if (length(.miss7)) stop(sprintf(
+  "Table S7: cohort(s) %s absent from consort_cohort_flow.csv.",
+  paste(.miss7, collapse = ", ")), call. = FALSE)
+s7 <- s7[match(.want7, s7$ab), ]
 s7v <- data.frame(
   Stage = c("1. Certified/designated, NPI-matched, in-model roster",
             "2. Removed: classified deceased",
@@ -1075,7 +1082,15 @@ each cell's ratio is the window ratio scaled by conversion divided by the rate m
 
 ```{r table-s17}
 gs <- readr::read_csv(here::here("data","sensitivity_grid_summary.csv"), show_col_types = FALSE)
-gs <- gs[match(c("GO","URPS","MIGS"), gs$subspecialty_abbrev), ]
+# FAIL CLOSED. `gs[match(c("GO","URPS","MIGS"), ...), ]` fabricates a row of NAs for
+# any cohort the artifact no longer contains, and renders it as a published result.
+# A cohort withdrawn upstream is a change in scientific scope: stop, do not typeset.
+.want <- c("GO","URPS","MIGS")
+.miss <- setdiff(.want, gs$subspecialty_abbrev)
+if (length(.miss)) stop(sprintf(
+  "Table S17: cohort(s) %s absent from sensitivity_grid_summary.csv. Update this table and the prose below it, rather than rendering an NA row. See docs/adjudication/sensitivity_grid.md.",
+  paste(.miss, collapse = ", ")), call. = FALSE)
+gs <- gs[match(.want, gs$subspecialty_abbrev), ]
 gsv <- data.frame(
   Cohort = gs$subspecialty_abbrev,
   `Cells` = gs$n_cells,
