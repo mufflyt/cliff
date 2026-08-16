@@ -19,6 +19,13 @@
 #      were literals, so the total would update and leave the parts wrong
 #   6. prose embedded in a DATA file (table_evidence_supporting_scenarios.csv),
 #      invisible to both prose scanners and numeric artifact checks
+#   7. an artifact that cannot be reproduced even though NOTHING is wrong,
+#      because its reference input is unversioned. classifier_validation_external
+#      regenerates URPS n=415 -> 499 and sensitivity 0.250 -> 0.188, and both are
+#      correct: the generator is byte-identical to the isochrones original, the
+#      cohort is unchanged, and the state-board registry -- the gold standard --
+#      is GITIGNORED and was rewritten after the artifact was written. Adjudicated
+#      in docs/adjudication/classifier_validation_external.md.
 #
 # The gates below are ordered by that list. See also
 # test-ssot-derived-column-identities.R (kind 1) and the Hall of Shame at the
@@ -239,6 +246,48 @@ test_that("the legacy 1,295 cohort is still cited as frozen, not as current", {
                       txt, perl = TRUE),
                 info = "1,295 appears without being marked frozen/legacy")
   else expect_true(TRUE)
+})
+
+# 415 and 499 are deliberately NOT in the Hall of Shame. The Hall lists numbers
+# that were WRONG and were corrected; these were each correct for the reference
+# standard available when they were produced. Banning 415 would also fail against
+# data/classifier_validation_external.csv, which legitimately still contains it.
+#
+# What went wrong was not a number, it was a missing dependency record: the
+# state-board registry is gitignored, so the artifact's input could be replaced
+# with no commit, no hash and no note. The dated snapshots under
+# data/state_licenses/snapshots/ are what made the adjudication possible.
+#
+# The guard therefore enforces the same thing the 1,295 test does -- honest
+# framing rather than prohibition. Neither figure is cited in the manuscript
+# today, so this passes trivially; it exists so that if one ever IS cited, it
+# must arrive with the reference vintage that produced it.
+test_that("external-validation sensitivities are cited with their reference vintage", {
+  docs <- c("manuscript_WORKFORCE_CLIFF.Rmd", "supplement_WORKFORCE_CLIFF.Rmd")
+  docs <- docs[file.exists(.doc(docs))]
+  skip_if_not(length(docs) > 0, "manuscript sources not present")
+  for (d in docs) {
+    txt <- prose_of(.doc(d))
+    for (v in c("0.250", "0.188")) {
+      if (grepl(v, txt, fixed = TRUE)) {
+        expect_true(
+          grepl(paste0("(?s)", v, "[^.]{0,200}(state board|licen|registry|20[0-9]{2}-[0-9]{2}-[0-9]{2})"),
+                txt, perl = TRUE),
+          info = paste0(d, ": external-validation sensitivity ", v,
+                        " appears without the reference standard or its vintage. ",
+                        "Both 0.250 and 0.188 are correct for DIFFERENT registry ",
+                        "snapshots; the number is meaningless without one."))
+      }
+    }
+    # And the denominators must travel with them: 0.250 is 1/4, 0.188 is 3/16.
+    if (grepl("0.250|0.188", txt, perl = TRUE)) {
+      expect_true(grepl("(?s)(0\\.250|0\\.188)[^.]{0,200}(of [0-9]+|n *= *[0-9]+|[0-9]+ *(physician|record|event))",
+                        txt, perl = TRUE),
+                  info = paste0(d, ": an external-validation sensitivity is quoted ",
+                                "without its denominator. These rest on 4 and 16 ",
+                                "reference-departed physicians respectively."))
+    }
+  }
 })
 
 # ---- GATE 7: the documents must actually RENDER ------------------------------
