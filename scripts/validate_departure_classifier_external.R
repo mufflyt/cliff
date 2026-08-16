@@ -37,8 +37,39 @@ source(here::here("R", "wc_path.R"))
 suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr); library(here)})
 
 COHORT <- wc_path("cohort_csv")
-REG    <- wc_path("state_registry")
+
+# THE REFERENCE STANDARD IS FROZEN, AND VERIFIED BY HASH.
+#
+# It used to be wc_path("state_registry"), which resolves through a mutable
+# symlink to whichever gold-standard registry was last built upstream. That
+# symlink was rewritten on 2026-08-09 and the committed artifact stopped
+# reproducing -- URPS n=415 -> 499, sensitivity 0.250 -> 0.188 -- even though
+# neither this script nor the cohort had changed at all. The registry is
+# gitignored upstream, so nothing recorded that the gold standard had moved.
+#
+# A validation result is only meaningful against a stated reference standard.
+# This pins the immutable dated snapshot that produced the published numbers and
+# refuses to run if its bytes differ, so the artifact can never again be
+# silently revalidated against a different standard.
+#
+# Later registry refreshes are a SEPARATE, versioned analysis:
+#   scripts/validate_departure_classifier_external_updated_reference.R
+# See docs/adjudication/classifier_validation_external.md.
+REG        <- wc_path("state_registry_frozen")
+REG_SHA256 <- "f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6"
+REG_ID     <- "state_board_lifecycle_registry_2026-05-31_4a2c5e08"
+
 stopifnot(file.exists(COHORT), file.exists(REG))
+.reg_sha <- as.character(tools::sha256sum(REG))
+if (!identical(unname(.reg_sha), REG_SHA256)) {
+  stop("[validate_departure_classifier_external] the frozen reference standard ",
+       "does not match its recorded hash.\n  expected: ", REG_SHA256,
+       "\n  found:    ", .reg_sha,
+       "\nThe external-validation reference standard is frozen by design. If it ",
+       "must change, that is a new versioned analysis, not an edit to this one.",
+       call. = FALSE)
+}
+cat(sprintf("reference standard: %s\n  sha256 %s (verified)\n", REG_ID, REG_SHA256))
 
 SUBS <- c(URPS="Female Pelvic Medicine & Reconstructive Surgery",
           GO="Gynecologic Oncology", MIGS="MIGS")
@@ -53,7 +84,7 @@ coh <- read_csv(COHORT, show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
   distinct(npi,.keep_all=TRUE) %>% filter(!is.na(subspec), !is.na(test_departed))
 
 # ---- reference: collapse registry to one INDEPENDENT label per NPI ---------
-reg <- read_csv(REG, show_col_types=FALSE, guess_max=READ_GUESS_MAX_ROWS) %>%
+reg <- readRDS(REG) %>%                       # frozen snapshot ships as .rds
   transmute(npi=as.character(npi), lifecycle_state=tolower(lifecycle_state),
             ref_year=suppressWarnings(as.integer(retirement_year)))
 DEFINITIVE <- c("retired","revoked","surrendered","suspended")

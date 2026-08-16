@@ -4,11 +4,20 @@
 # formatting nit: the values differ. On macOS, classifier_validation_external.csv
 # regenerates with URPS n=499 against a committed 415.
 #
-# Baselined on ubuntu-latest, the CI reference platform. Three further
-# artifacts drift on macOS but not Linux, which is itself worth knowing:
-#   data/classifier_validation_external.csv
+# Baselined on ubuntu-latest, the CI reference platform. Two further artifacts
+# drift on macOS but not Linux, which is itself worth knowing:
 #   data/scenario_projection_trajectories.csv
 #   data/urps_module_d_differential_distance_2026-07-23.csv
+#
+# CLOSED 2026-08-16: data/classifier_validation_external.csv. Adjudicated as
+# reference-standard drift, not generator drift -- the gold-standard registry was
+# gitignored upstream and reached through a mutable symlink that was rewritten
+# after the artifact was written. The generator now pins the dated snapshot that
+# reproduces the committed numbers and verifies it by sha256, so the artifact
+# reproduces byte-identically and its 0.250 sensitivity is unchanged. The newer
+# registry is a separately versioned analysis
+# (classifier_validation_external_updated_reference.csv), not a replacement.
+# See docs/adjudication/classifier_validation_external.md.
 #
 # CI fails when this set GROWS. Shrink it by determining, per artifact,
 # whether the generator or the committed file is right -- then fixing one

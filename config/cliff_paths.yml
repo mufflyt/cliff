@@ -57,6 +57,29 @@ abu_net_new_2026_07_14:
   path: ${CLIFF_ISOCHRONES_ROOT}/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-14.txt
   env: WORKFORCE_ABU_NET_NEW_2026_07_14
 
+state_registry_frozen:
+  # FROZEN external-validation reference standard.
+  #
+  # data/classifier_validation_external.csv is validated against a state medical
+  # board registry that is GITIGNORED upstream and reached through a mutable
+  # symlink (gold/ -> whatever was last built). That symlink was rewritten
+  # 2026-08-09, which made the committed artifact unreproducible even though
+  # neither the generator nor the cohort had changed.
+  #
+  # This key pins the immutable dated snapshot that reproduces the committed
+  # artifact exactly (URPS n=415, sensitivity 0.250; GO and MIGS likewise).
+  # sha256 f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6
+  # Adjudication: docs/adjudication/classifier_validation_external.md
+  path: ${CLIFF_ISOCHRONES_ROOT}/data/state_licenses/snapshots/state_board_lifecycle_registry_2026-05-31_4a2c5e08.rds
+  env: WORKFORCE_STATE_REGISTRY_FROZEN
+
+state_registry_updated:
+  # The 2026-08-09 refresh, for the clearly-labelled updated-reference
+  # sensitivity analysis. NOT the basis of the published validation.
+  # sha256 367cc9a9e80e55f3affcca0cec9693716f9d50f25901e42a4ceeba310b57a064
+  path: ${CLIFF_ISOCHRONES_ROOT}/data/state_licenses/snapshots/state_board_lifecycle_registry_2026-08-09_26210996.rds
+  env: WORKFORCE_STATE_REGISTRY_UPDATED
+
 state_registry:
   # State medical-board lifecycle registry (classifier external validation).
   path: ${CLIFF_ISOCHRONES_ROOT}/data/state_licenses/state_board_lifecycle_registry.csv

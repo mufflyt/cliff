@@ -1,6 +1,6 @@
 # Adjudication: `data/classifier_validation_external.csv`
 
-**Status:** adjudicated — **inputs changed legitimately**
+**Status:** **CLOSED** 2026-08-16 — inputs changed legitimately; reference standard now frozen and hash-verified
 **Date:** 2026-08-16
 **Queue:** `scripts/ci/artifact_drift_debt.txt` (1 of 10)
 
@@ -160,3 +160,54 @@ reproduce" — it cannot, against a moving reference — but:
 
 That is a reproducibility guarantee that survives the reference standard being
 refreshed, which the current byte-comparison does not.
+
+
+---
+
+## 10. Resolution (2026-08-16)
+
+The scientific result was **not** changed. `0.250` stands as published.
+
+**The reference standard is frozen and verified.** `config/cliff_paths.yml` gained
+`state_registry_frozen`, pinning the dated snapshot that reproduces the committed
+artifact, and `state_registry_updated` for the refreshed basis. The generator
+resolves the frozen key, records the snapshot id and its sha256, and **refuses to
+run if the bytes differ**:
+
+```
+reference standard: state_board_lifecycle_registry_2026-05-31_4a2c5e08
+  sha256 f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6 (verified)
+```
+
+Running it now reproduces `data/classifier_validation_external.csv`
+**byte-identically**. The artifact went from unreproducible to reproducible with
+no change to any published number.
+
+**The refreshed basis is a separate, labelled analysis.**
+`scripts/validate_departure_classifier_external_updated_reference.R` reports both
+bases side by side in
+`data/classifier_validation_external_updated_reference.csv`, each row stamped
+with its snapshot id and sha256, and each sensitivity carrying a Wilson interval:
+
+| basis | subspec | sensitivity | 95% CI |
+|---|---|---:|---|
+| frozen 2026-05-31 | URPS | 1/4 = 0.250 | 0.046 – 0.699 |
+| updated 2026-08-09 | URPS | 3/16 = 0.188 | 0.066 – 0.430 |
+| frozen 2026-05-31 | ALL | 7/26 = 0.269 | 0.137 – 0.461 |
+| updated 2026-08-09 | ALL | 11/53 = 0.208 | 0.120 – 0.335 |
+
+**Each interval contains the other's point estimate.** There is no evidence the
+classifier's performance changed; the movement is reference-standard correction,
+and 10 of the 12 additional reference-departed URPS physicians came from boards
+updating existing records rather than from expanded coverage.
+
+**Guard added.** `tests/testthat/test-external-validation-reference-frozen.R`
+requires an external-validation generator to pin a hashed snapshot, verify it at
+run time, and never resolve the mutable `state_registry` key; it also checks the
+frozen snapshot still matches its hash, that the updated analysis carries both
+bases with intervals, and that the published `n=415 / 0.250` is unchanged.
+Mutation-tested: reverting the generator to the mutable key fails it.
+
+**Remaining exposure.** The upstream registry is still gitignored, so *future*
+snapshots are still unversioned upstream. What has changed is that cliff no
+longer depends on whichever one happens to be current: it names the one it used.

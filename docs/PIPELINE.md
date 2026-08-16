@@ -12,7 +12,7 @@ inputs under `CLIFF_ISOCHRONES_ROOT` (default `~/isochrones`); *v3.0.0 parquet*
 means `CLIFF_URPS_SNAPSHOT`; *DuckDB* means the external credentials database.
 Scripts with no requirements run from a clean checkout.
 
-70 generators writing 111 artifacts.
+71 generators writing 112 artifacts.
 
 Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_scenarios/`, `analysis/`, `benchmark/`, `manuscript/R/`, `demand_lifecourse/`, `augs_application/`, `data-raw/`
 
@@ -88,3 +88,4 @@ Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_
 | `scripts/urps_scenario_cube/regen_urps_1306_projection.R` | `urps_row_1306_regenerated.csv`<br>`urps_uncertainty_1306.csv` | `urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`urps_cohort_ages_v3.0.0.csv` | -- |
 | `scripts/urps_supply_demand_national_2026-07-23.R` | `urps_supply_demand_national_2026-07-23.csv` | -- | -- |
 | `scripts/validate_departure_classifier_external.R` | `classifier_validation_external.csv` | -- | -- |
+| `scripts/validate_departure_classifier_external_updated_reference.R` | `classifier_validation_external_updated_reference.csv` | -- | -- |
