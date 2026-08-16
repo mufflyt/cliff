@@ -60,14 +60,28 @@ for (g in gens) {
   ok <- tryCatch({
     sys.source(g, envir = new.env(parent = globalenv()))
     TRUE
-  }, error = function(e) { msg <<- conditionMessage(e); FALSE })
+  }, error = function(e) {
+    # conditionMessage() is not enough. readr/dplyr raise rlang/cli conditions
+    # whose human-readable detail lives in the condition body, not the header,
+    # so conditionMessage() returns "" and the failure reports as blank -- which
+    # is exactly what six generators did on Linux, telling us nothing.
+    m <- tryCatch(conditionMessage(e), error = function(...) "")
+    if (!nzchar(trimws(m)))
+      m <- tryCatch(paste(format(e), collapse = " | "), error = function(...) "")
+    if (!nzchar(trimws(m)))
+      m <- paste("<", paste(class(e), collapse = "/"), "with no message >")
+    call <- tryCatch(deparse(conditionCall(e))[1], error = function(...) NA_character_)
+    msg <<- paste0(gsub("\\s+", " ", m),
+                   if (!is.na(call) && nzchar(call)) paste0("  [at: ", call, "]") else "")
+    FALSE
+  })
   secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
   if (isTRUE(ok)) {
     ran <- c(ran, g)
     cat(sprintf("  ok       %-58s %5.1fs\n", g, secs))
   } else {
     errored <- c(errored, g)
-    cat(sprintf("  ERRORED  %-58s %5.1fs  %s\n", g, secs, substr(msg, 1, 70)))
+    cat(sprintf("  ERRORED  %-58s %5.1fs\n      %s\n", g, secs, substr(msg, 1, 300)))
   }
 }
 

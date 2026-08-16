@@ -119,7 +119,11 @@ jobs:
             libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
             libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
             libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
-            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev \
+            libnode-dev poppler-utils
+          # poppler-utils supplies pdftotext, which
+          # scripts/fetch_nrmp_fellowship_entrants.R shells out to. Without it
+          # that generator fails for a reason that has nothing to do with cliff.
       - name: Install dependencies
         shell: Rscript {0}
         run: |
