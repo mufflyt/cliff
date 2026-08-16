@@ -55,7 +55,6 @@ cat("\n[STEP 2/4] Assembling the deployment bundle...\n")
 app_files <- c(
   "app.R",
   "urps_model_data.R",
-  "data/graduation_active_transition_projection.csv",
   "data/graduation_active_transition.csv",
   "www/manuscript_WORKFORCE_CLIFF.html",
   "www/manuscript_WORKFORCE_CLIFF.docx"
