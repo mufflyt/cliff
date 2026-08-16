@@ -9,7 +9,7 @@ Characteristic,ABU (n=308),ABOG (n=1031),Overall (n=1339),P,Coverage
 "Practice organization size (Medicare group members), median [IQR]","610.0 [72.5, 1658.2]","640.0 [143.0, 1559.0]","638.0 [125.0, 1602.0]",0.791,89%
 "Multi-site practice (≥2 locations), n (%)",170 (57.2%),495 (52.2%),665 (53.4%),0.148,93%
 "Sole proprietor, n (%)",37 (12.2%),148 (14.5%),185 (14.0%),0.354,99%
-"Rurality, n (%)","","","",0.323,100%
+"Rurality, n (%)","","","",0.324,100%
    Rural,2 (0.7%),13 (1.3%),15 (1.1%),"",""
    Suburban,11 (3.6%),23 (2.2%),34 (2.5%),"",""
    Urban,294 (95.8%),993 (96.5%),1287 (96.3%),"",""
