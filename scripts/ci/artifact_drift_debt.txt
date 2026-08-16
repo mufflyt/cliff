@@ -19,6 +19,24 @@
 # (classifier_validation_external_updated_reference.csv), not a replacement.
 # See docs/adjudication/classifier_validation_external.md.
 #
+# CLOSED 2026-08-16: scripts/urps_scenario_cube/urps_row_1306_regenerated.csv and
+# urps_uncertainty_1306.csv, adjudicated together as one model run. Cause was a
+# LEGITIMATE METHODOLOGICAL REVISION, not drift: 7c05c87 (2026-08-08) wired the
+# per-provider microsimulation into the MC, adding aleatory uncertainty the
+# aggregate model could not express. Controlled experiment at identical seed and
+# 10,000 draws: the deterministic point estimate is UNCHANGED at 1510.0614, while
+# variance decomposes into parameter 193.7 (sd 13.92) + aleatory 298.5 (sd 17.28),
+# observed total 512.9 (sd 22.65), the +4% gap being hazard x cohort interaction.
+# The superseded parameter-only model is preserved and still exactly reproducible
+# as urps_uncertainty_1306_parameter_only.csv; both artifacts now carry an
+# uncertainty_model column. See docs/adjudication/urps_row_1306_pair.md.
+#
+# STILL OPEN from that adjudication (tracked there, not here, because the artifacts
+# now reproduce): the cube's hazard is URPS-only and probability-weighted where the
+# SSOT's is pooled GO+URPS and hard-anchored, so this projection has disagreed with
+# data/workforce_projections_consolidated.csv by 4.4 physicians since the day it was
+# written. That is a scientific decision, not a reproducibility failure.
+#
 # CI fails when this set GROWS. Shrink it by determining, per artifact,
 # whether the generator or the committed file is right -- then fixing one
 # and deleting the line.
@@ -30,5 +48,3 @@ scripts/urps_baseline_scenarios/table1_published_preservation_v3.0.0.csv
 scripts/urps_baseline_scenarios/table2_controlled_sensitivity_v3.0.0.csv
 scripts/urps_baseline_scenarios/table3_count_age_decomposition_v3.0.0.csv
 scripts/urps_baseline_scenarios/table4_same_horizon_h4_v3.0.0.csv
-scripts/urps_scenario_cube/urps_row_1306_regenerated.csv
-scripts/urps_scenario_cube/urps_uncertainty_1306.csv
