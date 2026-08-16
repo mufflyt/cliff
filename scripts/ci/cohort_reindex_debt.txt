@@ -21,10 +21,13 @@
 # A legitimate change in scientific SCOPE must not be able to propagate as
 # syntactically valid but semantically corrupt published output.
 #
-# Currently FIRING (input has lost a listed cohort):
-#   scripts/sensitivity_grid.R
-# Currently ARMED (fires as soon as its input is regenerated):
-#   manuscript/supplement_WORKFORCE_CLIFF.Rmd
+# FIXED 2026-08-16 and removed from this list:
+#   scripts/sensitivity_grid.R              -- now declares REQUIRED_COHORTS /
+#     WITHDRAWN_COHORTS and stops, naming the cohort, rather than emitting NA.
+#     MIGS is now explicitly withdrawn: current scope is URPS + GO.
+#   manuscript/supplement_WORKFORCE_CLIFF.Rmd -- Tables S17 and S7 now DERIVE their
+#     cohort set from the authoritative artifact instead of a hardcoded vector.
+#
 # Currently LATENT (input still carries every cohort the reindex names):
 #   scripts/breakeven_thresholds.R
 #   scripts/classifier_adjudication.R   -- match(c("GO","URPS"), ...); a shorter
@@ -34,7 +37,5 @@
 # CI fails when this set GROWS. Shrink it by making the reindex fail closed:
 # intersect against the cohorts actually present and stop() if one the manuscript
 # names is missing, rather than silently emitting NA.
-manuscript/supplement_WORKFORCE_CLIFF.Rmd
 scripts/breakeven_thresholds.R
 scripts/classifier_adjudication.R
-scripts/sensitivity_grid.R

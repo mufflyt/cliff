@@ -24,6 +24,30 @@ source(here("manuscript/R/workforce_figures_expanded.R"))
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 workforce_summary <- load_workforce_data()
 
+# Order an artifact's rows by cohort, FAILING CLOSED if a requested cohort is absent.
+#
+# `d[match(c("GO","URPS"), d$subspecialty_abbrev), ]` returns NA for any cohort the
+# artifact does not contain, and the reindex then MANUFACTURES a row of NAs which is
+# typeset as though it were a result. That is how a withdrawn cohort reached
+# Appendix Table S17. Nothing errored, and nothing could have caught it downstream.
+#
+# A cohort missing from an artifact is a change in scientific SCOPE. It must stop the
+# render so a person decides, not appear as a blank row in a published table.
+# See docs/adjudication/sensitivity_grid.md.
+.cohort_rows <- function(d, want = c("GO", "URPS"), key = "subspecialty_abbrev") {
+  miss <- setdiff(want, d[[key]])
+  if (length(miss)) {
+    stop(sprintf(paste0(
+      "cohort(s) %s absent from this artifact (present: %s). Update the table and its ",
+      "prose to the current scope rather than rendering an NA row."),
+      paste(miss, collapse = ", "), paste(sort(unique(d[[key]])), collapse = ", ")),
+      call. = FALSE)
+  }
+  out <- d[match(want, d[[key]]), , drop = FALSE]
+  stopifnot(!anyNA(out[[key]]))
+  out
+}
+
 # Read the headline ratio from the SSOT rather than restating it in prose. The
 # S4b sentence used to carry a hand-written 7.35 / 5.83, which matched neither
 # the audit table it introduced nor the consolidated projection it claimed to
@@ -617,14 +641,17 @@ s7 <- readr::read_csv(here::here("data","consort_cohort_flow.csv"),
                       show_col_types = FALSE)
 lab <- c(URPS="Urogynecology and Reconstructive Pelvic Surgery",
          GO="Gynecologic Oncology", MIGS="Minimally Invasive Gynecologic Surgery")
-# FAIL CLOSED: see the note on Table S17. A cohort missing from the CONSORT flow must
-# stop the render, not appear as a row of NAs.
-.want7 <- c("GO","URPS","MIGS")
-.miss7 <- setdiff(.want7, s7$ab)
-if (length(.miss7)) stop(sprintf(
-  "Table S7: cohort(s) %s absent from consort_cohort_flow.csv.",
-  paste(.miss7, collapse = ", ")), call. = FALSE)
-s7 <- s7[match(.want7, s7$ab), ]
+# The cohort set is DERIVED from the artifact, not hardcoded, then ordered canonically.
+# Unlike Table S17, this table's scope legitimately still includes MIGS: it documents
+# how the 2023 board-certified baseline was constructed, which covers all three cohorts.
+# The table body below indexes s7 POSITIONALLY (GO, URPS, MIGS), so that assumption is
+# asserted rather than trusted: if the artifact's cohort set ever changes, the render
+# stops instead of emitting a row of NAs. See docs/adjudication/sensitivity_grid.md.
+s7 <- s7[order(match(s7$ab, c("GO","URPS","MIGS")), s7$ab), ]
+stopifnot(!anyNA(s7$ab))
+if (!identical(s7$ab, c("GO", "URPS", "MIGS"))) stop(sprintf(
+  "Table S7 assumes the cohorts GO, URPS, MIGS in that order; consort_cohort_flow.csv now has: %s. Update the table body rather than rendering positional mismatches.",
+  paste(s7$ab, collapse = ", ")), call. = FALSE)
 s7v <- data.frame(
   Stage = c("1. Certified/designated, NPI-matched, in-model roster",
             "2. Removed: classified deceased",
@@ -765,7 +792,7 @@ adjudication above.
 
 ```{r table-s7-corr}
 cc <- readr::read_csv(here::here("data","classifier_corroboration.csv"), show_col_types = FALSE)
-cc <- cc[match(c("GO","URPS"), cc$subspecialty_abbrev), ]
+cc <- .cohort_rows(cc)
 ccv <- data.frame(
   Cohort = cc$subspecialty_abbrev,
   `Classified departures (n)` = cc$n_departures,
@@ -965,7 +992,7 @@ denominator wrongly included retired physicians and understated the share.
 ```{r table-s12}
 ow <- readr::read_csv(here::here("data","operative_workforce.csv"),
                       show_col_types = FALSE)
-ow <- ow[match(c("GO","URPS"), ow$subspecialty_abbrev), ]
+ow <- .cohort_rows(ow)
 owv <- data.frame(
   Cohort = ow$subspecialty_abbrev,
   `Active cohort (n)` = ow$n_active_cohort,
@@ -989,7 +1016,7 @@ artifact, not evidence of a capacity deficit.
 
 ```{r table-s13}
 tt <- readr::read_csv(here::here("data","operative_tte.csv"), show_col_types = FALSE)
-tt <- tt[match(c("GO","URPS"), tt$subspecialty_abbrev), ]
+tt <- .cohort_rows(tt)
 ttv <- data.frame(
   Cohort = tt$subspecialty_abbrev,
   `Certification cohort (2013-2020, n)` = tt$cohort_grads_2013_2020,
@@ -1002,7 +1029,7 @@ kable(ttv, caption = "**Appendix Table S13.** Cumulative incidence of becoming a
 
 ```{r table-s14}
 cp <- readr::read_csv(here::here("data","operative_capacity.csv"), show_col_types = FALSE)
-cp <- cp[match(c("GO","URPS"), cp$subspecialty_abbrev), ]
+cp <- .cohort_rows(cp)
 cpv <- data.frame(
   Cohort = cp$subspecialty_abbrev,
   `Operators produced/yr (grads x 8-y conversion)` = sprintf("%.1f", cp$operators_produced_per_yr),
@@ -1028,7 +1055,7 @@ departures, not as a positive predictive value for operative cessation.
 
 ```{r table-s15}
 aj <- readr::read_csv(here::here("data","operative_adjudication.csv"), show_col_types = FALSE)
-aj <- aj[match(c("GO","URPS"), aj$subspecialty_abbrev), ]
+aj <- .cohort_rows(aj)
 ajv <- data.frame(
   Cohort = aj$subspecialty_abbrev,
   `Apparent cessations (n)` = aj$n_cessations,
@@ -1082,15 +1109,17 @@ each cell's ratio is the window ratio scaled by conversion divided by the rate m
 
 ```{r table-s17}
 gs <- readr::read_csv(here::here("data","sensitivity_grid_summary.csv"), show_col_types = FALSE)
-# FAIL CLOSED. `gs[match(c("GO","URPS","MIGS"), ...), ]` fabricates a row of NAs for
-# any cohort the artifact no longer contains, and renders it as a published result.
-# A cohort withdrawn upstream is a change in scientific scope: stop, do not typeset.
-.want <- c("GO","URPS","MIGS")
-.miss <- setdiff(.want, gs$subspecialty_abbrev)
-if (length(.miss)) stop(sprintf(
-  "Table S17: cohort(s) %s absent from sensitivity_grid_summary.csv. Update this table and the prose below it, rather than rendering an NA row. See docs/adjudication/sensitivity_grid.md.",
-  paste(.miss, collapse = ", ")), call. = FALSE)
-gs <- gs[match(.want, gs$subspecialty_abbrev), ]
+# The cohort set is DERIVED from the authoritative artifact, never hardcoded. The
+# previous `gs[match(c("GO","URPS","MIGS"), ...), ]` fabricated a row of NAs for any
+# cohort the artifact no longer contained and typeset it as a result. Scope is declared
+# once, upstream, in scripts/sensitivity_grid.R; this table follows it.
+# Current scope is URPS + GO: MIGS was withdrawn 2026-08-16 (exploratory
+# focused-practice cohort, not pooled). See docs/adjudication/sensitivity_grid.md.
+gs <- gs[order(match(gs$subspecialty_abbrev, c("GO","URPS","MIGS")),
+               gs$subspecialty_abbrev), ]
+stopifnot(nrow(gs) > 0, !anyNA(gs$subspecialty_abbrev))
+s17_cohorts <- gs$subspecialty_abbrev
+s17_worst <- function(ab) sprintf("%.2f", gs$worst_ratio[match(ab, gs$subspecialty_abbrev)])
 gsv <- data.frame(
   Cohort = gs$subspecialty_abbrev,
   `Cells` = gs$n_cells,
@@ -1104,9 +1133,10 @@ kable(gsv, caption = "**Appendix Table S17.** Multidimensional sensitivity grid 
 ```
 
 *All one-way minima exceed 1.05. At the joint extreme (full window, 3x rate, 0.70 conversion)
-Gynecologic Oncology was at replacement (1.03) and URPS was below replacement (0.88), a compound
-worst case rather than a plausible single deviation; the exploratory MIGS cohort stays above
-replacement in every cell.*
+Gynecologic Oncology was at replacement (`r s17_worst("GO")`) and URPS was below replacement
+(`r s17_worst("URPS")`), a compound worst case rather than a plausible single deviation. This grid
+covers the two board-certified cohorts (`r paste(s17_cohorts, collapse = ", ")`); the exploratory
+MIGS cohort is outside the current scope of this sensitivity and is not shown.*
 
 # Appendix S13. MIGS Exploratory Focused-Practice Cohort
 
