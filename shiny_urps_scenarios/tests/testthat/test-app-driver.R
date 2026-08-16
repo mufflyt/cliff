@@ -8,6 +8,20 @@
 #
 # Value assertions only (no image snapshots), so they are portable across machines.
 #
+# Expected numbers are DERIVED FROM THE SSOT via the app's own CANON, never
+# written as literals. The previous literals -- 1,339 baseline, 1,544 projected,
+# ratio "5.0 to 1" -- were on the retired roster basis and kept asserting
+# themselves long after the app moved to the 1,306 projection cohort.
+.ssot <- local({
+  e <- load_app_env()
+  fmt <- function(x) formatC(round(x), format = "d", big.mark = ",")
+  list(baseline   = fmt(e$CANON$baseline),
+       immediate  = fmt(e$CANON$proj_immediate),
+       ramped     = fmt(e$CANON$proj_ramped),
+       ratio_txt  = sprintf("%.1f to 1", round(e$CANON$ratio, 1)),
+       net_gain   = round((e$CANON$proj_immediate - e$CANON$baseline) / 4),
+       top_band_n = as.character(round(e$age_table("fully_obs", 1, "obs")$n[1])))
+})
 # Created: 2026-07-21
 
 library(shinytest2)
@@ -22,7 +36,7 @@ test_that("app boots past the validation gate and shows the baseline", {
                info = "The model-validation gate should pass with the frozen engine.")
 
   cards <- app$get_html("#exec_cards")
-  expect_true(grepl("1,339", cards))
+  expect_true(grepl(.ssot$baseline, cards, fixed = TRUE))
   expect_true(grepl("estimated active headcount in 2025", cards))
   expect_true(grepl("ENTER PRACTICE", cards))
   # the readability pass removed "specialists"
@@ -34,12 +48,12 @@ test_that("Best estimate shows the frozen headline numbers", {
   on.exit(app$stop(), add = TRUE)
 
   cards <- app$get_html("#exec_cards")
-  expect_true(grepl("1,544", cards))                         # projected 2029 headcount
+  expect_true(grepl(.ssot$immediate, cards, fixed = TRUE))   # projected 2029 headcount
   expect_true(grepl("projected active headcount in 2029", cards))
-  expect_true(grepl("Net gain: about .51 per year", cards))
+  expect_true(grepl(sprintf("Net gain: about .%d per year", .ssot$net_gain), cards))
   expect_true(grepl("ENTER PRACTICE", cards) && grepl("AVERAGE LEAVING", cards))
-  expect_true(grepl("Headcount replacement ratio: 5.0 to 1", cards))
-  expect_false(grepl("1,466", cards))                        # ramp figure not on the headline
+  expect_true(grepl(paste("Headcount replacement ratio:", .ssot$ratio_txt), cards, fixed = TRUE))
+  expect_false(grepl(.ssot$ramped, cards, fixed = TRUE))     # ramp figure not on the headline
 
   verdict <- app$get_html("#verdict")
   expect_true(grepl("Bottom line: Yes", verdict))
@@ -58,7 +72,7 @@ test_that("a severe stress scenario recomputes the cards and verdict", {
   cards <- app$get_html("#exec_cards")
   verdict <- app$get_html("#verdict")
   # under the severe combination the pipeline no longer clearly out-replaces losses
-  expect_false(grepl("1,544", cards))
+  expect_false(grepl(.ssot$immediate, cards, fixed = TRUE))
   expect_false(grepl("Bottom line: Yes", verdict))
 })
 
@@ -85,8 +99,8 @@ test_that("the age table rounds counts and flags the sparse 70+ estimate", {
   app$set_inputs(tabs = "Explore the model")
   tbl <- app$get_html("#agetab")
   expect_true(grepl("Number of urogynecologists", tbl))
-  expect_true(grepl("498", tbl))
-  expect_false(grepl("498[.]00", tbl))                       # no trailing decimals
+  expect_true(grepl(.ssot$top_band_n, tbl, fixed = TRUE))
+  expect_false(grepl(paste0(.ssot$top_band_n, "[.]00"), tbl))  # no trailing decimals
   # the 70+ group has no observed departures -> not shown as a precise 0
   expect_true(grepl("Not reliably estimated", tbl))
   expect_false(grepl(">\\s*0[.]0%\\s*<", tbl))
