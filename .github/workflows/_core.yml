@@ -73,6 +73,9 @@ jobs:
       - name: Source hygiene (no machine paths, no load-time side effects)
         run: Rscript --no-init-file scripts/ci/check_source_hygiene.R
 
+      - name: Bundled app artifacts match data/ byte for byte
+        run: Rscript --no-init-file scripts/ci/check_bundled_artifacts.R
+
       - name: DESCRIPTION is parseable and complete
         shell: Rscript {0}
         run: |
