@@ -44,12 +44,38 @@ for (.c in c("did_cystoscopy_2024","did_bladder_botox_2024","did_upper_tract_202
   d[, (.c) := .yn(get(.c))]
 
 # ── stat helpers ─────────────────────────────────────────────────────────────
+# REPRODUCIBILITY. This previously called
+#     fisher.test(tb, simulate.p.value = TRUE, B = 1e4)
+# with no set.seed() anywhere in the file, so the reported p-value was a random
+# draw: eight runs gave eight different values (0.314 to 0.327, sd 0.0047) and the
+# artifact could never reproduce. Rurality is the only characteristic with an
+# expected cell below 5, so it was the only row affected.
+#
+# The fix is not a bigger B. A controlled experiment over 20 seeds showed the
+# simulated p converging correctly on the exact value (mean 0.32440 -> 0.32376 ->
+# 0.32360 at B = 1e4, 1e5, 1e6) but STILL spanning three distinct third decimals at
+# B = 1e6 (0.323, 0.324, 0.325). At the precision this table publishes, a different
+# valid seed would change the printed number.
+#
+# The exact conditional test is feasible for these tables and is DETERMINISTIC, so
+# it is used whenever it succeeds: no seed, no Monte Carlo error, exactly one
+# answer. Simulation is kept only as a fallback for a table too large to enumerate,
+# and that fallback is seeded and uses B = 1e6.
+TABLE1_SEED <- 20260718L
+TABLE1_SIM_B <- 1e6
+set.seed(TABLE1_SEED)
+
 fmtp <- function(p) fifelse(is.na(p),"—", fifelse(p<0.001,"<0.001", sprintf("%.3f", p)))
 cat_p <- function(v){ g <- d$path[!is.na(d[[v]])]; x <- d[[v]][!is.na(d[[v]])]
   tb <- table(g, x); if (nrow(tb)<2 || ncol(tb)<2) return(NA_real_)
   ex <- suppressWarnings(chisq.test(tb)$expected)
-  if (any(ex<5)) suppressWarnings(fisher.test(tb, simulate.p.value=TRUE, B=1e4)$p.value)
-  else suppressWarnings(chisq.test(tb)$p.value) }
+  if (any(ex<5)) {
+    p <- tryCatch(suppressWarnings(fisher.test(tb)$p.value), error = function(e) NA_real_)
+    if (!is.na(p)) return(p)                     # exact: deterministic, preferred
+    set.seed(TABLE1_SEED)                        # fallback: seeded, so still reproducible
+    suppressWarnings(fisher.test(tb, simulate.p.value = TRUE,
+                                 B = TABLE1_SIM_B)$p.value)
+  } else suppressWarnings(chisq.test(tb)$p.value) }
 cont_p <- function(v){ x<-suppressWarnings(as.numeric(d[[v]])); g<-d$path
   ok<-!is.na(x); if(length(unique(g[ok]))<2) return(NA_real_)
   suppressWarnings(wilcox.test(x[ok]~g[ok])$p.value) }

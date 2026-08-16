@@ -59,7 +59,14 @@ summ <- summ %>% left_join(worst_cell, by="subspecialty_abbrev")
 # A change in scientific SCOPE must be decided by a person and declared here. A
 # cohort that is required, absent, and not explicitly withdrawn stops the run.
 REQUIRED_COHORTS  <- c("GO", "URPS", "MIGS")
-WITHDRAWN_COHORTS <- character(0)   # add a cohort here, WITH ITS REASON, once decided
+# WITHDRAWN 2026-08-16: MIGS. The current scientific scope of this sensitivity is
+# URPS + GO, as defined upstream by build_departure_window_sensitivity.R, which builds
+# only those two (MIGS is an exploratory focused-practice cohort, not pooled --
+# reviewer decision 2026-07-19). Downstream publication code follows the upstream
+# scope; it does not manufacture a MIGS result from another pathway to preserve a
+# historical table shape. The three-cohort result is preserved as provenance in
+# docs/adjudication/sensitivity_grid.md, not resurrected here.
+WITHDRAWN_COHORTS <- c("MIGS")
 
 wanted  <- setdiff(REQUIRED_COHORTS, WITHDRAWN_COHORTS)
 missing <- setdiff(wanted, unique(summ$subspecialty_abbrev))
