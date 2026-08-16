@@ -33,8 +33,11 @@ the evidence the manuscript rests on?*
 
 The check matrix always includes **R 4.4.2** (what `renv.lock` pins) and
 **R 4.5.3** (what the acceptance gate validated), so neither can rot silently.
-Nightly adds macOS and R devel; devel is `continue-on-error` — an early warning,
-not a gate.
+Nightly adds macOS and Windows. R-devel is deliberately absent: with no Posit
+binaries for devel the whole tree builds from source, and it timed out in the
+dependency install on all four nightly runs without once reaching `R CMD check`.
+cliff is not on CRAN, so the `release` row gives the same warning one cycle
+later at no cost.
 
 ## Why 02:17 is scheduled twice
 

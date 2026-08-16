@@ -200,7 +200,7 @@ jobs:
   # workflow by accident all produce a null result -- and a nightly that reports
   # success in those cases is worse than no nightly, because it is trusted.
   #
-  # Correctness gates fail the run. Compatibility signals (R devel, upstream
+  # Correctness gates fail the run. Compatibility signals (upstream
   # main) are reported separately so that red always means something.
   # ---------------------------------------------------------------------------
   summary:
