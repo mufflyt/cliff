@@ -310,9 +310,18 @@ test_that("R3#5 the joint-extreme cell is labelled GO at-replacement, URPS below
   # with the rest of the audit detail in the Green Journal condensation; the
   # reviewer's requirement is that it is stated, not which document states it.
   expect_true(has(both, "Gynecologic Oncology was at replacement.*URPS was below replacement"))
-  # supplement note carries the same corrected labels with the ratios
-  expect_true(has(supp, "Gynecologic Oncology was at replacement \\(1.03\\)"))
-  expect_true(has(supp, "URPS was below replacement \\(0.88\\)"))
+  # The supplement note carries the same corrected labels with the ratios. It used to
+  # assert the LITERALS (1.03) and (0.88), which is precisely what let the prose go
+  # stale: those were correct for isochrones b0d6c2f96 (2026-07-19) and were never
+  # updated when the artifact moved to 1.003/0.861 and then 1.003/0.833. Pinning a
+  # frozen number in a test froze the defect too. The prose is now generated from
+  # sensitivity_grid_summary.csv, so assert THAT, and that the values agree with the
+  # artifact. See docs/adjudication/sensitivity_grid.md.
+  expect_true(has(supp, "at replacement \\(`r s17_worst\\(\"GO\"\\)`\\)"))
+  expect_true(has(supp, "below replacement\\s*\\n?\\(`r s17_worst\\(\"URPS\"\\)`\\)"))
+  g5 <- csv("sensitivity_grid_summary.csv")
+  expect_equal(sprintf("%.2f", g5$worst_ratio[g5$subspecialty_abbrev == "GO"]), "1.00")
+  expect_equal(sprintf("%.2f", g5$worst_ratio[g5$subspecialty_abbrev == "URPS"]), "0.83")
   # reframe wording: only the joint worst-case sensitivity reaches/dips to replacement
   # RETIRED on author instruction. The main text no longer carries this; it
   # was cut by the Green Journal condensation (f87ac53, 8,405 -> 2,702 words)

@@ -405,7 +405,9 @@ test_that("F2 below-replacement cells exist iff worst_ratio < 0.95 (URPS only)",
   expect_equal(g$n_below > 0, g$worst_ratio < 0.95)
   expect_gt(g$n_below[g$subspecialty_abbrev == "URPS"], 0)
   expect_equal(g$n_below[g$subspecialty_abbrev == "GO"], 0)
-  expect_equal(g$n_below[g$subspecialty_abbrev == "MIGS"], 0)  # MIGS never dips
+  # MIGS was withdrawn from this sensitivity 2026-08-16 (current scope is URPS + GO;
+  # see docs/adjudication/sensitivity_grid.md), so there is no MIGS row to assert on.
+  expect_false("MIGS" %in% g$subspecialty_abbrev)
 })
 
 # ============================================================================
