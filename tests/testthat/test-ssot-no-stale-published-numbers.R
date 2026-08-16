@@ -266,10 +266,15 @@ test_that("external-validation sensitivities are cited with their reference vint
   docs <- c("manuscript_WORKFORCE_CLIFF.Rmd", "supplement_WORKFORCE_CLIFF.Rmd")
   docs <- docs[file.exists(.doc(docs))]
   skip_if_not(length(docs) > 0, "manuscript sources not present")
+  # Neither figure is cited today, so without this the test would assert nothing
+  # and register as an EMPTY test -- which the suite's skip accounting correctly
+  # refuses. Same resolution as the 1,295 guard above.
+  checked <- 0L
   for (d in docs) {
     txt <- prose_of(.doc(d))
     for (v in c("0.250", "0.188")) {
       if (grepl(v, txt, fixed = TRUE)) {
+        checked <- checked + 1L
         expect_true(
           grepl(paste0("(?s)", v, "[^.]{0,200}(state board|licen|registry|20[0-9]{2}-[0-9]{2}-[0-9]{2})"),
                 txt, perl = TRUE),
@@ -281,6 +286,7 @@ test_that("external-validation sensitivities are cited with their reference vint
     }
     # And the denominators must travel with them: 0.250 is 1/4, 0.188 is 3/16.
     if (grepl("0.250|0.188", txt, perl = TRUE)) {
+      checked <- checked + 1L
       expect_true(grepl("(?s)(0\\.250|0\\.188)[^.]{0,200}(of [0-9]+|n *= *[0-9]+|[0-9]+ *(physician|record|event))",
                         txt, perl = TRUE),
                   info = paste0(d, ": an external-validation sensitivity is quoted ",
@@ -288,6 +294,7 @@ test_that("external-validation sensitivities are cited with their reference vint
                                 "reference-departed physicians respectively."))
     }
   }
+  if (checked == 0L) succeed("neither sensitivity is cited in reader-facing prose")
 })
 
 # ---- GATE 7: the documents must actually RENDER ------------------------------
