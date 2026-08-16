@@ -1,0 +1,40 @@
+# Production code that reindexes a table against a HARDCODED cohort list.
+#
+# The pattern is `x[match(c("GO","URPS","MIGS"), x$subspecialty_abbrev), ]`. When a
+# named cohort is absent from the source data, match() returns NA and the reindex
+# manufactures a row of NAs. Nothing errors. The NA row is then written to a CSV or
+# rendered into a manuscript table, where it is indistinguishable from a real result.
+#
+# This is not hypothetical. MIGS was intentionally withdrawn from the departure
+# window sensitivity (it is an exploratory focused-practice cohort, not pooled --
+# reviewer decision 2026-07-19). scripts/sensitivity_grid.R did not adapt, so running
+# it today emits:
+#
+#     GO,27,26,1,0,1.003,2.37,full,3,0.7
+#     URPS,27,25,1,1,0.833,1.793,full,3,0.7
+#     NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+#
+# and manuscript/supplement_WORKFORCE_CLIFF.Rmd:1078 performs the SAME reindex, so
+# Appendix Table S17 would render that NA row. See
+# docs/adjudication/sensitivity_grid.md.
+#
+# A legitimate change in scientific SCOPE must not be able to propagate as
+# syntactically valid but semantically corrupt published output.
+#
+# Currently FIRING (input has lost a listed cohort):
+#   scripts/sensitivity_grid.R
+# Currently ARMED (fires as soon as its input is regenerated):
+#   manuscript/supplement_WORKFORCE_CLIFF.Rmd
+# Currently LATENT (input still carries every cohort the reindex names):
+#   scripts/breakeven_thresholds.R
+#   scripts/classifier_adjudication.R   -- match(c("GO","URPS"), ...); a shorter
+#     hardcoded list is the same defect, not a safer one. Found by this gate, not
+#     by reading the code.
+#
+# CI fails when this set GROWS. Shrink it by making the reindex fail closed:
+# intersect against the cohorts actually present and stop() if one the manuscript
+# names is missing, rather than silently emitting NA.
+manuscript/supplement_WORKFORCE_CLIFF.Rmd
+scripts/breakeven_thresholds.R
+scripts/classifier_adjudication.R
+scripts/sensitivity_grid.R
