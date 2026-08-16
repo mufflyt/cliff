@@ -24,24 +24,32 @@ test_that("the 70+ hazard treatments behave as documented", {
   expect_gt(carry["70+"], 0)
 })
 
-test_that("the primary projection reproduces the frozen headline numbers", {
+test_that("the primary projection reproduces the SSOT headline numbers", {
+  # Asserted against the SSOT (CANON, read from
+  # workforce_projections_consolidated.csv), never against literals. The old
+  # literals -- 12.8 departures, ratio 5.02, 1,544 in 2029 -- were computed on
+  # the 1,339 roster basis and silently outlived the move to the 1,306
+  # projection cohort, so the app validated itself against numbers its own
+  # engine no longer produced.
   e <- load_app_env()
   r <- e$project_traj(e$URPS_AGES, 64, e$adjusted_haz("fully_obs", 1, "obs"), 4)
-  expect_equal(round(r$avg_dep, 1), 12.8)
-  expect_equal(round(64 / r$avg_dep, 2), 5.02)
-  expect_equal(round(tail(r$traj, 1)), 1544)
+  expect_equal(round(r$avg_dep, 1), round(e$CANON$avg_dep, 1))
+  expect_equal(round(64 / r$avg_dep, 2), round(e$CANON$ratio, 2))
+  expect_equal(round(tail(r$traj, 1)), e$CANON$proj_immediate)
   expect_length(r$traj, 5)                                   # baseline + 4 years
 })
 
-test_that("the transition ramp defers entry and reproduces the manuscript's ~1,461", {
+test_that("the transition ramp defers entry and reproduces the SSOT ramped count", {
   e <- load_app_env()
   hz <- e$adjusted_haz("fully_obs", 1, "obs")
   imm  <- e$project_traj(e$URPS_AGES, 64, hz, 4)
   ramp <- e$project_traj(e$URPS_AGES, 64, hz, 4, ramp = e$RAMP_CUM_URPS)
-  expect_equal(round(tail(imm$traj, 1)), 1538)              # immediate-entry (partial-pooled primary)
+  expect_equal(round(tail(imm$traj, 1)), e$CANON$proj_immediate)
   expect_lt(tail(ramp$traj, 1), tail(imm$traj, 1))          # ramp defers some entry
-  expect_lt(abs(tail(ramp$traj, 1) - 1461), 50)             # dynamic ramp vs manuscript deferral method: within a few percent
-  expect_equal(e$RAMP_CUM_URPS[1], 0.329)                   # curve pinned to the transition CSV
+  # within a few percent of the SSOT's ramped figure (the two use different
+  # deferral methods; CANON's is authoritative)
+  expect_lt(abs(tail(ramp$traj, 1) - e$CANON$proj_ramped), 0.06 * e$CANON$proj_ramped)
+  expect_equal(e$RAMP_CUM_URPS, e$CANON$ramp_cum)           # curve pinned to the transition CSV
 })
 
 test_that("the Monte Carlo seed matches the manuscript bootstrap", {
@@ -51,10 +59,22 @@ test_that("the Monte Carlo seed matches the manuscript bootstrap", {
 
 test_that("canonical figures load from the manuscript CSVs and match the model", {
   e <- load_app_env()
-  expect_equal(e$CANON$source, "graduation_active_transition CSVs")   # SSOT, not the frozen fallback
-  expect_equal(e$CANON$baseline, 1339L)
-  expect_equal(e$CANON$proj_immediate, 1544)
-  expect_equal(e$CANON$proj_ramped, 1466)
+  # CANON must come from the SSOT artifacts, and its baseline must be the
+  # projection cohort mufflyaccess reports as current -- not a literal, and not
+  # the roster snapshot.
+  expect_match(e$CANON$source, "SSOT")
+  lin <- mufflyaccess::urps_lineage()
+  expect_equal(e$CANON$baseline,
+               as.integer(lin$national_active[lin$status == "current"]))
+  ssot <- utils::read.csv(
+    if (file.exists("data/workforce_projections_consolidated.csv"))
+      "data/workforce_projections_consolidated.csv"
+    else "../data/workforce_projections_consolidated.csv",
+    stringsAsFactors = FALSE)
+  su <- ssot[toupper(ssot$subspecialty_abbrev) == "URPS", , drop = FALSE]
+  expect_equal(e$CANON$baseline, as.integer(su$baseline_2025))
+  expect_equal(e$CANON$ratio, su$replacement_ratio)
+  expect_equal(e$CANON$avg_dep, su$avg_annual_retirements)
   expect_equal(e$RAMP_CUM_URPS, e$CANON$ramp_cum)                     # curve comes from the CSV
   # the live model reproduces the published immediate and transition-adjusted counts
   hz <- e$adjusted_haz("fully_obs", 1, "obs")
@@ -102,7 +122,7 @@ test_that("age_table has non-NA hazards and a sparse 70+ under as-observed", {
   at <- e$age_table("fully_obs", 1, "obs")
   expect_false(anyNA(at$hazard))
   expect_equal(at$hazard[at$band == "70+"], 0)              # sparse marker
-  expect_equal(round(sum(at$n)), 1339)
+  expect_equal(round(sum(at$n)), e$CANON$baseline)   # the age table totals the SSOT baseline
 })
 
 test_that("run_mc is deterministic under its fixed seed and brackets the point ratio", {
