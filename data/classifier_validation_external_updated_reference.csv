@@ -1,0 +1,9 @@
+reference_basis,reference_snapshot_id,reference_sha256,subspec,n,TP,FN,FP,TN,ref_departed,sensitivity,sens_ci95_lower,sens_ci95_upper
+frozen_2026_05_31,state_board_lifecycle_registry_2026-05-31_4a2c5e08,f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6,URPS,415,1,3,45,366,4,0.25,0.046,0.699
+frozen_2026_05_31,state_board_lifecycle_registry_2026-05-31_4a2c5e08,f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6,GO,390,3,10,38,339,13,0.231,0.082,0.503
+frozen_2026_05_31,state_board_lifecycle_registry_2026-05-31_4a2c5e08,f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6,MIGS,251,3,6,29,213,9,0.333,0.121,0.646
+frozen_2026_05_31,state_board_lifecycle_registry_2026-05-31_4a2c5e08,f95b29fdcd51a0ff7fce9f6652156a7dddaec3159caafaa7f98fb9184f4785d6,ALL,1056,7,19,112,918,26,0.269,0.137,0.461
+updated_2026_08_09,state_board_lifecycle_registry_2026-08-09_26210996,367cc9a9e80e55f3affcca0cec9693716f9d50f25901e42a4ceeba310b57a064,URPS,499,3,13,44,439,16,0.188,0.066,0.43
+updated_2026_08_09,state_board_lifecycle_registry_2026-08-09_26210996,367cc9a9e80e55f3affcca0cec9693716f9d50f25901e42a4ceeba310b57a064,GO,519,4,20,51,444,24,0.167,0.067,0.359
+updated_2026_08_09,state_board_lifecycle_registry_2026-08-09_26210996,367cc9a9e80e55f3affcca0cec9693716f9d50f25901e42a4ceeba310b57a064,MIGS,329,4,9,31,285,13,0.308,0.127,0.576
+updated_2026_08_09,state_board_lifecycle_registry_2026-08-09_26210996,367cc9a9e80e55f3affcca0cec9693716f9d50f25901e42a4ceeba310b57a064,ALL,1347,11,42,126,1168,53,0.208,0.12,0.335
