@@ -128,8 +128,8 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # R CMD check. The lockfile pins R 4.4.2; the acceptance gate validated 4.5.3.
-  # Both are checked on every push so neither can rot. `deep` adds macOS (a real
-  # platform difference for the spatial stack) and R devel as an early warning.
+  # Both are checked on every push so neither can rot. `deep` adds macOS and
+  # Windows, which are genuine platform differences for the spatial stack.
   # ---------------------------------------------------------------------------
   matrix_setup:
     name: resolve check matrix
@@ -143,15 +143,21 @@ jobs:
         run: |
           # 4.4.2 is what renv.lock pins; 4.5.3 is what the acceptance gate
           # validated. Both run always so neither can rot. `deep` adds macOS
-          # (a genuine platform difference for the spatial stack) and R devel
-          # as a non-blocking early warning.
+          # and Windows, genuine platform differences for the spatial stack.
+          #
+          # R-devel is deliberately NOT here. Posit Package Manager serves no
+          # binaries for devel, so the whole tree compiles from source
+          # single-threaded -- duckdb alone is 1802 .cpp files. It timed out in
+          # the dependency install on all four nightly runs and never once
+          # reached R CMD check: 60 minutes a night for no signal. cliff is not
+          # on CRAN, so the forward-compatibility warning devel exists to give
+          # is covered by the `release` row one cycle later.
           base='{"os":"ubuntu-latest","r":"4.4.2","experimental":false},
                 {"os":"ubuntu-latest","r":"4.5.3","experimental":false},
                 {"os":"ubuntu-latest","r":"release","experimental":false}'
           if [ "${{ inputs.deep }}" = "true" ]; then
             extra=',{"os":"macos-latest","r":"release","experimental":false},
-                   {"os":"windows-latest","r":"release","experimental":false},
-                   {"os":"ubuntu-latest","r":"devel","experimental":true}'
+                   {"os":"windows-latest","r":"release","experimental":false}'
           else
             extra=''
           fi
