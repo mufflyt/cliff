@@ -88,12 +88,12 @@ abu_cw <- read_csv(iso("data","abu_urology","abu_npi_crosswalk_2026-07-14.csv"),
 # the authority on WHO is active; this script's job is the departure model
 # applied to them, so it takes the roster as given and estimates the hazard
 # itself. GO is unaffected -- its monorepo baseline of 1,052 already matches.
-.v3 <- utils::read.csv(here::here("scripts","urps_scenario_cube",
-                                  "urps_cohort_ages_pathway_geo_v3.0.0.csv"),
-                       stringsAsFactors = FALSE)
-.v3 <- .v3[.v3$geography == "national", ]
-v3_ages <- function(pathways) with(.v3[.v3$pathway %in% pathways, ],
-                                   rep(as.integer(age), as.integer(n_active_2023)))
+v3_ages <- function(pathways) {
+  key <- if (length(pathways) > 1L) "ABOG_PLUS_ABU"
+         else c(ABOG = "ABOG", ABU = "ABU_NET_NEW")[[pathways]]
+  mufflyaccess::urps_active_ages(pathway = key, geography = "national",
+                                 as = "vector")
+}
 URPS_AGES_BOTH <- v3_ages(c("ABOG", "ABU"))   # 1,306
 URPS_AGES_ABOG <- v3_ages("ABOG")             # 1,027
 # Verify the cohort against the SSOT rather than against a literal, so this check

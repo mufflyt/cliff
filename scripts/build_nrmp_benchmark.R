@@ -116,11 +116,11 @@ haz_for <- function(age, hz=HAZ){ h<-hz[band_of(age)]; h[is.na(h)]<-max(hz,na.rm
 active <- coh %>% filter(ret==FALSE, !is.na(age))
 start_ages <- split(active$age, active$ab)
 # v3.0.0 both-pathway baseline (1,027 ABOG + 279 ABU net-new = 1,306)
-.v3 <- utils::read.csv(here::here("scripts", "urps_scenario_cube",
-                                  "urps_cohort_ages_pathway_geo_v3.0.0.csv"),
-                       stringsAsFactors = FALSE)
-.v3 <- .v3[.v3$geography == "national", ]
-start_ages$URPS <- rep(as.integer(.v3$age), as.integer(.v3$n_active_2023))
+# The active ages come from the SSOT accessor, not a local extract. project()
+# tabulates ages before projecting, so the result is order-invariant and this
+# leaves every published number byte-identical.
+start_ages$URPS <- mufflyaccess::urps_active_ages(
+  pathway = "ABOG_PLUS_ABU", geography = "national", as = "vector")
 stopifnot(length(start_ages$URPS) == mufflyaccess::urps_count(
   year = 2023L, measure = "board_certified_active", geography = "national",
   include_urology = TRUE, incomplete = "error"))

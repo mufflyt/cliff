@@ -30,9 +30,9 @@ HORIZON   <- 4L
 HZ_POINT  <- setNames(ifelse(BAND_PY > 0, BAND_EV / BAND_PY, 0), WC_BAND_LABELS)
 
 # national 2023 URPS age distribution -> frozen benchmark input CSV
-src <- utils::read.csv(file.path(root, "scripts", "urps_scenario_cube",
-                                 "urps_cohort_ages_pathway_geo_v3.0.0.csv"))
-age_tab <- aggregate(n_active_2023 ~ age, data = src[src$geography == "national", ], FUN = sum)
+age_tab <- mufflyaccess::urps_active_ages(pathway = "ABOG_PLUS_ABU",
+                                          geography = "national", as = "counts")
+names(age_tab)[names(age_tab) == "n_active"] <- "n_active_2023"
 age_tab <- age_tab[order(age_tab$age), ]
 utils::write.csv(age_tab, file.path(bdir, "urps_cohort_ages_v3.0.0.csv"), row.names = FALSE)
 

@@ -29,11 +29,8 @@ ISO <- Sys.getenv("CLIFF_ISOCHRONES_ROOT", unset = path.expand("~/isochrones"))
 iso <- function(...) { p <- file.path(ISO, ...)
   if (!file.exists(p)) stop(sprintf("[age_shift_sensitivity] input not found:\n  %s", p), call. = FALSE)
   p }
-.v3 <- utils::read.csv(here::here("scripts","urps_scenario_cube",
-                                  "urps_cohort_ages_pathway_geo_v3.0.0.csv"),
-                       stringsAsFactors = FALSE)
-.v3 <- .v3[.v3$geography == "national", ]
-URPS_AGES <- with(.v3, rep(as.integer(age), as.integer(n_active_2023)))
+URPS_AGES <- mufflyaccess::urps_active_ages(
+  pathway = "ABOG_PLUS_ABU", geography = "national", as = "vector")
 stopifnot(length(URPS_AGES) == mufflyaccess::urps_count(
   year = 2023L, measure = "board_certified_active", geography = "national",
   include_urology = TRUE, incomplete = "error"))

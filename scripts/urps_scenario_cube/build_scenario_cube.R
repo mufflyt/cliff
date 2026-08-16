@@ -45,7 +45,17 @@ source(file.path(root, "scripts", "urps_baseline_scenarios", "wc_engine_loader.R
 eng <- load_real_wc_engine(file.path(root, "R", "workforce_cliff_engine.R"))
 wc_haz_for <- eng$wc_haz_for; WC_BAND_LABELS <- eng$WC_BAND_LABELS
 
-ages <- utils::read.csv(file.path(sdir, "urps_cohort_ages_pathway_geo_v3.0.0.csv"))
+# The pathway x geography cohort grid, rebuilt from the SSOT accessor so the cube
+# no longer carries its own copy. The pathway labels keep this script's ABOG/ABU
+# spelling; mufflyaccess names the urology arm ABU_NET_NEW.
+.PW <- c(ABOG = "ABOG", ABU = "ABU_NET_NEW")
+ages <- do.call(rbind, lapply(c("national", "conus"), function(g)
+  do.call(rbind, lapply(names(.PW), function(p) {
+    a <- mufflyaccess::urps_active_ages(pathway = .PW[[p]], geography = g,
+                                        as = "counts")
+    data.frame(age = a$age, pathway = p, geography = g,
+               n_active_2023 = a$n_active, stringsAsFactors = FALSE)
+  }))))
 APC  <- utils::read.csv(file.path(root, "shiny_urps_adequacy", "data",
                                   "urps_module_a_age_productivity_2026-07-23.csv"))
 wfun <- function(a) { a <- pmin(pmax(a, min(APC$age)), max(APC$age)); APC$rel_to_peak[match(a, APC$age)] }
