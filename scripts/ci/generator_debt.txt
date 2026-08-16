@@ -1,11 +1,22 @@
 # Clean-checkout generators that do not currently run in a bare checkout.
-# CI fails when this set GROWS. Shrink it by fixing the generator and
-# deleting its line; never add a line just to make CI pass.
+#
+# CI fails when this set GROWS. Shrink it by fixing the generator and deleting
+# its line; never add a line just to make CI pass.
 #   CLIFF_ALLOW_MUTATION=1 Rscript scripts/ci/regenerate_clean_checkout.R --write-debt
+#
+# Baselined on ubuntu-latest, the CI reference platform. An earlier version of
+# this file was baselined on macOS and listed 7 entries while Linux failed 15 --
+# nine of those were generators reaching outside the repository through
+# wc_path(), which only resolved because the files happened to exist on one
+# developer's machine. Those are now classified out of clean_checkout entirely
+# (see scripts/ci/classify_generators.R) rather than carried here as debt.
+#
+# The three REFUSED entries below are working as designed: they are historical
+# SSOT writers that deliberately abort in favour of the canonical
+# scripts/rebuild_ssot_revised.R. They are listed because they genuinely do not
+# run, not because anything is broken.
 code/01_consolidate_workforce_data.R
 code/07_create_table1.R
 scripts/rebuild_ssot_dynamic_acgme.R
 scripts/rebuild_ssot_final.R
 scripts/urps_baseline_scenarios/urps_scenario_analysis_v3.R
-scripts/urps_demand_denominators_sensitivity.R
-scripts/urps_module_d_geographic_access_2026-07-23.R

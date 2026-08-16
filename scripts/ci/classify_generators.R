@@ -38,6 +38,98 @@ cells <- lapply(rows, function(r) {
 })
 cells <- Filter(function(x) length(x) >= 4, cells)
 
+# Which wc_path() keys resolve OUTSIDE the repository?
+#
+# docs/PIPELINE.md's Requires column is derived from explicit markers
+# (CLIFF_ISOCHRONES_ROOT, the v3.0.0 parquet, DuckDB). It cannot see a
+# dependency reached through wc_path(), because that indirection resolves via
+# config/cliff_paths.yml -- where every single path is an ABSOLUTE path on one
+# developer's machine:
+#
+#   cohort_csv     /Users/<dev>/isochrones/manuscript/tables/...
+#   signals_duckdb /Volumes/<external drive>/DuckDB/...
+#   access_surface /Users/<dev>/simulation/dpmm_outputs/...
+#
+# Six generators were therefore classified clean_checkout and "worked" only on
+# the machine where those files happen to exist. In CI they failed reading a
+# path that cannot exist. Resolve the indirection here so the classification
+# reflects what a generator actually needs.
+external_path_keys <- function() {
+  cfg_path <- file.path("config", "cliff_paths.yml")
+  if (!file.exists(cfg_path)) return(list())
+  ln <- readLines(cfg_path, warn = FALSE)
+  keys <- list(); cur <- NA_character_
+  for (l in ln) {
+    k <- regmatches(l, regexec("^([A-Za-z][A-Za-z0-9_.]*):\\s*$", l))[[1]]
+    if (length(k) == 2L) { cur <- k[2]; next }
+    pth <- regmatches(l, regexec("^\\s+path:\\s*(.+?)\\s*$", l))[[1]]
+    if (length(pth) == 2L && !is.na(cur)) {
+      v <- gsub('^["\']|["\']$', "", pth[2])
+      if (startsWith(v, "/")) keys[[cur]] <- v      # absolute => outside the repo
+    }
+  }
+  keys
+}
+
+EXTERNAL_KEYS <- external_path_keys()
+
+# What does an external path actually require?
+external_class <- function(path) {
+  if (grepl("\\.duckdb$", path, ignore.case = TRUE)) return("credentialed")
+  if (grepl("^/Volumes/", path))                      return("credentialed")
+  if (grepl("/isochrones/", path))                    return("upstream_repo")
+  "frozen_snapshot"
+}
+
+# R/ defines constants straight from wc_path(), e.g.
+#   WC_COHORT_CSV <- wc_path("cohort_csv")
+# and accessor functions read those constants. A generator can therefore reach
+# an external path three ways, and only the first is a literal wc_path() call:
+#   wc_path("cohort_csv")   |   WC_COHORT_CSV   |   wc_load_cohort()
+# All seven generators that failed in CI used one of the latter two.
+constant_key_map <- function() {
+  m <- list()
+  for (f in list.files("R", pattern = "[.]R$", full.names = TRUE)) {
+    for (l in readLines(f, warn = FALSE)) {
+      g <- regmatches(l, regexec('^([A-Z][A-Z0-9_]*)\\s*<-\\s*wc_path\\(\\s*["\']([^"\']+)["\']', l))[[1]]
+      if (length(g) == 3L) m[[g[2]]] <- g[3]
+    }
+  }
+  m
+}
+CONST_KEYS <- constant_key_map()
+
+# Functions whose body reads one of those constants, mapped to the key they pull.
+ACCESSOR_KEYS <- list(wc_load_cohort = "cohort_csv")
+
+# Keys a generator reaches for, by any of the three routes.
+generator_external_class <- function(generator) {
+  if (!file.exists(generator)) return(NA_character_)
+  txt <- paste(readLines(generator, warn = FALSE), collapse = "\n")
+  hit <- NA_character_
+  bump <- function(hit, cls) {
+    rank <- c(credentialed = 3L, upstream_repo = 2L, frozen_snapshot = 1L)
+    if (is.na(hit) || rank[[cls]] > rank[[hit]]) cls else hit
+  }
+
+  for (cn in names(CONST_KEYS)) {
+    k <- CONST_KEYS[[cn]]
+    if (!is.null(EXTERNAL_KEYS[[k]]) && grepl(paste0("\\b", cn, "\\b"), txt))
+      hit <- bump(hit, external_class(EXTERNAL_KEYS[[k]]))
+  }
+  for (fn in names(ACCESSOR_KEYS)) {
+    k <- ACCESSOR_KEYS[[fn]]
+    if (!is.null(EXTERNAL_KEYS[[k]]) && grepl(paste0("\\b", fn, "\\s*\\("), txt))
+      hit <- bump(hit, external_class(EXTERNAL_KEYS[[k]]))
+  }
+  for (k in names(EXTERNAL_KEYS)) {
+    if (grepl(sprintf('wc_path\\(\\s*["\']%s["\']', k), txt)) {
+      hit <- bump(hit, external_class(EXTERNAL_KEYS[[k]]))
+    }
+  }
+  hit
+}
+
 classify <- function(req, generator) {
   # Archival material is kept for the record, not for reproduction. Re-running
   # it would rewrite artifacts nothing current consumes.
@@ -47,6 +139,10 @@ classify <- function(req, generator) {
   if (grepl("isochrones", r))           return("upstream_repo")
   if (grepl("parquet|snapshot", r))     return("frozen_snapshot")
   if (grepl("mufflyaccess", r))         return("contract_pkg")
+  # Nothing in the Requires column, but it may still reach outside the repo
+  # through wc_path().
+  ext <- generator_external_class(generator)
+  if (!is.na(ext)) return(ext)
   "clean_checkout"
 }
 
