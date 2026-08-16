@@ -59,22 +59,21 @@ test_that("the Monte Carlo seed matches the manuscript bootstrap", {
 
 test_that("canonical figures load from the manuscript CSVs and match the model", {
   e <- load_app_env()
-  # CANON must come from the SSOT artifacts, and its baseline must be the
-  # projection cohort mufflyaccess reports as current -- not a literal, and not
-  # the roster snapshot.
-  expect_match(e$CANON$source, "SSOT")
+  # CANON must come from mufflyaccess, not from a bundled copy of cliff's CSVs.
+  # The app used to ship those copies, and they are what drifted.
+  expect_match(e$CANON$source, "urps_projection")
+  pr <- mufflyaccess::urps_projection(
+    scenario = "baseline", geography = "national", pathway = "ABOG_PLUS_ABU"
+  )
+  expect_equal(e$CANON$baseline, pr$baseline_headcount)
+  expect_equal(e$CANON$ratio, pr$replacement_ratio)
+  expect_equal(e$CANON$avg_dep, pr$mean_annual_exits)
+  expect_equal(e$CANON$proj_immediate, round(pr$projected_headcount))
+  expect_equal(e$CANON$proj_ramped, round(pr$projected_headcount_ramped))
+  # and the baseline is still the count the SSOT publishes
   lin <- mufflyaccess::urps_lineage()
   expect_equal(e$CANON$baseline,
                as.integer(lin$national_active[lin$status == "current"]))
-  ssot <- utils::read.csv(
-    if (file.exists("data/workforce_projections_consolidated.csv"))
-      "data/workforce_projections_consolidated.csv"
-    else "../data/workforce_projections_consolidated.csv",
-    stringsAsFactors = FALSE)
-  su <- ssot[toupper(ssot$subspecialty_abbrev) == "URPS", , drop = FALSE]
-  expect_equal(e$CANON$baseline, as.integer(su$baseline_2025))
-  expect_equal(e$CANON$ratio, su$replacement_ratio)
-  expect_equal(e$CANON$avg_dep, su$avg_annual_retirements)
   expect_equal(e$RAMP_CUM_URPS, e$CANON$ramp_cum)                     # curve comes from the CSV
   # the live model reproduces the published immediate and transition-adjusted counts
   hz <- e$adjusted_haz("fully_obs", 1, "obs")

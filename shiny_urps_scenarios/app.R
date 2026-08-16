@@ -66,48 +66,50 @@ MC_SEED <- 20260718L                       # matches manuscript_WORKFORCE_CLIFF.
 # CANON$* are what a reader sees at the default; the live model reproduces them (and
 # validate_model() fails the launch if it ever stops reproducing them).
 .load_canon <- function() {
-  imm <- rmp <- defer <- NA_real_; curve <- NULL
-  # Prefer the copy bundled INSIDE the app (data/), which is what ships to shinyapps.io;
-  # fall back to the repo's data/ for local development. Either resolves to the same
-  # source-of-truth CSVs; a frozen fallback below keeps the app self-contained if neither ships.
+  # Everything except the entry-ramp CURVE now comes from mufflyaccess, so the
+  # app no longer ships copies of cliff's SSOT CSVs. Those copies are exactly
+  # what drifted: the bundled projection table still said 1,339 / 1,544 / 1,466
+  # months after the repository had moved to 1,306 / 1,514 / 1,437.
+  pr <- mufflyaccess::urps_projection(
+    scenario = "baseline", geography = "national", pathway = "ABOG_PLUS_ABU"
+  )
+
+  imm   <- pr$projected_headcount
+  rmp   <- pr$projected_headcount_ramped
+  # Share of the immediate-entry growth that ramping defers. Derived rather than
+  # stored so it cannot disagree with the two counts it is computed from.
+  defer <- 100 * (imm - rmp) / (imm - pr$baseline_headcount)
+
+  # The cumulative certification-to-practice curve is a shape, not a headline
+  # number, and mufflyaccess does not serve it; it still comes from the
+  # manuscript's transition CSV. Prefer the copy bundled inside the app (what
+  # ships to shinyapps.io), then the repo's data/.
   find_csv <- function(name) {
-    for (p in c(file.path("data", name), file.path("..", "data", name))) if (file.exists(p)) return(p)
-    file.path("data", name)   # nonexistent local path -> triggers the frozen fallback
+    for (p in c(file.path("data", name), file.path("..", "data", name))) {
+      if (file.exists(p)) return(p)
+    }
+    file.path("data", name)
   }
-  proj_f  <- find_csv("graduation_active_transition_projection.csv")
   curve_f <- find_csv("graduation_active_transition.csv")
-  if (file.exists(proj_f)) {
-    p <- utils::read.csv(proj_f, stringsAsFactors = FALSE)
-    u <- p[toupper(p$subspecialty_abbrev) == "URPS", , drop = FALSE]
-    if (nrow(u) == 1) { imm <- u$projected_2029_immediate; rmp <- u$projected_2029_ramped; defer <- u$pct_of_growth_deferred }
-  }
+  curve <- NULL
   if (file.exists(curve_f)) {
     c0 <- utils::read.csv(curve_f, stringsAsFactors = FALSE)
     u <- c0[toupper(c0$subspecialty_abbrev) == "URPS", , drop = FALSE]
-    u <- u[order(u$k), , drop = FALSE]; if (nrow(u) >= 4) curve <- u$cum_active_fraction
+    u <- u[order(u$k), , drop = FALSE]
+    if (nrow(u) >= 4) curve <- u$cum_active_fraction
   }
-  # Replacement ratio and mean departures come from the SSOT itself
-  # (workforce_projections_consolidated.csv, written by the canonical producer
-  # scripts/rebuild_ssot_revised.R), not from frozen literals. The previous
-  # fallbacks -- 1544 / 1466 / ratio 5.02 -- were computed on the 1,339 roster
-  # basis and silently outlived the move to the 1,306 projection cohort.
-  ratio <- avg_dep <- NA_real_
-  ssot_f <- find_csv("workforce_projections_consolidated.csv")
-  if (file.exists(ssot_f)) {
-    sv <- utils::read.csv(ssot_f, stringsAsFactors = FALSE)
-    su <- sv[toupper(sv$subspecialty_abbrev) == "URPS", , drop = FALSE]
-    if (nrow(su) == 1) { ratio <- su$replacement_ratio; avg_dep <- su$avg_annual_retirements }
+  if (is.null(curve)) {
+    stop("[app] the entry-ramp curve could not be read from ",
+         "graduation_active_transition.csv. Refusing to fall back to a frozen ",
+         "curve, which is how this app drifted off the SSOT before.",
+         call. = FALSE)
   }
-  if (anyNA(c(imm, rmp, defer, ratio, avg_dep)) || is.null(curve))
-    stop("[app] CANON could not be resolved from the SSOT artifacts. ",
-         "Expected workforce_projections_consolidated.csv and ",
-         "graduation_active_transition*.csv alongside the app or in ../data. ",
-         "Refusing to fall back to frozen numbers, which is how the app drifted ",
-         "off the SSOT before.", call. = FALSE)
-  list(baseline = URPS_BASELINE_SSOT, completions = 64L, ratio = ratio,
-       avg_dep = avg_dep, proj_immediate = round(imm),
-       proj_ramped = round(rmp), deferred_pct = round(defer), ramp_cum = curve,
-       source = "SSOT: workforce_projections_consolidated + graduation_active_transition")
+
+  list(baseline = URPS_BASELINE_SSOT, completions = 64L,
+       ratio = pr$replacement_ratio, avg_dep = pr$mean_annual_exits,
+       proj_immediate = round(imm), proj_ramped = round(rmp),
+       deferred_pct = round(defer), ramp_cum = curve,
+       source = "mufflyaccess::urps_projection() + graduation_active_transition.csv")
 }
 CANON <- .load_canon()
 RAMP_CUM_URPS <- CANON$ramp_cum   # cumulative active-fraction curve, k = 0..5
