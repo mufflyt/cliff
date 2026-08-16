@@ -133,14 +133,23 @@ test_that("CARD audit table: every definition appears once per {GO,URPS}", {
 })
 
 test_that("CARD every artifact keyed by subspecialty covers the right key set 1:1", {
-  expect_setequal(grid$subspecialty_abbrev, SUBS)
+  # The sensitivity grid's cohort set is DERIVED from its authoritative input, not
+  # pinned to SUBS. Scope is declared once upstream (scripts/sensitivity_grid.R);
+  # MIGS was withdrawn 2026-08-16 because build_departure_window_sensitivity.R builds
+  # only URPS and GO. Hardcoding the set here is what let the old three-cohort
+  # assumption survive the scope change unnoticed.
+  win <- read_csv(here::here("data", "departure_window_sensitivity.csv"),
+                  show_col_types = FALSE)
+  expect_setequal(grid$subspecialty_abbrev, unique(win$subspecialty_abbrev))
+  expect_equal(nrow(grid), length(unique(win$subspecialty_abbrev)))
+
   expect_setequal(bkv$subspecialty_abbrev, SUBS)
   expect_setequal(bench$subspecialty_abbrev, SUBS)
   expect_setequal(flow$ab, SUBS)
   expect_setequal(unique(dyn$subspecialty_abbrev), SUBS)
   expect_setequal(unique(tr$subspecialty_abbrev), c("GO", "URPS"))
   expect_setequal(unique(ages$subspecialty_abbrev), c("GO", "URPS"))
-  for (df in list(grid, bkv, bench, flow)) expect_equal(nrow(df), 3L)
+  for (df in list(bkv, bench, flow)) expect_equal(nrow(df), 3L)
 })
 
 test_that("CARD fixed-shape panels have exactly the expected row multiplicities", {
