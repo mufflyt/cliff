@@ -1,11 +1,12 @@
 # Adjudication: `table1_urps_characteristics_2026-07-23.csv`
 
-**Status:** **OPEN — one-line fix identified, awaiting go-ahead.**
+**Status:** **CLOSED 2026-08-16 — generator correctness repair; the exact test replaces the unseeded simulation.**
 **Verdict: not drift. The generator is non-deterministic, so this artifact can never reproduce.**
 **Date:** 2026-08-16
 **Queue:** `scripts/ci/artifact_drift_debt.txt` (4 of 10)
 
-Neither artifact nor generator was modified.
+Sections 1-7 are the adjudication as performed, *before* anything was changed.
+Section 8 records the decision and what was then modified.
 
 ---
 
@@ -122,3 +123,81 @@ The new generalizable question is **unseeded randomness in any generator**, whic
 worth sweeping across the whole pipeline rather than discovering one artifact at a
 time. Note `urps_scenario_analysis_v3.R` — the single generator behind all four
 remaining `urps_baseline_scenarios` tables — should be checked for this specifically.
+
+
+---
+
+## 8. Resolution (2026-08-16)
+
+The plan was "seed it and raise `B` to 1e6". The controlled experiment overturned the
+second half of that, so both changes are reported separately as intended.
+
+### The controlled experiment
+
+Identical inputs throughout; the Rurality table is
+
+```
+       Rural  Suburban  Urban
+ABOG      13        23    993
+ABU        2        11    294        min expected cell = 3.45  -> simulated branch
+```
+
+| configuration | result |
+|---|---|
+| old implementation, unseeded, `B=1e4`, 8 runs | 0.318, 0.324, 0.322, 0.314, 0.322, 0.327, 0.326, 0.315 — **7 distinct 3dp values**, sd 0.0047 |
+| seeded, `B=1e4`, 5 repeats | 0.322068 five times — **identical** |
+| **exact conditional test** | **0.323633**, deterministic, no seed |
+
+Convergence and seed-stability, 20 seeds per level:
+
+| `B` | mean | sd across seeds | distinct 3dp values | distinct 2dp |
+|---:|---:|---:|---:|---:|
+| 1e4 | 0.32440 | 0.00384 | 12 | 2 |
+| 1e5 | 0.32376 | 0.00146 | 6 | 2 |
+| 1e6 | 0.32360 | 0.00052 | **3** (0.323/0.324/0.325) | 1 |
+
+The simulated mean converges cleanly on the exact value (0.32440 → 0.32376 → 0.32360
+→ 0.323633), which confirms the machinery is sound.
+
+### Separating the two effects
+
+* **Seed defect** — the entire observed run-to-run variation. At `B=1e4` the reported
+  value was a random draw spanning 0.314–0.327. Nothing about the estimator was wrong;
+  it simply was not reproducible.
+* **Numerical precision** — a *bias-free* narrowing. Increasing `B` does not move the
+  answer, it narrows the interval around an unchanged target.
+
+### Why `B = 1e6` was not adopted
+
+It fails the stated requirement that another valid seed must not change the published
+rounded value. At `B=1e6`, 20 seeds still produce three distinct third decimals. The
+table publishes three decimals, so `B=1e6` would leave the printed number
+seed-dependent. Supporting 3dp would need `B` above ~3.4e6, for a quantity that can be
+computed exactly.
+
+**The exact conditional test is feasible for this table and is deterministic.** It is
+now used whenever it succeeds: no seed, no Monte Carlo error, one answer. Seeded
+simulation at `B=1e6` is retained only as a fallback for a table too large to
+enumerate.
+
+### Outcome
+
+Classification: **generator correctness repair**, not increased numerical precision —
+the precision question was resolved by removing the randomness rather than managing it.
+
+| | old | new |
+|---|---|---|
+| Rurality P | 0.323 (one draw of an unseeded `B=1e4` simulation) | **0.324** (exact, 0.323633) |
+
+Every other cell in all 28 rows is unchanged. Three consecutive runs are now
+**byte-identical**. The generator writes once, at the end, so there is no partial-write
+path.
+
+No inferential consequence: p ≈ 0.32 throughout, and the artifact has no manuscript
+exposure.
+
+**Guard:** `tests/testthat/test-table1-urps-deterministic.R` requires the generator to
+attempt the exact test and to seed any simulated fallback, rejects `B=1e4` for a
+3-decimal p-value, proves the exact test is feasible and repeatable, proves a seeded
+simulation reproduces itself, and proves an *unseeded* one does not — so the defect
+cannot return silently.

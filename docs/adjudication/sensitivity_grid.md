@@ -1,10 +1,11 @@
 # Adjudication: `sensitivity_grid.csv` + `sensitivity_grid_summary.csv`
 
-**Status:** **OPEN — decision required. Do not regenerate as-is: the generator currently emits a corrupt row.**
+**Status:** **CLOSED 2026-08-16 — MIGS withdrawn from scope; generator and supplement now fail closed.**
 **Date:** 2026-08-16
 **Queue:** `scripts/ci/artifact_drift_debt.txt` (3 of 10)
 
-Neither artifact nor generator was modified.
+Sections 1-10 are the adjudication as performed, *before* anything was changed.
+Section 11 records the decision and what was then modified.
 
 ## Classification — three findings, only two of them drift
 
@@ -190,3 +191,67 @@ The new and more general lesson is the **hardcoded cohort list**. Three places n
 `c("GO","URPS","MIGS")` as a literal — the generator, the supplement chunk, and the
 supplement prose — and none of them notices when the data stops containing one. That
 pattern, not the numbers, is what should be searched for across the remaining artifacts.
+
+
+---
+
+## 11. Resolution (2026-08-16)
+
+**Decision: MIGS is withdrawn. The current scope of this sensitivity is URPS + GO.**
+
+MIGS was not resurrected to preserve a historical table shape. The upstream window
+generator defines the scientific scope, and it builds only URPS and GO; downstream
+publication code now follows that scope rather than manufacturing a MIGS result from
+another pathway.
+
+**What changed**
+
+1. `scripts/sensitivity_grid.R` declares `REQUIRED_COHORTS` and `WITHDRAWN_COHORTS`,
+   with `MIGS` listed as withdrawn and the reason recorded inline. A required cohort
+   that is absent and not explicitly withdrawn stops the run, naming it.
+2. **The artifact was regenerated on the URPS + GO scope**: 81 → 54 grid rows,
+   3 → 2 summary rows, and URPS `worst_ratio` 0.861 → **0.833**,
+   `oneway_min` 1.87 → **1.793**. GO is unchanged at 1.003 / 2.37.
+3. **Appendix Tables S17 and S7 now derive their cohort set from the artifact**
+   instead of a hardcoded vector, and five further two-cohort reindexes elsewhere in
+   the supplement were routed through one fail-closed helper, `.cohort_rows()`.
+4. **The stale S17 prose is now generated.** `(1.03)` and `(0.88)` are replaced by
+   inline expressions reading the same object the table reads, so the two cannot
+   diverge again. It renders GO **1.00** and URPS **0.83**.
+
+**The scientific conclusion is unchanged in direction.** Every one-way sensitivity
+still exceeds replacement (URPS one-way minimum 1.87 → 1.79, still > 1.05), and the
+only below-replacement cell is still the compound worst case.
+
+**Historical provenance, preserved here rather than in the artifact**
+
+| vintage | GO worst | URPS worst | MIGS worst |
+|---|---:|---:|---:|
+| isochrones `b0d6c2f96`, 2026-07-19 | 1.027 | 0.882 | 1.72 |
+| cliff `ac273bb`, 2026-07-24 | 1.003 | 0.861 | 1.703 |
+| **current, URPS + GO scope** | **1.003** | **0.833** | withdrawn |
+
+The three-cohort result was valid for the three-cohort analysis. It is no longer part
+of the current analysis, and it is recorded here rather than carried in a published
+table.
+
+**Tests updated, and one of them was holding the defect in place**
+
+* `test-workforce-cliff-data-properties.R` now derives the grid's expected cohort set
+  from `departure_window_sensitivity.csv` instead of pinning `SUBS`.
+* `test-workforce-cliff-data-analysis.R` asserts MIGS is *absent* rather than
+  asserting on a MIGS row.
+* `test-workforce-cliff-peer-review-fixes.R` asserted the supplement contained the
+  literal strings `(1.03)` and `(0.88)`. **Pinning a frozen number in a test froze the
+  defect too**: it would have failed had anyone corrected the prose. It now asserts the
+  prose is generated, and that the generated values agree with the artifact.
+
+**A gate caught a mistake in this very fix.** The first version of the S17 helper was
+named `.w()`, and `test-ssot-no-stale-published-numbers.R` flagged it as rebound at
+lines 993/995 — the gate builds a regex from the helper name, and the unescaped `.`
+made `.w` match `ow <-` two chunks away. Renamed to `s17_worst()`. This is the same
+class of failure as the `cf()` incident in CLAUDE.md, caught before rendering.
+
+**Contract to carry forward:** manuscript numerical prose should be generated from the
+same authoritative object as its table whenever practical. Prose and artifact holding
+independent frozen copies of the same number is what produced this, not carelessness.
