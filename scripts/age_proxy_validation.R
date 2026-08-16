@@ -52,8 +52,8 @@ hg <- do.call(rbind, lapply(c("migs","urogyn","gyn_onc"), function(s){
 
 # DAC graduation-year age
 db <- NA_character_
-for (c in c("/Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb",
-            "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb")) if (file.exists(c)) { db<-c; break }
+source(here::here("R", "wc_path.R"))   # wc_path()/wc_duckdb_path(): registered external inputs
+db <- wc_duckdb_path()   # config/cliff_paths.yml: primary + mount-drift fallback
 if (is.na(db)) stop("NBER DuckDB not mounted.")
 con <- dbConnect(duckdb::duckdb(), db, read_only=TRUE)
 dac <- dbGetQuery(con, "SELECT CAST(\"NPI\" AS VARCHAR) npi, MIN(TRY_CAST(\"Grd_yr\" AS INTEGER)) grad_year

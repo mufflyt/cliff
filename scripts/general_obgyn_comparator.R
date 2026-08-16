@@ -59,8 +59,8 @@ HG_DIR <- iso("data", "healthgrades")
 
 # resolve the NBER DuckDB (handle macOS " 1" mount drift)
 db <- NA_character_
-for (c in c("/Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb",
-            "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb")) if (file.exists(c)) { db <- c; break }
+source(here::here("R", "wc_path.R"))   # wc_path()/wc_duckdb_path(): registered external inputs
+db <- wc_duckdb_path()   # config/cliff_paths.yml: primary + mount-drift fallback
 if (is.na(db)) stop("NBER DuckDB not mounted; cannot build the general OB/GYN comparator.")
 
 con <- dbConnect(duckdb::duckdb(), db, read_only = TRUE)

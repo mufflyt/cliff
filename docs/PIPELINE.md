@@ -41,7 +41,7 @@ Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_
 | `code/archived/validate_age_estimation.R` | `age_estimation_validation_data.csv` | -- | `DuckDB` |
 | `scripts/abu_pathway_sensitivity.R` | `abu_pathway_sensitivity.csv` | `departure_anchor.csv`<br>`urps_ages_v3_279_abu.csv` | -- |
 | `scripts/age_proxy_validation.R` | `age_proxy_validation.csv` | `table1_physician_characteristics.csv` | `isochrones checkout`<br>`DuckDB` |
-| `scripts/age_shift_sensitivity.R` | `age_shift_sensitivity.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`workforce_projections_consolidated.csv` | `isochrones checkout`<br>`mufflyaccess` |
+| `scripts/age_shift_sensitivity.R` | `age_shift_sensitivity.csv` | `departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`workforce_projections_consolidated.csv` | `isochrones checkout`<br>`DuckDB`<br>`mufflyaccess` |
 | `scripts/algorithm_supplement_data.R` | `consort_cohort_flow.csv`<br>`loso_source_contribution.csv` | `table1_physician_characteristics.csv` | `isochrones checkout`<br>`v3.0.0 parquet`<br>`DuckDB`<br>`mufflyaccess` |
 | `scripts/baseline_lag_decomposition.R` | `baseline_lag_decomposition.csv` | `departure_anchor.csv`<br>`table1_physician_characteristics.csv` | `isochrones checkout`<br>`v3.0.0 parquet`<br>`DuckDB` |
 | `scripts/breakeven_thresholds.R` | `breakeven_thresholds.csv` | `workforce_projections_consolidated.csv` | -- |

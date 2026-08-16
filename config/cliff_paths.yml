@@ -5,30 +5,61 @@
 # Machine-specific overrides: cliff/config/cliff_paths.local.yml (gitignored),
 # or the env var named in `env` below.
 
+# ---------------------------------------------------------------------------
+# ROOTS
+#
+# Every `path:` below is expressed relative to one of these roots rather than
+# hard-coded. Each root is an environment variable with a default; set the
+# variable to relocate a whole family of inputs at once.
+#
+# This matters beyond tidiness. When these paths were absolute
+# (/Users/<dev>/isochrones/...), nine generators resolved them only on the one
+# machine where those files exist, so they were classified "clean checkout
+# reproducible" and passed there while failing everywhere else. CI could not
+# see the dependency at all, because it is reached through wc_path() rather
+# than a CLIFF_ISOCHRONES_ROOT reference the pipeline map can grep for.
+#
+# CLIFF_ISOCHRONES_ROOT is the same variable the test suite already uses.
+# ---------------------------------------------------------------------------
+roots:
+  CLIFF_ISOCHRONES_ROOT: ~/isochrones
+  CLIFF_SIMULATION_ROOT: ~/simulation
+  CLIFF_EXTERNAL_MEDIA: /Volumes/MufflySamsung 1
+  # macOS renames a re-mounted volume by appending " 1"; the fallback
+  # covers whichever name the drive currently has.
+  CLIFF_EXTERNAL_MEDIA_ALT: /Volumes/MufflySamsung
+
 cohort_csv:
-  path: /Users/tylermuffly/isochrones/manuscript/tables/table1_physician_characteristics.csv
+  path: ${CLIFF_ISOCHRONES_ROOT}/manuscript/tables/table1_physician_characteristics.csv
   env: WORKFORCE_COHORT_CSV
 
 abu_crosswalk:
-  path: /Users/tylermuffly/isochrones/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv
+  path: ${CLIFF_ISOCHRONES_ROOT}/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv
   env: WORKFORCE_ABU_CROSSWALK
 
 abu_net_new:
   # 2026-07-22: 270 original net-new + 38 reinstated urology-pathway urogynecologists
   # (28 with FPMRS taxonomy + 10 false ABOG-generalist NPI collisions) an over-broad
   # dedup had dropped; audit trail in abu_fpmrs_reinstated_38_2026-07-22.csv.
-  path: /Users/tylermuffly/isochrones/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-22.txt
+  path: ${CLIFF_ISOCHRONES_ROOT}/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-22.txt
   env: WORKFORCE_ABU_NET_NEW
 
 signals_duckdb:
   # primary + fallback (macOS " 1" mount drift); first existing path wins
-  path: /Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb
-  fallback: /Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb
+  path: ${CLIFF_EXTERNAL_MEDIA}/DuckDB/nber_my_duckdb.duckdb
+  fallback: ${CLIFF_EXTERNAL_MEDIA_ALT}/DuckDB/nber_my_duckdb.duckdb
   env: WORKFORCE_SIGNALS_DUCKDB
+
+abu_net_new_2026_07_14:
+  # The 2026-07-14 vintage, deliberately pinned by scripts/age_shift_sensitivity.R.
+  # NOT interchangeable with abu_net_new (2026-07-22, +38 reinstated urology-pathway
+  # urogynecologists); the sensitivity is run against the earlier roster on purpose.
+  path: ${CLIFF_ISOCHRONES_ROOT}/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-14.txt
+  env: WORKFORCE_ABU_NET_NEW_2026_07_14
 
 state_registry:
   # State medical-board lifecycle registry (classifier external validation).
-  path: /Users/tylermuffly/isochrones/data/state_licenses/state_board_lifecycle_registry.csv
+  path: ${CLIFF_ISOCHRONES_ROOT}/data/state_licenses/state_board_lifecycle_registry.csv
   env: WORKFORCE_STATE_REGISTRY
 
 medicare_prov_svc:
@@ -36,12 +67,12 @@ medicare_prov_svc:
   # (raw ~3.25 GB CMS download, re-downloadable). This is the source imported into
   # signals_duckdb; scripts query the DuckDB, not this CSV. Registered for lineage.
   # Set the real location via the env var or cliff_paths.local.yml.
-  path: /Volumes/MufflySamsung 1/medicare/medicare_prov_svc_2024.csv
+  path: ${CLIFF_EXTERNAL_MEDIA}/medicare/medicare_prov_svc_2024.csv
   env: WORKFORCE_MEDICARE_PROV_SVC
 
 hpsa_shp:
   # HRSA Health Professional Shortage Area shapefile (public; ~270 MB .shp bundle).
-  path: /Volumes/MufflySamsung 1/hrsa/HPSA_CMPPC_SHP_DET_CUR_VX.shp
+  path: ${CLIFF_EXTERNAL_MEDIA}/hrsa/HPSA_CMPPC_SHP_DET_CUR_VX.shp
   env: WORKFORCE_HPSA_SHP
 
 dpmm_demand_contract:
@@ -52,7 +83,7 @@ dpmm_demand_contract:
   # file is absent the sensitivity falls back to the published anchors. The DPMM
   # model is currently uncalibrated (see its calibration_status column), so this
   # path is off by default. Point it at your local simulation checkout output.
-  path: /Users/tylermuffly/simulation/dpmm_outputs/dpmm_demand_contract_v0.1.0.csv
+  path: ${CLIFF_SIMULATION_ROOT}/dpmm_outputs/dpmm_demand_contract_v0.1.0.csv
   env: WORKFORCE_DPMM_DEMAND_CONTRACT
 
 hdmm_demand_contract:
@@ -65,7 +96,7 @@ hdmm_demand_contract:
   # anchors. The HDMM coefficient tables are placeholders (see the contract's
   # calibration_status column), so this is off by default. Point it at your local
   # simulation checkout output.
-  path: /Users/tylermuffly/simulation/dpmm_outputs/hdmm_demand_contract_v0.1.0.csv
+  path: ${CLIFF_SIMULATION_ROOT}/dpmm_outputs/hdmm_demand_contract_v0.1.0.csv
   env: WORKFORCE_HDMM_DEMAND_CONTRACT
 
 dmdm_demand_contract:
@@ -82,7 +113,7 @@ dmdm_demand_contract:
   # "placeholder_uncalibrated" and tier3 takes the weakest input status. Gate on
   # dpmm_tier_status(ct, tier) for the specific tier you read, not the object-level
   # calibration_status. Point it at your local simulation checkout output.
-  path: /Users/tylermuffly/simulation/dpmm_outputs/dmdm_demand_contract_v0.1.0.csv
+  path: ${CLIFF_SIMULATION_ROOT}/dpmm_outputs/dmdm_demand_contract_v0.1.0.csv
   env: WORKFORCE_DMDM_DEMAND_CONTRACT
 
 access_surface:
@@ -97,5 +128,5 @@ access_surface:
   # and is geographically validated (CLIFF_USE_ACCESS_SURFACE=0 disables it,
   # =force includes an un-validated surface). Optional by design: absent /
   # unreadable / un-validated file -> Module D v1 (straight-line) only.
-  path: /Users/tylermuffly/simulation/dpmm_outputs/access_surface_v0.1.0.csv
+  path: ${CLIFF_SIMULATION_ROOT}/dpmm_outputs/access_surface_v0.1.0.csv
   env: WORKFORCE_ACCESS_SURFACE

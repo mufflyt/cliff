@@ -1,0 +1,18 @@
+# Coverage baseline. CI fails on a DROP of more than the tolerance, never on
+# failing to reach an arbitrary target: a fixed percentage on a suite that is
+# largely repository-integrity guards measures the wrong thing.
+#
+# The absolute number is low and that is not a measurement artifact. Verified:
+# in a package-only copy 1,630 assertions still execute. R/ simply contains a
+# lot of heavy pipeline code that cannot run without external inputs -- the
+# 1,642-line FREIDA loader, geographic access, the DuckDB readers -- while the
+# suite concentrates on the projection engine and the integrity guards. Most of
+# the 4,718 assertions exercise those guards and repository artifacts rather
+# than lines in R/.
+#
+# So read this as "the installed-package surface that tests reach", and use it
+# for REGRESSION only. Raising it is a separate piece of work from defending it.
+#   Rscript scripts/ci/check_coverage.R --write-baseline
+line_coverage_pct: 4.97
+tolerance_pct: 2.00
+untested_exports: 43

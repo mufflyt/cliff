@@ -50,8 +50,8 @@ coh <- read_csv(iso("manuscript", "tables", "table1_physician_characteristics.cs
   distinct(npi,.keep_all=TRUE) %>% filter(!is.na(ab))
 
 # ---- Part B last-active year per cohort NPI -------------------------------
-db <- "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb"
-if(!file.exists(db)) db <- "/Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb"
+source(here::here("R", "wc_path.R"))   # wc_path()/wc_duckdb_path(): registered external inputs
+db <- wc_duckdb_path()   # config/cliff_paths.yml: primary + mount-drift fallback
 con <- dbConnect(duckdb::duckdb(), db, read_only=TRUE)
 duckdb::duckdb_register(con, "coh_npi", data.frame(npi=coh$npi))
 pb <- dbGetQuery(con, "SELECT CAST(a.npi AS VARCHAR) npi, a.last_active_year_part_b L
