@@ -11,5 +11,6 @@
   "retired on author instruction: the tipping-point statement itself was removed from the condensed Discussion.": 1,
   "set CLIFF_RENDER_TESTS=<n> to run renders": 1,
   "slow: set CLIFF_SLOW_TESTS=<n> to re-run the <n>-draw builder": 1,
-  "Table <n> sub-pipeline script not present in this environment": 1
+  "Table <n> sub-pipeline script not present in this environment": 1,
+  "the frozen registry snapshot is not available in this environment": 1
 }
