@@ -37,12 +37,27 @@
 # data/workforce_projections_consolidated.csv by 4.4 physicians since the day it was
 # written. That is a scientific decision, not a reproducibility failure.
 #
+# CLOSED 2026-08-16: data/sensitivity_grid.csv + sensitivity_grid_summary.csv. NOT
+# drift. Three findings with different verdicts: the URPS re-basing 5.61 -> 5.38 was
+# legitimate (1,295 -> 1,306 migration); the upstream MIGS withdrawal was a legitimate
+# scope change; but the generator's hardcoded c("GO","URPS","MIGS") reindex turned that
+# scope change into a fabricated NA row -- a generator/contract DEFECT. MIGS is now
+# declared withdrawn, the generator and the supplement fail closed, and the artifacts
+# were regenerated on the URPS + GO scope. The supplement's stale prose is now generated
+# from the same artifact as its table. See docs/adjudication/sensitivity_grid.md.
+#
+# CLOSED 2026-08-16: data/table1_urps_characteristics_2026-07-23.csv. NOT drift: the
+# generator was NON-DETERMINISTIC. fisher.test(simulate.p.value=TRUE, B=1e4) with no
+# set.seed() made the Rurality p-value a random draw, so the artifact never reproduced
+# and never could. A bigger B was not the fix -- at B=1e6, 20 seeds still span three
+# distinct third decimals. The exact conditional test is feasible and deterministic and
+# is now used (0.323 -> 0.324, exact 0.323633); every other cell is unchanged and three
+# consecutive runs are byte-identical.
+# See docs/adjudication/table1_urps_characteristics.md.
+#
 # CI fails when this set GROWS. Shrink it by determining, per artifact,
 # whether the generator or the committed file is right -- then fixing one
 # and deleting the line.
-data/sensitivity_grid.csv
-data/sensitivity_grid_summary.csv
-data/table1_urps_characteristics_2026-07-23.csv
 data/urps_demand_denominators_sensitivity_2026-07-24.csv
 scripts/urps_baseline_scenarios/table1_published_preservation_v3.0.0.csv
 scripts/urps_baseline_scenarios/table2_controlled_sensitivity_v3.0.0.csv
