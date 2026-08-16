@@ -115,12 +115,35 @@ Independent of any drift, in the committed state:
   *"Gynecologic Oncology was at replacement (1.03) and URPS was below replacement
   (0.88)"*.
 
-These disagree, and both were committed on 2026-07-24. The prose numbers are hardcoded
-literals carried over in the migration (`96d999c`) that match **neither** the committed
-artifact (1.003 / 0.861) **nor** the regenerated one (1.003 / 0.833). They correspond to
-an older upstream vintage that no longer exists in this repository.
+These disagree, and both were committed on 2026-07-24.
 
-Regeneration would widen the gap for URPS: prose 0.88, artifact 0.83.
+**The prose is not fabricated — it was correct, for a vintage that no longer exists.**
+Traced to isochrones `b0d6c2f96` (2026-07-19, *"Peer review round 3: textual-consistency
+corrections"*), where the grid summary read:
+
+```
+GO,27,26,1,0,1.027,2.45,full,3,0.7        -> "1.03"
+URPS,27,26,0,1,0.882,1.943,full,3,0.7     -> "0.88"
+```
+
+driven by upstream `full`-window ratios of GO 4.40 and URPS 3.78. Those are exactly the
+values the prose implies (4.414 and 3.771 back-solved from `ratio = dr * 0.7 / 3`).
+
+The literal then froze while the artifact moved twice:
+
+| vintage | GO worst | URPS worst | |
+|---|---:|---:|---|
+| isochrones `b0d6c2f96`, 2026-07-19 | 1.027 | 0.882 | **the prose was written here and never updated** |
+| cliff `ac273bb`, 2026-07-24 (committed) | 1.003 | 0.861 | prose already stale on arrival |
+| current, 1,306 basis | 1.003 | 0.833 | |
+
+**Authoritative side: the artifact.** The prose is a frozen snapshot of a superseded
+computation, and it was already inconsistent with the table beside it on the day both
+were migrated into this repository. Regeneration widens the URPS gap further, prose 0.88
+against artifact 0.83.
+
+The fix is not to re-type the number. It is to make the prose an inline expression
+reading the same artifact the table reads, so the two cannot diverge again.
 
 ## 5. Authoritative side
 
