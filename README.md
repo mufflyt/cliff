@@ -132,6 +132,13 @@ literal in rendered prose, in a table caption, or embedded in a data file fails 
 The same file carries a Hall of Shame of values that were once published, were wrong, and
 must never reappear.
 
+Not every irreproducible number is a wrong one. `classifier_validation_external.csv`
+regenerates URPS n=415 → 499 and sensitivity 0.250 → 0.188, and **both are correct**: the
+generator is byte-identical to the isochrones original, the cohort is unchanged, and the
+state-board registry that serves as the gold standard is gitignored and was rewritten after
+the artifact was committed. Such cases are adjudicated in `docs/adjudication/` and are
+deliberately kept out of the Hall of Shame, which is for numbers that were wrong.
+
 ---
 
 ## Pipeline Scenarios
