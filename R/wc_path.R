@@ -14,6 +14,32 @@
 
 .wc_paths_cfg <- NULL
 
+# Expand ${VAR} references in a configured path.
+#
+# Config paths are written relative to a named root (${CLIFF_ISOCHRONES_ROOT}/...)
+# rather than hard-coded. Each root resolves as: the environment variable of that
+# name, else the default under `roots:` in cliff_paths.yml. Absolute paths in the
+# committed config meant the whole external-input tree only resolved on one
+# machine, and nothing could see that but that machine.
+.wc_expand_roots <- function(p, cfg) {
+  if (is.null(p) || !length(p) || !nzchar(p)) return(p)
+  roots <- cfg[["roots"]]
+  guard <- 0L
+  while (grepl("\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}", p)) {
+    guard <- guard + 1L
+    if (guard > 10L)
+      stop("wc_path(): cyclic root expansion in '", p, "'", call. = FALSE)
+    var <- sub(".*\\$\\{([A-Za-z_][A-Za-z0-9_]*)\\}.*", "\\1", p)
+    val <- Sys.getenv(var, "")
+    if (!nzchar(val) && !is.null(roots[[var]])) val <- roots[[var]]
+    if (!nzchar(val))
+      stop("wc_path(): root '", var, "' is not set and has no default in ",
+           "config/cliff_paths.yml `roots:`", call. = FALSE)
+    p <- sub("\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}", val, p)
+  }
+  path.expand(p)
+}
+
 #' Resolve an external input path from config/cliff_paths.yml
 #'
 #' Look up a registered input key in `config/cliff_paths.yml` (deep-merged with a
@@ -49,8 +75,9 @@ wc_path <- function(key, must_exist = FALSE) {
   e <- .wc_paths_cfg[[key]]
   if (is.null(e)) stop("wc_path(): unknown key '", key, "'", call. = FALSE)
   if (!is.null(e$env)) { v <- Sys.getenv(e$env, ""); if (nzchar(v)) return(v) }   # env override wins
-  p <- e$path
-  if (!file.exists(p) && !is.null(e$fallback) && file.exists(e$fallback)) p <- e$fallback
+  p <- .wc_expand_roots(e$path, .wc_paths_cfg)
+  fb <- .wc_expand_roots(e$fallback, .wc_paths_cfg)
+  if (!file.exists(p) && !is.null(fb) && file.exists(fb)) p <- fb
   if (must_exist && !file.exists(p)) stop("wc_path('", key, "'): file not found: ", p, call. = FALSE)
   p
 }

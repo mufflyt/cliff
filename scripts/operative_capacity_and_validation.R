@@ -63,8 +63,8 @@ coh <- read_csv(iso("manuscript", "tables", "table1_physician_characteristics.cs
 
 # --- pull operative services (Tot_Srvcs over OP_CODES) AND total services per NPI-year
 db <- NA_character_
-for (c in c("/Volumes/MufflySamsung/DuckDB/nber_my_duckdb.duckdb",
-            "/Volumes/MufflySamsung 1/DuckDB/nber_my_duckdb.duckdb")) if (file.exists(c)) { db<-c; break }
+source(here::here("R", "wc_path.R"))   # wc_path()/wc_duckdb_path(): registered external inputs
+db <- wc_duckdb_path()   # config/cliff_paths.yml: primary + mount-drift fallback
 if (is.na(db)) stop("NBER DuckDB not mounted.")
 con <- dbConnect(duckdb::duckdb(), db, read_only=TRUE)
 duckdb::duckdb_register(con, "coh_npi", data.frame(npi=coh$npi))

@@ -56,9 +56,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
         with:
           r-version: release
           use-public-rspm: true
@@ -69,6 +69,9 @@ jobs:
 
       - name: Dependency pins agree (DESCRIPTION Remotes vs renv.lock)
         run: Rscript --no-init-file scripts/ci/check_pins.R
+
+      - name: Source hygiene (no machine paths, no load-time side effects)
+        run: Rscript --no-init-file scripts/ci/check_source_hygiene.R
 
       - name: DESCRIPTION is parseable and complete
         shell: Rscript {0}
@@ -175,14 +178,14 @@ jobs:
         include: ${{ fromJSON(needs.matrix_setup.outputs.matrix) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
         with:
           r-version: ${{ matrix.r }}
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-pandoc@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
 
       - name: System libraries (Linux)
         if: runner.os == 'Linux'
@@ -195,7 +198,7 @@ jobs:
             libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
 
       - name: Cache R library
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           # setup-r exports R_LIBS_USER; this is where install.packages() and
           # remotes::install_deps() put everything.
@@ -240,7 +243,7 @@ jobs:
 
       - name: Upload check output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: check-${{ matrix.os }}-R${{ matrix.r }}
           path: check/**/*.log
@@ -260,14 +263,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
         with:
           r-version: release
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-pandoc@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
 
       - name: System libraries
         run: |
@@ -350,27 +353,16 @@ jobs:
 
       - name: Upload test accounting
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-accounting
           path: ${{ runner.temp }}/ci-out/*
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Coverage
+      - name: Coverage regression
         if: ${{ inputs.deep }}
-        shell: Rscript {0}
-        run: |
-          # Reported, never enforced. A coverage threshold on a package whose
-          # suite is mostly repository-integrity guards would measure the wrong
-          # thing; the number is here to be watched for sudden drops.
-          cov <- covr::package_coverage(type = "tests", quiet = FALSE)
-          pct <- covr::percent_coverage(cov)
-          cat(sprintf("coverage: %.1f%%\n", pct))
-          summ <- Sys.getenv("GITHUB_STEP_SUMMARY")
-          if (nzchar(summ))
-            cat(sprintf("### Coverage\n\n**%.1f%%** of lines in `R/`.\n\n", pct),
-                file = summ, append = TRUE)
+        run: Rscript --no-init-file scripts/ci/check_coverage.R
 
   # ---------------------------------------------------------------------------
   # Installed-package semantics. This is the gap that has produced nearly every
@@ -384,9 +376,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
         with:
           r-version: release
           use-public-rspm: true
@@ -442,6 +434,72 @@ jobs:
           echo "Tarball: \`$sz\` — loads with the five Suggests absent." >> "$GITHUB_STEP_SUMMARY"
 
   # ---------------------------------------------------------------------------
+  # Gates 61-63: the Shiny applications' own test suites.
+  #
+  # Both apps ship testthat suites that CI had never run. They are publication
+  # surface -- the apps present the same projection as the manuscript -- and the
+  # main suite's app-parity guard exists because an app once carried a divergent
+  # copy of a package calculation.
+  # ---------------------------------------------------------------------------
+  shiny:
+    name: Shiny application suites
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+
+      - name: Install dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "testthat", "shiny"))
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+
+      - run: R CMD INSTALL --with-keep.source .
+
+      - name: Run both application suites
+        run: Rscript --no-init-file scripts/ci/run_shiny_suites.R
+
+      # Gate 62: headless startup. Deep only -- it drives a real browser, which
+      # is both slower and a different class of flakiness from the unit suites.
+      - name: Headless app startup smoke
+        if: ${{ inputs.deep }}
+        continue-on-error: true
+        shell: Rscript {0}
+        run: |
+          ok <- requireNamespace("shinytest2", quietly = TRUE) &&
+                requireNamespace("chromote", quietly = TRUE)
+          if (!ok) { cat("shinytest2/chromote unavailable; skipping\n"); quit(status = 0) }
+          for (app in c("shiny_urps_adequacy", "shiny_urps_scenarios")) {
+            cat("== ", app, " ==\n", sep = "")
+            r <- tryCatch({
+              d <- shinytest2::AppDriver$new(app, load_timeout = 60 * 1000,
+                                             check_names = FALSE)
+              on.exit(try(d$stop(), silent = TRUE), add = TRUE)
+              logs <- d$get_logs()
+              cat("  started and rendered\n")
+              TRUE
+            }, error = function(e) { cat("  FAILED: ", conditionMessage(e), "\n"); FALSE })
+            if (!r) cat("  (advisory: browser startup is not a blocking gate yet)\n")
+          }
+
+  # ---------------------------------------------------------------------------
   # The manuscript render gate. rmarkdown::render() catches what parsing and
   # unit tests cannot: a helper named cf() once passed 2,853 unit tests while
   # the supplement could not render at all, because the document rebinds `cf`
@@ -456,14 +514,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
         with:
           r-version: release
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-pandoc@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
 
       - name: System libraries
         run: |
@@ -483,7 +541,7 @@ jobs:
       - name: Install cliff
         run: R CMD INSTALL --with-keep.source .
 
-      - name: Render gate
+      - name: Render gate (in-suite proxies)
         env:
           CLIFF_RENDER_TESTS: "1"
         shell: Rscript {0}
@@ -492,3 +550,9 @@ jobs:
           res <- test_file("tests/testthat/test-ssot-no-stale-published-numbers.R",
                            reporter = "summary", stop_on_failure = TRUE)
           cat("render gate: OK\n")
+
+      - name: Render manuscript AND supplement, then read the output
+        run: Rscript --no-init-file scripts/ci/render_manuscripts.R
+
+      - name: Determinism (two independent sessions)
+        run: Rscript --no-init-file scripts/ci/check_determinism.R

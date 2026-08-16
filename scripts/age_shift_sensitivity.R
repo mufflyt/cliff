@@ -56,11 +56,12 @@ coh <- coh %>% left_join(mutate(.anch, npi=as.character(npi)), by="npi") %>%
   mutate(ry = ifelse(!is.na(ry) & !has_nonop_anchor, NA_integer_, ry)) %>% select(-has_nonop_anchor)
 
 # ABU both-pathway active ages
-abu_cw <- read_csv("/Users/tylermuffly/isochrones/data/abu_urology/abu_npi_crosswalk_2026-07-14.csv",
+source(here::here("R", "wc_path.R"))   # wc_path()/wc_duckdb_path(): registered external inputs
+abu_cw <- read_csv(wc_path("abu_crosswalk"),
                    show_col_types=FALSE, guess_max=1e5) %>%
   transmute(npi=as.character(npi), cert_year=suppressWarnings(as.integer(abu_cert_year)))
 abu_nn <- trimws(gsub('"','', readLines(
-  "/Users/tylermuffly/isochrones/data/abu_urology/abu_fpmrs_net_new_npis_active_2026-07-14.txt")))
+  wc_path("abu_net_new_2026_07_14"))))
 abu_nn <- abu_nn[abu_nn!="" & !grepl("npi", abu_nn, ignore.case=TRUE)]
 ABU_AGES <- abu_cw %>% filter(npi %in% abu_nn, !is.na(cert_year)) %>%
   mutate(age=REF_YEAR-cert_year+AGE_AT_CERT) %>% distinct(npi,.keep_all=TRUE) %>% pull(age)

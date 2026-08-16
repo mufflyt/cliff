@@ -1,0 +1,5 @@
+# Known source-hygiene exceptions.
+#
+# CI fails when this set GROWS. Shrink it by fixing the source and deleting
+# the line; never add a line to make CI pass.
+#   Rscript scripts/ci/check_source_hygiene.R --write-debt

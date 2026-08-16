@@ -1,0 +1,10 @@
+# Shiny application tests that currently fail.
+#
+# CI fails when this set GROWS. Shrink it by fixing the app or the
+# expectation and deleting the line; never add a line to make CI pass.
+#   Rscript scripts/ci/run_shiny_suites.R --write-debt
+shiny_urps_scenarios :: test-model-functions.R :: age_table has non-NA hazards and a sparse 70+ under as-observed
+shiny_urps_scenarios :: test-model-functions.R :: canonical figures load from the manuscript CSVs and match the model
+shiny_urps_scenarios :: test-model-functions.R :: the primary projection reproduces the frozen headline numbers
+shiny_urps_scenarios :: test-model-functions.R :: the transition ramp defers entry and reproduces the manuscript's ~1,461
+shiny_urps_scenarios :: test-model-functions.R :: validate_model passes with the frozen engine

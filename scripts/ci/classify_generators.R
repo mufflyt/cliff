@@ -65,7 +65,11 @@ external_path_keys <- function() {
     pth <- regmatches(l, regexec("^\\s+path:\\s*(.+?)\\s*$", l))[[1]]
     if (length(pth) == 2L && !is.na(cur)) {
       v <- gsub('^["\']|["\']$', "", pth[2])
-      if (startsWith(v, "/")) keys[[cur]] <- v      # absolute => outside the repo
+      # Outside the repo if it is absolute, home-relative, or resolved through a
+      # ${ROOT} variable. The ${...} form matters: config paths were converted
+      # from absolute to root-relative, and a check for "/" alone would silently
+      # reclassify every external input as clean_checkout again.
+      if (grepl("^(/|~|\\$\\{)", v)) keys[[cur]] <- v
     }
   }
   keys
@@ -75,9 +79,9 @@ EXTERNAL_KEYS <- external_path_keys()
 
 # What does an external path actually require?
 external_class <- function(path) {
-  if (grepl("\\.duckdb$", path, ignore.case = TRUE)) return("credentialed")
-  if (grepl("^/Volumes/", path))                      return("credentialed")
-  if (grepl("/isochrones/", path))                    return("upstream_repo")
+  if (grepl("\\.duckdb$", path, ignore.case = TRUE))          return("credentialed")
+  if (grepl("^/Volumes/|EXTERNAL_MEDIA", path))                 return("credentialed")
+  if (grepl("/isochrones/|ISOCHRONES_ROOT", path))              return("upstream_repo")
   "frozen_snapshot"
 }
 
