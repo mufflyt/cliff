@@ -33,6 +33,12 @@ concurrency:
 permissions:
   contents: read
 
+# Workflow level, not per job. upstream_drift was the one job without this and
+# renv's autoloader hijacked its install.packages() -- the same failure already
+# fixed in _core.yml. Setting it here means a new job cannot silently omit it.
+env:
+  RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+
 jobs:
   # ---------------------------------------------------------------------------
   # Let exactly one of the two cron entries through per day.
