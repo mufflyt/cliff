@@ -87,6 +87,18 @@ jobs:
       deep: true
 
   # ---------------------------------------------------------------------------
+  # cliff against the upstream contract package: the exact pinned commit
+  # (blocking) and upstream main (compatibility signal only).
+  # ---------------------------------------------------------------------------
+  contracts:
+    name: contracts
+    needs: when
+    if: needs.when.outputs.go == 'true'
+    uses: ./.github/workflows/_contracts.yml
+    with:
+      deep: true
+
+  # ---------------------------------------------------------------------------
   # The portable half of the acceptance gate: prove renv.lock itself restores
   # into a brand-new library. scripts/acceptance/run_gate.sh is a macOS tool
   # (framework paths, rig, Homebrew prefixes) and is not run here; this job
@@ -192,7 +204,7 @@ jobs:
   # ---------------------------------------------------------------------------
   summary:
     name: nightly summary
-    needs: [when, core, reproducibility, lockfile_restore, upstream_drift]
+    needs: [when, core, reproducibility, contracts, lockfile_restore, upstream_drift]
     if: ${{ always() && needs.when.outputs.go == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -205,12 +217,13 @@ jobs:
         run: |
           core='${{ needs.core.result }}'
           repro='${{ needs.reproducibility.result }}'
+          contracts='${{ needs.contracts.result }}'
           lock='${{ needs.lockfile_restore.result }}'
           drift='${{ needs.upstream_drift.result }}'
 
           verdict=PASS
           detail=""
-          for pair in "core:$core" "reproducibility:$repro" "lockfile_restore:$lock"; do
+          for pair in "core:$core" "reproducibility:$repro" "contracts:$contracts" "lockfile_restore:$lock"; do
             name="${pair%%:*}"; res="${pair#*:}"
             case "$res" in
               success) ;;
@@ -229,6 +242,7 @@ jobs:
             echo "|---|---|"
             echo "| core (matrix, tests, smoke, render) | \`$core\` |"
             echo "| reproducibility (hashes, SSOT, artifacts) | \`$repro\` |"
+            echo "| contracts (mufflyaccess pinned; main advisory) | \`$contracts\` |"
             echo "| renv.lock restores from nothing | \`$lock\` |"
             echo "| upstream pin drift (advisory) | \`$drift\` |"
             echo ""
@@ -252,6 +266,7 @@ jobs:
               '|---|---|',
               `| core | \`${{ needs.core.result }}\` |`,
               `| reproducibility | \`${{ needs.reproducibility.result }}\` |`,
+              `| contracts | \`${{ needs.contracts.result }}\` |`,
               `| lockfile restore | \`${{ needs.lockfile_restore.result }}\` |`,
               '',
               `[Full run log](${run})`,

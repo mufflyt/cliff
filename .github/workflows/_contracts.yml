@@ -1,0 +1,151 @@
+# Gates 53-55: cliff against the upstream contract package it depends on.
+#
+# cliff validates its published workforce numbers against mufflyaccess. Two
+# different questions, deliberately separated, because they have different
+# answers and different consequences:
+#
+#   53  PINNED    Install the exact commit cliff pins and run the whole runnable
+#                 suite. "Can the frozen production stack still reproduce?"
+#                 A failure here means cliff is broken against its own pin --
+#                 blocking.
+#
+#   54  MAIN      Install upstream main and run the same suite. "Has tomorrow's
+#                 upstream already broken us?" A failure here means upstream has
+#                 moved in a way cliff cannot absorb yet. That is important to
+#                 see, but it is not cliff being broken today -- so it is a
+#                 highly visible compatibility signal, never a red correctness
+#                 gate. Nothing teaches people to ignore CI faster than a job
+#                 that is permanently red for something outside the repo.
+#
+# The existing contract-tests.yml runs a filtered subset with base R only, which
+# proves the contract layer works with no heavy stack. These run the ENTIRE
+# suite, which is what actually catches a semantic change: an upstream schema
+# that still parses can still be scientifically wrong.
+
+name: _contracts
+
+on:
+  workflow_call:
+    inputs:
+      deep:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+  GITHUB_PAT: ${{ github.token }}
+  _R_CHECK_FORCE_SUGGESTS_: false
+  CLIFF_ISOCHRONES_ROOT: ""
+
+jobs:
+  contracts:
+    name: mufflyaccess (${{ matrix.ref }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    continue-on-error: ${{ matrix.advisory }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { ref: pinned, advisory: false }
+          - { ref: main,   advisory: true }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: System libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev \
+            libgdal-dev libgeos-dev libproj-dev libudunits2-dev \
+            libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
+            libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
+
+      - name: Resolve which mufflyaccess commit to test
+        id: ref
+        run: |
+          if [ "${{ matrix.ref }}" = "pinned" ]; then
+            # DESCRIPTION Remotes is the pin remotes::install_deps() honours, and
+            # scripts/ci/check_pins.R already guarantees it equals renv.lock.
+            sha=$(grep -A2 '^Remotes:' DESCRIPTION | grep -oE '[0-9a-f]{40}' | head -1)
+            [ -n "$sha" ] || { echo "could not read the pinned SHA"; exit 1; }
+          else
+            sha=main
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "testing mufflyaccess @ $sha"
+
+      - name: Install cliff dependencies
+        shell: Rscript {0}
+        run: |
+          install.packages(c("remotes", "testthat"))
+          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+
+      - name: Install the requested mufflyaccess
+        shell: Rscript {0}
+        run: |
+          remotes::install_github(
+            paste0("mufflyt/mufflyaccess@", "${{ steps.ref.outputs.sha }}"),
+            upgrade = "never", force = TRUE)
+          d <- utils::packageDescription("mufflyaccess")
+          cat("mufflyaccess", d$Version, "\n")
+          cat("RemoteSha:", if (is.null(d$RemoteSha)) "<none>" else d$RemoteSha, "\n")
+
+      - name: Install cliff
+        run: R CMD INSTALL --with-keep.source .
+
+      - name: Run the full suite against this mufflyaccess
+        id: suite
+        env:
+          CLIFF_CI_OUT: ${{ runner.temp }}/ci-out
+        run: Rscript --no-init-file scripts/ci/run_suite.R
+
+      - name: Assert the suite finished
+        if: steps.suite.outcome == 'success'
+        env:
+          CLIFF_CI_OUT: ${{ runner.temp }}/ci-out
+        run: |
+          test -f "$CLIFF_CI_OUT/suite-completed.txt" || {
+            echo "::error::suite completion sentinel missing"; exit 1; }
+          cat "$CLIFF_CI_OUT/suite-completed.txt"
+
+      - name: Summary
+        if: always()
+        env:
+          CLIFF_CI_OUT: ${{ runner.temp }}/ci-out
+        run: |
+          label='${{ matrix.ref }}'
+          sha='${{ steps.ref.outputs.sha }}'
+          {
+            echo "### mufflyaccess \`$label\` (\`${sha:0:12}\`)"
+            echo ""
+            if [ -f "$CLIFF_CI_OUT/suite-completed.txt" ]; then
+              echo '```'; cat "$CLIFF_CI_OUT/suite-completed.txt"; echo '```'
+            else
+              echo "Suite did not complete."
+              if [ "$label" = "main" ]; then
+                echo ""
+                echo "> This is a **compatibility signal**, not a cliff defect: upstream"
+                echo "> \`main\` has moved ahead of the pin. It does not fail the nightly."
+              fi
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-suite-${{ matrix.ref }}
+          path: ${{ runner.temp }}/ci-out/*
+          if-no-files-found: ignore
+          retention-days: 14
