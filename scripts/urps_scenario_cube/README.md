@@ -55,8 +55,8 @@ The 2023 baseline cells reconcile exactly to the mufflyaccess v3.0.0 SSOT: ABOG
 ## Reused, not reinvented
 
 - **Engine:** `wc_project`'s recurrence via `wc_engine_loader.R` (pure projection defs, no duckdb), guarded by `test-wc-engine-equivalence.R`.
-- **Hazards:** the published pooled GO+URPS age-band hazards.
-- **Cohorts:** the 2023 board-certified active age structure per (pathway, geography), extracted from the isochrones v3.0.0 provider snapshot into `urps_cohort_ages_pathway_geo_v3.0.0.csv`; reconciles to the SSOT cells above.
+- **Hazards:** a **URPS-only** age-band life table, hardcoded as `BAND_EV`/`BAND_PY`. This is *not* the published pooled GO+URPS hazard the SSOT uses, and it is why the cube's projection sits ~4.4 physicians below the SSOT's. See `docs/adjudication/urps_row_1306_pair.md`.
+- **Cohorts:** the 2023 board-certified active age structure per (pathway, geography), served by `mufflyaccess::urps_active_ages()`; reconciles to the SSOT cells above on every call.
 - **Scenarios + FTE:** the mufflyaccess registry (`urps_scenarios()`) and Phase-3 FTE model.
 
 ## Caveats (this is a prototype, not a published estimand)

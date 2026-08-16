@@ -12,7 +12,7 @@ inputs under `CLIFF_ISOCHRONES_ROOT` (default `~/isochrones`); *v3.0.0 parquet*
 means `CLIFF_URPS_SNAPSHOT`; *DuckDB* means the external credentials database.
 Scripts with no requirements run from a clean checkout.
 
-71 generators writing 112 artifacts.
+71 generators writing 113 artifacts.
 
 Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_scenarios/`, `analysis/`, `benchmark/`, `manuscript/R/`, `demand_lifecourse/`, `augs_application/`, `data-raw/`
 
@@ -22,7 +22,7 @@ Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_
 | `R/infer_fellowship_training.R` | `fellowship_duplicate_npi_report.csv` | `zip_centroids.csv` | `DuckDB` |
 | `analysis/taxonomy/analyze_urps_taxonomy.R` | `urps_physicians_correct_taxonomy.csv`<br>`urps_physicians_incorrect_taxonomy.csv`<br>`urps_taxonomy_full_analysis.csv`<br>`urps_taxonomy_summary.csv` | `abog_comprehensive_with_recent_grads_20250926_040524.csv` | `DuckDB` |
 | `analysis/taxonomy/analyze_urps_taxonomy_detailed.R` | `urps_detailed_position_analysis.csv`<br>`urps_position_summary.csv` | `abog_comprehensive_with_recent_grads_20250926_040524.csv` | `DuckDB` |
-| `benchmark/generate_urps_benchmark.R` | `urps_cohort_ages_v3.0.0.csv`<br>`urps_projection_golden.csv` | `urps_cohort_ages_pathway_geo_v3.0.0.csv` | -- |
+| `benchmark/generate_urps_benchmark.R` | `urps_cohort_ages_v3.0.0.csv`<br>`urps_projection_golden.csv` | -- | `mufflyaccess` |
 | `code/01_consolidate_workforce_data.R` | `workforce_projections_consolidated.csv` | -- | -- |
 | `code/04_compare_scenarios.R` | `scenario_comparison.csv` | `workforce_projections_consolidated.csv` | -- |
 | `code/06_retirement_sensitivity.R` | `retirement_sensitivity.csv` | `workforce_projections_consolidated.csv` | -- |
@@ -41,17 +41,17 @@ Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_
 | `code/archived/validate_age_estimation.R` | `age_estimation_validation_data.csv` | -- | `DuckDB` |
 | `scripts/abu_pathway_sensitivity.R` | `abu_pathway_sensitivity.csv` | `departure_anchor.csv`<br>`urps_ages_v3_279_abu.csv` | -- |
 | `scripts/age_proxy_validation.R` | `age_proxy_validation.csv` | `table1_physician_characteristics.csv` | `isochrones checkout`<br>`DuckDB` |
-| `scripts/age_shift_sensitivity.R` | `age_shift_sensitivity.csv` | `departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`workforce_projections_consolidated.csv` | `isochrones checkout`<br>`DuckDB`<br>`mufflyaccess` |
+| `scripts/age_shift_sensitivity.R` | `age_shift_sensitivity.csv` | `departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`workforce_projections_consolidated.csv` | `isochrones checkout`<br>`DuckDB`<br>`mufflyaccess` |
 | `scripts/algorithm_supplement_data.R` | `consort_cohort_flow.csv`<br>`loso_source_contribution.csv` | `table1_physician_characteristics.csv` | `isochrones checkout`<br>`v3.0.0 parquet`<br>`DuckDB`<br>`mufflyaccess` |
 | `scripts/baseline_lag_decomposition.R` | `baseline_lag_decomposition.csv` | `departure_anchor.csv`<br>`table1_physician_characteristics.csv` | `isochrones checkout`<br>`v3.0.0 parquet`<br>`DuckDB` |
 | `scripts/breakeven_thresholds.R` | `breakeven_thresholds.csv` | `workforce_projections_consolidated.csv` | -- |
-| `scripts/build_audit_table.R` | `departure_audit_table.csv`<br>`open_payments_sensitivity.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv` | `isochrones checkout`<br>`mufflyaccess` |
+| `scripts/build_audit_table.R` | `departure_audit_table.csv`<br>`open_payments_sensitivity.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`table1_physician_characteristics.csv` | `isochrones checkout`<br>`mufflyaccess` |
 | `scripts/build_departure_window_sensitivity.R` | `departure_window_sensitivity.csv` | `urps_1306_active_cohort.csv`<br>`workforce_projections_consolidated.csv` | -- |
 | `scripts/build_evidence_table.R` | `table_evidence_supporting_scenarios.csv` | `hierarchical_hazard_comparison.csv`<br>`mortality_sensitivity.csv`<br>`workforce_projection_benchmark_nrmp.csv` | -- |
 | `scripts/build_hazard_comparison.R` | `hazard_by_band_pooled_vs_unpooled.csv`<br>`hazard_rate_pooled_vs_unpooled.csv` | `departure_anchor.csv` | -- |
-| `scripts/build_nrmp_benchmark.R` | `workforce_projection_benchmark_nrmp.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv` | `isochrones checkout`<br>`mufflyaccess` |
+| `scripts/build_nrmp_benchmark.R` | `workforce_projection_benchmark_nrmp.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`table1_physician_characteristics.csv` | `isochrones checkout`<br>`mufflyaccess` |
 | `scripts/build_pipeline_map.R` | `x.csv` | -- | `isochrones checkout`<br>`v3.0.0 parquet`<br>`DuckDB`<br>`mufflyaccess` |
-| `scripts/build_reviewer_sensitivities.R` | `consistent_definition_baseline_sensitivity.csv`<br>`mortality_sensitivity.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`ssa_period_life_table_2020.csv`<br>`table1_physician_characteristics.csv`<br>`urps_cohort_ages_pathway_geo_v3.0.0.csv` | `isochrones checkout`<br>`mufflyaccess` |
+| `scripts/build_reviewer_sensitivities.R` | `consistent_definition_baseline_sensitivity.csv`<br>`mortality_sensitivity.csv` | `abu_npi_crosswalk_2026-07-14.csv`<br>`departure_anchor.csv`<br>`ssa_period_life_table_2020.csv`<br>`table1_physician_characteristics.csv` | `isochrones checkout`<br>`mufflyaccess` |
 | `scripts/build_table1_urps_2026-07-23.R` | `table1_urps_characteristics_2026-07-23.csv` | `abog_all_urps_ENRICHED_2026-07-22.csv`<br>`abu_all_urps_ENRICHED_2026-07-22.csv` | -- |
 | `scripts/classifier_adjudication.R` | `classifier_adjudication_sample.csv`<br>`classifier_corroboration.csv` | `table1_physician_characteristics.csv` | `isochrones checkout` |
 | `scripts/compute_empirical_retirement_rate_nppes.R` | `age_at_departure_by_subspecialty.csv`<br>`departure_rate_sensitivity.csv`<br>`retirement_hazard_by_ageband.csv`<br>`retirement_rates_age_stratified.csv` | `departure_anchor.csv` | `isochrones checkout` |
@@ -84,8 +84,8 @@ Sources scanned: `scripts/`, `code/`, `R/`, `shiny_urps_adequacy/`, `shiny_urps_
 | `scripts/urps_module_d_geographic_access_2026-07-23.R` | `_cache_acs_county_women65_2023.csv`<br>`urps_module_d_county_access_2026-07-23.csv`<br>`urps_module_d_density_by_state_2026-07-23.csv`<br>`urps_module_d_points_2026-07-23.csv`<br>`urps_module_d_summary_2026-07-23.csv` | `zcta_centroids_2020.csv` | -- |
 | `scripts/urps_plasticity_stage0_audit_2026-07-23.R` | `urps_plasticity_primary_clinician_matrix_2026-07-23.csv`<br>`urps_plasticity_stage0_audit_2026-07-23.csv` | `abog_all_urps_ENRICHED_2026-07-22.csv`<br>`abu_all_urps_ENRICHED_2026-07-22.csv` | `DuckDB` |
 | `scripts/urps_projection/build_urps_projection.R` | `urps_projection_2023_2040_v1.csv` | `urps_cohort_ages_by_pathway_v3.0.0.csv`<br>`urps_cohort_ages_v3.0.0.csv` | `mufflyaccess` |
-| `scripts/urps_scenario_cube/build_scenario_cube.R` | `workforce_scenario_cube.csv` | `urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`urps_module_a_age_productivity_2026-07-23.csv` | `mufflyaccess` |
-| `scripts/urps_scenario_cube/regen_urps_1306_projection.R` | `urps_row_1306_regenerated.csv`<br>`urps_uncertainty_1306.csv` | `urps_cohort_ages_pathway_geo_v3.0.0.csv`<br>`urps_cohort_ages_v3.0.0.csv` | -- |
+| `scripts/urps_scenario_cube/build_scenario_cube.R` | `workforce_scenario_cube.csv` | `urps_module_a_age_productivity_2026-07-23.csv` | `mufflyaccess` |
+| `scripts/urps_scenario_cube/regen_urps_1306_projection.R` | `urps_row_1306_regenerated.csv`<br>`urps_uncertainty_1306.csv`<br>`urps_uncertainty_1306_parameter_only.csv` | `urps_cohort_ages_v3.0.0.csv` | `mufflyaccess` |
 | `scripts/urps_supply_demand_national_2026-07-23.R` | `urps_supply_demand_national_2026-07-23.csv` | -- | -- |
 | `scripts/validate_departure_classifier_external.R` | `classifier_validation_external.csv` | -- | -- |
 | `scripts/validate_departure_classifier_external_updated_reference.R` | `classifier_validation_external_updated_reference.csv` | -- | -- |

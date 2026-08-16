@@ -95,8 +95,10 @@ Three changes, every time:
    `active_2023` gate drops and excludes only 6 ABU NPIs for a missing
    certification year where the snapshot excludes 29 — exactly the
    `consort_cohort_flow` removals. Take active ages from
-   `scripts/urps_scenario_cube/urps_cohort_ages_pathway_geo_v3.0.0.csv`, or the
-   physician-level snapshot when you need NPIs or sex. Assert against
+   `mufflyaccess::urps_active_ages()` (pathway `ABOG` / `ABU_NET_NEW` /
+   `ABOG_PLUS_ABU` x `national` / `conus`), or the physician-level snapshot when
+   you need NPIs or sex. The local extract this used to name was deleted on
+   2026-08-16 once all six consumers moved to the accessor. Assert against
    `mufflyaccess::urps_count()` rather than the literal 1306, which the
    `no-unqualified-urps-baseline` guard will otherwise flag.
 

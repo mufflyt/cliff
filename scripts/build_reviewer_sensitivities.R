@@ -83,14 +83,10 @@ abu_age <- abu_cw %>% filter(npi %in% abu_nn, !is.na(cert_year)) %>%
 # path and yields the retired 1,295 baseline. The adopted 1,306 baseline is
 # defined by the v3.0.0 cohort, so take the URPS active ages from it: the ABOG
 # side replaces coh's URPS rows and the ABU net-new side replaces abu_age.
-.v3 <- utils::read.csv(here::here("scripts", "urps_scenario_cube",
-                                  "urps_cohort_ages_pathway_geo_v3.0.0.csv"),
-                       stringsAsFactors = FALSE)
-.v3 <- .v3[.v3$geography == "national", ]
-.v3_ages <- function(pw) with(.v3[.v3$pathway == pw, ],
-                              rep(as.integer(age), as.integer(n_active_2023)))
+.v3_ages <- function(pw) mufflyaccess::urps_active_ages(
+  pathway = pw, geography = "national", as = "vector")
 V3_ABOG <- .v3_ages("ABOG")
-abu_age <- data.frame(age = .v3_ages("ABU"))
+abu_age <- data.frame(age = .v3_ages("ABU_NET_NEW"))
 stopifnot(length(V3_ABOG) + nrow(abu_age) == mufflyaccess::urps_count(
   year = 2023L, measure = "board_certified_active", geography = "national",
   include_urology = TRUE, incomplete = "error"))
