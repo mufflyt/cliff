@@ -19,15 +19,35 @@ suppressPackageStartupMessages({ library(shiny); library(bslib); library(ggplot2
 source("urps_model_data.R")   # URPS_AGES, BAND_LABELS, HAZ_WINDOWS, BAND_EV, BAND_PY, GRAD_URPS
 source("scenario_comparison.R")   # UNC-style multi-scenario comparison module (contract v3.0.0)
 
-# National URPS baseline from the SSOT, never a hardcoded literal. This app
-# models the 2025 status-quo roster, so the baseline is the 2025 roster_snapshot
-# (1339 = 1031 ABOG + 308 ABU net-new). NOTE: 1339 is the roster snapshot, NOT
-# the 2023 board_certified_active count (1332) -- do not conflate them.
+# National URPS baseline from the SSOT, never a hardcoded literal.
+#
+# This app models the PROJECTION COHORT -- URPS_AGES is that cohort's active-age
+# distribution (n = 1,306) -- so the baseline must be the current-active count,
+# routed through the same accessor the rest of the repo uses:
+#   urps_count(2023, "board_certified_active", "national", include_urology = TRUE)
+#
+# It is deliberately NOT urps_count(2025, "roster_snapshot") (1,339). That is a
+# different estimand -- a roster headcount, which augs_application correctly uses
+# as its 2025 demand anchor -- and asking for it here while the model ran on the
+# projection cohort is what made this app validate 1,306 against 1,339 and refuse
+# to launch. Neither may be conflated with the retired 2.1.0 count (1,332).
+#
+# urps_lineage() is cross-checked against it so a future contract bump cannot
+# move one without the other.
 if (!requireNamespace("mufflyaccess", quietly = TRUE))
   stop("Package 'mufflyaccess' is required (renv::install(\"mufflyt/mufflyaccess\")).", call. = FALSE)
-URPS_BASELINE_SSOT <- mufflyaccess::urps_count(
-  year = 2025, measure = "roster_snapshot", geography = "national",
-  include_urology = TRUE, incomplete = "error")
+URPS_BASELINE_SSOT <- as.integer(mufflyaccess::urps_count(
+  year = 2023L, measure = "board_certified_active", geography = "national",
+  include_urology = TRUE, incomplete = "error"))
+.urps_lineage <- mufflyaccess::urps_lineage()
+.current_row  <- .urps_lineage[.urps_lineage$status == "current", , drop = FALSE]
+if (nrow(.current_row) != 1L)
+  stop("mufflyaccess::urps_lineage() did not return exactly one current contract row.", call. = FALSE)
+if (!identical(URPS_BASELINE_SSOT, as.integer(.current_row$national_active)))
+  stop(sprintf(paste0("[app] SSOT disagreement: urps_count(board_certified_active) = %d but ",
+                      "urps_lineage() current contract national_active = %d."),
+               URPS_BASELINE_SSOT, as.integer(.current_row$national_active)), call. = FALSE)
+URPS_CONTRACT_VERSION <- as.character(.current_row$contract_version)
 
 # plain-language display labels for the age bands (BAND_LABELS stays the model key)
 BAND_DISPLAY <- c("<45" = "Under 45", "45-49" = "45 to 49", "50-54" = "50 to 54",
@@ -66,13 +86,28 @@ MC_SEED <- 20260718L                       # matches manuscript_WORKFORCE_CLIFF.
     u <- c0[toupper(c0$subspecialty_abbrev) == "URPS", , drop = FALSE]
     u <- u[order(u$k), , drop = FALSE]; if (nrow(u) >= 4) curve <- u$cum_active_fraction
   }
-  if (is.na(imm))     imm   <- 1544
-  if (is.na(rmp))     rmp   <- 1466
-  if (is.na(defer))   defer <- 38
-  if (is.null(curve)) curve <- c(0.329, 0.595, 0.881, 0.956, 0.972, 0.984)
-  list(baseline = URPS_BASELINE_SSOT, completions = 64L, ratio = 5.02, proj_immediate = round(imm),
+  # Replacement ratio and mean departures come from the SSOT itself
+  # (workforce_projections_consolidated.csv, written by the canonical producer
+  # scripts/rebuild_ssot_revised.R), not from frozen literals. The previous
+  # fallbacks -- 1544 / 1466 / ratio 5.02 -- were computed on the 1,339 roster
+  # basis and silently outlived the move to the 1,306 projection cohort.
+  ratio <- avg_dep <- NA_real_
+  ssot_f <- find_csv("workforce_projections_consolidated.csv")
+  if (file.exists(ssot_f)) {
+    sv <- utils::read.csv(ssot_f, stringsAsFactors = FALSE)
+    su <- sv[toupper(sv$subspecialty_abbrev) == "URPS", , drop = FALSE]
+    if (nrow(su) == 1) { ratio <- su$replacement_ratio; avg_dep <- su$avg_annual_retirements }
+  }
+  if (anyNA(c(imm, rmp, defer, ratio, avg_dep)) || is.null(curve))
+    stop("[app] CANON could not be resolved from the SSOT artifacts. ",
+         "Expected workforce_projections_consolidated.csv and ",
+         "graduation_active_transition*.csv alongside the app or in ../data. ",
+         "Refusing to fall back to frozen numbers, which is how the app drifted ",
+         "off the SSOT before.", call. = FALSE)
+  list(baseline = URPS_BASELINE_SSOT, completions = 64L, ratio = ratio,
+       avg_dep = avg_dep, proj_immediate = round(imm),
        proj_ramped = round(rmp), deferred_pct = round(defer), ramp_cum = curve,
-       source = if (file.exists(proj_f)) "graduation_active_transition CSVs" else "frozen docx 2026-07-21")
+       source = "SSOT: workforce_projections_consolidated + graduation_active_transition")
 }
 CANON <- .load_canon()
 RAMP_CUM_URPS <- CANON$ramp_cum   # cumulative active-fraction curve, k = 0..5
@@ -180,13 +215,18 @@ validate_model <- function() {
   hz <- adjusted_haz("fully_obs", 1, "obs")
   bands_used <- unique(band_of(sort(unique(URPS_AGES))))
   chk(length(BASELINE) == 1 && BASELINE == URPS_BASELINE_SSOT,
-      sprintf("Baseline workforce is %s, expected the SSOT 2025 roster_snapshot (%s).", BASELINE, URPS_BASELINE_SSOT))
+      sprintf("Baseline workforce is %s, expected the SSOT projection cohort (%s, contract %s).",
+              BASELINE, URPS_BASELINE_SSOT, URPS_CONTRACT_VERSION))
   chk(!any(is.na(hz)) && all(BAND_LABELS %in% names(hz)), "Age-band hazard vector has missing names or NA values.")
   chk(sum(is.na(hz[bands_used])) == 0, "Some age bands do not join to a hazard (by-name lookup failed).")
   pr <- project_traj(URPS_AGES, 64, hz, 4)
-  chk(abs(pr$avg_dep - 12.75) < 0.6, sprintf("Primary mean departures %.1f, expected ~12.8.", pr$avg_dep))
-  chk(abs(64 / pr$avg_dep - 5.02) < 0.3, sprintf("Primary entrants/departures %.2f, expected ~5.0.", 64 / pr$avg_dep))
-  chk(abs(tail(pr$traj, 1) - 1544) < 20, sprintf("Primary 2029 workforce %.0f, expected ~1,544.", tail(pr$traj, 1)))
+  # Expected values come from the SSOT (CANON), not from literals.
+  chk(abs(pr$avg_dep - CANON$avg_dep) < 0.6,
+      sprintf("Primary mean departures %.1f, expected ~%.1f (SSOT).", pr$avg_dep, CANON$avg_dep))
+  chk(abs(64 / pr$avg_dep - CANON$ratio) < 0.3,
+      sprintf("Primary entrants/departures %.2f, expected ~%.2f (SSOT).", 64 / pr$avg_dep, CANON$ratio))
+  chk(abs(tail(pr$traj, 1) - CANON$proj_immediate) < 20,
+      sprintf("Primary 2029 workforce %.0f, expected ~%s (SSOT).", tail(pr$traj, 1), CANON$proj_immediate))
   # behavioral monotonicity
   dep <- function(m) project_traj(URPS_AGES, 64, adjusted_haz("fully_obs", m, "obs"), 4)$avg_dep
   chk(dep(2.0) > dep(1.0), "A 2.0x multiplier did not increase departures.")

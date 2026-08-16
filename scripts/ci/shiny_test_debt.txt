@@ -3,25 +3,3 @@
 # CI fails when this set GROWS. Shrink it by fixing the app or the
 # expectation and deleting the line; never add a line to make CI pass.
 #   Rscript scripts/ci/run_shiny_suites.R --write-debt
-#
-# ALL of these are one root cause, not ten. shiny_urps_scenarios validates
-# itself against 1,544 and 5.02 -- the projections implied by the 1,339 ROSTER
-# SNAPSHOT -- while the app now takes its baseline from URPS_BASELINE_SSOT
-# (1,306). The engine's 1306 -> 1514 -> 5.38 matches the committed SSOT
-# exactly, so the stale side is the app's expectations (app.R:188-189), not
-# the projection. Deciding which estimand the app should present is a
-# scientific call, so no number has been changed here.
-#
-# Baselined on ubuntu-latest. The test-app-driver.R entries are shinytest2
-# browser tests: they SKIP locally without Chrome and RUN on the runner, so a
-# macOS-baselined registry can never match CI.
-shiny_urps_scenarios :: test-app-driver.R :: Best estimate shows the frozen headline numbers
-shiny_urps_scenarios :: test-app-driver.R :: a manual edit flips the Scenario selector to Custom
-shiny_urps_scenarios :: test-app-driver.R :: a severe stress scenario recomputes the cards and verdict
-shiny_urps_scenarios :: test-app-driver.R :: app boots past the validation gate and shows the baseline
-shiny_urps_scenarios :: test-app-driver.R :: the age table rounds counts and flags the sparse 70+ estimate
-shiny_urps_scenarios :: test-model-functions.R :: age_table has non-NA hazards and a sparse 70+ under as-observed
-shiny_urps_scenarios :: test-model-functions.R :: canonical figures load from the manuscript CSVs and match the model
-shiny_urps_scenarios :: test-model-functions.R :: the primary projection reproduces the frozen headline numbers
-shiny_urps_scenarios :: test-model-functions.R :: the transition ramp defers entry and reproduces the manuscript's ~1,461
-shiny_urps_scenarios :: test-model-functions.R :: validate_model passes with the frozen engine

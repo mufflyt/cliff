@@ -76,17 +76,32 @@ test_that("the new 1306 current-active scenario is sourced from the SSOT, separa
   expect_true(any(grepl("URPS_LEGACY_PROJECTION_BASELINE\\s*<-\\s*1295L", txt)))
 })
 
-test_that("2025 status-quo application paths route through urps_count(), not a literal", {
+test_that("application paths route through urps_count() with the RIGHT measure, not a literal", {
+  # The measure is per application, because they model different things and
+  # conflating them is the specific failure this guards against:
+  #
+  #   shiny_urps_scenarios  projects the COHORT, so its baseline is the
+  #                         current-active count (board_certified_active, 1306).
+  #   augs_application      anchors 2025 status-quo DEMAND, so it correctly uses
+  #                         the roster snapshot (1339).
+  #
+  # Requiring roster_snapshot of both is what previously forced the scenarios app
+  # to validate a 1,306 model against a 1,339 expectation and refuse to launch.
   root <- repo_root()
-  targets <- c("shiny_urps_scenarios/app.R",
-               "augs_application/scripts/cms_supply_demand_10styles.R")
-  for (t in targets) {
+  targets <- list(
+    "shiny_urps_scenarios/app.R"                          = "board_certified_active",
+    "augs_application/scripts/cms_supply_demand_10styles.R" = "roster_snapshot")
+  for (t in names(targets)) {
+    measure <- targets[[t]]
     p <- file.path(root, t); skip_if_not(file.exists(p), t)
     code <- sub("#.*$", "", readLines(p, warn = FALSE))    # strip comments
     expect_true(any(grepl("urps_count\\(", code)), info = paste(t, "calls urps_count()"))
-    expect_true(any(grepl("roster_snapshot", code)),  info = paste(t, "uses roster_snapshot"))
+    expect_true(any(grepl(measure, code)), info = paste(t, "uses", measure))
+    # No bare literal for EITHER estimand, in either file.
     expect_false(any(grepl("(?<![0-9.])1339(?![0-9.])", code, perl = TRUE)),
                  info = paste(t, "has no bare 1339 literal in code"))
+    expect_false(any(grepl("(?<![0-9.])1306(?![0-9.])", code, perl = TRUE)),
+                 info = paste(t, "has no bare 1306 literal in code"))
   }
 })
 
