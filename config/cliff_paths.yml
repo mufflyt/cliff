@@ -146,10 +146,10 @@ access_surface:
   # (simulation/R/calibration-isochrone_access_response.R). Columns: demand_id
   # (11-digit tract GEOID), access, population (+ optional access_scaled,
   # n_providers, and provenance: isochrone_run_id/sigma/wait_scale/
-  # calibration_status). Consumed by Module D v2 as the drive-time refinement of
-  # the straight-line county access metric, ON BY DEFAULT when the file resolves
-  # and is geographically validated (CLIFF_USE_ACCESS_SURFACE=0 disables it,
-  # =force includes an un-validated surface). Optional by design: absent /
-  # unreadable / un-validated file -> Module D v1 (straight-line) only.
+  # calibration_status). REQUIRED by Module D, which is now drive-time-only: it is
+  # the sole access metric (the straight-line distance metric was retired), so a
+  # missing/unreadable surface makes Module D STOP -- there is no straight-line
+  # fallback. Must be geographically validated; CLIFF_USE_ACCESS_SURFACE=force
+  # accepts an un-validated surface.
   path: ${CLIFF_SIMULATION_ROOT}/dpmm_outputs/access_surface_v0.1.0.csv
   env: WORKFORCE_ACCESS_SURFACE
