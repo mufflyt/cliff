@@ -91,3 +91,4 @@
 # that read them skip under check via skip_if_no_repo.
 # Guarded by tests/testthat/test-package-runtime-inputs.R.
 ^data$
+^docs_site$
