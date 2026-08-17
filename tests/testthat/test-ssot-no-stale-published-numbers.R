@@ -317,15 +317,19 @@ test_that("GATE: inline-R helper names are not rebound elsewhere in the document
     defs <- regmatches(src, regexpr("^\\s*([A-Za-z._][A-Za-z0-9._]*)\\s*<-\\s*function", src))
     names_def <- unique(sub("\\s*<-\\s*function", "", trimws(defs)))
     for (nm in names_def) {
-      inline_used <- any(grepl(sprintf("`r [^`]*(?<![A-Za-z0-9._])%s\\(", nm), src, perl = TRUE))
+      # \Q...\E: the helper name goes into the pattern LITERALLY. Without it a
+      # dot-prefixed helper is a wildcard -- ".w" matched "ow <-" two chunks away and
+      # reported a rebinding that did not exist (issue #44).
+      qnm <- sprintf("\\Q%s\\E", nm)
+      inline_used <- any(grepl(sprintf("`r [^`]*(?<![A-Za-z0-9._])%s\\(", qnm), src, perl = TRUE))
       if (!inline_used) next
       # Every assignment to this name, classified by whether the right-hand side
       # is a function. A non-function assignment shadows the helper for every
       # inline call after it. (Do not express this as a negative lookahead after
       # \\s* -- the \\s* backtracks to width zero and the lookahead then passes on
       # the leading space, which silently flags the definition itself.)
-      assign_ln <- grep(sprintf("^\\s*%s\\s*<-", nm), src, perl = TRUE)
-      rhs <- sub(sprintf("^\\s*%s\\s*<-\\s*", nm), "", src[assign_ln], perl = TRUE)
+      assign_ln <- grep(sprintf("^\\s*%s\\s*<-", qnm), src, perl = TRUE)
+      rhs <- sub(sprintf("^\\s*%s\\s*<-\\s*", qnm), "", src[assign_ln], perl = TRUE)
       rebinds <- assign_ln[!grepl("^function\\b", rhs, perl = TRUE)]
       expect_length(rebinds, 0L)
       if (length(rebinds))

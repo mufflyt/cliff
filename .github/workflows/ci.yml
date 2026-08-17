@@ -19,8 +19,45 @@ permissions:
   contents: read
 
 jobs:
+  # Does this change touch anything that can alter what gets TYPESET? The render
+  # gate is expensive, so it is not run on every push -- but a manuscript change
+  # that merges without ever being knitted is exactly how a document that executes
+  # fine but cannot render reaches main. Issue #44.
+  docs_touched:
+    name: docs touched?
+    runs-on: ubuntu-latest
+    outputs:
+      render: ${{ steps.check.outputs.render }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          if ! git rev-parse --verify --quiet "$base" >/dev/null; then
+            echo "cannot resolve base '$base'; rendering to be safe"
+            echo "render=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only "$base"...HEAD)
+          echo "changed files:"; echo "$changed" | sed 's/^/  /'
+          # manuscript sources and helpers, the artifacts they read, and the engine
+          # constants those artifacts derive from
+          if echo "$changed" | grep -qE '^(manuscript/|data/.*\.csv$|R/.*\.R$|scripts/ci/render_manuscripts\.R$)'; then
+            echo "render=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "render=false" >> "$GITHUB_OUTPUT"
+          fi
+
   core:
     name: core
+    needs: docs_touched
     uses: ./.github/workflows/_core.yml
     with:
       deep: false
+      render_docs: ${{ needs.docs_touched.outputs.render == 'true' }}
