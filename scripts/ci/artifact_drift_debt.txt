@@ -55,10 +55,20 @@
 # consecutive runs are byte-identical.
 # See docs/adjudication/table1_urps_characteristics.md.
 #
+# CLOSED 2026-08-16: data/urps_demand_denominators_sensitivity_2026-07-24.csv.
+# LEGITIMATE INPUT REVISION, and specifically NOT a denominator change: all three demand
+# series (d1 prevalence, d2 consultations, d3 surgery) are byte-identical between the
+# committed and regenerated artifacts. The entire drift is a SUPPLY re-basing -- the 2025
+# index denominator moved 1,339 (roster_snapshot) -> 1,306 (board_certified_active), the
+# third artifact traced to that migration. Bridge: numerator supply(2050) +0.209%,
+# denominator supply(2025) -2.465%, combined +2.741% against an observed +2.736%, the
+# residual being the input's 1-dp storage of supply_index. Regenerated on the 1,306 basis;
+# robustness verdict, series ranking and weakest margin all unchanged.
+# See docs/adjudication/urps_demand_denominators_sensitivity.md.
+#
 # CI fails when this set GROWS. Shrink it by determining, per artifact,
 # whether the generator or the committed file is right -- then fixing one
 # and deleting the line.
-data/urps_demand_denominators_sensitivity_2026-07-24.csv
 scripts/urps_baseline_scenarios/table1_published_preservation_v3.0.0.csv
 scripts/urps_baseline_scenarios/table2_controlled_sensitivity_v3.0.0.csv
 scripts/urps_baseline_scenarios/table3_count_age_decomposition_v3.0.0.csv
