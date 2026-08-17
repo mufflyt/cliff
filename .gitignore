@@ -21,3 +21,6 @@ data/enrichment_inputs/
 # Download caches created by generators at run time, not artifacts.
 data/nrmp_cache/
 data/tigris/
+
+# generated pkgdown site; built and deployed by CI
+docs_site/
