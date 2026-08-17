@@ -42,6 +42,17 @@ suppressPackageStartupMessages({
   library(readr); library(dplyr); library(here); library(tidyr)
 })
 
+# Canonical year constants. The figure block below uses PROJECTION_BASELINE_YEAR and
+# DEMAND_HORIZON_END_YEAR, but this script never sourced the files that define them:
+# bacb1a5 (2026-07-25) de-hardcoded the axis literals into named constants without
+# adding the source() calls. The CSV is written before the figure block, so the
+# artifact still appeared correct while the script died at the plot with
+# "object 'PROJECTION_BASELINE_YEAR' not found" and exited non-zero -- which is why
+# augs_application/figures/demand_denominator_sensitivity.png, a TRACKED file, had not
+# been rebuildable since that commit.
+source(here::here("R", "workforce_constants.R"))   # PROJECTION_BASELINE_YEAR
+source(here::here("R", "demand_denominator.R"))    # DEMAND_HORIZON_END_YEAR
+
 CSV <- here::here("data", "urps_supply_demand_national_2026-07-23.csv")
 stopifnot(file.exists(CSV))
 d <- read_csv(CSV, show_col_types = FALSE) %>% arrange(YEAR)
