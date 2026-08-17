@@ -11,11 +11,27 @@ library(readr)
 skip_if_no_repo()
 
 run_cliff_script <- function(script_path, args = character()) {
+  # Spawn THIS R, with THIS R's libraries.
+  #
+  # `system2("Rscript", ...)` resolves Rscript from PATH, which need not be the R
+  # running the tests. On a machine with R 4.4.2 first on PATH and the suite running
+  # under 4.5.3, the child inherited R_HOME and R_LIBS from the parent, printed
+  # "WARNING: ignoring environment value of R_HOME", then segfaulted inside
+  # tidyverse's .onLoad while reading 4.5.3-built packages -- status 139, six failing
+  # assertions, and not one of them about the product. See issue #43.
+  #
+  # R.home("bin") pins the child to the same R. Passing the parent's .libPaths()
+  # keeps the child's package environment identical to the suite's, and disabling the
+  # renv autoloader stops the child's .Rprofile from replacing those paths with a
+  # possibly-unrestored renv library. CI already sets the same variable at workflow
+  # level (.github/workflows/_core.yml), so this matches how CI runs these scripts.
   output <- system2(
-    command = "Rscript",
+    command = file.path(R.home("bin"), "Rscript"),
     args = c(script_path, args),
     stdout = TRUE,
-    stderr = TRUE
+    stderr = TRUE,
+    env = c(sprintf("R_LIBS=%s", paste(.libPaths(), collapse = .Platform$path.sep)),
+            "RENV_CONFIG_AUTOLOADER_ENABLED=FALSE")
   )
 
   status <- attr(output, "status")
