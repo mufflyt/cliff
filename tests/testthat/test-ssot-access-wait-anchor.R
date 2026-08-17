@@ -16,6 +16,11 @@
 library(testthat)
 library(here)
 
+# Repository integration test: sources R/ from the source tree, which a built
+# package does not contain. Inapplicable rather than broken when run against an
+# installed package. See helper-cliff-root.R.
+skip_if_no_repo()
+
 wa <- new.env()
 source(here::here("R", "wait_adequacy.R"), local = wa)
 source(here::here("R", "access_wait_anchor.R"), local = wa)

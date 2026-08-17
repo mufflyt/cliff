@@ -77,13 +77,12 @@
 #' @seealso [wait_to_adequacy()] (the single-wait inverse this wraps),
 #'   [capacity_evidence_bundle()], [project_absolute_adequacy()];
 #'   `tests/testthat/test-ssot-access-wait-anchor.R` for the guard.
-#' @family wait-adequacy
 #' @examples
 #' # A synthetic audit: 40 waits whose mean sits at a ~1.4-adequacy queue.
 #' set.seed(1)
 #' wq <- mmc_wait_in_queue(s = 6, mu = 2, rho = 1 / 1.4)      # true mean wait
 #' waits <- rgamma(40, shape = 4, scale = wq / 4)             # mean ~ wq
-#' fit <- measure_access_wait_anchor(waits, mu = 2, s = 6, seed = 1)
+#' fit <- measure_access_wait_anchor(waits, mu = 2, s = 6, n_boot = 300L, seed = 1)
 #' fit$identified; round(fit$adequacy, 2)
 #' @export
 measure_access_wait_anchor <- function(waits, mu, s, time_unit = "unit",
