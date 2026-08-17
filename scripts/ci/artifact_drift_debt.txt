@@ -66,10 +66,20 @@
 # robustness verdict, series ranking and weakest margin all unchanged.
 # See docs/adjudication/urps_demand_denominators_sensitivity.md.
 #
+# CLOSED 2026-08-16: the four scripts/urps_baseline_scenarios/table*_v3.0.0.csv,
+# adjudicated as ONE unit (one generator, urps_scenario_analysis_v3.R, writes all four).
+# GENERATOR DEFECT -- the committed artifacts were CORRECT and are unchanged.
+# LEGACY_N was read as u$baseline_2025 from data/workforce_projections_consolidated.csv,
+# commented "read from the frozen record (not hardcoded)". That file is the LIVE SSOT,
+# which migrated 1,295 -> 1,306, so the "frozen published" 1,295 row became whatever the
+# SSOT currently said: Table 1's every field was overwritten with the current projection
+# while still labelled "frozen", and Table 3's count-effect contrast collapsed from -10.8
+# to exactly 0 (a 1,306 vs 1,306 null contrast). The generator's own guard caught it but
+# sat AFTER all four writes, so the files were corrupted first and the run then exited 1.
+# Repair: the frozen record is pinned to the published vintage f8023845, and every write
+# now happens after the guard. All four then reproduce BYTE-IDENTICALLY with no published
+# value changed. See docs/adjudication/urps_baseline_scenarios_tables.md.
+#
 # CI fails when this set GROWS. Shrink it by determining, per artifact,
 # whether the generator or the committed file is right -- then fixing one
 # and deleting the line.
-scripts/urps_baseline_scenarios/table1_published_preservation_v3.0.0.csv
-scripts/urps_baseline_scenarios/table2_controlled_sensitivity_v3.0.0.csv
-scripts/urps_baseline_scenarios/table3_count_age_decomposition_v3.0.0.csv
-scripts/urps_baseline_scenarios/table4_same_horizon_h4_v3.0.0.csv
