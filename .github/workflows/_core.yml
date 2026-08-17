@@ -22,6 +22,15 @@ on:
         description: Run the wide matrix and the slow tiers
         type: boolean
         default: false
+      render_docs:
+        description: >-
+          Render the manuscript and supplement even when deep is false. Set by the
+          per-PR workflow when a change can affect what gets typeset. Rendering is
+          the only check that catches an .Rmd which parses, whose chunks execute in
+          isolation, and which still cannot knit -- see issue #44 and the cf()
+          incident in CLAUDE.md.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -512,7 +521,7 @@ jobs:
   # ---------------------------------------------------------------------------
   render:
     name: manuscript render gate
-    if: ${{ inputs.deep }}
+    if: ${{ inputs.deep || inputs.render_docs }}
     needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 45
