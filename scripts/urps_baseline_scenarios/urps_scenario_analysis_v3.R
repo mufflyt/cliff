@@ -92,19 +92,69 @@ meta_row <- function(id, status, source_artifact, source_year, index_year, horiz
 # ==============================================================================
 # TABLE 1 -- PUBLISHED-RESULT PRESERVATION (frozen; NOT recalculated)
 # ==============================================================================
-frozen <- utils::read.csv(file.path(root, "data", "workforce_projections_consolidated.csv"),
-                          stringsAsFactors = FALSE)
-u <- frozen[frozen$subspecialty_abbrev == "URPS", ]
-stopifnot(nrow(u) == 1L)
-LEGACY_N <- as.integer(u$baseline_2025)          # 1295, read from the frozen record (not hardcoded)
-legacy_frozen <- list(baseline = LEGACY_N, projected = as.numeric(u$projected_2029),
-  avg_annual_retirements = as.numeric(u$avg_annual_retirements),
-  replacement_ratio = as.numeric(u$replacement_ratio), sd = as.numeric(u$sd_2029),
-  lo = as.numeric(u$ci95_lower), hi = as.numeric(u$ci95_upper))
+# The PUBLISHED 1,295 projection. This is historical fact: it must never be
+# recalculated, and it must never be re-read from the live SSOT.
+#
+# It used to be `LEGACY_N <- as.integer(u$baseline_2025)` read from
+# data/workforce_projections_consolidated.csv, commented "read from the frozen
+# record (not hardcoded)". That file is NOT a frozen record -- it is the live SSOT,
+# and it migrated 1,295 -> 1,306. After that migration this script rewrote all four
+# tables with the CURRENT projection under the label "legacy_frozen", and collapsed
+# Table 3's count-effect contrast to exactly 0 (a 1,306 vs 1,306 null contrast),
+# destroying the decomposition this analysis exists to report. The fail-closed guard
+# below did catch it -- but it sat AFTER all four writes, so the files were already
+# corrupted. Every write now happens after the guard.
+#
+# Historical reference for the published decomposition. These values are
+# intentionally frozen and must NOT be replaced by current SSOT values.
+#
+# This is the rare case where duplicating a value outside the live SSOT is
+# scientifically necessary. It is not an accidental second copy: it is a VERSIONED
+# HISTORICAL ESTIMAND. Substituting today's SSOT does not refresh an input, it
+# changes the scientific question -- these tables decompose the frozen
+# 1,295-provider published projection, and the live SSOT now holds 1,306.
+FROZEN_LEGACY <- list(
+  # provider count of the published legacy cohort
+  baseline               = 1295L,      # ssot-ok: legacy frozen SGS projection cohort
+  # projection + calibration parameters as PUBLISHED for that cohort
+  projected              = 1505.3672,  # projected active, 2029, horizon 4
+  avg_annual_retirements = 11.408178,  # per year, published legacy departure model
+  replacement_ratio      = 5.61,       # entrants / avg annual departures
+  sd                     = 15.2,       # published parameter-uncertainty sd
+  lo                     = 1476,       # published 95% interval, lower
+  hi                     = 1535,       # published 95% interval, upper
+  # provenance: where each value above came from, and which analysis it belongs to
+  source_file            = "data/workforce_projections_consolidated.csv",
+  source_commit          = "f8023845",
+  source_date            = "2026-07-24",
+  published_analysis     = "frozen SGS projection (primary-cert reconciliation), pre-1306 migration"   # ssot-ok: prose naming the migration, not a baseline literal
+)
+.REQUIRED_FROZEN <- c("baseline","projected","avg_annual_retirements","replacement_ratio",
+                      "sd","lo","hi","source_file","source_commit","source_date",
+                      "published_analysis")
+.missing_frozen <- setdiff(.REQUIRED_FROZEN, names(FROZEN_LEGACY))
+if (length(.missing_frozen))
+  stop(sprintf(paste0("incomplete frozen historical reference: missing %s.\n",
+       "  These tables decompose the PUBLISHED %s-provider projection. Without the\n",
+       "  complete frozen record the decomposition is undefined -- refusing to write."),
+       paste(.missing_frozen, collapse = ", "),
+       if (is.null(FROZEN_LEGACY$baseline)) "legacy" else FROZEN_LEGACY$baseline),
+       call. = FALSE)
+
+FROZEN_LEGACY_BASELINE <- FROZEN_LEGACY$baseline
+legacy_frozen <- FROZEN_LEGACY[c("baseline", "projected", "avg_annual_retirements",
+                                 "replacement_ratio", "sd", "lo", "hi")]
+LEGACY_N <- FROZEN_LEGACY_BASELINE
+
+# The live SSOT is read only to REPORT divergence, never to populate the frozen row.
+u <- local({
+  f <- utils::read.csv(file.path(root, "data", "workforce_projections_consolidated.csv"),
+                       stringsAsFactors = FALSE)
+  r <- f[f$subspecialty_abbrev == "URPS", ]; stopifnot(nrow(r) == 1L); r
+})
 table1 <- meta_row("legacy_frozen", "observed (published)", "frozen SGS projection CSV",
   "2023->2025 model", 2025L, 4L, "published legacy (primary-cert reconciliation)",
   legacy_frozen, frozen = TRUE)
-utils::write.csv(table1, file.path(sdir, "table1_published_preservation_v3.0.0.csv"), row.names = FALSE)
 
 # ==============================================================================
 # TABLE 2 -- CONTROLLED SENSITIVITY (all via the REAL engine; index year honest)
@@ -122,7 +172,6 @@ table2 <- rbind(
   meta_row("roster_2025", "observed (2025-indexed, NOT a 2023 baseline)",
            "isochrones v3.0.0 provider snapshot", "2025", 2025L, 4L, AGE_PROXY,
            run_engine(roster_ages, 4L)))
-utils::write.csv(table2, file.path(sdir, "table2_controlled_sensitivity_v3.0.0.csv"), row.names = FALSE)
 
 # ==============================================================================
 # TABLE 3 -- COUNT vs AGE-COMPOSITION DECOMPOSITION
@@ -146,7 +195,6 @@ table3 <- rbind(
   decomp_row("combined_roster",  "roster count, 2025-roster structure (count + age)", combined))
 table3$d_projected_vs_ref <- round(table3$projected_count - ref_active$projected, 1)
 table3$d_avg_ret_vs_ref   <- round(table3$avg_annual_retirements - ref_active$avg_annual_retirements / 1, 2)
-utils::write.csv(table3, file.path(sdir, "table3_count_age_decomposition_v3.0.0.csv"), row.names = FALSE)
 
 # ==============================================================================
 # TABLE 4 -- SAME-HORIZON VIEW (all index 2025, horizon 4)
@@ -167,15 +215,33 @@ table4 <- rbind(
   meta_row("roster_h4", "observed 2025 roster (genuine 2025 stock)",
            "isochrones v3.0.0 provider snapshot", "2025", 2025L, 4L, AGE_PROXY,
            run_engine(roster_ages, 4L)))
-utils::write.csv(table4, file.path(sdir, "table4_same_horizon_h4_v3.0.0.csv"), row.names = FALSE)
 
-# ---- fail-closed: the frozen published projection must be untouched ----------
-FROZEN_LEGACY_BASELINE <- 1295L  # ssot-ok: legacy frozen SGS projection cohort
+# ---- fail-closed, BEFORE any file is written --------------------------------
+# Validate first, write second. The previous ordering wrote all four tables and then
+# discovered the frozen row had been corrupted, which is the worst of both.
 stopifnot("frozen baseline changed!"  = LEGACY_N == FROZEN_LEGACY_BASELINE,
-          "frozen endpoint changed!"  = abs(as.numeric(u$projected_2029) - 1505.367) < 0.01,
+          "frozen endpoint changed!"  = abs(legacy_frozen$projected - 1505.367) < 0.01,
+          "frozen record must be internally consistent" =
+            abs(legacy_frozen$projected -
+                (legacy_frozen$baseline + 4 * (ENTRANTS - legacy_frozen$avg_annual_retirements))) < 0.5 &&
+            abs(legacy_frozen$replacement_ratio - ENTRANTS / legacy_frozen$avg_annual_retirements) < 0.01 &&
+            legacy_frozen$lo < legacy_frozen$projected && legacy_frozen$projected < legacy_frozen$hi,
+          "frozen row must not be recalculated" = identical(table1$frozen_or_recalculated, "frozen"),
           "age-band counts must sum to baseline" =
             length(active_ages) == sum(ages_tbl$n_active_2023) && length(roster_ages) == sum(ages_tbl$n_roster_2025) &&
             length(legacy_syn) == LEGACY_N)
+
+# The live SSOT has legitimately moved to the 1,306 estimand. That is expected and
+# must NOT silently flow into the frozen row; report it instead.
+if (!isTRUE(all.equal(as.integer(u$baseline_2025), FROZEN_LEGACY_BASELINE)))
+  cat(sprintf(paste0("NOTE: live SSOT baseline_2025 = %s, frozen legacy row = %d.\n",
+              "      Divergence is expected since the 1,306 migration; the frozen row is pinned.\n"),
+              u$baseline_2025, FROZEN_LEGACY_BASELINE))
+
+utils::write.csv(table1, file.path(sdir, "table1_published_preservation_v3.0.0.csv"), row.names = FALSE)
+utils::write.csv(table2, file.path(sdir, "table2_controlled_sensitivity_v3.0.0.csv"), row.names = FALSE)
+utils::write.csv(table3, file.path(sdir, "table3_count_age_decomposition_v3.0.0.csv"), row.names = FALSE)
+utils::write.csv(table4, file.path(sdir, "table4_same_horizon_h4_v3.0.0.csv"), row.names = FALSE)
 
 cat("== TABLE 1 (preservation) ==\n");           print(table1[, c("scenario_id","baseline_count","projected_count","frozen_or_recalculated")], row.names = FALSE)
 cat("\n== TABLE 2 (controlled sensitivity) ==\n"); print(table2[, c("scenario_id","observed_or_synthetic","index_year","horizon","baseline_count","projected_count","avg_annual_retirements")], row.names = FALSE)
