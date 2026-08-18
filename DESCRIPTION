@@ -7,7 +7,7 @@ Description: Reproducible analysis and manuscript for near-term fellowship-compl
     versus clinical-practice-departure balance in gynecologic oncology and
     urogynecology (2025-2029). Extracted from the isochrones monorepo.
 License: MIT + file LICENSE
-URL: https://github.com/mufflyt/cliff
+URL: https://github.com/mufflyt/cliff, https://mufflyt.github.io/cliff
 BugReports: https://github.com/mufflyt/cliff/issues
 Encoding: UTF-8
 Imports:
