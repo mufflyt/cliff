@@ -1,0 +1,127 @@
+# Build the pkgdown site on every change that can alter it; publish only from main.
+#
+# Two things this prevents: a site that silently stops building (pkgdown fails on
+# things R CMD check does not -- a topic missing from the reference index, a broken
+# @seealso, a vignette that no longer knits, a DESCRIPTION URL that disagrees with
+# _pkgdown.yml), and a published site that silently goes stale behind the package.
+#
+# DESTINATION IS docs_site/, NOT docs/. This repository's docs/ holds hand-written,
+# git-tracked documentation -- the adjudication records, PIPELINE.md, SSOT_LEDGER.md.
+# pkgdown defaults to docs/ *and cleans it*, which would delete all of it. The
+# destination is pinned in _pkgdown.yml and passed here explicitly so the two cannot
+# drift apart.
+#
+# Actions are pinned by commit SHA, matching the rest of this repository's CI.
+
+name: pkgdown
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'R/**'
+      - 'man/**'
+      - 'vignettes/**'
+      - '_pkgdown.yml'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'README.md'
+      - '.github/workflows/pkgdown.yaml'
+  pull_request:
+    paths:
+      - 'R/**'
+      - 'man/**'
+      - 'vignettes/**'
+      - '_pkgdown.yml'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'README.md'
+      - '.github/workflows/pkgdown.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: pkgdown-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  # renv's autoloader would redirect installs into its cache and starve the job.
+  RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+
+jobs:
+  pkgdown:
+    name: build${{ github.event_name == 'push' && ' + deploy' || '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Deploying to gh-pages needs write. GitHub Actions does NOT allow expressions in
+    # `permissions:`, so the deploy STEP is gated by `if:` instead. Fork pull requests
+    # receive a read-only token regardless of what is requested here.
+    permissions:
+      contents: write
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: r-lib/actions/setup-pandoc@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+
+      - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      # Seconds, against ~2.5 minutes for the build. Catches the most common
+      # breakage -- an exported topic absent from the reference index -- first.
+      - name: Check pkgdown configuration
+        run: pkgdown::check_pkgdown()
+        shell: Rscript {0}
+
+      - name: Build site
+        run: pkgdown::build_site_github_pages(dest_dir = "docs_site", new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
+
+      # The generated site must never land in docs/. If it does, the run has just
+      # overwritten tracked documentation and must fail loudly rather than deploy.
+      - name: Assert hand-written docs/ was not touched
+        run: |
+          if ! git diff --quiet -- docs/; then
+            echo "::error::pkgdown modified tracked files under docs/ -- destination is wrong"
+            git --no-pager diff --stat -- docs/
+            exit 1
+          fi
+          echo "docs/ untouched: $(git ls-files docs | wc -l) tracked files intact"
+
+      # build_site can exit 0 having written far less than expected when the
+      # reference index is empty. A green tick over an empty site is worse than a red one.
+      - name: Assert the site is non-empty
+        run: |
+          pages=$(find docs_site -name '*.html' | wc -l)
+          refs=$(find docs_site/reference -name '*.html' 2>/dev/null | wc -l)
+          echo "html pages: $pages, reference pages: $refs"
+          test -f docs_site/index.html || { echo "::error::docs_site/index.html missing"; exit 1; }
+          test "$pages" -ge 20 || { echo "::error::only $pages pages built"; exit 1; }
+          test "$refs"  -ge 10 || { echo "::error::only $refs reference pages built"; exit 1; }
+
+      - name: Upload site artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pkgdown-site
+          path: docs_site
+          retention-days: 7
+
+      - name: Deploy to gh-pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8 # v4.7.3
+        with:
+          clean: false
+          branch: gh-pages
+          folder: docs_site

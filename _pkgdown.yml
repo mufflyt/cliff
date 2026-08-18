@@ -1,3 +1,9 @@
+# docs/ holds hand-written documentation that is tracked in git (adjudication
+# records, PIPELINE.md, SSOT_LEDGER.md). pkgdown defaults to docs/ AND cleans it,
+# which would delete all of it. The generated site goes to docs_site/ instead,
+# matching the isochrones convention.
+destination: docs_site
+
 url: https://mufflyt.github.io/cliff
 
 template:
