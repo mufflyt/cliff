@@ -12,6 +12,7 @@ Reproducible analysis and manuscript for near-term fellowship-completion versus 
 Useful links:
 \itemize{
   \item \url{https://github.com/mufflyt/cliff}
+  \item \url{https://mufflyt.github.io/cliff}
   \item Report bugs at \url{https://github.com/mufflyt/cliff/issues}
 }
 

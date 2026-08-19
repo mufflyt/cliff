@@ -1,6 +1,7 @@
 # SSOT guard: the tigris cartographic-boundary resolution ("20m") used for every module-D county/state pull.
-# It MUST be consistent across the scripts (differential_distance + geographic_access both compute county-
-# centroid distances; a different generalization shifts the centroids). Canonical in R/conus.R::CENSUS_CB_RESOLUTION.
+# It MUST be consistent across the scripts that pull boundaries (geographic_access computes county polygons;
+# the two map scripts draw them; differential_distance is now drive-time-only and pulls no boundaries). A
+# different generalization shifts the county polygons/centroids. Canonical in R/conus.R::CENSUS_CB_RESOLUTION.
 library(testthat)
 library(here)
 
@@ -10,7 +11,10 @@ library(here)
 skip_if_no_repo()
 
 ce <- new.env(); source(here::here("R", "conus.R"), local = ce)
-D <- c("urps_module_d_differential_distance.R", "urps_module_d_differential_map.R",
+# differential_distance is drive-time-only now (no boundary pull), so it is not
+# in this list; the adversarial test below also self-skips any script without a
+# counties()/states() call.
+D <- c("urps_module_d_differential_map.R",
        "urps_module_d_geographic_access_2026-07-23.R", "urps_module_d_map_2026-07-23.R")
 
 test_that("CENSUS_CB_RESOLUTION is the pinned '20m' (valid tigris cb resolution)", {
@@ -30,9 +34,9 @@ test_that("[adversarial] every module-D boundary pull derives the resolution; no
   }
 })
 
-test_that("[semantic] the same constant reaches both the distance-computing scripts (centroids align)", {
-  dd <- readLines(here::here("scripts", "urps_module_d_differential_distance.R"), warn = FALSE)
+test_that("[semantic] the same constant reaches the boundary-pulling scripts (polygons align)", {
   ga <- readLines(here::here("scripts", "urps_module_d_geographic_access_2026-07-23.R"), warn = FALSE)
-  expect_true(any(grepl("resolution=CENSUS_CB_RESOLUTION", dd)))
+  dm <- readLines(here::here("scripts", "urps_module_d_differential_map.R"), warn = FALSE)
   expect_true(any(grepl("resolution=CENSUS_CB_RESOLUTION", ga)))
+  expect_true(any(grepl("resolution=CENSUS_CB_RESOLUTION", dm)))
 })
