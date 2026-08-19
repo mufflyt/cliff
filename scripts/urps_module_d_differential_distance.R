@@ -59,38 +59,42 @@ compute_differential_drivetime <- function(uro_dt, obgyn_dt) {
   m[]
 }
 
-## ── inputs (drive-time-only; hard requirement, no straight-line fallback) ─────
-URO_DT_F   <- Sys.getenv("URPS_UROGYN_DRIVETIME",
-                         "data/urps_module_d_urogyn_drivetime_to_nearest_2026-07-23.csv")
-OBGYN_DT_F <- Sys.getenv("URPS_OBGYN_DRIVETIME",
-                         "data/urps_module_d_obgyn_drivetime_to_nearest_2026-07-23.csv")
-ACC_F      <- "data/urps_module_d_county_access_2026-07-23.csv"   # county labels + women 65+
+## ── run (guarded so the pure functions above stay sourceable and unit-testable;
+##     under Rscript the top-level environment IS globalenv, so the pipeline runs;
+##     when source()d into a test frame it does not) ───────────────────────────
+if (identical(environment(), globalenv()) && !interactive()) {
+  URO_DT_F   <- Sys.getenv("URPS_UROGYN_DRIVETIME",
+                           "data/urps_module_d_urogyn_drivetime_to_nearest_2026-07-23.csv")
+  OBGYN_DT_F <- Sys.getenv("URPS_OBGYN_DRIVETIME",
+                           "data/urps_module_d_obgyn_drivetime_to_nearest_2026-07-23.csv")
+  ACC_F      <- "data/urps_module_d_county_access_2026-07-23.csv"   # county labels + women 65+
 
-missing <- c(URO_DT_F, OBGYN_DT_F)[!file.exists(c(URO_DT_F, OBGYN_DT_F))]
-if (length(missing))
-  stop("Differential distance is drive-time-only and requires per-county ",
-       "drive-time-to-nearest artifacts, but these are absent: ",
-       paste(missing, collapse = ", "), ". Produce them with the Valhalla ",
-       "point-to-point generator (simulation/scripts/data_acquisition/",
-       "build_drive_time_to_nearest.R, county-centroid origins) for the ",
-       "urogynecologist and general-OB/GYN layers, then set URPS_UROGYN_DRIVETIME / ",
-       "URPS_OBGYN_DRIVETIME. There is no straight-line fallback.", call. = FALSE)
-if (!file.exists(ACC_F))
-  stop("Run scripts/urps_module_d_geographic_access_2026-07-23.R first ",
-       "(need county labels + women 65+): ", ACC_F, call. = FALSE)
+  missing <- c(URO_DT_F, OBGYN_DT_F)[!file.exists(c(URO_DT_F, OBGYN_DT_F))]
+  if (length(missing))
+    stop("Differential distance is drive-time-only and requires per-county ",
+         "drive-time-to-nearest artifacts, but these are absent: ",
+         paste(missing, collapse = ", "), ". Produce them with the Valhalla ",
+         "point-to-point generator (simulation/scripts/data_acquisition/",
+         "build_drive_time_to_nearest.R, county-centroid origins) for the ",
+         "urogynecologist and general-OB/GYN layers, then set URPS_UROGYN_DRIVETIME / ",
+         "URPS_OBGYN_DRIVETIME. There is no straight-line fallback.", call. = FALSE)
+  if (!file.exists(ACC_F))
+    stop("Run scripts/urps_module_d_geographic_access_2026-07-23.R first ",
+         "(need county labels + women 65+): ", ACC_F, call. = FALSE)
 
-uro_dt   <- read_drivetime_to_nearest(URO_DT_F,   "urogynecologist")
-obgyn_dt <- read_drivetime_to_nearest(OBGYN_DT_F, "general OB/GYN")
-dd  <- compute_differential_drivetime(uro_dt, obgyn_dt)
-acc <- fread(ACC_F, colClasses = list(character = "GEOID"))
-out <- merge(acc[, .(GEOID, county, state, women_65plus)], dd, by = "GEOID")
-setorder(out, -differential_minutes)
-fwrite(out, "data/urps_module_d_differential_distance_2026-07-23.csv")
+  uro_dt   <- read_drivetime_to_nearest(URO_DT_F,   "urogynecologist")
+  obgyn_dt <- read_drivetime_to_nearest(OBGYN_DT_F, "general OB/GYN")
+  dd  <- compute_differential_drivetime(uro_dt, obgyn_dt)
+  acc <- fread(ACC_F, colClasses = list(character = "GEOID"))
+  out <- merge(acc[, .(GEOID, county, state, women_65plus)], dd, by = "GEOID")
+  setorder(out, -differential_minutes)
+  fwrite(out, "data/urps_module_d_differential_distance_2026-07-23.csv")
 
-W <- sum(out$women_65plus)
-cat(sprintf("Differential drive time computed for %d CONUS counties.\n", nrow(out)))
-cat(sprintf("Median extra DRIVE TIME to a urogynecologist beyond the nearest OB/GYN: %.1f min\n",
-            median(out$differential_minutes)))
-cat(sprintf("%% of women 65+ facing >30 extra MINUTES for subspecialty care: %.1f%%\n",
-            100 * sum(out$women_65plus[out$differential_minutes > 30]) / W))
-cat("Wrote data/urps_module_d_differential_distance_2026-07-23.csv\n")
+  W <- sum(out$women_65plus)
+  cat(sprintf("Differential drive time computed for %d CONUS counties.\n", nrow(out)))
+  cat(sprintf("Median extra DRIVE TIME to a urogynecologist beyond the nearest OB/GYN: %.1f min\n",
+              median(out$differential_minutes)))
+  cat(sprintf("%% of women 65+ facing >30 extra MINUTES for subspecialty care: %.1f%%\n",
+              100 * sum(out$women_65plus[out$differential_minutes > 30]) / W))
+  cat("Wrote data/urps_module_d_differential_distance_2026-07-23.csv\n")
+}
