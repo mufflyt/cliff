@@ -13,8 +13,9 @@
 # HARD REQUIREMENT: a validated access surface must be present, or the script
 # STOPS. It cannot run on a machine without the simulation access_surface_v*.csv
 # (see config/cliff_paths.yml::access_surface and
-# SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md). Set CLIFF_USE_ACCESS_SURFACE=force to
-# accept an un-validated surface.
+# SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md). "Validated" means an EXPLICIT known-good
+# calibration_status; a missing/blank/unrecognised status does NOT qualify. Set
+# CLIFF_USE_ACCESS_SURFACE=force to accept an un-validated (incl. un-stamped) surface.
 #
 # Inputs : data/{abu,abog}_all_urps_ENRICHED_2026-07-22.csv (active only)
 #          data/reference/zcta_centroids_2020.csv  (ZIP -> lat/lon, map layer)
@@ -52,11 +53,18 @@ if (!access_surface_usable(surface)) {
 }
 cstat  <- if (!is.null(surface$provenance$calibration_status)) surface$provenance$calibration_status else NA_character_
 run_id <- if (!is.null(surface$provenance$isochrone_run_id)) surface$provenance$isochrone_run_id else "NA"
-validated <- is.na(cstat) || cstat %in% c("fitted_and_geographically_validated", "calibrated")
+# Validated requires an EXPLICIT known-good status. A missing/blank/unrecognised
+# calibration_status is NOT validated -- an un-stamped surface must not clear the
+# hard gate by default (that would defeat the drive-time-only requirement); it can
+# only be used with CLIFF_USE_ACCESS_SURFACE=force.
+validated <- !is.na(cstat) && nzchar(cstat) &&
+  cstat %in% c("fitted_and_geographically_validated", "calibrated")
 if (!validated && !surface_forced) {
-  stop("Module D: access surface calibration_status='", cstat, "' is not ",
-       "geographically validated. Re-fit/validate it, or set ",
-       "CLIFF_USE_ACCESS_SURFACE=force to use it anyway.", call. = FALSE)
+  cstat_shown <- if (is.na(cstat) || !nzchar(cstat)) "<missing>" else cstat
+  stop("Module D: access surface calibration_status='", cstat_shown, "' is not ",
+       "a recognised geographically-validated status. Re-fit/validate it (and stamp ",
+       "calibration_status), or set CLIFF_USE_ACCESS_SURFACE=force to use it anyway.",
+       call. = FALSE)
 }
 message(sprintf("Access surface loaded (isochrone run %s, status %s%s).",
                 run_id, cstat, if (!validated && surface_forced) "; FORCED, not validated" else ""))
@@ -138,6 +146,7 @@ summ <- data.table(
              "CONUS counties","counties with 0 urogynecologists","% counties with 0 urogynecologists",
              "% women 65+ in a county with 0 urogynecologists",
              "counties covered by drive-time surface","% women 65+ in a covered county",
+             "counties NOT covered by drive-time surface","% women 65+ in an uncovered county",
              "population-weighted mean county drive-time access",
              "% women 65+ in a county with zero drive-time access",
              "median county drive-time access","10th-pctile county drive-time access"),
@@ -146,6 +155,7 @@ summ <- data.table(
             n_counties, n_nosupply, round(100*n_nosupply/n_counties,1),
             wt(out$n_urogyn_in_county==0),
             n_cov, round(100*Wcov/W, 1),
+            n_counties - n_cov, wt(is.na(out$drive_time_access)),
             pw_access,
             wt(!is.na(out$drive_time_access) & out$drive_time_access==0),
             round(median(cov$drive_time_access, na.rm=TRUE), 3),
@@ -161,6 +171,17 @@ fwrite(st, "data/urps_module_d_density_by_state_2026-07-23.csv")
 cat("\n=== MODULE D: drive-time geographic access summary ===\n")
 print(summ, nrow=99)
 cat(sprintf("\nAccess surface: isochrone run %s, status %s.\n", run_id, cstat))
+# Worst-served ranking is over COVERED counties only; counties the surface does
+# not cover (drive_time_access = NA) cannot be ranked here, so report how many
+# counties and how many women 65+ they hold -- otherwise a reader of the worst-10
+# would not see that some (possibly the most remote) counties are missing entirely.
+unc <- out[is.na(drive_time_access)]
+n_unc <- nrow(unc); w_unc <- sum(unc$women_65plus)
+cat(sprintf(paste0("\nUncovered by the surface: %d of %d counties (%s women 65+, %.1f%% ",
+                   "of the national total) have NO drive-time access value and are ",
+                   "EXCLUDED from the worst-served ranking below.\n"),
+            n_unc, n_counties, formatC(w_unc, big.mark = ",", format = "d"),
+            if (W > 0) 100 * w_unc / W else 0))
 cat("\n--- 10 lowest drive-time-access counties (most women 65+ among the worst-served) ---\n")
 print(cov[order(drive_time_access)][1:min(10, nrow(cov)),
          .(county, state, women_65plus, drive_time_access, n_urogyn_in_county)])
