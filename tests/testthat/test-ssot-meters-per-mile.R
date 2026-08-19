@@ -1,7 +1,9 @@
-# SSOT guard: the metres-per-mile conversion. `MI <- 1609.344` was copy-pasted in two Module-D producer
-# scripts (differential_distance, geographic_access) and used in BOTH directions (m->mi as `/MI`, mi->m as
-# `mi*MI`). Now canonical in R/units.R (METERS_PER_MILE + meters_to_miles()/miles_to_meters()). The map
-# scripts read precomputed mile columns and do not convert.
+# SSOT guard: the metres-per-mile conversion. `MI <- 1609.344` was once copy-pasted in two Module-D producer
+# scripts and used in BOTH directions (m->mi as `/MI`, mi->m as `mi*MI`); it is canonical in R/units.R
+# (METERS_PER_MILE + meters_to_miles()/miles_to_meters()). BOTH Module-D scripts have since RETIRED the
+# straight-line distance metric and gone drive-time-only (geographic_access + differential_distance), so
+# neither converts miles any more -- the guard now (a) still pins the SSOT constant/helpers in R/units.R
+# (kept as the exported conversion API), and (b) asserts neither script reintroduces a mile conversion.
 library(testthat)
 library(here)
 
@@ -11,7 +13,9 @@ library(here)
 skip_if_no_repo()
 
 ue <- new.env(); source(here::here("R", "units.R"), local = ue)
-D_CONVERTERS <- c("urps_module_d_differential_distance.R", "urps_module_d_geographic_access_2026-07-23.R")
+# Scripts from which the straight-line miles metric has been retired: they must
+# NOT convert meters<->miles nor hardcode the 1609 factor.
+D_RETIRED <- c("urps_module_d_differential_distance.R", "urps_module_d_geographic_access_2026-07-23.R")
 
 test_that("METERS_PER_MILE is the exact statute mile (1609.344 m), well-formed", {
   expect_type(ue$METERS_PER_MILE, "double")
@@ -39,14 +43,13 @@ test_that("[behavior-preserving] helpers reproduce the exact prior /MI and *MI (
   expect_identical(ue$miles_to_meters(mi), mi * MI)
 })
 
-test_that("[adversarial] neither converter script redefines MI or hardcodes 1609 as a factor", {
-  offenders <- character(); missing_src <- character()
-  for (b in D_CONVERTERS) {
+test_that("[retired] the drive-time-only scripts do no mile conversion and hardcode no 1609 factor", {
+  offenders_lit <- character(); offenders_conv <- character()
+  for (b in D_RETIRED) {
     ls <- readLines(here::here("scripts", b), warn = FALSE)
-    if (any(grepl("MI\\s*<-\\s*1609|1609\\.34", ls))) offenders <- c(offenders, b)
-    if (!any(grepl('source\\("R/units\\.R"\\)', ls))) missing_src <- c(missing_src, b)
-    expect_true(any(grepl("meters_to_miles|miles_to_meters", ls)), info = b)  # uses the helpers
+    if (any(grepl("MI\\s*<-\\s*1609|1609\\.34", ls))) offenders_lit <- c(offenders_lit, b)
+    if (any(grepl("meters_to_miles|miles_to_meters", ls))) offenders_conv <- c(offenders_conv, b)
   }
-  expect_equal(offenders, character(0), info = paste("MI/1609 literal still in:", paste(offenders, collapse="; ")))
-  expect_equal(missing_src, character(0), info = paste("missing source(R/units.R):", paste(missing_src, collapse="; ")))
+  expect_equal(offenders_lit,  character(0), info = paste("MI/1609 literal still in:",  paste(offenders_lit,  collapse="; ")))
+  expect_equal(offenders_conv, character(0), info = paste("mile conversion still in:", paste(offenders_conv, collapse="; ")))
 })
