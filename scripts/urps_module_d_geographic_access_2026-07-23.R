@@ -1,35 +1,75 @@
 #!/usr/bin/env Rscript
 # Module D (step 1): GEOGRAPHIC local adequacy of the urogynecology workforce.
 # The national Modules A-C say capacity roughly tracks demand; Module D asks
-# WHERE the ~1,339 urogynecologists actually are relative to where women 65+
-# live. Metric: for each CONUS county, straight-line distance (county centroid)
-# to the nearest urogynecologist, and the women-65+-per-urogyn catchment ratio.
+# WHERE the ~1,339 urogynecologists actually are relative to where women 65+ live.
 #
-# Straight-line (great-circle) access is the v1 metric. Drive-time refinement via
-# the project's Valhalla isochrone pipeline is Module D v2, now wired and ON BY
-# DEFAULT: when the simulation repo's fitted+validated drive-time access surface
-# is present, this script joins a population-weighted county drive-time-access
-# column alongside the straight-line metric (see step 4b). v1 stands alone when
-# the surface is absent, unreadable, or not geographically validated.
+# DRIVE-TIME ONLY. The access metric is the simulation repo's tract-level E2SFCA
+# drive-time access surface -- decay (sigma) and wait response (wait_scale) fitted
+# AND geographically validated by the leave-one-region-out holdout -- rolled up to
+# counties by population weight. The earlier straight-line (great-circle) distance
+# metric (miles_to_nearest, within-50/100mi catchments) has been RETIRED: this
+# script no longer computes it and there is no straight-line fallback.
+#
+# HARD REQUIREMENT: a validated access surface must be present, or the script
+# STOPS. It cannot run on a machine without the simulation access_surface_v*.csv
+# (see config/cliff_paths.yml::access_surface and
+# SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md). "Validated" means an EXPLICIT known-good
+# calibration_status; a missing/blank/unrecognised status does NOT qualify. Set
+# CLIFF_USE_ACCESS_SURFACE=force to accept an un-validated (incl. un-stamped) surface.
 #
 # Inputs : data/{abu,abog}_all_urps_ENRICHED_2026-07-22.csv (active only)
-#          data/reference/zcta_centroids_2020.csv  (ZIP -> lat/lon)
+#          data/reference/zcta_centroids_2020.csv  (ZIP -> lat/lon, map layer)
 #          ACS 2019-2023 5-yr B01001 female 65+ by county (tidycensus)
-#          tigris county cartographic boundaries (2023)
-#          [auto] simulation access surface (config/cliff_paths.yml::access_surface)
-#          -> drive_time_access column; CLIFF_USE_ACCESS_SURFACE=0 disables it
-# Outputs: data/urps_module_d_county_access_2026-07-23.csv
-#          data/urps_module_d_points_2026-07-23.csv  (map layer)
+#          tigris county boundaries (2023; county names + provider-in-county count)
+#          REQUIRED simulation access surface (config/cliff_paths.yml::access_surface)
+# Outputs: data/urps_module_d_county_access_2026-07-23.csv   (drive_time_access)
+#          data/urps_module_d_points_2026-07-23.csv          (map layer)
 #          data/urps_module_d_summary_2026-07-23.csv
-#          [optional] data/urps_module_d_drivetime_access_2026-07-23.csv (v2)
+#          data/urps_module_d_density_by_state_2026-07-23.csv
 suppressPackageStartupMessages({
   library(data.table); library(tidycensus); library(tigris); library(sf); library(dplyr)
 })
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 sf::sf_use_s2(TRUE)
 source("R/conus.R")    # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
-source("R/units.R")    # SSOT: meters_to_miles() / miles_to_meters() (METERS_PER_MILE)
+source("R/units.R")    # SSOT: RATE_PER_100K (per-100k rate base)
 source("R/in_model_baseline.R")  # SSOT: inmodel() active-baseline cohort filter
+source("R/access_surface.R")     # read_access_surface() / county_drive_time_access()
+
+## ── 0. REQUIRE the validated drive-time access surface ────────────────────────
+# Loaded first: this is a precondition, not a refinement. No surface -> no access
+# metric -> stop (there is no straight-line fallback any more).
+surface_forced <- tolower(Sys.getenv("CLIFF_USE_ACCESS_SURFACE", "")) %in%
+  c("force", "1", "true", "yes", "on")
+surface_path <- if (file.exists("R/wc_path.R")) {
+  source("R/wc_path.R"); tryCatch(wc_path("access_surface"), error = function(e) NULL)
+} else NULL
+surface <- read_access_surface(surface_path)   # fails loudly on a malformed file
+if (!access_surface_usable(surface)) {
+  stop("Module D is drive-time-only and requires the simulation access surface, ",
+       "but none was found at '", if (is.null(surface_path)) "<unresolved>" else surface_path,
+       "'. Stage access_surface_v*.csv and point config/cliff_paths.yml::access_surface ",
+       "at it (see SIMULATION_TO_CLIFF_INTEGRATION_PLAN.md).", call. = FALSE)
+}
+cstat  <- if (!is.null(surface$provenance$calibration_status)) surface$provenance$calibration_status else NA_character_
+run_id <- if (!is.null(surface$provenance$isochrone_run_id)) surface$provenance$isochrone_run_id else "NA"
+# Validated requires an EXPLICIT known-good status. A missing/blank/unrecognised
+# calibration_status is NOT validated -- an un-stamped surface must not clear the
+# hard gate by default (that would defeat the drive-time-only requirement); it can
+# only be used with CLIFF_USE_ACCESS_SURFACE=force.
+validated <- !is.na(cstat) && nzchar(cstat) &&
+  cstat %in% c("fitted_and_geographically_validated", "calibrated")
+if (!validated && !surface_forced) {
+  cstat_shown <- if (is.na(cstat) || !nzchar(cstat)) "<missing>" else cstat
+  stop("Module D: access surface calibration_status='", cstat_shown, "' is not ",
+       "a recognised geographically-validated status. Re-fit/validate it (and stamp ",
+       "calibration_status), or set CLIFF_USE_ACCESS_SURFACE=force to use it anyway.",
+       call. = FALSE)
+}
+message(sprintf("Access surface loaded (isochrone run %s, status %s%s).",
+                run_id, cstat, if (!validated && surface_forced) "; FORCED, not validated" else ""))
+county_access <- as.data.table(county_drive_time_access(surface))
+county_access[, drive_time_access := round(drive_time_access, 3)]
 
 ## ── 1. urogynecologist point layer (active; ZIP centroid) ────────────────────
 cen <- fread("data/reference/zcta_centroids_2020.csv", colClasses=list(character="zcta5"))
@@ -67,107 +107,59 @@ if (file.exists(acs_cache)) {
 }
 w65 <- w65[is_conus_fips(GEOID)]
 
-## ── 3. county geometry + centroids (CONUS) ───────────────────────────────────
+## ── 3. county geometry (names/state + provider-in-county count) ───────────────
+# Geometry is no longer used for distance; it supplies county names/state and the
+# point-in-polygon count of urogynecologists physically located in each county.
 cty <- counties(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE)
 cty <- st_transform(cty, 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]   # SSOT (R/conus.R); drops AK/HI + territories = 48 states + DC
 cty <- merge(cty, w65, by="GEOID", all.x=TRUE)
 cty$women_65plus[is.na(cty$women_65plus)] <- 0
-sf_use_s2(FALSE); ctr <- suppressWarnings(st_centroid(st_geometry(cty))); sf_use_s2(TRUE)
+contain <- lengths(st_intersects(cty, uro_sf))   # urogynecologists located in the county
 
-## ── 4. distance to nearest urogynecologist + catchment counts ────────────────
-idx  <- st_nearest_feature(ctr, uro_sf)
-dmin <- meters_to_miles(as.numeric(st_distance(ctr, uro_sf[idx,], by_element=TRUE)))
-within <- function(mi) lengths(st_is_within_distance(ctr, uro_sf, dist=miles_to_meters(mi)))
-n50  <- within(50); n100 <- within(100)
-# which counties physically contain >=1 urogyn
-contain <- lengths(st_intersects(cty, uro_sf))
-
+## ── 4. county drive-time access table ─────────────────────────────────────────
 out <- data.table(
   GEOID = cty$GEOID, county = cty$NAME, state = cty$STUSPS,
   women_65plus = round(cty$women_65plus),
   women_65plus_moe = round(cty$moe),
-  n_urogyn_in_county = contain,
-  miles_to_nearest = round(dmin, 1),
-  n_urogyn_within_50mi = n50,
-  n_urogyn_within_100mi = n100)
-out[, women65_per_urogyn_100mi := ifelse(n_urogyn_within_100mi>0,
-                                          round(women_65plus / n_urogyn_within_100mi), NA_integer_)]
-lon <- st_coordinates(ctr)[,1]; lat <- st_coordinates(ctr)[,2]
-out[, `:=`(centroid_lon=round(lon,4), centroid_lat=round(lat,4))]
-
-## ── 4b. drive-time access surface refinement (Module D v2), ON BY DEFAULT ─────
-# The simulation repo's isochrone access-response pipeline emits a tract-level
-# drive-time access surface whose decay (sigma) and wait response (wait_scale)
-# are fitted AND geographically validated (leave-one-region-out holdout). Because
-# it is validated -- unlike the uncalibrated DPMM/HDMM/DMDM demand contracts,
-# which stay opt-in -- it is consumed BY DEFAULT: when the surface resolves and
-# carries a validated calibration_status, join a population-weighted county
-# drive_time_access column beside the straight-line metric. Module D falls back
-# to v1 (straight-line only) when the surface is absent, unreadable, or not
-# geographically validated -- so a machine without the artifact is unaffected.
-#
-# CLIFF_USE_ACCESS_SURFACE overrides the default: "0"/"off" disables it (force
-# v1); "force" consumes even an un-validated surface (stamped with its status).
-source("R/access_surface.R")
-surface_mode     <- tolower(Sys.getenv("CLIFF_USE_ACCESS_SURFACE", "auto"))
-surface_disabled <- surface_mode %in% c("0", "false", "no", "off")
-surface_forced   <- surface_mode %in% c("force", "1", "true", "yes", "on")
-surface_path <- if (!surface_disabled && file.exists("R/wc_path.R")) {
-  source("R/wc_path.R"); tryCatch(wc_path("access_surface"), error=function(e) NULL)
-} else NULL
-# Lenient read: a malformed file at the (default) path must not crash a default-on
-# Module D -- warn and fall back to v1.
-surface <- if (surface_disabled) NULL else tryCatch(
-  read_access_surface(surface_path),
-  error = function(e) { message("Access surface present but unreadable (",
-    conditionMessage(e), "); Module D straight-line (v1) only."); NULL })
-if (access_surface_usable(surface)) {
-  cstat  <- if (!is.null(surface$provenance$calibration_status)) surface$provenance$calibration_status else NA_character_
-  run_id <- if (!is.null(surface$provenance$isochrone_run_id)) surface$provenance$isochrone_run_id else "NA"
-  validated <- is.na(cstat) || cstat %in% c("fitted_and_geographically_validated", "calibrated")
-  if (validated || surface_forced) {
-    cty_dt <- as.data.table(county_drive_time_access(surface))
-    cty_dt[, drive_time_access := round(drive_time_access, 3)]
-    out <- merge(out, cty_dt[, .(GEOID, drive_time_access, n_tracts)], by="GEOID", all.x=TRUE)
-    message(sprintf("Drive-time access surface joined: %d/%d counties covered (isochrone run %s, status %s%s).",
-                    sum(!is.na(out$drive_time_access)), nrow(out), run_id, cstat,
-                    if (!validated && surface_forced) "; FORCED, not validated" else ""))
-  } else {
-    message(sprintf(paste("Access surface present but calibration_status='%s' (not",
-                          "geographically validated); Module D straight-line (v1) only.",
-                          "Set CLIFF_USE_ACCESS_SURFACE=force to include it."), cstat))
-  }
-}
-
-setorder(out, -miles_to_nearest)
+  n_urogyn_in_county = contain)
+out <- merge(out, county_access[, .(GEOID, drive_time_access, n_tracts)],
+             by = "GEOID", all.x = TRUE)
+n_cov <- out[!is.na(drive_time_access), .N]
+message(sprintf("Drive-time access joined: %d/%d CONUS counties covered by the surface.",
+                n_cov, nrow(out)))
+setorder(out, drive_time_access)   # worst (lowest) access first
 fwrite(out, "data/urps_module_d_county_access_2026-07-23.csv")
 fwrite(uro[, .(npi, pathway, state, zip5, lat, lon)],
        "data/urps_module_d_points_2026-07-23.csv")
 
-## ── 5. national summary ──────────────────────────────────────────────────────
+## ── 5. national summary (drive-time access) ──────────────────────────────────
 W  <- sum(out$women_65plus); U <- nrow(uro)
-wt <- function(mask) round(100*sum(out$women_65plus[mask])/W, 1)   # % of women 65+
-n_counties <- nrow(out); n_desert <- out[n_urogyn_in_county==0, .N]
-# access-inequality: Gini of women-65+ per nearby urogyn is ill-defined w/ 0s;
-# use share of women 65+ living >X mi from the nearest urogyn instead.
+cov <- out[!is.na(drive_time_access)]
+Wcov <- sum(cov$women_65plus)
+wt <- function(mask) round(100*sum(out$women_65plus[mask], na.rm=TRUE)/W, 1)   # % of women 65+
+n_counties <- nrow(out); n_nosupply <- out[n_urogyn_in_county==0, .N]
+pw_access  <- if (Wcov > 0) round(sum(cov$drive_time_access*cov$women_65plus)/Wcov, 3) else NA_real_
 summ <- data.table(
   metric = c("active urogynecologists (in map)","CONUS women 65+","national women-65+ per urogyn",
              "urogynecologists per 100,000 CONUS women 65+",
              "CONUS counties","counties with 0 urogynecologists","% counties with 0 urogynecologists",
              "% women 65+ in a county with 0 urogynecologists",
-             "% women 65+ within 25 mi of a urogynecologist",
-             "% women 65+ within 50 mi","% women 65+ within 100 mi",
-             "% women 65+ >100 mi from nearest urogynecologist",
-             "median county miles to nearest","90th-pctile county miles to nearest"),
+             "counties covered by drive-time surface","% women 65+ in a covered county",
+             "counties NOT covered by drive-time surface","% women 65+ in an uncovered county",
+             "population-weighted mean county drive-time access",
+             "% women 65+ in a county with zero drive-time access",
+             "median county drive-time access","10th-pctile county drive-time access"),
   value = c(U, W, round(W/U),
             round(RATE_PER_100K*U/W, 2),                                    # per-100k benchmark (per literature)
-            n_counties, n_desert, round(100*n_desert/n_counties,1),
+            n_counties, n_nosupply, round(100*n_nosupply/n_counties,1),
             wt(out$n_urogyn_in_county==0),
-            wt(out$miles_to_nearest<=25), wt(out$miles_to_nearest<=50), wt(out$miles_to_nearest<=100),
-            wt(out$miles_to_nearest>100),
-            round(median(out$miles_to_nearest),1),
-            round(quantile(out$miles_to_nearest,0.9),1)))
+            n_cov, round(100*Wcov/W, 1),
+            n_counties - n_cov, wt(is.na(out$drive_time_access)),
+            pw_access,
+            wt(!is.na(out$drive_time_access) & out$drive_time_access==0),
+            round(median(cov$drive_time_access, na.rm=TRUE), 3),
+            round(quantile(cov$drive_time_access, 0.10, na.rm=TRUE), 3)))
 fwrite(summ, "data/urps_module_d_summary_2026-07-23.csv")
 
 ## per-100k urogynecologist density by state (geographic maldistribution, per Herb 2022)
@@ -176,24 +168,21 @@ st[, per_100k_w65 := round(RATE_PER_100K*n_urogyn/women_65plus, 2)]
 setorder(st, per_100k_w65)
 fwrite(st, "data/urps_module_d_density_by_state_2026-07-23.csv")
 
-cat("\n=== MODULE D: geographic access summary ===\n")
+cat("\n=== MODULE D: drive-time geographic access summary ===\n")
 print(summ, nrow=99)
-cat("\n--- 10 most access-poor counties (highest women 65+ furthest from a urogyn) ---\n")
-print(out[miles_to_nearest>60][order(-women_65plus)][1:10,
-         .(county, state, women_65plus, miles_to_nearest, n_urogyn_within_100mi)])
-if ("drive_time_access" %in% names(out)) {
-  cov <- out[!is.na(drive_time_access)]
-  # Direction check: drive-time access (higher = better) should fall as the
-  # straight-line distance to the nearest urogyn (higher = worse) rises, so a
-  # negative Spearman rho confirms the two measures agree on where access is poor.
-  rho <- if (nrow(cov) > 2L)
-    suppressWarnings(cor(cov$miles_to_nearest, cov$drive_time_access, method="spearman"))
-    else NA_real_
-  cat(sprintf("\n--- MODULE D v2: drive-time access surface ---\n%d/%d counties covered; Spearman(miles_to_nearest, drive_time_access) = %.2f (expect < 0).\n",
-              nrow(cov), nrow(out), rho))
-  fwrite(cov[, .(GEOID, county, state, women_65plus, miles_to_nearest,
-                 drive_time_access, n_tracts)][order(drive_time_access)],
-         "data/urps_module_d_drivetime_access_2026-07-23.csv")
-  cat("Wrote v2 drive-time access CSV to data/urps_module_d_drivetime_access_2026-07-23.csv\n")
-}
-cat("\nWrote county / points / summary CSVs to data/urps_module_d_*_2026-07-23.csv\n")
+cat(sprintf("\nAccess surface: isochrone run %s, status %s.\n", run_id, cstat))
+# Worst-served ranking is over COVERED counties only; counties the surface does
+# not cover (drive_time_access = NA) cannot be ranked here, so report how many
+# counties and how many women 65+ they hold -- otherwise a reader of the worst-10
+# would not see that some (possibly the most remote) counties are missing entirely.
+unc <- out[is.na(drive_time_access)]
+n_unc <- nrow(unc); w_unc <- sum(unc$women_65plus)
+cat(sprintf(paste0("\nUncovered by the surface: %d of %d counties (%s women 65+, %.1f%% ",
+                   "of the national total) have NO drive-time access value and are ",
+                   "EXCLUDED from the worst-served ranking below.\n"),
+            n_unc, n_counties, formatC(w_unc, big.mark = ",", format = "d"),
+            if (W > 0) 100 * w_unc / W else 0))
+cat("\n--- 10 lowest drive-time-access counties (most women 65+ among the worst-served) ---\n")
+print(cov[order(drive_time_access)][1:min(10, nrow(cov)),
+         .(county, state, women_65plus, drive_time_access, n_urogyn_in_county)])
+cat("\nWrote county / points / summary / density CSVs to data/urps_module_d_*_2026-07-23.csv\n")
