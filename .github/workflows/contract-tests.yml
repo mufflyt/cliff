@@ -10,7 +10,8 @@ name: contract-tests
 # engine additions (loader-based, pure functions), the URPS projection producer
 # (reads the committed artifact + the mufflyaccess projection contract), the
 # mufflyaccess version/pin gate, the unqualified-baseline guard, the
-# wait-adequacy inverse (pure base-R M/M/s queueing), the CHIA<->Medicare
+# wait-adequacy inverse (pure base-R M/M/s queueing), the access-wait anchor
+# (a bootstrapped appointment-wait sample -> a gated access fit), the CHIA<->Medicare
 # all-payer workload bridge, the capacity-evidence adequacy gate, and the
 # absolute-adequacy seam that anchors project()'s relative index to a gated
 # absolute adequacy, and the app-absolute-parity guard that pins the Shiny app's
@@ -78,6 +79,6 @@ jobs:
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity|no-stale-published-numbers|derived-column-identities",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|access-wait-anchor|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity|no-stale-published-numbers|derived-column-identities",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'
