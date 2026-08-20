@@ -75,11 +75,12 @@ Suggests:
     tigris,
     usethis,
     viridis,
-    withr,
-    zipangu
+    withr
 Remotes:
     mufflyt/mufflyaccess@d419c24998e33d39cf70790ea2fb2c47c0adb242
-Note: 'exploratory' (Exploratory.io, non-CRAN) is used by one legacy script and
-    is intentionally omitted from Imports; install separately if that script is run.
+Note: 'exploratory' (Exploratory.io, non-CRAN) and 'zipangu' (archived from CRAN)
+    are each used only by one legacy data-raw script and are intentionally omitted
+    from the dependency lists; install them separately (zipangu from the CRAN
+    archive) if that script is run.
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
