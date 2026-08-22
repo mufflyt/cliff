@@ -1,0 +1,137 @@
+# Measure an absolute-adequacy anchor from a sample of observed access waits
+
+Turn a sample of observed appointment waits into a gated access fit: the
+absolute base-year adequacy the relative model
+(\[shiny_urps_adequacy/model.R\] \`project()\`) lacks. The sample mean
+estimates the M/M/s mean wait-in-queue \\W_q\\; that point wait is
+inverted through \[wait_to_adequacy()\], and a nonparametric bootstrap
+over the sample gives a percentile confidence interval on the implied
+adequacy.
+
+## Usage
+
+``` r
+measure_access_wait_anchor(
+  waits,
+  mu,
+  s,
+  time_unit = "unit",
+  trim = 0,
+  n_boot = 2000L,
+  conf_level = 0.95,
+  min_n = 5L,
+  require_full_interval = TRUE,
+  rho_ceiling = WAIT_ADEQUACY_RHO_CEILING,
+  seed = NULL,
+  label = NA_character_
+)
+```
+
+## Arguments
+
+- waits:
+
+  Observed appointment waits: a numeric vector, each \`\>= 0\`, all in
+  the SAME time unit as \`1 / mu\` (e.g. if \`mu\` is new patients per
+  month per channel, \`waits\` are in months). \`NA\`s are dropped and
+  counted.
+
+- mu:
+
+  Per-channel service rate: a single positive finite scalar (completed
+  new-patient visits per unit time per parallel service channel), in the
+  time unit that makes \`waits\` equal to \`1 / mu\` units.
+
+- s:
+
+  Number of parallel service channels serving the pooled queue: a single
+  positive integer.
+
+- time_unit:
+
+  Optional label for the shared time unit (recorded for provenance only;
+  not used in the math). Defaults to \`"unit"\`.
+
+- trim:
+
+  Fraction (0 to 0.5) trimmed from each end for the point statistic (a
+  trimmed mean). \`0\` (default) is the plain sample mean = the \\W_q\\
+  estimand.
+
+- n_boot:
+
+  Bootstrap replicate count: a single positive integer (default
+  \`2000\`).
+
+- conf_level:
+
+  Confidence level for the percentile interval (default \`0.95\`).
+
+- min_n:
+
+  Smallest usable sample size after dropping \`NA\`s; below it the
+  anchor refuses (default \`5\`).
+
+- require_full_interval:
+
+  If \`TRUE\` (default), refuse unless EVERY bootstrap replicate is
+  identified (the interval stays clear of the near-balance band). If
+  \`FALSE\`, the anchor is identified whenever the point inversion is,
+  and the interval is taken over the identified replicates only.
+
+- rho_ceiling:
+
+  Utilisation ceiling passed through to \[wait_to_adequacy()\].
+
+- seed:
+
+  Optional integer seed for the bootstrap (the RNG state is saved and
+  restored, so calling this does not perturb the caller's stream).
+
+- label:
+
+  Optional character label for the unit of analysis.
+
+## Value
+
+A one-row \`data.frame\` with \`label\`, \`identified\` (logical),
+\`adequacy\` (point anchor, \`NA\` if refused),
+\`adequacy_lo\`/\`adequacy_hi\` (percentile interval, \`NA\` if
+refused), \`conf_level\`, \`wait\` (the point statistic), \`rho\`
+(implied utilisation), \`n\`, \`n_missing\`, \`mu\`, \`s\`,
+\`time_unit\`, \`n_boot\`, \`frac_identified\` (share of bootstrap
+replicates that were identified), and \`reason\` (\`NA\` when
+identified, else why it refused).
+
+## Details
+
+The estimand is the MEAN wait (\\W_q\\), so the point statistic is the
+sample mean; \`trim\` gives an optional trimmed mean for robustness to a
+few extreme waits, at the cost of a small bias away from \\W_q\\.
+Because a sample can straddle the near-balance region where
+\[wait_to_adequacy()\] refuses even when its mean does not, the anchor
+is reported as identified ONLY when the point inversion is identified
+AND (with \`require_full_interval = TRUE\`, the default) every bootstrap
+replicate is identified too; otherwise it refuses with a reason and
+\`adequacy = NA\`. The returned one-row \`data.frame\` carries
+\`identified\` and \`adequacy\`, so it drops straight into
+\[capacity_evidence_bundle()\] as the \`access_fit\`.
+
+## See also
+
+\[wait_to_adequacy()\] (the single-wait inverse this wraps),
+\[capacity_evidence_bundle()\], \[project_absolute_adequacy()\];
+\`tests/testthat/test-ssot-access-wait-anchor.R\` for the guard.
+
+## Examples
+
+``` r
+# A synthetic audit: 40 waits whose mean sits at a ~1.4-adequacy queue.
+set.seed(1)
+wq <- mmc_wait_in_queue(s = 6, mu = 2, rho = 1 / 1.4)      # true mean wait
+waits <- rgamma(40, shape = 4, scale = wq / 4)             # mean ~ wq
+fit <- measure_access_wait_anchor(waits, mu = 2, s = 6, n_boot = 300L, seed = 1)
+fit$identified; round(fit$adequacy, 2)
+#> [1] TRUE
+#> [1] 1.42
+```

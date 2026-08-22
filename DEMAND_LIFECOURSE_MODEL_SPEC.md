@@ -1,0 +1,275 @@
+# Reproductive life-course demand model — design & decision spec
+
+**Status:** design spec (no modeling code yet). This document pins the
+architecture, the cell schema, every data/parameter dependency, the
+calibration strategy, and the scenario set **before** any modeling code
+is written, so the build is a matter of filling in cited coefficients
+rather than re-litigating the design.
+
+**Thesis.** cliff’s demand side is currently a *static* denominator —
+projected female population × **age-only** PFD prevalence (Nygaard
+2008), applied identically to every future year (`R/pfd_prevalence.R`,
+`R/demand_denominator.R`; there is no cohort or obstetric dimension). We
+replace it with a **reproductive life-course model** in which the
+primary generator of pelvic-floor disease burden is **cumulative
+vaginal-delivery exposure by birth cohort**, with BMI and other factors
+demoted to *risk modifiers* and *prevention-scenario levers*. Demand is
+not read off disease prevalence; it passes through a care pathway and a
+**staffing conversion**, per Zarek’s demand-model architecture.
+
+> What we are actually building is a reproductive life-course model
+> linking vaginal-delivery exposure → pelvic-floor disease → healthcare
+> utilization → urogynecology (and substitute-provider) workforce
+> demand.
+
+------------------------------------------------------------------------
+
+## 1. Why the reframe (BMI is a modifier, not the engine)
+
+- **Clinical fact.** Cumulative vaginal parity is the dominant,
+  dose-responsive etiologic driver of pelvic organ prolapse (POP) and a
+  major driver of stress urinary incontinence (SUI). Cesarean-only
+  delivery carries substantially lower risk. BMI is a real but secondary
+  modifier — largest for SUI, smallest for POP.
+- **Exposure is largely locked in for the demand horizon.** Women who
+  drive URPS demand through ~2045 have already completed childbearing,
+  so their vaginal- delivery exposure is a historical fact recoverable
+  from natality/fertility data — no behavioral forecasting required
+  (unlike obesity).
+- **The static model is directionally wrong in a knowable way.** Nygaard
+  2008 (NHANES 2005–06) embeds the obstetric history of cohorts born
+  ~1925–1985 (high parity, low cesarean). Later cohorts had **falling
+  parity** (TFR ~3.5 in 1960 → ~1.7 now) and **rising cesarean rates**
+  (~5% in 1970 → ~32% today) → *declining* cumulative vaginal-delivery
+  exposure → PFD prevalence within age bands likely **declining** for
+  later cohorts. That pushes demand **down**, partially offsetting the
+  population-aging term the current model already captures. Quantifying
+  that tension is the contribution.
+
+------------------------------------------------------------------------
+
+## 2. The Zarek spine
+
+Zarek et al. (2025, *Physical Therapy*) is not a DPMM paper; it is a
+contemporary application of Dall’s health-workforce demand architecture:
+
+    Population  →  predicted service use  →  staffing conversion  →  provider demand
+
+Its decisive lesson: **it does not equate disease burden with provider
+demand.** It predicts *utilization*, then applies setting-specific
+staffing ratios. Our adaptation:
+
+    Female population
+      → birth-cohort vaginal-delivery exposure
+      → pelvic-floor conditions (POP / UI / AI / multiple)
+      → recognition & care-seeking
+      → service use (by treatment mix)
+      → staffing conversion (services ÷ services-per-FTE)
+      → URPS + substitute-provider FTE demand
+
+------------------------------------------------------------------------
+
+## 3. Model form — cohort-cell (decided)
+
+A deterministic **cell model** over
+`age × birth-cohort × vaginal-parity stratum`, **not** a person-level
+microsimulation. It carries the identical causal hierarchy and every
+scenario below, while staying reproducible (preserves cliff’s
+run-from-a-clone property), deterministic, and reviewable. Person-level
+Monte Carlo is reserved as a later upgrade for questions the cell model
+cannot answer (individual heterogeneity, joint distributions across
+conditions, per-woman event timing).
+
+**Microsim-ready constraint.** The data layer and parameter tables are
+structured so a person-level engine can consume them later without a
+rewrite: parity strata map 1:1 to a `cumulative_vaginal_deliveries`
+draw, and every cell transition rate is a valid individual-level
+probability.
+
+### Cell state (the aggregated analogue of a person-year record)
+
+| Field | Meaning |
+|----|----|
+| `year` | projection year |
+| `age` | single year of age |
+| `birth_cohort` | `year − age` |
+| `parity_stratum` | cumulative vaginal deliveries: 0 / 1 / 2 / 3+ (cesarean & total parity retained separately) |
+| `n_women` | population in the cell (from NPP × cohort parity distribution) |
+| `p_pop`, `p_ui`, `p_ai`, `p_multi` | condition prevalences in the cell |
+| `p_seeking`, `p_treated` | care-pathway fractions |
+| `service_units` | annual service volume generated by the cell |
+| modifiers | cell-level BMI mix, hysterectomy %, menopause %, race/ethnicity, rurality (applied as prevalence multipliers) |
+
+------------------------------------------------------------------------
+
+## 4. Causal hierarchy (four levels)
+
+1.  **Primary exposure — childbirth history.** State variable
+    `cumulative_vaginal_deliveries` (parity strata), with total parity
+    and cesarean count retained separately; secondary exposure fields
+    (operative vaginal delivery, OASI, age at deliveries, years since
+    last vaginal delivery, macrosomia) added where estimable.
+2.  **Risk modifiers** (modify the exposure effect, do not replace it):
+    age, BMI, race/ethnicity, smoking, hysterectomy, menopausal status,
+    diabetes, connective-tissue/neurologic conditions, SES/insurance,
+    rurality, physical activity. **BMI lives here.**
+3.  **Clinical disease states:** none / UI / POP / AI / multiple
+    concurrent / treated / recurrent-persistent / death. Distinguished
+    because the utilization and provider mix differ by condition.
+4.  **Utilization & workforce demand** (the care pathway + staffing
+    conversion):
+
+&nbsp;
+
+    prevalent/incident disease
+      × symptom severity × recognition × P(seek care) × P(referral)
+      × treatment mix × service intensity
+      = annual service volume
+    annual service volume ÷ annual services per clinical FTE
+      = provider FTE demand
+
+------------------------------------------------------------------------
+
+## 5. Data & parameter inventory
+
+| Input | Status | Source |
+|----|----|----|
+| Female population by single-year age × year | **have** | Census 2023 NPP (`data/census/np2023_d1_*.csv`) |
+| Age-specific PFD prevalence anchor | **have** | Nygaard 2008 JAMA (`R/pfd_prevalence.R`) — used as a *level anchor*, not the whole surface |
+| Observed URPS service volumes | **have** | Medicare by-service in enriched rosters (57288 slings, prolapse repairs, pessaries, neuromodulation) |
+| Cesarean rate by year | **need** | CDC/NCHS Natality (public) |
+| **Cumulative vaginal-parity distribution by birth cohort** | **need** | NSFG + CPS Fertility Supplement (+ natality) — the distinctive input |
+| Parity → POP / SUI / AI dose-response (ORs) | **need (lit pull)** | Candidate evidence base: Hendrix/WHI, Gyhagen, Mant, Rortveit — coefficients to be *extracted*, not invented |
+| Modifier effects (BMI, hysterectomy, menopause, …) | **need (lit pull)** | Urogyn/obstetric epidemiology |
+| Care-seeking / recognition / treatment fractions | **need** | Prefer calibration to observed volume over literature product (see §6) |
+| Services per clinical FTE (staffing ratios) | **need** | Zarek-style, by provider type & setting |
+| Exposure → symptom validation | **validate** | SWAN (not nationally representative), WHI, HUNT/Gyhagen longitudinal |
+
+**No coefficient in this spec is asserted.** ORs, fractions, and
+staffing ratios are named as *targets for the parameter/evidence pull*;
+the model will not ship fabricated epidemiology.
+
+------------------------------------------------------------------------
+
+## 6. Calibration & identifiability
+
+The model has many potential parameters against a thin set of strong
+anchors, so discipline is required to avoid over-fitting:
+
+1.  **Fix the dose-response externally.** Take parity → disease ORs from
+    published cohort studies and hold them fixed; do not fit them from
+    cliff’s data.
+2.  **Use anchors for *levels* only.** Nygaard 2008 sets the
+    age-prevalence level for the reference cohort; the Medicare service
+    counts set the observed utilization level. Neither is used to fit
+    the exposure surface.
+3.  **Anchor the care pathway to observed volume, not a forward
+    product.**
+    `recognition × seeking × referral × treatment × intensity` compounds
+    five wide-CI fractions and the demand estimate’s uncertainty
+    explodes. Instead, treat the pathway as a *decomposition of
+    observed* service volume (Medicare; HCUP/MarketScan if obtainable) —
+    Zarek’s actual method — so the pathway is pinned to reality and only
+    the *scenario deltas* move it.
+4.  **Propagate uncertainty** as intervals on the fixed ORs and staffing
+    ratios, consistent with cliff’s existing Monte-Carlo interval
+    reporting on the supply side.
+5.  **Validation targets:** back-cast reference-cohort prevalence
+    against Nygaard; check exposure→symptom gradient against
+    SWAN/WHI/Gyhagen; check absolute service volume against Medicare
+    procedure counts.
+
+------------------------------------------------------------------------
+
+## 7. Scenarios (kept few and interpretable)
+
+1.  **Baseline.** Current age-, parity-, and delivery-mode-specific
+    risks continue; future populations reflect projected demographics
+    and completed birth-cohort exposure.
+2.  **Changing mode of delivery.** Future cohorts experience
+    observed/projected cesarean-vs-vaginal shifts. *Reported with care:*
+    cesarean delivery is not a population-level prevention
+    recommendation and carries its own harms.
+3.  **Reduced barriers to care.** Under-served women receive services at
+    the rate of otherwise-similar women with fewer access barriers — can
+    raise modeled demand substantially **without changing disease
+    prevalence** (mirrors Zarek’s reduced-barriers scenario). Ties
+    directly into cliff’s existing rurality/HPSA equity findings.
+4.  **Prevention / mitigation.** A defined intervention changes one
+    transition: reduced OASI, reduced prolonged second stage / operative
+    vaginal delivery, postpartum pelvic-floor rehab, reduced
+    mild→treatment progression, or weight reduction among elevated-risk
+    women. **BMI enters here**, as one lever among several — not the
+    model’s spine.
+5.  **Treatment substitution.** Vary the share of care delivered by URPS
+    vs general gynecology, urology, APPs, pelvic-floor PT, and primary
+    care — because pelvic-floor disease demand ≠ URPS demand.
+
+------------------------------------------------------------------------
+
+## 8. Module plan & repository home
+
+Built as a **self-contained subsystem in a new directory**
+(`demand_lifecourse/`), leaving the existing supply/manuscript pipeline
+(`code/01…`, Step 1–5) untouched. Modules mirror the causal hierarchy:
+
+    demand_lifecourse/
+      demand-population.R          # NPP female population by age × year (reuse demand_denominator SSOT)
+      demand-birth_history.R       # cohort vaginal-parity distribution (NSFG/CPS/natality) -> cells
+      03_pelvic_floor_risk.R   # exposure × modifiers -> condition prevalences (fixed external ORs)
+      04_condition_transitions.R # incidence/progression/recurrence/mortality between states
+      05_care_seeking.R        # recognition, seeking, referral (calibrated to observed volume)
+      06_service_use.R         # treatment mix × intensity -> annual service units
+      supply-staffing_conversion.R # services ÷ services-per-FTE -> provider FTE demand (by provider type)
+      08_scenarios.R           # the five scenarios above as parameter overlays
+      validation-targets.R          # back-cast vs Nygaard / Medicare / SWAN-WHI-Gyhagen
+      params/                  # cited coefficient tables (ORs, fractions, staffing ratios)
+      data/                    # dated committed inputs (cohort parity, cesarean-by-year, ...)
+
+Each module is dependency-light and sourced in order by a
+`demand_lifecourse/run_all.R`, following the same conventions as the
+existing pipeline (roxygen headers,
+[`here::here()`](https://here.r-lib.org/reference/here.html), SSOT
+constants, testthat guards).
+
+------------------------------------------------------------------------
+
+## 9. Open questions / risks (resolve during the parameter pull)
+
+- **Subtype weighting.** Vaginal delivery dominates *POP* demand; for
+  *SUI/slings* it shares the stage with age/BMI/menopause; for pure
+  *OAB/UI*, age dominates. Weight the driver by demand subtype using the
+  Medicare procedure mix rather than assuming one factor for all
+  conditions.
+- **Cohort completeness.** Exposure is complete for cohorts already ≥
+  ~45; the youngest demand-relevant cohorts may still be completing
+  fertility — flag and bound.
+- **Under-identification.** Guard against fitting too many parameters to
+  Nygaard + Medicare alone (see §6).
+- **Provenance boundary.** Person-level obstetric linkage (if ever
+  pursued) is isochrones-upstream territory; cliff should vend derived,
+  de-identified cells.
+
+------------------------------------------------------------------------
+
+## 10. References
+
+- Zarek S, et al. *Physical Therapy* 2025 — health-workforce demand
+  architecture (population → predicted service use → staffing conversion
+  → demand); Fig. 5, Demand Modeling & Demand Scenarios sections.
+- Nygaard I, et al. Prevalence of Symptomatic Pelvic Floor Disorders in
+  US Women. *JAMA* 2008;300(11):1311–1316. (Current age-prevalence
+  anchor.)
+- Dall T, et al. Health Workforce Microsimulation Model Documentation
+  (IHS Markit, 2016/2020) — DPMM/HDMM background.
+- Evidence base for parity → pelvic-floor dose-response (coefficients to
+  be extracted in the parameter pull, not asserted here): Hendrix/WHI;
+  Gyhagen; Mant; Rortveit.
+- Data sources for cohort exposure: CDC/NCHS Natality; NSFG; CPS
+  Fertility Supplement. Validation cohort: SWAN.
+
+------------------------------------------------------------------------
+
+*Next step after sign-off: the parameter/evidence pull (§5 “need (lit
+pull)” rows) and the `02_birth_history` cohort-exposure data layer — the
+two inputs everything downstream depends on.*

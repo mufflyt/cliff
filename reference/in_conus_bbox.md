@@ -1,0 +1,50 @@
+# Is a coordinate inside the contiguous-US bounding box?
+
+\`TRUE\` for a point strictly inside a coarse rectangle enclosing the
+contiguous United States (lon -125 to -66, lat 24 to 50, WGS84).
+
+## Usage
+
+``` r
+in_conus_bbox(lon, lat)
+```
+
+## Arguments
+
+- lon, lat:
+
+  \`numeric\`: decimal degrees, WGS84.
+
+## Value
+
+\`logical\` the same length as the inputs; \`NA\` where either is
+\`NA\`.
+
+## Details
+
+\*\*This is a coarse filter, not authoritative geography.\*\* The box
+includes parts of Canada, Mexico and open ocean, and excludes nothing
+that a spatial join would exclude. Use it to catch coordinates that are
+obviously wrong — geocoding failures, APO/AE military addresses that
+land in Europe, transposed longitude signs — not to decide whether a
+point is in a state. For that, join to boundaries.
+
+Three-valued logic is preserved: an \`NA\` coordinate yields \`NA\`
+rather than \`FALSE\`, so a caller's own \`is.na()\` handling still
+applies and points are never silently kept or dropped. De Morgan holds,
+so \`!in_conus_bbox(...)\` is exactly the "outside the box" test.
+
+## See also
+
+\[is_conus_fips()\] when a FIPS code is available — always prefer it.
+
+Other geography:
+[`is_conus_fips()`](https://mufflyt.github.io/cliff/reference/is_conus_fips.md)
+
+## Examples
+
+``` r
+in_conus_bbox(c(-104.99, -157.86, NA), c(39.74, 21.31, 40))
+#> [1]  TRUE FALSE    NA
+#> TRUE FALSE NA          # Denver, Honolulu, missing longitude
+```
