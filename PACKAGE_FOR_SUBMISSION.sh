@@ -146,14 +146,32 @@ echo "COPYING MANUSCRIPTS"
 echo "================================================================================"
 echo ""
 
-if [ -f "cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx" ]; then
-  cp "cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx" "${PACKAGE_DIR}/manuscripts/"
-  echo "  ✓ WORKFORCE_CLIFF_ObGyn.docx"
+if [ -f "cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx" ]; then
+  cp "cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx" "${PACKAGE_DIR}/manuscripts/"
+  echo "  ✓ manuscript_WORKFORCE_CLIFF.docx"
 fi
 
-if [ -f "cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html" ]; then
-  cp "cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html" "${PACKAGE_DIR}/manuscripts/"
-  echo "  ✓ WORKFORCE_CLIFF_ObGyn.html"
+if [ -f "cliff/manuscript/manuscript_WORKFORCE_CLIFF.html" ]; then
+  cp "cliff/manuscript/manuscript_WORKFORCE_CLIFF.html" "${PACKAGE_DIR}/manuscripts/"
+  echo "  ✓ manuscript_WORKFORCE_CLIFF.html"
+fi
+
+# The supplement and title page are part of the submission set, not optional
+# extras: the manuscript's appendix citations (S1-S30) resolve into the
+# supplement, and the journal uploads them as separate files.
+if [ -f "cliff/manuscript/supplement_WORKFORCE_CLIFF.docx" ]; then
+  cp "cliff/manuscript/supplement_WORKFORCE_CLIFF.docx" "${PACKAGE_DIR}/manuscripts/"
+  echo "  ✓ supplement_WORKFORCE_CLIFF.docx"
+fi
+
+if [ -f "cliff/manuscript/title_page_WORKFORCE_CLIFF.Rmd" ]; then
+  cp "cliff/manuscript/title_page_WORKFORCE_CLIFF.Rmd" "${PACKAGE_DIR}/manuscripts/"
+  echo "  ✓ title_page_WORKFORCE_CLIFF.Rmd"
+fi
+
+if [ -f "cliff/manuscript/RESPONSE_TO_REVIEWERS_WORKFORCE_CLIFF.md" ]; then
+  cp "cliff/manuscript/RESPONSE_TO_REVIEWERS_WORKFORCE_CLIFF.md" "${PACKAGE_DIR}/manuscripts/"
+  echo "  ✓ RESPONSE_TO_REVIEWERS_WORKFORCE_CLIFF.md"
 fi
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -505,8 +523,11 @@ cat > "${PACKAGE_DIR}/SUBMISSION_SUMMARY.md" << EOF
   - retirement_sensitivity.csv (retirement threshold sensitivity)
 
 ### Manuscripts
-- WORKFORCE_CLIFF_ObGyn.docx (Word format)
-- WORKFORCE_CLIFF_ObGyn.html (HTML format)
+- manuscript_WORKFORCE_CLIFF.docx (Word format, main text)
+- manuscript_WORKFORCE_CLIFF.html (HTML format, for review)
+- supplement_WORKFORCE_CLIFF.docx (Supplemental Digital Content, Appendices S1-S30)
+- title_page_WORKFORCE_CLIFF.Rmd (title page source)
+- RESPONSE_TO_REVIEWERS_WORKFORCE_CLIFF.md (point-by-point response)
 
 ### Documentation
 - **Documentation files:** ${DOC_COUNT}
@@ -617,8 +638,11 @@ ${PACKAGE_DIR}/
 │   └── retirement_sensitivity.csv
 │
 ├── manuscripts/
-│   ├── WORKFORCE_CLIFF_ObGyn.docx
-│   └── WORKFORCE_CLIFF_ObGyn.html
+│   ├── manuscript_WORKFORCE_CLIFF.docx
+│   ├── manuscript_WORKFORCE_CLIFF.html
+│   ├── supplement_WORKFORCE_CLIFF.docx
+│   ├── title_page_WORKFORCE_CLIFF.Rmd
+│   └── RESPONSE_TO_REVIEWERS_WORKFORCE_CLIFF.md
 │
 └── documentation/              (${DOC_COUNT} files)
     ├── PIPELINE_IMPROVEMENTS.md
@@ -635,7 +659,7 @@ ${PACKAGE_DIR}/
 
 ### Step 1: Prepare Main Manuscript
 
-1. Review manuscript Word document: \`manuscripts/WORKFORCE_CLIFF_ObGyn.docx\`
+1. Review manuscript Word document: \`manuscripts/manuscript_WORKFORCE_CLIFF.docx\`
 2. Insert Figure 1 from: \`figures/main/figure1_workforce_trajectories.tiff\`
 3. Insert Figure 2 from: \`figures/main/figure2_replacement_gap.tiff\`
 4. Verify figure legends match \`FIGURE_INDEX.md\`
@@ -651,7 +675,7 @@ ${PACKAGE_DIR}/
 ### Step 3: Upload to Journal System
 
 **Main Files:**
-- Manuscript: \`manuscripts/WORKFORCE_CLIFF_ObGyn.docx\`
+- Manuscript: \`manuscripts/manuscript_WORKFORCE_CLIFF.docx\`
 - Figure 1: \`figures/main/figure1_workforce_trajectories.tiff\`
 - Figure 2: \`figures/main/figure2_replacement_gap.tiff\`
 
@@ -745,7 +769,7 @@ This package contains all materials needed for manuscript submission and peer re
 ## Quick Start
 
 1. **Main Manuscript:**
-   - Document: `manuscripts/WORKFORCE_CLIFF_ObGyn.docx`
+   - Document: `manuscripts/manuscript_WORKFORCE_CLIFF.docx`
    - Figures: `figures/main/` (use TIFF for submission)
 
 2. **Supplementary Materials:**
