@@ -4,7 +4,7 @@
 #' `r get_baseline("FPMRS")`, to ensure the manuscript always reflects the latest data.
 #' @author Tyler Muffly, MD / Claude Code
 #' @date 2026-01-12
-#' @seealso \code{\link{00_RUN_ALL.R}}, \code{\link{manuscript/WORKFORCE_CLIFF_ObGyn.Rmd}}
+#' @seealso \code{\link{00_RUN_ALL.R}}, \code{\link{manuscript/manuscript_WORKFORCE_CLIFF.Rmd}}
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Workforce Statistics Helper Functions for Manuscript

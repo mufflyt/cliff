@@ -46,8 +46,8 @@ Rscript cliff/code/00_RUN_ALL.R
 **Outputs:**
 - `cliff/data/workforce_projections_consolidated.csv`
 - `cliff/figures/` (4 figure files)
-- `cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html`
-- `cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx`
+- `cliff/manuscript/manuscript_WORKFORCE_CLIFF.html`
+- `cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx`
 
 ---
 

@@ -153,8 +153,8 @@ EXPECTED_FILES=(
   "cliff/figures/retirement_sensitivity_change.tiff"
 
   # Manuscripts
-  "cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html"
-  "cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx"
+  "cliff/manuscript/manuscript_WORKFORCE_CLIFF.html"
+  "cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx"
 )
 
 MISSING_COUNT=0
