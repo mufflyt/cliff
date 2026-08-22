@@ -2,7 +2,7 @@
 ║              GYNECOLOGIC WORKFORCE CLIFF — QUICK START               ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
-REPO: https://github.com/mufflyt/cliff  (private)
+REPO: https://github.com/mufflyt/cliff  (PUBLIC)
 ROOT: ~/cliff/
 
 ═══════════════════════════════════════════════════════════════════════
