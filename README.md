@@ -71,10 +71,11 @@ cliff/
 ├── data/
 │   └── workforce_projections_consolidated.csv   # Seeded from manuscript
 ├── manuscript/
-│   ├── WORKFORCE_CLIFF_ObGyn.Rmd       # Manuscript source (ObGyn format)
-│   ├── Surgical_workforce_cliff_FINAL.txt
-│   ├── Surgical_workforce_cliff_REVISED.txt
-│   └── Surgical_workforce_cliff_CORRECTED.txt
+│   ├── manuscript_WORKFORCE_CLIFF.Rmd  # Manuscript source (canonical)
+│   ├── supplement_WORKFORCE_CLIFF.Rmd  # Supplemental Digital Content (S1-S30)
+│   ├── title_page_WORKFORCE_CLIFF.Rmd
+│   ├── references_WORKFORCE_CLIFF.bib
+│   └── RESPONSE_TO_REVIEWERS_WORKFORCE_CLIFF.md
 ├── figures/                            # Generated at runtime
 ├── app/
 │   ├── app.R                           # Standalone Shiny retirement cliff app
