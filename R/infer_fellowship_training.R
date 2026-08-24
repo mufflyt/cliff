@@ -51,13 +51,6 @@ NULL
 # -load-paths-2026-05-22.R for the original bug that motivated this.
 # (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(tidyr)
-  library(stringr)
-  library(here)
-})
-
 # FREIDA loader (load_freida_programs, find_nearest_program)
 # (source() removed: see R/unported_helpers.R -- the target file is not in this repo)
 
