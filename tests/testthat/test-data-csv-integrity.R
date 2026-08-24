@@ -68,3 +68,89 @@ test_that("every CSV in data/ is parseable, so none is silently unreadable", {
   }
   expect_identical(bad, character(0))
 })
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Roster ingestion contract.
+#
+# The truncation above is latent, not active: all 18 production roster reads use
+# data.table::fread (14) or a helper that wraps readr/fread (read_roster,
+# load_roster), and the repository contains no read.table/read.delim/scan call
+# at all. So no cohort artifact was ever computed on a short roster, and nothing
+# needed regenerating.
+#
+# These tests keep it that way. The failure mode is a future edit switching one
+# read to a quote-naive reader, which would silently drop 17% of ABOG or 55% of
+# ABU and still produce plausible-looking output.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Raw vintage dimensions, hard-gated.
+ROSTER_CONTRACT <- list(
+  "abog_all_urps_2026-07-22.csv"          = c(rows = 1135L, cols = 6L),
+  "abog_all_urps_ENRICHED_2026-07-22.csv" = c(rows = 1135L, cols = 74L),
+  "abu_all_urps_2026-07-22.csv"           = c(rows = 365L,  cols = 81L),
+  "abu_all_urps_ENRICHED_2026-07-22.csv"  = c(rows = 365L,  cols = 81L)
+)
+
+test_that("fread -- the reader production actually uses -- returns full rosters", {
+  skip_if_not_installed("data.table")
+  for (f in names(ROSTER_CONTRACT)) {
+    p <- data_path(f)
+    skip_if_not(file.exists(p), paste("absent:", f))
+    d <- data.table::fread(p, showProgress = FALSE)
+    expect_identical(nrow(d), unname(ROSTER_CONTRACT[[f]]["rows"]), info = paste(f, "rows"))
+  }
+})
+
+test_that("every reader that production could use agrees on roster size", {
+  skip_if_not_installed("data.table")
+  for (f in names(ROSTER_CONTRACT)) {
+    p <- data_path(f)
+    skip_if_not(file.exists(p), paste("absent:", f))
+    n <- unname(ROSTER_CONTRACT[[f]]["rows"])
+    expect_identical(nrow(data.table::fread(p, showProgress = FALSE)), n, info = paste(f, "fread"))
+    expect_identical(nrow(utils::read.csv(p, check.names = FALSE)), n, info = paste(f, "read.csv"))
+  }
+})
+
+test_that("the five apostrophe surnames survive ingestion", {
+  # These are the records read.table() would swallow. Naming them makes the
+  # regression concrete rather than a row count nobody can interpret.
+  skip_if_not_installed("data.table")
+  p <- data_path("abog_all_urps_2026-07-22.csv")
+  skip_if_not(file.exists(p), "absent")
+  d <- data.table::fread(p, showProgress = FALSE)
+  nm <- d[[3]]
+  for (who in c("O'SHAUGHNESSY", "O'LEARY", "O'NEIL", "O'BOYLE", "O'CONNELL"))
+    expect_true(any(grepl(who, nm, fixed = TRUE)), info = who)
+})
+
+test_that("NPI identities are preserved, not merely the row count", {
+  # A reader could in principle return the right N with mangled ids.
+  skip_if_not_installed("data.table")
+  p <- data_path("abog_all_urps_ENRICHED_2026-07-22.csv")
+  skip_if_not(file.exists(p), "absent")
+  d <- data.table::fread(p, colClasses = list(character = "npi"), showProgress = FALSE)
+  expect_identical(nrow(d), 1135L)
+  expect_identical(length(unique(d$npi)), 1135L)          # ABOG npis are unique
+  expect_true(all(grepl("^[0-9]{10}$", d$npi)))           # and all well-formed
+})
+
+test_that("no production code reads a roster with a quote-naive reader", {
+  # The guard that actually prevents recurrence. read.table() defaults to
+  # quote = "\"'", which is what truncates these files.
+  skip_if_no_repo()
+  root <- cliff_repo_root()
+  dirs <- file.path(root, c("R", "scripts", "code", "manuscript", "inst", "shiny_urps_scenarios"))
+  dirs <- dirs[dir.exists(dirs)]
+  fs <- unlist(lapply(dirs, list.files, pattern = "[.][Rr]$|[.]Rmd$",
+                      recursive = TRUE, full.names = TRUE))
+  offenders <- character(0)
+  for (f in fs) {
+    for (ln in readLines(f, warn = FALSE)) {
+      if (grepl("^\\s*#", ln)) next
+      if (grepl("read\\.table\\s*\\(|read\\.delim\\s*\\(", ln, perl = TRUE))
+        offenders <- c(offenders, sprintf("%s: %s", basename(f), trimws(ln)))
+    }
+  }
+  expect_equal(sort(unique(offenders)), character(0))
+})
