@@ -79,6 +79,6 @@ jobs:
         run: >
           Rscript -e 'library(testthat);
           testthat::test_dir("tests/testthat",
-          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|access-wait-anchor|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity|no-stale-published-numbers|derived-column-identities",
+          filter = "wc-engine|urps-projection-producer|mufflyaccess|no-unqualified-urps-baseline|wait-adequacy|access-wait-anchor|access-wait-audit|chia-medicare-bridge|chia-demand-bridge|capacity-evidence|absolute-adequacy-seam|app-absolute-parity|no-stale-published-numbers|derived-column-identities",
           stop_on_failure = TRUE);
           cat("cliff contract integration: OK\n")'

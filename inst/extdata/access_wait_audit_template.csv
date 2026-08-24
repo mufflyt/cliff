@@ -1,0 +1,4 @@
+"observation_id","provider_npi","region","payer","contact_method","contact_date","appointment_type","accepting_new_patients","outcome","offered_appointment_date","wait_days","notes"
+"EXAMPLE-001","1234567890","Region A","Commercial PPO","phone","2026-09-01","new_patient","TRUE","appointment_offered","2026-10-06","35","synthetic example - delete before use"
+"EXAMPLE-002","1234567891","Region A","Medicare","phone","2026-09-01","new_patient","FALSE","no_new_patients","","","synthetic example - clinic not taking new patients"
+"EXAMPLE-003","1234567892","Region B","Commercial PPO","portal","2026-09-02","new_patient","TRUE","appointment_offered","2026-09-16","","synthetic example - wait_days left blank, derived from dates"
