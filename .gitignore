@@ -24,3 +24,8 @@ data/tigris/
 
 # generated pkgdown site; built and deployed by CI
 docs_site/
+
+# Compiled per-physician ABOG certification roster -- not for public
+# distribution (2026-08-24). Regenerate locally via
+# scripts/build_validated_abog_provider_dataframe.R.
+data/abog_provider_dataframe_8_17_2025_1948_only_workforce_directory.csv

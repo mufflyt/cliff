@@ -218,8 +218,8 @@ With the updated fellowship assumptions, the following files have been regenerat
    - `cliff/figures/figure2_replacement_gap.png/tiff`
 
 3. **Manuscript:**
-   - `cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html`
-   - `cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx`
+   - `cliff/manuscript/manuscript_WORKFORCE_CLIFF.html`
+   - `cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx`
 
 All inline statistics in the manuscript now reflect the updated 2026 fellowship assumptions.
 

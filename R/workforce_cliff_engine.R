@@ -11,7 +11,6 @@
 # Exposed functions: wc_band_of(), wc_load_cohort(), wc_load_abu_ages(),
 #   wc_active_ages(), wc_band_counts(), wc_haz_for(), wc_project(), wc_duckdb_path().
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-suppressPackageStartupMessages({library(readr); library(dplyr)})
 
 # ---- constants (verbatim from rebuild_ssot_revised.R) ----------------------
 source(here::here("R", "workforce_constants.R"), local = TRUE)   # canonical WORKFORCE_PROJECTION_HORIZON_YEARS

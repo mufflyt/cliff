@@ -37,8 +37,8 @@
 # Outputs:
 #   - data/workforce_projections_consolidated.csv
 #   - cliff/figures/ (4 files: PNG and TIFF for 2 figures)
-#   - cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html
-#   - cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx
+#   - cliff/manuscript/manuscript_WORKFORCE_CLIFF.html
+#   - cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx
 #
 # IMPORTANT: This script MUST be run from the isochrones project directory.
 #            The script will check and provide helpful errors if run from wrong location.
@@ -170,20 +170,20 @@ step4_start <- Sys.time()
 # Render to HTML
 cat("Rendering HTML version...\n")
 rmarkdown::render(
-  here("manuscript/WORKFORCE_CLIFF_ObGyn.Rmd"),
+  here("manuscript/manuscript_WORKFORCE_CLIFF.Rmd"),
   output_format = "html_document",
   quiet = TRUE
 )
-cat("  ✓ HTML: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html\n")
+cat("  ✓ HTML: cliff/manuscript/manuscript_WORKFORCE_CLIFF.html\n")
 
 # Render to Word
 cat("Rendering Word version...\n")
 rmarkdown::render(
-  here("manuscript/WORKFORCE_CLIFF_ObGyn.Rmd"),
+  here("manuscript/manuscript_WORKFORCE_CLIFF.Rmd"),
   output_format = "word_document",
   quiet = TRUE
 )
-cat("  ✓ Word: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx\n")
+cat("  ✓ Word: cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx\n")
 
 step4_duration <- as.numeric(difftime(Sys.time(), step4_start, units = "secs"))
 
@@ -243,8 +243,8 @@ cat("  ✓ Figures: cliff/figures/ (6 files)\n")
 cat("    - figure1_workforce_trajectories.png/tiff\n")
 cat("    - figure2_replacement_gap.png/tiff\n")
 cat("    - workforce_crisis_abstract.png/tiff (SGS style)\n")
-cat("  ✓ Manuscript HTML: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html\n")
-cat("  ✓ Manuscript Word: cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx\n")
+cat("  ✓ Manuscript HTML: cliff/manuscript/manuscript_WORKFORCE_CLIFF.html\n")
+cat("  ✓ Manuscript Word: cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx\n")
 cat("  ✓ Concentration & equity: data/urps_concentration_by_geography_2026-08-01.csv,\n")
 cat("      urps_equity_demographics_*, urps_lorenz_states_*, urps_provider_rate_dispersion_*\n")
 cat("      figures/urps_concentration_lorenz_2026-08-01.png/tiff\n")
@@ -269,7 +269,7 @@ save_run_metadata(
 
 cat("\n")
 cat("To view results:\n")
-cat("  open cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html\n")
+cat("  open cliff/manuscript/manuscript_WORKFORCE_CLIFF.html\n")
 cat("  open cliff/figures/workforce_crisis_abstract.png\n")
 cat("\n")
 cat(paste0(rep("=", 80), collapse = ""), "\n")

@@ -1,0 +1,18 @@
+# Databases expected in the S3 archive.
+#   <bytes>  <min_tables>  <s3 key>
+#
+# Fails if a database is absent, the wrong size, unopenable, or has fewer tables
+# than recorded. min_tables=0 means known-empty: presence and openability are
+# still checked, but no table read is attempted.
+#
+# ahrq_3prd_national.duckdb is a 12 KB DuckDB header with no tables. The local
+# source (2025-11-18) is equally empty, so the archive is faithful; it is
+# recorded as 0 rather than excused, so it fails if it ever changes.
+#
+# Regenerate the skeleton with: scripts/ci/verify_s3_databases.sh --emit-manifest
+# then fill in min_tables. A database present in S3 but missing here is reported
+# as unchecked rather than silently ignored.
+25178112       1    DuckDB/ahrq_3prd.duckdb
+12288          0    DuckDB/ahrq_3prd_national.duckdb
+84313124864    377  DuckDB/nber_my_duckdb.duckdb
+21801218048    17   open_payments_data/open_payments_merged_2013_2024.duckdb

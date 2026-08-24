@@ -1,11 +1,13 @@
 # R/subspecialty_standardization.R
 # ABOG subspecialty standardization and recoding functions
 
-if (!require("dplyr", quietly = TRUE)) {
-  stop("dplyr package required for subspecialty standardization")
+# Declared in NAMESPACE via @importFrom; these guards fail loudly without
+# attaching, so the package cannot silently resolve verbs from the search path.
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  stop("dplyr package required for subspecialty standardization", call. = FALSE)
 }
-if (!require("rlang", quietly = TRUE)) {
-  stop("rlang package required for subspecialty standardization")
+if (!requireNamespace("rlang", quietly = TRUE)) {
+  stop("rlang package required for subspecialty standardization", call. = FALSE)
 }
 
 # Centralized ABOG subspecialty constants to prevent drift

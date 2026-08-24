@@ -2,7 +2,7 @@
 ║              GYNECOLOGIC WORKFORCE CLIFF — QUICK START               ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
-REPO: https://github.com/mufflyt/cliff  (private)
+REPO: https://github.com/mufflyt/cliff  (PUBLIC)
 ROOT: ~/cliff/
 
 ═══════════════════════════════════════════════════════════════════════
@@ -22,18 +22,22 @@ ROOT: ~/cliff/
 
 📄  VIEW THE MANUSCRIPT:
 
-   open ~/cliff/manuscript/WORKFORCE_CLIFF_ObGyn.html
-   open ~/cliff/manuscript/WORKFORCE_CLIFF_ObGyn.docx
+   open ~/cliff/manuscript/manuscript_WORKFORCE_CLIFF.docx   (main text)
+   open ~/cliff/manuscript/manuscript_WORKFORCE_CLIFF.html   (review copy)
+   open ~/cliff/manuscript/supplement_WORKFORCE_CLIFF.docx   (Appendices S1-S30)
 
 ═══════════════════════════════════════════════════════════════════════
 
-🎯  KEY FINDINGS (manuscript-confirmed):
+🎯  KEY FINDINGS:
 
-   FPMRS:  1,283 → 1,301  (+1.4%)   ratio 1.08  MARGINAL
-   GO:     1,352 → 1,278  (−5.5%)   ratio 0.73  INSUFFICIENT
-   MIGS:     767 →   835  (+8.9%)   ratio 1.61  ADEQUATE
+   Deliberately not restated here. Every number in the paper is computed at
+   render time from the single source of truth,
 
-   Validation: 94.4% agreement with state medical board records
+      data/workforce_projections_consolidated.csv
+
+   and a hardcoded copy in this file is how the repository ended up with two
+   manuscripts quoting different replacement ratios. Read the numbers from the
+   manuscript or the CSV, never from a summary file.
 
 ═══════════════════════════════════════════════════════════════════════
 

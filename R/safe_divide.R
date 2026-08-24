@@ -15,4 +15,3 @@
 if (!requireNamespace("mufflyaccess", quietly = TRUE))
   stop("Package 'mufflyaccess' is required. Install: renv::install(\"mufflyt/mufflyaccess\").",
        call. = FALSE)
-suppressPackageStartupMessages(library(mufflyaccess))

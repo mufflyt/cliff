@@ -69,3 +69,49 @@ test_that("wc_load_cohort still exposes an injectable path resolver", {
   # and the reasoning above stops holding.
   expect_true("here_fn" %in% names(formals(wc_load_cohort)))
 })
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# inst/extdata (#36)
+#
+# The installed package was 14.9 MB, of which 14.3 MB was a single file:
+# abog_provider_dataframe_8_17_2025_1948_only_workforce_directory.csv. The same
+# consumer audit that justified excluding data/ was never run for inst/extdata.
+# Running it found the file is read by nothing -- not R/, tests/, scripts/,
+# code/, manuscript/, or either Shiny app -- and that no cliff code calls
+# system.file() for its own extdata at all. (The one system.file("extdata", ...)
+# call in scripts/ targets package = "mufflyaccess", not cliff.)
+#
+# So it was repository material shipped to every installer. It now lives in
+# data/, which is already excluded from the build. These tests keep that true:
+# shipping a large file again, or adding a package-code read of extdata without
+# shipping it, fails here first.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+test_that("package code reads no inst/extdata file of its own", {
+  skip_if_no_repo()
+  root <- cliff_repo_root()
+  hits <- character(0)
+  for (f in .pkg_r_files(root)) {
+    for (ln in readLines(f, warn = FALSE)) {
+      if (grepl("^\\s*#", ln)) next
+      if (!grepl("system\\.file\\s*\\(", ln, perl = TRUE)) next
+      # a call naming another package is that package's problem, not ours
+      if (grepl('package\\s*=\\s*"(?!cliff")', ln, perl = TRUE)) next
+      hits <- c(hits, sprintf("%s: %s", basename(f), trimws(ln)))
+    }
+  }
+  # Adding one means shipping the file under inst/extdata and accepting the
+  # installed-size cost deliberately, not by accident.
+  expect_equal(sort(unique(hits)), character(0))
+})
+
+test_that("inst/ ships nothing large enough to dominate installed size", {
+  skip_if_no_repo()
+  inst <- file.path(cliff_repo_root(), "inst")
+  skip_if_not(dir.exists(inst), "no inst/ directory")
+  fs <- list.files(inst, recursive = TRUE, full.names = TRUE)
+  if (!length(fs)) succeed() else {
+    big <- fs[file.size(fs) > 1024^2]
+    expect_equal(basename(big), character(0))
+  }
+})

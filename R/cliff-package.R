@@ -20,6 +20,7 @@
 #' @importFrom dplyr filter group_by if_else left_join matches mutate n pull
 #' @importFrom dplyr rename rowwise select slice summarise transmute ungroup
 #' @importFrom dplyr sym tribble
+#' @importFrom rlang := .data
 #' @importFrom tidyr unnest
 #' @importFrom stats na.omit setNames
 #' @importFrom utils head

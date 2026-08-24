@@ -1,0 +1,95 @@
+# Reads the archived DuckDB databases out of S3 and proves they still open.
+#
+# Size alone does not prove a backup is usable, so this attaches each database
+# over httpfs and reads real rows from a table chosen at random (seeded by
+# day-of-year, so coverage rotates but a given day is reproducible).
+#
+# Reads are HTTP range requests. The 84 GB database is never downloaded; a full
+# pass moves a few tens of MB and takes ~3 minutes.
+name: Verify S3 databases
+
+on:
+  schedule:
+    - cron: '0 13 * * 1'      # Mondays 07:00 MDT / 06:00 MST
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/verify-s3-databases.yml'
+      - 'scripts/ci/verify_s3_databases.sh'
+      - 'scripts/ci/databases.manifest'
+
+concurrency:
+  group: verify-s3-databases
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write            # to file/append the failure issue
+
+jobs:
+  verify:
+    name: databases present and readable
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install DuckDB CLI
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 -o duckdb.zip \
+            https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-amd64.zip
+          unzip -q duckdb.zip
+          sudo mv duckdb /usr/local/bin/
+          duckdb --version
+
+      - name: Verify databases
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.S3_ARCHIVE_READ_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_ARCHIVE_READ_SECRET }}
+          AWS_REGION:            us-east-2
+          S3_ARCHIVE_BUCKET:     tmuffly-samsung-archive-163531628641
+        run: bash scripts/ci/verify_s3_databases.sh | tee "$RUNNER_TEMP/verify.log"
+
+      - name: Summarise
+        if: always()
+        run: |
+          {
+            echo "### S3 database verification"
+            echo '```'
+            cat "$RUNNER_TEMP/verify.log" 2>/dev/null || echo "(no output — the job failed before verification ran)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: File or update the failure issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let log = '(log unavailable)';
+            try { log = fs.readFileSync(process.env.RUNNER_TEMP + '/verify.log', 'utf8'); } catch (e) {}
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `S3 database verification failed on \`${context.sha.slice(0,7)}\`.`,
+              '', '```', log.slice(-4000), '```', '',
+              `[Full run log](${run})`,
+              '',
+              '<sub>Filed by `.github/workflows/verify-s3-databases.yml`. This issue is reused,',
+              'not reopened; close it once the run is green.</sub>',
+            ].join('\n');
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 's3-archive',
+            });
+            if (existing.data.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing.data[0].number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: 'S3 database verification is failing', body, labels: ['s3-archive'],
+              });
+            }
