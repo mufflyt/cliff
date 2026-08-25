@@ -16,3 +16,12 @@
 12288          0    DuckDB/ahrq_3prd_national.duckdb
 84313124864    377  DuckDB/nber_my_duckdb.duckdb
 21801218048    17   open_payments_data/open_payments_merged_2013_2024.duckdb
+#
+# Added after the drive migration completed: the drift check reported these
+# present in S3 but unlisted, so the weekly job was not verifying them.
+# _root/nber_my_duckdb.duckdb is a 12 KB header with no tables -- a different
+# file from DuckDB/nber_my_duckdb.duckdb (84 GB, 377 tables) despite the name.
+4681117696     1    _root/cms_revalidation.duckdb
+12288          0    _root/nber_my_duckdb.duckdb
+2319200256     6    nppes_historical_downloads/my_duckdb.duckdb
+21033398272    18   nppes_historical_downloads/nber/my_duckdb.duckdb
