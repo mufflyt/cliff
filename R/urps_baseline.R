@@ -24,6 +24,7 @@
 #' @param measure "board_certified_active" (default; the active-workforce baseline)
 #'   or "roster_snapshot".
 #' @return integer active count (e.g. 2023/national/with-urology = 1306).
+#' @export
 urps_baseline <- function(include_urology = FALSE, geography = "national",
                           year = 2023L, measure = "board_certified_active") {
   if (!requireNamespace("mufflyaccess", quietly = TRUE))
@@ -45,6 +46,7 @@ urps_baseline <- function(include_urology = FALSE, geography = "national",
 #'   `measure`, `geography`, `measure_year`, and `model_start_year` (the
 #'   projection start, DELIBERATELY separate from the measure year).
 #' @seealso [urps_baseline()], [project_urps_workforce()].
+#' @export
 load_workforce_baseline <- function(include_urology = FALSE, geography = "national",
                                     year = 2023L, measure = "board_certified_active") {
   n <- urps_baseline(include_urology = include_urology, geography = geography,
@@ -72,6 +74,7 @@ load_workforce_baseline <- function(include_urology = FALSE, geography = "nation
 #' @param entrants,retirements Annual counts entering/leaving the workforce.
 #' @return A data frame with `year` and `n_providers`.
 #' @seealso [load_workforce_baseline()], [urps_baseline()].
+#' @export
 project_urps_workforce <- function(baseline_year = 2023L, include_urology = FALSE,
                                    geography = "national",
                                    measure = "board_certified_active",

@@ -33,7 +33,8 @@ cat(sprintf("  active matched unique NPIs: %d\n", nrow(matched)))
 # hardcode the external-drive path (breaks on " 1" mount drift / other machines).
 `%||%` <- function(a,b) if (is.null(a)||length(a)==0L||!nzchar(a)) b else a
 nppes_db <- tryCatch({
-  suppressWarnings(suppressMessages(source(file.path(ROOT,"R","utils","load_paths.R"))))
+  if (!exists("wc_path", mode = "function")) source(file.path(ROOT, "R", "wc_path.R"))
+  if (!exists("load_paths", mode = "function")) source(file.path(ROOT, "R", "load_paths.R"))
   lp <- load_paths(); (lp$nppes_db_path %||% lp$nber_duckdb_main %||% "")
 }, error=function(e) "")
 if (!nzchar(nppes_db) || !file.exists(nppes_db)) {

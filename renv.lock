@@ -4543,6 +4543,50 @@
       "RemoteRef": "ci/comprehensive-pipeline",
       "RemoteSha": "d419c24998e33d39cf70790ea2fb2c47c0adb242"
     },
+    "mysterycall": {
+      "Package": "mysterycall",
+      "Version": "1.6.3.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "mysterycall",
+      "RemoteUsername": "mufflyt",
+      "RemoteRef": "main",
+      "RemoteSha": "996f38543ce32c504a7c6a778240f74ad5a77578"
+    },
+    "mysterymaps": {
+      "Package": "mysterymaps",
+      "Version": "0.2.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "mysterymaps",
+      "RemoteUsername": "mufflyt",
+      "RemoteRef": "main",
+      "RemoteSha": "6eb56e80aabc9d7daee992b5b8125c5d61b8f4c4"
+    },
+    "mysterynpi": {
+      "Package": "mysterynpi",
+      "Version": "0.12.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "mysterynpi",
+      "RemoteUsername": "mufflyt",
+      "RemoteRef": "master",
+      "RemoteSha": "3123ec59b0d056ed4d2e16242ce552b53e466e2a"
+    },
+    "mysteryroster": {
+      "Package": "mysteryroster",
+      "Version": "0.4.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "mysteryroster",
+      "RemoteUsername": "mufflyt",
+      "RemoteRef": "main",
+      "RemoteSha": "2c13cfe02ea165fae49bf4f22021986a1c2e8b84"
+    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-169",

@@ -30,7 +30,7 @@ test_that("[adversarial] every module-D boundary pull derives the resolution; no
     if (!has_boundary) next
     expect_false(any(grepl('resolution ?= ?"20m"', ls)), info = b)              # literal gone
     expect_true(any(grepl("resolution=CENSUS_CB_RESOLUTION", ls)), info = b)    # uses the SSOT
-    expect_true(any(grepl('source\\("R/conus\\.R"\\)', ls)), info = b)
+    expect_true(any(grepl('source\\(here::here\\("R", "conus\\.R"\\)\\)', ls)), info = b)
   }
 })
 

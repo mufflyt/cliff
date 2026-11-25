@@ -209,14 +209,21 @@ jobs:
             libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
             libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
 
+      - name: Runner image identifier
+        id: image
+        shell: bash
+        run: echo "os=${ImageOS:?ImageOS is not set on this runner}" >> "$GITHUB_OUTPUT"
+
       - name: Cache R library
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           # setup-r exports R_LIBS_USER; this is where install.packages() and
-          # remotes::install_deps() put everything.
+          # remotes::install_deps() put everything. The image is part of the key:
+          # ubuntu24 and ubuntu26 both report runner.os=Linux but have different
+          # system-library SONAMEs, so a restored compiled R library is not portable.
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-R${{ matrix.r }}-${{ hashFiles('DESCRIPTION', 'renv.lock') }}
-          restore-keys: ${{ runner.os }}-R${{ matrix.r }}-
+          key: ${{ runner.os }}-${{ steps.image.outputs.os }}-R${{ matrix.r }}-${{ hashFiles('DESCRIPTION', 'renv.lock') }}
+          restore-keys: ${{ runner.os }}-${{ steps.image.outputs.os }}-R${{ matrix.r }}-
 
       - name: Install dependencies (remotes + RSPM binaries, no pak)
         shell: Rscript {0}
@@ -225,7 +232,7 @@ jobs:
           # Suggests are installed too so the suite runs as fully as possible;
           # _R_CHECK_FORCE_SUGGESTS_=false keeps a single unavailable Suggest
           # from failing the whole check.
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
 
       - name: R CMD check
         shell: Rscript {0}
@@ -297,7 +304,7 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages(c("remotes", "testthat", "covr", "xml2"))
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
 
           # roxygen2 must match RoxygenNote exactly. Different roxygen versions
           # emit different .Rd for identical sources, so installing whatever is
@@ -405,9 +412,8 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages("remotes")
-          remotes::install_deps(
-            dependencies = c("Depends", "Imports", "LinkingTo"),
-            upgrade = "never")
+          Sys.setenv(CLIFF_DEP_MODE = "hard")
+          source("scripts/ci/install_deps.R")
 
       - name: Build and install the tarball
         run: |
@@ -481,7 +487,7 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages(c("remotes", "testthat", "shiny"))
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
 
       - run: R CMD INSTALL --with-keep.source .
 
@@ -548,7 +554,7 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages(c("remotes", "testthat", "rmarkdown"))
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
 
       - name: Install cliff
         run: R CMD INSTALL --with-keep.source .

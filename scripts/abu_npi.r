@@ -3,8 +3,8 @@
 #
 # Input : the ABU scrape produced by scripts/abu_scraper.r
 #         (default: the urogynecology / female-urology subset).
-# Method: parse each ABU "Name" with the MANDATED parser
-#         parse_physician_name_enhanced() (CLAUDE.md #3), then query the public
+# Method: parse each ABU "Name" with the governed mysterycall physician-name
+#         parser, then query the public
 #         NPPES registry (https://npiregistry.cms.hhs.gov/api/) with the same
 #         three-tier strategy the pipeline already uses (R/apply_ent_ssot_subspecialty.R):
 #           1. first + last + state   (exact)
@@ -22,20 +22,24 @@
 #   env   ABU_NPI_INPUT   override input csv (default: latest abu_urogynecology_*.csv)
 #         ABU_NPI_LIMIT   process only the first N rows (smoke test)
 #         ABU_NPI_RATE_S  seconds between API calls (default 0.5)
-# Deps  : httr, jsonlite  (name parser sources standalone).
+# Deps  : httr, jsonlite, mysterycall, mysterynpi.
 
 suppressWarnings(suppressMessages({
-  ok <- requireNamespace("httr", quietly = TRUE) && requireNamespace("jsonlite", quietly = TRUE)
+  ok <- requireNamespace("httr", quietly = TRUE) && requireNamespace("jsonlite", quietly = TRUE) &&
+        requireNamespace("mysterycall", quietly = TRUE) && requireNamespace("mysterynpi", quietly = TRUE)
 }))
-if (!ok) stop("abu_npi.r needs 'httr' and 'jsonlite'.", call. = FALSE)
+if (!ok) stop("abu_npi.r needs 'httr', 'jsonlite', 'mysterycall', and 'mysterynpi'.", call. = FALSE)
 
 `%||%` <- function(a, b) if (is.null(a) || length(a) == 0L || (length(a) == 1L && is.na(a))) b else a
 ROOT <- tryCatch(if (requireNamespace("here", quietly = TRUE)) here::here() else getwd(), error = function(e) getwd())
 
-# ---- mandated name parser (CLAUDE.md #3) ------------------------------------
-np <- file.path(ROOT, "R", "name_parsing_protocol_enhanced.R")
-if (!file.exists(np)) stop("Cannot find R/name_parsing_protocol_enhanced.R", call. = FALSE)
-suppressWarnings(suppressMessages(source(np)))
+# ---- governed physician-name parser (mysterycall) ---------------------------
+parse_abu_name <- function(nm) {
+  p <- tryCatch(mysterycall::mysterycall_parse_physician_name(nm, remove_titles = TRUE),
+                error = function(e) NULL)
+  if (is.null(p) || !nrow(p)) return(NULL)
+  mysterycall::mysterycall_validate_parsed_names(p[1, , drop = FALSE])
+}
 
 # ---- config -----------------------------------------------------------------
 OUTDIR   <- file.path(ROOT, "data", "abu_urology")
@@ -87,17 +91,33 @@ result_city_state <- function(r) {
 
 # choose the best urology result for one physician; return a one-row list or NULL
 choose_match <- function(results, pfirst, plast, pstate, pcity) {
-  urol <- Filter(function(r) any(result_tax(r)$codes %in% UROLOGY_TAX), results)
+  has_urology_taxonomy <- function(r) {
+    isTRUE(mysterynpi::taxonomy_allowlist_consistent(
+      paste(result_tax(r)$codes, collapse = "|"), UROLOGY_TAX
+    ))
+  }
+  urol <- Filter(has_urology_taxonomy, results)
   cand_pool <- if (length(urol) > 0L) urol else list()  # require urology taxonomy
   if (length(cand_pool) == 0L) return(NULL)
   score_one <- function(r) {
     b <- r$basic %||% list(); tx <- result_tax(r); cs <- result_city_state(r)
-    last_ok  <- norm(b$last_name) == norm(plast) && nzchar(norm(plast))
-    first_ok <- norm(b$first_name) == norm(pfirst) && nzchar(norm(pfirst))
-    first_ini<- nzchar(norm(pfirst)) && substr(norm(b$first_name), 1, 1) == substr(norm(pfirst), 1, 1)
-    state_ok <- nzchar(norm(pstate)) && norm(cs$state) == norm(pstate)
-    city_ok  <- nzchar(norm(pcity)) && norm(cs$city) == norm(pcity)
-    fpmrs    <- FPMRS_TAX %in% tx$codes
+    evidence <- mysterynpi::npi_match_evidence(
+      roster_given = pfirst, roster_surname = plast,
+      candidate_given = b$first_name %||% NA_character_,
+      candidate_surname = b$last_name %||% NA_character_,
+      roster_state = pstate, candidate_state = cs$state,
+      roster_city = pcity, candidate_city = cs$city
+    )
+    last_ok  <- evidence$surname_verdict[1] == "corroborates"
+    first_ok <- evidence$given_verdict[1] == "corroborates" &&
+      evidence$given_reason[1] == "exact"
+    first_ini <- evidence$given_verdict[1] == "corroborates" &&
+      evidence$given_reason[1] == "initial"
+    state_ok <- evidence$state_verdict[1] == "corroborates"
+    city_ok  <- evidence$city_verdict[1] == "corroborates"
+    fpmrs    <- isTRUE(mysterynpi::taxonomy_allowlist_consistent(
+      paste(tx$codes, collapse = "|"), FPMRS_TAX
+    ))
     s <- 0
     if (last_ok)  s <- s + 3
     if (first_ok) s <- s + 3 else if (first_ini) s <- s + 1
@@ -105,7 +125,8 @@ choose_match <- function(results, pfirst, plast, pstate, pcity) {
     if (city_ok)  s <- s + 1
     if (fpmrs)    s <- s + 1
     list(r = r, score = s, last_ok = last_ok, first_ok = first_ok, first_ini = first_ini,
-         state_ok = state_ok, city_ok = city_ok, fpmrs = fpmrs, tx = tx, cs = cs, b = b)
+         state_ok = state_ok, city_ok = city_ok, fpmrs = fpmrs, tx = tx, cs = cs, b = b,
+         evidence = evidence)
   }
   scored <- lapply(cand_pool, score_one)
   scored <- scored[order(-vapply(scored, function(x) x$score, numeric(1)))]
@@ -120,10 +141,12 @@ choose_match <- function(results, pfirst, plast, pstate, pcity) {
 grade <- function(tier, m) {
   if (is.null(m)) return("unmatched")
   if (m$ambiguous) return("ambiguous")
-  if (tier == 1 && m$state_ok && (m$first_ok || m$first_ini) && m$last_ok) return("high")
-  if (m$first_ok && m$last_ok) return("medium")
-  if (m$last_ok && (m$state_ok || m$city_ok)) return("medium")
-  "low"
+  as.character(mysterynpi::grade_npi_match_confidence(
+    m$evidence,
+    query_tier = as.integer(tier),
+    ambiguous = m$ambiguous,
+    matched = TRUE
+  ))
 }
 
 # ---- run --------------------------------------------------------------------
@@ -137,7 +160,7 @@ message(sprintf("[abu_npi] input: %s (%d rows)  rate=%.2fs", input, nrow(abu), R
 out <- vector("list", nrow(abu))
 for (i in seq_len(nrow(abu))) {
   nm <- abu$Name[i]; st <- abu$State[i]; cy <- abu$City[i]
-  p <- tryCatch(parse_physician_name_enhanced(nm), error = function(e) NULL)
+  p <- tryCatch(parse_abu_name(nm), error = function(e) NULL)
   pf <- if (!is.null(p)) as.character(p$first_name[1]) else NA_character_
   pl <- if (!is.null(p)) as.character(p$last_name[1])  else NA_character_
   is_initial <- grepl("^[A-Za-z]\\.?$", trimws(pf %||% ""))
@@ -196,7 +219,7 @@ conf_tab <- table(factor(res$match_confidence,
                          levels = c("high", "medium", "low", "ambiguous", "unmatched")))
 receipt <- list(
   input = input, api = API_BASE, method = "three-tier NPPES query + urology-taxonomy verification",
-  name_parser = "parse_physician_name_enhanced() (CLAUDE.md #3)",
+  name_parser = "mysterycall::mysterycall_parse_physician_name()",
   urology_taxonomy_codes = UROLOGY_TAX, run_utc = format(as.POSIXlt(Sys.time(), tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ"),
   n_input = nrow(res), n_with_npi = sum(!is.na(res$npi)),
   n_fpmrs_taxonomy = sum(isTRUE(res$has_fpmrs_taxonomy) | res$has_fpmrs_taxonomy %in% TRUE, na.rm = TRUE),

@@ -252,13 +252,10 @@ load_freida_programs <- function(program_type = c("residency", "fellowship"),
 # MATCHING HELPER FUNCTIONS
 # =============================================================================
 
-# Generic medical terms that don't help disambiguate programs in dense markets
-.GENERIC_ORG_WORDS <- c(
-  "HOSPITAL", "MEDICAL", "CENTER", "UNIVERSITY", "HEALTH",
-  "SYSTEM", "NEW", "YORK", "CITY", "DEPARTMENT", "OBSTETRICS",
-  "GYNECOLOGY", "PROGRAM", "CLINIC", "HEALTHCARE", "MEDICINE",
-  "SCHOOL", "COLLEGE", "INSTITUTE"
-)
+# Generic medical terms that don't help disambiguate programs in dense markets.
+# The vocabulary is owned by mysterycall so cliff does not drift from the
+# canonical org-token scorer.
+.GENERIC_ORG_WORDS <- mysterycall::MYSTERYCALL_GENERIC_ORG_TOKENS
 
 
 #' Normalize Organization Name for Matching
@@ -272,12 +269,18 @@ load_freida_programs <- function(program_type = c("residency", "fellowship"),
 #' @keywords internal
 normalize_org_name <- function(name) {
   if (is.na(name) || !nzchar(trimws(name))) return("")
-  name <- toupper(name)
-  name <- gsub("[^A-Z0-9 ]", " ", name)
-  # Remove ONLY function words, NOT generic medical terms
-  name <- gsub("\\b(THE|OF|AT|AND|FOR|IN|A|AN)\\b", "", name)
-  name <- gsub("\\s+", " ", trimws(name))
-  name
+  # Governed org-name normalization lives in mysterycall; the drop_suffixes
+  # vector preserves cliff's function-word removal (THE/OF/AT/AND/FOR/IN/A/AN)
+  # while also dropping common legal-entity suffixes that do not disambiguate
+  # training programs. expand_ampersand=FALSE keeps cliff's prior tokenization
+  # (& became a separator, not AND).
+  mysterycall::mysterycall_normalize_org_name(
+    name,
+    drop_suffixes = c("THE", "OF", "AT", "AND", "FOR", "IN", "A", "AN",
+                      "LLC", "PLLC", "PC", "PA", "LP", "LLP", "INC", "CORP",
+                      "CORPORATION", "CO", "LTD"),
+    expand_ampersand = FALSE
+  )
 }
 
 
@@ -288,9 +291,9 @@ normalize_org_name <- function(name) {
 #' @keywords internal
 .count_meaningful_tokens <- function(s) {
   if (is.na(s) || s == "") return(0L)
-  tokens <- unique(strsplit(s, " ")[[1]])
-  tokens <- tokens[nchar(tokens) > 0]
-  sum(!(tokens %in% .GENERIC_ORG_WORDS))
+  as.integer(mysterycall::mysterycall_count_meaningful_org_tokens(
+    s, generic_tokens = .GENERIC_ORG_WORDS
+  ))
 }
 
 
@@ -304,19 +307,11 @@ normalize_org_name <- function(name) {
 #' @return Numeric in [0, 1]
 #' @keywords internal
 weighted_token_similarity <- function(a, b) {
-  if (is.na(a) || is.na(b) || a == "" || b == "") return(0)
-  words_a <- unique(strsplit(a, " ")[[1]])
-  words_b <- unique(strsplit(b, " ")[[1]])
-  words_a <- words_a[nchar(words_a) > 0]
-  words_b <- words_b[nchar(words_b) > 0]
-  if (length(words_a) == 0 || length(words_b) == 0) return(0)
-
-  shared <- intersect(words_a, words_b)
-  if (length(shared) == 0) return(0)
-  weight <- ifelse(shared %in% .GENERIC_ORG_WORDS, 0.25, 1.0)
-  weighted_overlap <- sum(weight)
-  total <- length(union(words_a, words_b))
-  weighted_overlap / total
+  mysterycall::mysterycall_weighted_token_similarity(
+    a, b,
+    generic_tokens = .GENERIC_ORG_WORDS,
+    generic_weight = 0.25
+  )
 }
 
 
@@ -330,48 +325,13 @@ weighted_token_similarity <- function(a, b) {
 #'   street_tokens
 #' @keywords internal
 normalize_street_address <- function(addr) {
-  empty <- list(normalized = "", street_number = "", street_tokens = character(0))
+  empty <- list(normalized = "", street_number = "", street_tokens = character(0),
+                is_po_box = NA, has_num = FALSE)
   if (is.na(addr) || !nzchar(trimws(addr))) return(empty)
-
-  addr <- toupper(addr)
-  # Remove suite/apt/floor designations
-  addr <- gsub("\\b(STE|SUITE|APT|APARTMENT|FLOOR|FL|RM|ROOM|UNIT|DEPT|DEPARTMENT)\\b[[:space:]#]*[A-Z0-9]*", "", addr)
-  # Remove PO Box patterns
-  addr <- gsub("\\bP\\.?\\s*O\\.?\\s*BOX\\s+[0-9]+", "", addr)
-  # Normalize common abbreviations
-  addr <- gsub("\\bST\\b", "STREET", addr)
-  addr <- gsub("\\bAVE\\b", "AVENUE", addr)
-  addr <- gsub("\\bBLVD\\b", "BOULEVARD", addr)
-  addr <- gsub("\\bDR\\b", "DRIVE", addr)
-  addr <- gsub("\\bRD\\b", "ROAD", addr)
-  addr <- gsub("\\bPKWY\\b", "PARKWAY", addr)
-  addr <- gsub("\\bLN\\b", "LANE", addr)
-  addr <- gsub("\\bCT\\b", "COURT", addr)
-  addr <- gsub("\\bPL\\b", "PLACE", addr)
-  # Strip non-alphanumeric
-  addr <- gsub("[^A-Z0-9 ]", " ", addr)
-  addr <- gsub("\\s+", " ", trimws(addr))
-
-  tokens <- strsplit(addr, " ")[[1]]
-  tokens <- tokens[nchar(tokens) > 0]
-
-  # Extract street number (first token that is numeric)
-  street_number <- ""
-  street_tokens <- character(0)
-  if (length(tokens) > 0) {
-    if (grepl("^[0-9]+$", tokens[1])) {
-      street_number <- tokens[1]
-      street_tokens <- tokens[-1]
-    } else {
-      street_tokens <- tokens
-    }
-  }
-
-  list(
-    normalized     = addr,
-    street_number  = street_number,
-    street_tokens  = street_tokens
-  )
+  key <- mysterycall::mysterycall_street_address_key(addr)
+  if (is.na(key$normalized)) key$normalized <- ""
+  if (is.na(key$street_number)) key$street_number <- ""
+  key
 }
 
 
@@ -385,14 +345,7 @@ normalize_street_address <- function(addr) {
 #' @return Logical
 #' @keywords internal
 match_street_address <- function(phys_addr, prog_addr) {
-  # Both must have a street number
-
-  if (phys_addr$street_number == "" || prog_addr$street_number == "") return(FALSE)
-  # Street numbers must match
-  if (phys_addr$street_number != prog_addr$street_number) return(FALSE)
-  # At least one key street token must match
-  shared <- intersect(phys_addr$street_tokens, prog_addr$street_tokens)
-  length(shared) >= 1
+  mysterycall::mysterycall_street_addresses_agree(phys_addr, prog_addr)
 }
 
 
@@ -531,40 +484,22 @@ find_nearest_program <- function(physician_lat, physician_lon, programs,
       institution_norms <- sapply(programs_with_dist$institution,
                                    normalize_org_name, USE.NAMES = FALSE)
 
-      # Rule A: Substring match — only "definitive" if either:
-      #   (a) exact normalized match, OR
-      #   (b) substring match AND both sides have >= 2 meaningful non-generic tokens
-      has_substring <- mapply(function(h, i) {
-        h_ok <- nchar(h) >= 3
-        i_ok <- nchar(i) >= 3
-        h_match <- h_ok && (grepl(h, org_norm, fixed = TRUE) ||
-                            grepl(org_norm, h, fixed = TRUE))
-        i_match <- i_ok && (grepl(i, org_norm, fixed = TRUE) ||
-                            grepl(org_norm, i, fixed = TRUE))
-        h_match || i_match
-      }, hospital_norms, institution_norms)
+      # Rule A: exact or meaningful-substring org agreement. mysterycall owns
+      # the normalized substring rule and the 2+ meaningful-token guard.
+      qualified_idx <- which(
+        mysterycall::mysterycall_org_names_agree(
+          org_norm, hospital_norms,
+          min_meaningful_tokens = 2L,
+          generic_tokens = .GENERIC_ORG_WORDS
+        ) |
+        mysterycall::mysterycall_org_names_agree(
+          org_norm, institution_norms,
+          min_meaningful_tokens = 2L,
+          generic_tokens = .GENERIC_ORG_WORDS
+        )
+      )
 
-      substring_idx <- which(has_substring)
-
-      if (length(substring_idx) > 0) {
-        # Check quality of each substring match
-        qualified_idx <- integer(0)
-        for (idx in substring_idx) {
-          h <- hospital_norms[idx]
-          i <- institution_norms[idx]
-          # "Definitive" if exact match OR matched phrase has 2+ meaningful tokens
-          is_exact <- (org_norm == h) || (org_norm == i)
-          # Determine which side matched
-          matched_str <- if (nchar(h) > 0 &&
-                            (grepl(h, org_norm, fixed = TRUE) ||
-                             grepl(org_norm, h, fixed = TRUE))) h else i
-          meaningful_in_match <- .count_meaningful_tokens(matched_str)
-
-          if (is_exact || (min(meaningful_in_match, org_meaningful) >= 2)) {
-            qualified_idx <- c(qualified_idx, idx)
-          }
-        }
-
+      if (length(qualified_idx) > 0) {
         if (length(qualified_idx) == 1) {
           match_row <- programs_with_dist[qualified_idx, ]
           return(build_result(match_row, confidence = 0.95,

@@ -65,8 +65,9 @@ tot <- list(
   seconds  = round(elapsed, 1)
 )
 
-cat(sprintf("\nFILES %d | PASS %d | FAIL %d | SKIP %d | WARN %d | %.0fs\n",
-            tot$files, tot$passed, tot$failed, tot$skipped, tot$warnings, tot$seconds))
+cat(sprintf("\nFILES %d | PASS %d | FAIL %d | ERROR %d | SKIP %d | WARN %d | %.0fs\n",
+            tot$files, tot$passed, tot$failed, tot$errors, tot$skipped,
+            tot$warnings, tot$seconds))
 
 # ---- skip reasons, normalised -------------------------------------------
 skip_reasons <- character(0)
@@ -88,12 +89,18 @@ cat("\n-- skip reasons --\n")
 if (!length(skip_tab)) cat("  (none)\n")
 for (n in names(skip_tab)) cat(sprintf("  %3d  %s\n", skip_tab[[n]], n))
 
-# ---- failures, itemised --------------------------------------------------
+# ---- failures and errors, itemised ---------------------------------------
 if (tot$failed > 0) {
   cat("\n-- failures --\n")
   bad <- d[d$failed > 0, c("file", "test", "failed")]
   for (i in seq_len(nrow(bad)))
     cat(sprintf("  %s :: %s (%d)\n", bad$file[i], bad$test[i], bad$failed[i]))
+}
+if (tot$errors > 0) {
+  cat("\n-- errors --\n")
+  bad <- d[d$error, c("file", "test")]
+  for (i in seq_len(nrow(bad)))
+    cat(sprintf("  %s :: %s\n", bad$file[i], bad$test[i]))
 }
 
 # ---- machine-readable accounting ----------------------------------------
@@ -109,6 +116,7 @@ writeLines(c(
   sprintf('  "files": %d,', tot$files),
   sprintf('  "passed": %d,', tot$passed),
   sprintf('  "failed": %d,', tot$failed),
+  sprintf('  "errors": %d,', tot$errors),
   sprintf('  "warnings": %d,', tot$warnings),
   sprintf('  "skipped": %d,', tot$skipped),
   sprintf('  "seconds": %.1f,', tot$seconds),
@@ -156,15 +164,16 @@ if (write_baseline) {
   cat("\nnote: no skip baseline at", baseline, "- run with --write-baseline\n")
 }
 
-if (tot$failed > 0) {
-  cat("\nSUITE: FAIL (", tot$failed, " failing assertions )\n")
+if (tot$failed > 0 || tot$errors > 0) {
+  cat("\nSUITE: FAIL (", tot$failed, " failing assertions, ",
+      tot$errors, " errors )\n")
   quit(status = 1)
 }
 
 # Written LAST, and only on the success path.
 writeLines(c(
   format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
-  sprintf("files=%d passed=%d failed=%d skipped=%d seconds=%.1f",
-          tot$files, tot$passed, tot$failed, tot$skipped, tot$seconds)
+  sprintf("files=%d passed=%d failed=%d errors=%d skipped=%d seconds=%.1f",
+          tot$files, tot$passed, tot$failed, tot$errors, tot$skipped, tot$seconds)
 ), sentinel)
 cat("\nSUITE: OK — sentinel ->", sentinel, "\n")

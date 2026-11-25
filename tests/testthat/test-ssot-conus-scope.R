@@ -62,11 +62,11 @@ test_that("[adversarial] no Module-D script re-hardcodes the FIPS list or the bb
     # ranges like "65-66" in comments are not false positives)
     is_box_lit <- grepl('(?<![0-9])-125|(?<![0-9])-66', ls, perl = TRUE)
     if (any(is_box_lit & !grepl("CONUS_LON|CONUS_LAT|in_conus_bbox|R/conus", ls))) offenders_box <- c(offenders_box, b)
-    if (!any(grepl('source\\("R/conus\\.R"\\)', ls))) missing_src <- c(missing_src, b)
+    if (!any(grepl('source\\(here::here\\("R", "conus\\.R"\\)\\)', ls))) missing_src <- c(missing_src, b)
   }
   expect_equal(offenders_fips, character(0), info = paste("FIPS literal still in:", paste(offenders_fips, collapse="; ")))
   expect_equal(offenders_box,  character(0), info = paste("bbox literal still in:", paste(offenders_box, collapse="; ")))
-  expect_equal(missing_src,    character(0), info = paste("missing source(R/conus.R):", paste(missing_src, collapse="; ")))
+  expect_equal(missing_src,    character(0), info = paste("missing canonical here::here() source of R/conus.R:", paste(missing_src, collapse="; ")))
 })
 
 test_that("[consistency] every Module-D script references the canonical helpers", {

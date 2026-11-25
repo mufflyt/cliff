@@ -13,11 +13,11 @@ table dynamically. Run them in order:
 |---|--------|------|-----------------------|
 | 1 | `abu_scraper.r` | scrape ABU public portal → full registry + urogyn subset | paginate `?page=N`; ~12.5k urologists, 370 URPS |
 | 2 | `abu_npi.r` | NPI-match the urogyn subset (NPPES 3-tier + urology taxonomy) | ~96% |
-| 3 | `abu_npi_recover.r` | recover unmatched | humaniformat (strip credential first); accepts unique name match even if NPPES taxonomy isn't urology (Firoozi = 174400000X) |
+| 3 | `abu_npi_recover.r` | recover unmatched | mysterycall governed name parser (strip credential first); accepts unique name match even if NPPES taxonomy isn't urology (Firoozi = 174400000X) |
 | 4 | `abu_urps_finalize.r` | drop retired + attach NPPES gender | needs the NPPES DuckDB (via `load_paths()` → `nppes_db_path`); picks latest `npi_*` gender table |
 | 5 | `abu_fetch_addresses.r` | NPPES LOCATION addresses for net-new | ~2 min |
 | 6 | `abu_geocode_coverage.r` | Census batch geocode + 5 km isochrone coverage | ~87% geocode |
-| 7 | `abu_geocode_recover.r` | recover ungeocoded | tidygeocoder cascade (`drop=FALSE` — earlier bug); arcgis got the rest → 100% |
+| 7 | `abu_geocode_recover.r` | recover ungeocoded | `mysterycall_geocode_address(fallback=TRUE)` Census + Nominatim/ArcGIS fallback; arcgis got the rest → 100% |
 | 8 | `abog_fpmrs_geocode.r` | geocode the ABOG FPMRS cohort (union target) | NPPES addresses + Census/arcgis; ~9 min |
 | 9 | `abu_footprint_expansion.r` | proximity: how many net-new expand the footprint | 78/268 at 5 km |
 | 10 | `fpmrs_overlap_sensitivity.r` | access sensitivity (baseline vs augmented) | **30/60-min local** (default `FPMRS_BANDS=30,60`); incremental writes; **120/180 need EC2** (836 MB @180 OOMs a 16 GB box) |

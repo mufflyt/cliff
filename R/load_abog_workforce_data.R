@@ -329,9 +329,9 @@ load_abog_workforce_data <- function(
     n_before_state_cleaning <- nrow(abog_data)
 
     # Auto-correct Puerto Rico typos
-    # BUG FIX #7 (2026-01-28): Use normalize_string() instead of toupper(trimws())
+    # BUG FIX #7 (2026-01-28): Use mysterynpi::normalize_string() instead of toupper(trimws())
     pr_typos <- c("PU", "UM")
-    pr_mask <- normalize_string(abog_data$state) %in% pr_typos
+    pr_mask <- mysterynpi::normalize_string(abog_data$state) %in% pr_typos
     n_pr_fixed <- sum(pr_mask, na.rm = TRUE)
 
     if (n_pr_fixed > 0) {
@@ -350,8 +350,8 @@ load_abog_workforce_data <- function(
       "PRINCE EDWARD ISLAND", "YUKON", "NORTHWEST TERRITORIES", "NUNAVUT"
     )
 
-    # BUG FIX #7 (2026-01-28): Use normalize_string() instead of toupper(trimws())
-    canadian_mask <- normalize_string(abog_data$state) %in% canadian_provinces
+    # BUG FIX #7 (2026-01-28): Use mysterynpi::normalize_string() instead of toupper(trimws())
+    canadian_mask <- mysterynpi::normalize_string(abog_data$state) %in% canadian_provinces
     n_canadian <- sum(canadian_mask, na.rm = TRUE)
 
     if (n_canadian > 0) {
@@ -364,9 +364,9 @@ load_abog_workforce_data <- function(
     }
 
     # Exclude international state codes
-    # BUG FIX #7 (2026-01-28): Use normalize_string() instead of toupper(trimws())
+    # BUG FIX #7 (2026-01-28): Use mysterynpi::normalize_string() instead of toupper(trimws())
     international_codes <- c("HR", "OT")  # HR = Haryana India, OT = Otago NZ
-    intl_mask <- normalize_string(abog_data$state) %in% international_codes
+    intl_mask <- mysterynpi::normalize_string(abog_data$state) %in% international_codes
     n_international <- sum(intl_mask, na.rm = TRUE)
 
     if (n_international > 0) {
@@ -385,15 +385,15 @@ load_abog_workforce_data <- function(
       "AA", "AE", "AP"  # Military APO/FPO
     )
 
-    # BUG FIX #7 (2026-01-28): Use normalize_string() instead of toupper(trimws())
+    # BUG FIX #7 (2026-01-28): Use mysterynpi::normalize_string() instead of toupper(trimws())
     invalid_mask <- !is.na(abog_data$state) &
-                    !normalize_string(abog_data$state) %in% valid_us_states
+                    !mysterynpi::normalize_string(abog_data$state) %in% valid_us_states
 
     n_invalid <- sum(invalid_mask, na.rm = TRUE)
 
     if (n_invalid > 0) {
-      # BUG FIX #7 (2026-01-28): Use normalize_string() instead of toupper(trimws())
-      invalid_states <- unique(normalize_string(abog_data$state[invalid_mask]))
+      # BUG FIX #7 (2026-01-28): Use mysterynpi::normalize_string() instead of toupper(trimws())
+      invalid_states <- unique(mysterynpi::normalize_string(abog_data$state[invalid_mask]))
 
       stop(
         "\n================================================================================\n",

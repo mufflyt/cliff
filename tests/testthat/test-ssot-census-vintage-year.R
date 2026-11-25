@@ -28,7 +28,7 @@ test_that("[adversarial] all module-D scripts derive the vintage; no bare year=2
     ls <- readLines(here::here("scripts", b), warn = FALSE)
     expect_false(any(grepl("year ?= ?2023", ls)), info = b)             # literal gone
     expect_true(any(grepl("year=CENSUS_VINTAGE_YEAR", ls)), info = b)   # uses the SSOT
-    expect_true(any(grepl('source\\("R/conus\\.R"\\)', ls)), info = b)  # sources the module
+    expect_true(any(grepl('source\\(here::here\\("R", "conus\\.R"\\)\\)', ls)), info = b)  # sources the module
   }
 })
 

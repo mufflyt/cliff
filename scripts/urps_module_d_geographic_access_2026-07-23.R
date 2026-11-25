@@ -28,13 +28,14 @@
 #          data/urps_module_d_density_by_state_2026-07-23.csv
 suppressPackageStartupMessages({
   library(data.table); library(tidycensus); library(tigris); library(sf); library(dplyr)
+  library(mysterymaps)
 })
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 sf::sf_use_s2(TRUE)
-source("R/conus.R")    # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
-source("R/units.R")    # SSOT: RATE_PER_100K (per-100k rate base)
-source("R/in_model_baseline.R")  # SSOT: inmodel() active-baseline cohort filter
-source("R/access_surface.R")     # read_access_surface() / county_drive_time_access()
+source(here::here("R", "conus.R"))    # SSOT: CONUS_EXCLUDE_FIPS / is_conus_fips() / in_conus_bbox()  (AK, HI, PR, territories)
+source(here::here("R", "units.R"))    # SSOT: RATE_PER_100K (per-100k rate base)
+source(here::here("R", "in_model_baseline.R"))  # SSOT: inmodel() active-baseline cohort filter
+source(here::here("R", "access_surface.R"))     # read_access_surface() / county_drive_time_access()
 
 ## ── 0. REQUIRE the validated drive-time access surface ────────────────────────
 # Loaded first: this is a precondition, not a refinement. No surface -> no access
@@ -42,7 +43,7 @@ source("R/access_surface.R")     # read_access_surface() / county_drive_time_acc
 surface_forced <- tolower(Sys.getenv("CLIFF_USE_ACCESS_SURFACE", "")) %in%
   c("force", "1", "true", "yes", "on")
 surface_path <- if (file.exists("R/wc_path.R")) {
-  source("R/wc_path.R"); tryCatch(wc_path("access_surface"), error = function(e) NULL)
+  source(here::here("R", "wc_path.R")); tryCatch(wc_path("access_surface"), error = function(e) NULL)
 } else NULL
 surface <- read_access_surface(surface_path)   # fails loudly on a malformed file
 if (!access_surface_usable(surface)) {
@@ -115,7 +116,9 @@ cty <- st_transform(cty, 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]   # SSOT (R/conus.R); drops AK/HI + territories = 48 states + DC
 cty <- merge(cty, w65, by="GEOID", all.x=TRUE)
 cty$women_65plus[is.na(cty$women_65plus)] <- 0
-contain <- lengths(st_intersects(cty, uro_sf))   # urogynecologists located in the county
+cty$id <- cty$GEOID   # unique join key required by mysterymaps_count_points_in_polygons()
+cty <- mysterymaps_count_points_in_polygons(cty, uro_sf, count_col = "n_urogyn_in_county")
+contain <- cty$n_urogyn_in_county   # urogynecologists located in the county
 
 ## ── 4. county drive-time access table ─────────────────────────────────────────
 out <- data.table(

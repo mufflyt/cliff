@@ -8,8 +8,8 @@
 # Headcount overstates capacity because older urogynecologists operate less.
 suppressPackageStartupMessages({library(data.table)})
 source("shiny_urps_scenarios/urps_model_data.R")  # URPS_AGES, BAND_EV/PY, BAND_LABELS
-source("R/demand_denominator.R")                  # SSOT: DEMAND_INDEX_BASE_YEAR (reporting index base)
-source("R/units.R")                               # SSOT: RATE_PER_100K
+source(here::here("R", "demand_denominator.R"))                  # SSOT: DEMAND_INDEX_BASE_YEAR (reporting index base)
+source(here::here("R", "units.R"))                               # SSOT: RATE_PER_100K
 
 ## ── age-productivity weight w(age), from Module A step 1 (clamped at ends) ───
 apc <- fread("data/urps_module_a_age_productivity_2026-07-23.csv")   # age, rel_to_peak

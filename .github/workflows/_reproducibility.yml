@@ -77,7 +77,7 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages("remotes")
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
       - run: R CMD INSTALL --with-keep.source .
 
       - name: Regenerate the SSOT and compare
@@ -128,7 +128,7 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages("remotes")
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
       - run: R CMD INSTALL --with-keep.source .
 
       - name: Re-run clean-checkout generators
