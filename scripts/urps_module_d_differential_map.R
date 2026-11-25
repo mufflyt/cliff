@@ -8,7 +8,7 @@
 # differential_minutes column.
 suppressPackageStartupMessages({ library(data.table); library(sf); library(tigris); library(ggplot2) })
 options(tigris_use_cache=TRUE, tigris_class="sf"); sf::sf_use_s2(TRUE)
-source("R/conus.R")   # SSOT: is_conus_fips()
+source(here::here("R", "conus.R"))   # SSOT: is_conus_fips()
 
 dd  <- fread("data/urps_module_d_differential_distance_2026-07-23.csv", colClasses=list(character="GEOID"))
 cty <- st_transform(counties(cb=TRUE, resolution=CENSUS_CB_RESOLUTION, year=CENSUS_VINTAGE_YEAR, progress_bar=FALSE), 4326)

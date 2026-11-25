@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
   library(mysterymaps)
 })
 options(tigris_use_cache = TRUE, tigris_class = "sf")
-source("R/conus.R")   # SSOT: is_conus_fips()
+source(here::here("R", "conus.R"))   # SSOT: is_conus_fips()
 
 acc <- fread("data/urps_module_d_county_access_2026-07-23.csv",
              colClasses=list(character=c("GEOID","state")))

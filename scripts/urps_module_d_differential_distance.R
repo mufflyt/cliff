@@ -33,7 +33,7 @@
 # Run:  URPS_UROGYN_DRIVETIME=... URPS_OBGYN_DRIVETIME=... \
 #         Rscript scripts/urps_module_d_differential_distance.R
 suppressPackageStartupMessages({ library(data.table) })
-source("R/conus.R")   # SSOT: is_conus_fips() (CONUS GEOID filter)
+source(here::here("R", "conus.R"))   # SSOT: is_conus_fips() (CONUS GEOID filter)
 
 ## ── drive-time-to-nearest reader (county GEOID -> minutes) ────────────────────
 read_drivetime_to_nearest <- function(f, label) {
