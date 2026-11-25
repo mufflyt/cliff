@@ -709,6 +709,24 @@ load_training_crosswalk <- function(program_type = c("residency", "fellowship"),
 }
 
 
+# Keep only crosswalk rows explicitly approved for automated assignment.
+approved_training_crosswalk <- function(crosswalk) {
+  if (is.null(crosswalk)) return(NULL)
+  if (!"approved_for_ground_truth" %in% names(crosswalk)) {
+    return(crosswalk[0, , drop = FALSE])
+  }
+  approved <- crosswalk$approved_for_ground_truth
+  is_approved <- if (is.logical(approved)) {
+    !is.na(approved) & approved
+  } else if (is.numeric(approved)) {
+    !is.na(approved) & approved == 1
+  } else {
+    tolower(trimws(as.character(approved))) %in% c("true", "t", "1", "yes", "y")
+  }
+  crosswalk[is_approved, , drop = FALSE]
+}
+
+
 # =============================================================================
 # ABOG NEIGHBOR MAJORITY VOTE INFERENCE
 # =============================================================================
@@ -852,6 +870,7 @@ infer_from_abog_neighbors <- function(npis, db_path, crosswalk, programs,
              "Merged_Residency" AS merged_residency
       FROM goba_dox_hg_medical_school
       WHERE "Merged_Residency" IS NOT NULL
+        AND LENGTH(TRIM(CAST("Merged_Residency" AS VARCHAR))) > 0
     '),
     error = function(e) {
       warning("ABOG neighbor vote: cannot query goba_dox_hg_medical_school: ", e$message)
@@ -929,7 +948,7 @@ infer_from_abog_neighbors <- function(npis, db_path, crosswalk, programs,
   }
   abog_full <- abog_full %>% dplyr::arrange(abog_id)
 
-  n_known <- sum(!is.na(abog_full$merged_residency))
+  n_known <- sum(!is.na(abog_full$merged_residency) & nzchar(trimws(abog_full$merged_residency)))
   cat(sprintf("  ABOG data: %s/%s have known residency from goba (%.1f%%)\n",
               format(n_known, big.mark = ","),
               format(nrow(abog_full), big.mark = ","),
@@ -978,7 +997,7 @@ infer_from_abog_neighbors <- function(npis, db_path, crosswalk, programs,
 
   # Already-known (from goba directly) — skip these, they should be GT-resolved
   target_unknown <- target_with_abog %>%
-    dplyr::filter(is.na(merged_residency))
+    dplyr::filter(is.na(merged_residency) | !nzchar(trimws(merged_residency)))
 
   cat(sprintf("  ABOG neighbor vote: %d target NPIs in ABOG, %d without known residency, %d already known\n",
               nrow(target_with_abog), nrow(target_unknown),
@@ -991,7 +1010,7 @@ infer_from_abog_neighbors <- function(npis, db_path, crosswalk, programs,
 
   # Known residencies for neighbor lookup
   known <- abog_full %>%
-    dplyr::filter(!is.na(merged_residency))
+    dplyr::filter(!is.na(merged_residency), nzchar(trimws(merged_residency)))
 
   # --- Step 7: Majority vote for each unknown NPI ---
   vote_results <- lapply(seq_len(nrow(target_unknown)), function(i) {
@@ -1076,7 +1095,7 @@ infer_from_abog_neighbors <- function(npis, db_path, crosswalk, programs,
   # --- Step 8: Crosswalk lookup ---
   # HARDENING: detect and exclude ambiguous crosswalk entries (same source_name_raw
   # mapping to multiple ACGME IDs). These cannot be assigned with high confidence.
-  xwalk_with_acgme <- crosswalk %>%
+  xwalk_with_acgme <- approved_training_crosswalk(crosswalk) %>%
     dplyr::filter(!is.na(freida_acgme_id)) %>%
     dplyr::select(source_name_raw, freida_program_name, freida_acgme_id, freida_state)
 
