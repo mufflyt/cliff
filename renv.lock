@@ -4574,7 +4574,7 @@
       "RemoteRepo": "mysterynpi",
       "RemoteUsername": "mufflyt",
       "RemoteRef": "master",
-      "RemoteSha": "2bdaacc4226cc780b17872588a3900e85248195d"
+      "RemoteSha": "1cb422ebb58b0a3eab081d80b98c9b19951f397c"
     },
     "mysteryroster": {
       "Package": "mysteryroster",

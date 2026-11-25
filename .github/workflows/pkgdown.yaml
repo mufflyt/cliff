@@ -89,7 +89,7 @@ jobs:
         shell: Rscript {0}
         run: |
           install.packages(c("remotes", "pkgdown"))
-          remotes::install_deps(dependencies = TRUE, upgrade = "never")
+          source("scripts/ci/install_deps.R")
 
       - name: Install cliff
         run: R CMD INSTALL --with-keep.source .
