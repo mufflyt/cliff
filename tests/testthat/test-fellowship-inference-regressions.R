@@ -37,9 +37,12 @@ library(testthat)
 .synthetic_programs <- function() {
   data.frame(
     acgme_program_id = "P1",
+    program_name = "Synthetic FREIDA Fellowship",
     institution = "Synthetic Program Institution",
     city = "Denver",
     state = "CO",
+    lat = 39.7392,
+    lon = -104.9903,
     annual_births = 100,
     nicu_beds = 10,
     total_beds = 200,
@@ -175,4 +178,77 @@ test_that("ABOG neighbor votes do not use unapproved crosswalk rows", {
   )
 
   expect_null(result)
+})
+
+test_that("fellowship inference accepts the documented npi-only input schema", {
+  freida_dir <- tempfile("freida-empty-")
+  dir.create(freida_dir)
+  old_freida_dir <- Sys.getenv("FREIDA_DATA_DIR", unset = NA_character_)
+  Sys.setenv(FREIDA_DATA_DIR = freida_dir)
+
+  artifact <- here::here("artifacts", "audit", "inference_qa_fellowship.json")
+  had_artifact <- file.exists(artifact)
+  old_artifact <- if (had_artifact) tempfile(fileext = ".json") else NA_character_
+  if (had_artifact) file.copy(artifact, old_artifact, overwrite = TRUE)
+
+  on.exit({
+    if (is.na(old_freida_dir)) Sys.unsetenv("FREIDA_DATA_DIR") else Sys.setenv(FREIDA_DATA_DIR = old_freida_dir)
+    unlink(freida_dir, recursive = TRUE, force = TRUE)
+    if (had_artifact && file.exists(old_artifact)) {
+      dir.create(dirname(artifact), recursive = TRUE, showWarnings = FALSE)
+      file.copy(old_artifact, artifact, overwrite = TRUE)
+    } else if (!had_artifact) {
+      unlink(artifact, force = TRUE)
+    }
+  }, add = TRUE)
+
+  physicians <- data.frame(npi = "1234567893", stringsAsFactors = FALSE)
+  out <- suppressWarnings(infer_fellowship_training(
+    physicians,
+    programs = .synthetic_programs(),
+    temporal_db_path = NULL
+  ))
+
+  expect_equal(nrow(out), 1L)
+  expect_equal(out$inference_method, "no_location")
+  expect_true(all(c("city", "state", "inference_city", "inference_state") %in% names(out)))
+  expect_true(is.na(out$inference_state))
+})
+
+test_that("add_fellowship_to_table1 handles program tables without ACGME ids", {
+  skip_if_not_installed("dplyr")
+
+  testthat::local_mocked_bindings(
+    create_otolaryngology_fellowship_programs = function() {
+      data.frame(
+        program_name = "Synthetic Fellowship",
+        specialty = "Synthetic Specialty",
+        stringsAsFactors = FALSE
+      )
+    },
+    infer_fellowship_training = function(physicians, programs, temporal_db_path) {
+      dplyr::mutate(
+        physicians,
+          inferred_state = "CO",
+          inference_confidence = 0,
+          inferred_acgme_id = NA_character_,
+          inferred_program = NA_character_,
+          inference_state = "CO",
+          training_annual_births = NA_real_,
+          training_nicu_beds = NA_real_,
+          training_total_beds = NA_real_,
+          training_trauma_center = NA_character_
+        )
+    },
+    .package = "cliff"
+  )
+
+  out <- add_fellowship_to_table1(
+    data.frame(npi = "1234567893", state = "CO", stringsAsFactors = FALSE),
+    temporal_db_path = "unused-by-mock"
+  )
+
+  expect_equal(nrow(out), 1L)
+  expect_true("fellowship_subspecialty" %in% names(out))
+  expect_true(is.na(out$fellowship_subspecialty))
 })

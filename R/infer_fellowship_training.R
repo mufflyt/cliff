@@ -165,6 +165,12 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
       "Sample: ", paste(utils::head(bad_npis, 5), collapse = ", "))
   }
 
+  # city/state are optional inputs: temporal NPPES location is preferred when
+  # available, but the non-temporal fallback must not error for a schema that
+  # passes the declared required-column validation above.
+  if (!"city" %in% names(physicians)) physicians$city <- NA_character_
+  if (!"state" %in% names(physicians)) physicians$state <- NA_character_
+
   # =====================================================================
   # PHASE 0: GROUND TRUTH LOOKUP (HG/DOX/Merged → FREIDA crosswalk)
   # =====================================================================
@@ -987,6 +993,7 @@ add_fellowship_to_table1 <- function(physicians, temporal_db_path = NULL) {
   # --- Fellowship subspecialty lookup (safe, pre-computed) ---
   # Build lookup vector: prefer ACGME ID match (unique) over program name (may have dups)
   has_acgme <- "acgme_program_id" %in% names(programs)
+  acgme_lookup <- character(0)
   if (has_acgme) {
     acgme_lookup <- stats::setNames(as.character(programs$specialty),
                                      programs$acgme_program_id)
