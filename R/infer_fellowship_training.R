@@ -174,9 +174,10 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
   if (!is.null(crosswalk) && !is.null(temporal_db_path) && file.exists(temporal_db_path)) {
     cat("\n--- Phase 0: Ground Truth Fellowship Lookup ---\n")
 
-    db_path_config <- load_paths(verbose = FALSE)$nber_duckdb_main
-    gt_con <- DBI::dbConnect(duckdb::duckdb(), db_path_config, read_only = TRUE)
-    on.exit(tryCatch(DBI::dbDisconnect(gt_con, shutdown = TRUE), error = function(e) NULL), add = TRUE)
+    gt_con <- DBI::dbConnect(duckdb::duckdb(), temporal_db_path, read_only = TRUE)
+    on.exit(if (DBI::dbIsValid(gt_con)) {
+      tryCatch(DBI::dbDisconnect(gt_con, shutdown = TRUE), error = function(e) NULL)
+    }, add = TRUE)
 
     gt_raw <- DBI::dbGetQuery(gt_con, '
       SELECT
@@ -207,8 +208,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
                 sum(!is.na(gt_cohort$gt_merged) | !is.na(gt_cohort$gt_hg) | !is.na(gt_cohort$gt_dox)),
                 nrow(physicians)))
 
-    xwalk_exact <- crosswalk %>%
-      filter(match_class == "exact_verified", approved_for_ground_truth == TRUE)
+    approved_xwalk <- approved_training_crosswalk(crosswalk)
 
     gt_cohort <- gt_cohort %>%
       mutate(
@@ -240,7 +240,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
       if (nrow(match_row) == 0) return(NA_character_)
       match_row$freida_acgme_id
     }
-    all_xwalk <- crosswalk %>% filter(!is.na(freida_acgme_id))
+    all_xwalk <- approved_xwalk %>% filter(!is.na(freida_acgme_id))
 
     gt_cohort <- gt_cohort %>%
       mutate(
@@ -267,7 +267,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
 
     gt_cohort <- gt_cohort %>%
       left_join(
-        crosswalk %>%
+        approved_xwalk %>%
           select(source_name_raw, match_class, freida_program_name,
                  freida_acgme_id, freida_state, approved_for_ground_truth),
         by = c("gt_fellowship_name" = "source_name_raw")
@@ -339,25 +339,31 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
         left_join(gt_assigned, by = c("npi_char" = "npi")) %>%
         left_join(
           programs %>%
-            select(acgme_program_id, institution, city, state,
-                   annual_births, nicu_beds, total_beds, trauma_center),
+            select(acgme_program_id,
+                   program_institution = institution,
+                   program_city = city,
+                   program_state = state,
+                   program_annual_births = annual_births,
+                   program_nicu_beds = nicu_beds,
+                   program_total_beds = total_beds,
+                   program_trauma_center = trauma_center),
           by = c("freida_acgme_id" = "acgme_program_id")
         ) %>%
         mutate(
           inferred_program       = freida_program_name,
-          inferred_institution   = institution.y,
-          inferred_city          = city.y,
-          inferred_state         = state.y,
+          inferred_institution   = program_institution,
+          inferred_city          = program_city,
+          inferred_state         = program_state,
           inferred_acgme_id      = freida_acgme_id,
           distance_km            = NA_real_,
           programs_within_radius = NA_integer_,
           inference_confidence   = gt_confidence,
           inference_method       = gt_method,
           inference_source       = gt_method,
-          training_annual_births = annual_births,
-          training_nicu_beds     = nicu_beds,
-          training_total_beds    = total_beds,
-          training_trauma_center = as.character(trauma_center),
+          training_annual_births = program_annual_births,
+          training_nicu_beds     = program_nicu_beds,
+          training_total_beds    = program_total_beds,
+          training_trauma_center = as.character(program_trauma_center),
           gt_fellowship_merged   = gt_merged,
           gt_fellowship_hg       = gt_hg,
           gt_fellowship_dox      = gt_dox,
@@ -365,10 +371,10 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
           gt_fellowship_source   = gt_fellowship_source,
           gt_sources_agree       = gt_sources_agree
         ) %>%
-        select(-npi_char, -matches("^institution\\."), -matches("^city\\."),
-               -matches("^state\\."), -matches("^annual_births$"),
-               -matches("^nicu_beds$"), -matches("^total_beds$"),
-               -matches("^trauma_center$"), -freida_program_name,
+        select(-npi_char, -program_institution, -program_city,
+               -program_state, -program_annual_births,
+               -program_nicu_beds, -program_total_beds,
+               -program_trauma_center, -freida_program_name,
                -freida_acgme_id, -freida_state, -gt_confidence,
                -gt_method, -match_class, -gt_merged, -gt_hg, -gt_dox)
 
@@ -397,10 +403,7 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
   if (nrow(physicians) > 0 && !is.null(crosswalk)) {
     cat("\n--- Phase 0.5: ABOG Neighbor Majority Vote (Fellowship) ---\n")
 
-    db_path_abog <- tryCatch(
-      load_paths(verbose = FALSE)$nber_duckdb_main,
-      error = function(e) NULL
-    )
+    db_path_abog <- temporal_db_path
 
     if (!is.null(db_path_abog) && file.exists(db_path_abog)) {
       abog_results <- tryCatch(
