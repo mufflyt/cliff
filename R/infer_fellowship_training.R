@@ -175,7 +175,9 @@ infer_fellowship_training <- function(physicians, programs = NULL, temporal_db_p
     cat("\n--- Phase 0: Ground Truth Fellowship Lookup ---\n")
 
     gt_con <- DBI::dbConnect(duckdb::duckdb(), temporal_db_path, read_only = TRUE)
-    on.exit(tryCatch(DBI::dbDisconnect(gt_con, shutdown = TRUE), error = function(e) NULL), add = TRUE)
+    on.exit(if (DBI::dbIsValid(gt_con)) {
+      tryCatch(DBI::dbDisconnect(gt_con, shutdown = TRUE), error = function(e) NULL)
+    }, add = TRUE)
 
     gt_raw <- DBI::dbGetQuery(gt_con, '
       SELECT

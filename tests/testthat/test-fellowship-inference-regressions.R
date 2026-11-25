@@ -49,6 +49,7 @@ library(testthat)
 }
 
 test_that("approved_training_crosswalk keeps only explicit approvals", {
+  approved_training_crosswalk <- getFromNamespace("approved_training_crosswalk", "cliff")
   xwalk <- data.frame(
     source_name_raw = c("approved", "unapproved", "missing"),
     approved_for_ground_truth = c(TRUE, FALSE, NA),
@@ -114,7 +115,7 @@ test_that("ABOG neighbor votes do not use unapproved crosswalk rows", {
   )
   matches <- data.frame(
     npi = c("2222222222", "1111111111", "3333333333"),
-    match_name = c("Neighbor One", "Target Person", "Neighbor Two"),
+    physician_name = c("Neighbor One", "Target Person", "Neighbor Two"),
     primary_cert_date = as.Date(c("2020-01-01", "2020-01-01", "2020-01-01")),
     stringsAsFactors = FALSE
   )
