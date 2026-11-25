@@ -28,6 +28,7 @@
 #          data/urps_module_d_density_by_state_2026-07-23.csv
 suppressPackageStartupMessages({
   library(data.table); library(tidycensus); library(tigris); library(sf); library(dplyr)
+  library(mysterymaps)
 })
 options(tigris_use_cache = TRUE, tigris_class = "sf")
 sf::sf_use_s2(TRUE)
@@ -115,7 +116,9 @@ cty <- st_transform(cty, 4326)
 cty <- cty[is_conus_fips(cty$STATEFP), ]   # SSOT (R/conus.R); drops AK/HI + territories = 48 states + DC
 cty <- merge(cty, w65, by="GEOID", all.x=TRUE)
 cty$women_65plus[is.na(cty$women_65plus)] <- 0
-contain <- lengths(st_intersects(cty, uro_sf))   # urogynecologists located in the county
+cty$id <- cty$GEOID   # unique join key required by mysterymaps_count_points_in_polygons()
+cty <- mysterymaps_count_points_in_polygons(cty, uro_sf, count_col = "n_urogyn_in_county")
+contain <- cty$n_urogyn_in_county   # urogynecologists located in the county
 
 ## ── 4. county drive-time access table ─────────────────────────────────────────
 out <- data.table(
