@@ -28,9 +28,16 @@ for (spec in specs) {
   cat("installing pinned remote:", spec, "\n")
   remotes::install_github(spec, dependencies = hard_deps, upgrade = "never")
   pkg <- sub(".*/([^@/]+)(@.*)?$", "\\1", spec)
-  desc <- utils::packageDescription(pkg)
-  cat(sprintf("  %s %s RemoteSha=%s\n", pkg, desc$Version,
-              if (is.null(desc$RemoteSha)) "<none>" else desc$RemoteSha))
+  desc <- suppressWarnings(utils::packageDescription(pkg))
+  expected_sha <- if (grepl("@", spec, fixed = TRUE)) sub("^.*@", "", spec) else NA_character_
+  installed_sha <- if (is.list(desc) && !is.null(desc$RemoteSha)) unname(desc$RemoteSha) else NA_character_
+  if (!is.list(desc) || !isTRUE(nzchar(desc$Version)) ||
+      (!is.na(expected_sha) && !identical(installed_sha, expected_sha))) {
+    stop("failed to install pinned remote ", spec,
+         " (installed sha: ", if (is.na(installed_sha)) "<none>" else installed_sha, ")",
+         call. = FALSE)
+  }
+  cat(sprintf("  %s %s RemoteSha=%s\n", pkg, desc$Version, installed_sha))
 }
 
 remotes::install_deps(dependencies = dependencies, upgrade = "never")

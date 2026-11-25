@@ -209,14 +209,21 @@ jobs:
             libpng-dev libjpeg-dev libtiff5-dev libcairo2-dev \
             libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
 
+      - name: Runner image identifier
+        id: image
+        shell: bash
+        run: echo "os=${ImageOS:?ImageOS is not set on this runner}" >> "$GITHUB_OUTPUT"
+
       - name: Cache R library
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           # setup-r exports R_LIBS_USER; this is where install.packages() and
-          # remotes::install_deps() put everything.
+          # remotes::install_deps() put everything. The image is part of the key:
+          # ubuntu24 and ubuntu26 both report runner.os=Linux but have different
+          # system-library SONAMEs, so a restored compiled R library is not portable.
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-R${{ matrix.r }}-${{ hashFiles('DESCRIPTION', 'renv.lock') }}
-          restore-keys: ${{ runner.os }}-R${{ matrix.r }}-
+          key: ${{ runner.os }}-${{ steps.image.outputs.os }}-R${{ matrix.r }}-${{ hashFiles('DESCRIPTION', 'renv.lock') }}
+          restore-keys: ${{ runner.os }}-${{ steps.image.outputs.os }}-R${{ matrix.r }}-
 
       - name: Install dependencies (remotes + RSPM binaries, no pak)
         shell: Rscript {0}
