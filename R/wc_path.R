@@ -74,10 +74,20 @@ wc_path <- function(key, must_exist = FALSE) {
   }
   e <- .wc_paths_cfg[[key]]
   if (is.null(e)) stop("wc_path(): unknown key '", key, "'", call. = FALSE)
-  if (!is.null(e$env)) { v <- Sys.getenv(e$env, ""); if (nzchar(v)) return(v) }   # env override wins
-  p <- .wc_expand_roots(e$path, .wc_paths_cfg)
-  fb <- .wc_expand_roots(e$fallback, .wc_paths_cfg)
-  if (!file.exists(p) && !is.null(fb) && file.exists(fb)) p <- fb
+
+  env_override <- FALSE
+  if (!is.null(e$env)) {
+    v <- Sys.getenv(e$env, "")
+    if (nzchar(v)) {
+      p <- path.expand(v)                                                       # env override wins
+      env_override <- TRUE
+    }
+  }
+  if (!env_override) {
+    p <- .wc_expand_roots(e$path, .wc_paths_cfg)
+    fb <- .wc_expand_roots(e$fallback, .wc_paths_cfg)
+    if (!file.exists(p) && !is.null(fb) && file.exists(fb)) p <- fb
+  }
   if (must_exist && !file.exists(p)) stop("wc_path('", key, "'): file not found: ", p, call. = FALSE)
   p
 }

@@ -160,21 +160,30 @@ load_freida_programs <- function(program_type = c("residency", "fellowship"),
          "Need contact_field_geolocation_lat/lon or pgm_field_geolocation_lat/lon.")
   }
 
+  # Coordinate fallback must be pair-aware. Independent lat/lon coalescing can
+  # combine a contact latitude with a program longitude (or vice versa), which
+  # fabricates a location that exists in neither source.
+  for (coord_col in c("contact_field_geolocation_lat", "contact_field_geolocation_lon",
+                      "pgm_field_geolocation_lat", "pgm_field_geolocation_lon")) {
+    if (!coord_col %in% names(raw_data)) raw_data[[coord_col]] <- NA_character_
+  }
+  contact_lat <- suppressWarnings(as.numeric(as.character(raw_data$contact_field_geolocation_lat)))
+  contact_lon <- suppressWarnings(as.numeric(as.character(raw_data$contact_field_geolocation_lon)))
+  pgm_lat <- suppressWarnings(as.numeric(as.character(raw_data$pgm_field_geolocation_lat)))
+  pgm_lon <- suppressWarnings(as.numeric(as.character(raw_data$pgm_field_geolocation_lon)))
+  use_contact_coords <- !is.na(contact_lat) & !is.na(contact_lon)
+  raw_data$.freida_lat <- ifelse(use_contact_coords, contact_lat, pgm_lat)
+  raw_data$.freida_lon <- ifelse(use_contact_coords, contact_lon, pgm_lon)
+
   programs <- raw_data %>%
     dplyr::transmute(
       program_name       = pgm_title,
       institution        = inst_title,
       city               = pgm_field_address_locality,
       state              = pgm_field_address_administrative_area,
-      # Prefer contact geolocation, fall back to program geolocation
-      lat = as.numeric(dplyr::coalesce(
-        as.character(contact_field_geolocation_lat),
-        as.character(pgm_field_geolocation_lat)
-      )),
-      lon = as.numeric(dplyr::coalesce(
-        as.character(contact_field_geolocation_lon),
-        as.character(pgm_field_geolocation_lon)
-      )),
+      # Prefer a complete contact coordinate pair; otherwise use the program pair.
+      lat = .freida_lat,
+      lon = .freida_lon,
       acgme_program_id   = as.character(pgm_field_program_id),
       specialty          = Specialty,
       primary_teaching_hospital = primary_teaching_title,
