@@ -82,10 +82,10 @@ Suggests:
     withr
 Remotes:
     mufflyt/mufflyaccess@d419c24998e33d39cf70790ea2fb2c47c0adb242,
-    mufflyt/mysterycall@d125d43200f81b2ada9c787152388202c1d18467,
+    mufflyt/mysterycall@996f38543ce32c504a7c6a778240f74ad5a77578,
     mufflyt/mysterymaps@6eb56e80aabc9d7daee992b5b8125c5d61b8f4c4,
-    mufflyt/mysterynpi@1cb422ebb58b0a3eab081d80b98c9b19951f397c,
-    mufflyt/mysteryroster@f41ba20f035030aee2d349e5ae8b365aa120a97c
+    mufflyt/mysterynpi@3123ec59b0d056ed4d2e16242ce552b53e466e2a,
+    mufflyt/mysteryroster@2c13cfe02ea165fae49bf4f22021986a1c2e8b84
 Note: 'exploratory' (Exploratory.io, non-CRAN) and 'zipangu' (archived from CRAN)
     are each used only by one legacy data-raw script and are intentionally omitted
     from the dependency lists; install them separately (zipangu from the CRAN
