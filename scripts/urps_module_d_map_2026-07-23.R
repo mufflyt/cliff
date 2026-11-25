@@ -61,7 +61,7 @@ m <- mysterymaps_county_access_map(
                           vintage = c("2025", "2023", "fitted + validated")),
     as_of = "2025"
   ),
-  bounds = c(24.5, -125, 49.4, -66.9)
+  bounds = c(CONUS_LAT[1] + 0.5, CONUS_LON[1], CONUS_LAT[2] - 0.6, CONUS_LON[2] - 0.9)
 )
 
 m <- m |>
