@@ -45,6 +45,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # The checkout's .Rprofile activates renv, which intercepts install.packages()
+  # and tries to resolve every GitHub remote in cliff's DESCRIPTION. This minimal
+  # contract job installs only mufflyaccess's hard dependencies and must use the
+  # same renv-free installation path as _core.
+  RENV_CONFIG_AUTOLOADER_ENABLED: "FALSE"
+
 jobs:
   contract:
     runs-on: ubuntu-latest
