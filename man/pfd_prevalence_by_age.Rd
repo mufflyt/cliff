@@ -2,7 +2,7 @@
 % Please edit documentation in R/pfd_prevalence.R
 \name{pfd_prevalence_by_age}
 \alias{pfd_prevalence_by_age}
-\title{Age-specific PFD prevalence (vectorized). Ages below 0 return 0.}
+\title{Age-specific PFD prevalence (vectorized). Ages below 0 return 0; missing ages return NA.}
 \usage{
 pfd_prevalence_by_age(age)
 }
@@ -10,5 +10,5 @@ pfd_prevalence_by_age(age)
 \item{age}{[numeric]: Age in years, vectorised.}
 }
 \description{
-Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
+Age-specific PFD prevalence (vectorized). Ages below 0 return 0; missing ages return NA.
 }

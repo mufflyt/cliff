@@ -28,10 +28,12 @@ stopifnot(
   !is.unsorted(PFD_PREVALENCE_BY_AGE$prev)                      # prevalence non-decreasing with age
 )
 
-#' Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
+#' Age-specific PFD prevalence (vectorized). Ages below 0 return 0; missing ages return NA.
 #' @param age [numeric]: Age in years, vectorised.
 pfd_prevalence_by_age <- function(age) {
   idx <- findInterval(age, PFD_PREVALENCE_BY_AGE$lower)
   idx[idx < 1L] <- 1L
-  PFD_PREVALENCE_BY_AGE$prev[idx]
+  out <- PFD_PREVALENCE_BY_AGE$prev[idx]
+  out[is.na(age)] <- NA_real_
+  out
 }

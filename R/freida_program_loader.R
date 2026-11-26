@@ -1604,21 +1604,22 @@ validate_inference_qa <- function(results, context = "training", write_artifact 
 
 #' Canonical US Census Region Classification
 #'
-#' Classifies a 2-character state abbreviation into Census regions.
+#' Classifies a state abbreviation or full state name into Census regions.
 #' Covers all 50 states + DC + PR. Returns "Unknown" for unrecognized values.
 #'
-#' @param state_abbr Character vector of 2-character state abbreviations
+#' @param state_abbr Character vector of state abbreviations or names
 #' @return Character vector of region names
 #' @export
 classify_us_region <- function(state_abbr) {
+  state_key <- mufflyaccess::standardize_state_name(state_abbr, output = "abbr")
   dplyr::case_when(
-    state_abbr %in% c("CT","ME","MA","NH","RI","VT","NJ","NY","PA") ~ "Northeast",
-    state_abbr %in% c("IL","IN","MI","OH","WI","IA","KS","MN","MO","NE","ND","SD") ~ "Midwest",
-    state_abbr %in% c("DE","DC","FL","GA","MD","NC","SC","VA","WV",
+    state_key %in% c("CT","ME","MA","NH","RI","VT","NJ","NY","PA") ~ "Northeast",
+    state_key %in% c("IL","IN","MI","OH","WI","IA","KS","MN","MO","NE","ND","SD") ~ "Midwest",
+    state_key %in% c("DE","DC","FL","GA","MD","NC","SC","VA","WV",
                        "AL","KY","MS","TN","AR","LA","OK","TX") ~ "South",
-    state_abbr %in% c("AZ","CO","ID","MT","NV","NM","UT","WY",
+    state_key %in% c("AZ","CO","ID","MT","NV","NM","UT","WY",
                        "AK","CA","HI","OR","WA") ~ "West",
-    state_abbr == "PR" ~ "Puerto Rico",
+    state_key == "PR" ~ "Puerto Rico",
     TRUE ~ "Unknown"
   )
 }

@@ -162,6 +162,18 @@ safe_percentage <- function(part, whole, round_digits = 1) {
 #' @seealso \code{\link{calculate_rural_metro_comparison}} for the main comparison function
 #' @export
 calculate_two_prop_test <- function(x1, n1, x2, n2, min_sample_size = 30) {
+  # Check for zero denominators before the small-sample guard: n = 0 is missing
+  # data, not merely an underpowered sample.
+  if (n1 == 0 || n2 == 0) {
+    return(list(
+      method = "insufficient_data",
+      p_value = NA_real_,
+      p_value_formatted = "insufficient data",
+      significant = FALSE,
+      note = "One or both groups have zero total"
+    ))
+  }
+
   # Check for small samples
   if (n1 < min_sample_size || n2 < min_sample_size) {
     base::message(sprintf("[STAT] Small sample warning: n1=%d, n2=%d (min=%d)",
@@ -170,20 +182,9 @@ calculate_two_prop_test <- function(x1, n1, x2, n2, min_sample_size = 30) {
     return(list(
       method = "descriptive_only",
       p_value = NA_real_,
-      p_value_formatted = "n<30",
+      p_value_formatted = sprintf("n<%s", format(min_sample_size, scientific = FALSE, trim = TRUE)),
       significant = FALSE,
       note = sprintf("Sample sizes too small for statistical test (n1=%d, n2=%d)", n1, n2)
-    ))
-  }
-
-  # Check for zero denominators
-  if (n1 == 0 || n2 == 0) {
-    return(list(
-      method = "insufficient_data",
-      p_value = NA_real_,
-      p_value_formatted = "insufficient data",
-      significant = FALSE,
-      note = "One or both groups have zero total"
     ))
   }
 

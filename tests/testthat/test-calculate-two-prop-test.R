@@ -66,3 +66,17 @@ test_that("the returned object always carries the documented fields", {
     expect_false(is.na(res$significant))
   }
 })
+
+test_that("[adversarial] zero denominators are insufficient even below the default floor", {
+  res <- calculate_two_prop_test(0, 0, 10, 50)
+  expect_equal(res$method, "insufficient_data")
+  expect_true(is.na(res$p_value))
+  expect_equal(res$p_value_formatted, "insufficient data")
+  expect_false(res$significant)
+})
+
+test_that("[adversarial] the small-sample sentinel reports the caller's floor", {
+  res <- suppressMessages(calculate_two_prop_test(5, 20, 10, 25, min_sample_size = 26))
+  expect_equal(res$method, "descriptive_only")
+  expect_equal(res$p_value_formatted, "n<26")
+})
