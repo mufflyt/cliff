@@ -52,3 +52,14 @@ test_that("[adversarial] table enrichment normalizes practice and inference stat
   expect_identical(out$trained_in_practice_state, c("Yes", "Yes", "No", NA_character_))
   expect_identical(out$geo_plausible, c(TRUE, TRUE, FALSE, NA))
 })
+
+test_that("[adversarial] SQL state normalization uses the canonical territory map", {
+  skip_if_not_installed("mufflyaccess")
+
+  sql_state_normalize <- getFromNamespace("sql_state_normalize", "cliff")
+  frag <- sql_state_normalize("plocstatename", alias = "state")
+  expect_match(frag, "'NORTHERN MARIANA ISLANDS' THEN 'MP'", fixed = TRUE)
+  expect_match(frag, "'U.S. VIRGIN ISLANDS' THEN 'VI'", fixed = TRUE)
+  expect_match(frag, "'VIRGIN ISLANDS' THEN 'VI'", fixed = TRUE)
+  expect_match(frag, " AS state", fixed = TRUE)
+})

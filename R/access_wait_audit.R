@@ -158,6 +158,9 @@ validate_access_wait_audit <- function(audit, strict = TRUE) {
   if (any(is.na(audit$observation_id) | !nzchar(audit$observation_id))) {
     stop("validate_access_wait_audit: observation_id must be non-empty on every row.")
   }
+  if (any(is.na(audit$provider_npi) | !nzchar(audit$provider_npi))) {
+    stop("validate_access_wait_audit: provider_npi must be non-empty on every row.")
+  }
   if (anyDuplicated(audit$observation_id)) {
     dup <- unique(audit$observation_id[duplicated(audit$observation_id)])
     stop("validate_access_wait_audit: duplicated observation_id: ",
@@ -207,14 +210,11 @@ validate_access_wait_audit <- function(audit, strict = TRUE) {
                                                "offered_appointment_date")
 
   wd <- suppressWarnings(as.numeric(as_chr(audit$wait_days)))
-  bad_wd <- !is.na(audit$wait_days) & nzchar(as_chr(audit$wait_days)) & is.na(wd)
+  bad_wd <- !is.na(audit$wait_days) & nzchar(as_chr(audit$wait_days)) &
+    (!is.finite(wd) | wd < 0)
   if (any(bad_wd)) {
-    stop("validate_access_wait_audit: wait_days must be numeric; bad rows: ",
+    stop("validate_access_wait_audit: wait_days must be a finite number >= 0; bad rows: ",
          paste(audit$observation_id[bad_wd], collapse = ", "))
-  }
-  if (any(!is.na(wd) & wd < 0)) {
-    stop("validate_access_wait_audit: wait_days must be >= 0; bad rows: ",
-         paste(audit$observation_id[!is.na(wd) & wd < 0], collapse = ", "))
   }
 
   # derive wait_days from the two dates where blank; check consistency where both.
@@ -229,6 +229,11 @@ validate_access_wait_audit <- function(audit, strict = TRUE) {
                   paste(audit$observation_id[disagree], collapse = ", "))
     if (strict) stop(msg) else warning(msg, "; preferring the date difference")
     wd[disagree] <- derived[disagree]
+  }
+  bad_derived <- !is.na(wd) & (!is.finite(wd) | wd < 0)
+  if (any(bad_derived)) {
+    stop("validate_access_wait_audit: wait_days must be a finite number >= 0; bad rows: ",
+         paste(audit$observation_id[bad_derived], collapse = ", "))
   }
   audit$wait_days <- wd
 

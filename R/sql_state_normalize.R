@@ -1,22 +1,34 @@
 sql_state_normalize <- function(col = "plocstatename", alias = NULL) {
   stopifnot(is.character(col), length(col) == 1L, nzchar(col))
-  pairs <- list(
-    ALABAMA="AL", ALASKA="AK", ARIZONA="AZ", ARKANSAS="AR", CALIFORNIA="CA",
-    COLORADO="CO", CONNECTICUT="CT", DELAWARE="DE", FLORIDA="FL", GEORGIA="GA",
-    HAWAII="HI", IDAHO="ID", ILLINOIS="IL", INDIANA="IN", IOWA="IA", KANSAS="KS",
-    KENTUCKY="KY", LOUISIANA="LA", MAINE="ME", MARYLAND="MD", MASSACHUSETTS="MA",
-    MICHIGAN="MI", MINNESOTA="MN", MISSISSIPPI="MS", MISSOURI="MO", MONTANA="MT",
-    NEBRASKA="NE", NEVADA="NV", "NEW HAMPSHIRE"="NH", "NEW JERSEY"="NJ",
-    "NEW MEXICO"="NM", "NEW YORK"="NY", "NORTH CAROLINA"="NC", "NORTH DAKOTA"="ND",
-    OHIO="OH", OKLAHOMA="OK", OREGON="OR", PENNSYLVANIA="PA", "RHODE ISLAND"="RI",
-    "SOUTH CAROLINA"="SC", "SOUTH DAKOTA"="SD", TENNESSEE="TN", TEXAS="TX", UTAH="UT",
-    VERMONT="VT", VIRGINIA="VA", WASHINGTON="WA", "WEST VIRGINIA"="WV",
-    WISCONSIN="WI", WYOMING="WY", "DISTRICT OF COLUMBIA"="DC", "WASHINGTON DC"="DC",
-    "PUERTO RICO"="PR", "VIRGIN ISLANDS"="VI", GUAM="GU", "AMERICAN SAMOA"="AS"
+  if (!is.null(alias)) {
+    stopifnot(is.character(alias), length(alias) == 1L, !is.na(alias), nzchar(alias))
+  }
+
+  canonical_names <- c(
+    datasets::state.name,
+    "District of Columbia",
+    "Puerto Rico",
+    "Guam",
+    "American Samoa",
+    "Northern Mariana Islands"
   )
+  canonical_abbr <- mufflyaccess::standardize_state_name(canonical_names, output = "abbr")
+  if (anyNA(canonical_abbr)) {
+    stop("sql_state_normalize: canonical state normalization failed", call. = FALSE)
+  }
+
+  pairs <- stats::setNames(canonical_abbr, toupper(canonical_names))
+  pairs <- c(pairs,
+             "WASHINGTON DC" = "DC",
+             "U.S. VIRGIN ISLANDS" = "VI",
+             "US VIRGIN ISLANDS" = "VI",
+             "U S VIRGIN ISLANDS" = "VI",
+             "VIRGIN ISLANDS" = "VI")
+  pairs <- pairs[!duplicated(names(pairs))]
+
   whens <- paste(sprintf("WHEN '%s' THEN '%s'", names(pairs), unlist(pairs, use.names = FALSE)), collapse = " ")
   norm_col <- sprintf("UPPER(TRIM(COALESCE(%s, '')))", col)
   frag <- sprintf("CASE %s %s ELSE %s END", norm_col, whens, norm_col)
-  if (!is.null(alias) && length(alias) > 0L && nzchar(alias)) frag <- sprintf("%s AS %s", frag, alias)
+  if (!is.null(alias)) frag <- sprintf("%s AS %s", frag, alias)
   frag
 }

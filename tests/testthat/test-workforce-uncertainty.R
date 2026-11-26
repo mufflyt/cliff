@@ -53,6 +53,16 @@ test_that("non-finite draws are dropped", {
   expect_equal(u$median, 105)
 })
 
+test_that("[adversarial] ratio draws are filtered pairwise with final_draws", {
+  # The 0.5 replacement ratio belongs to a non-finite final draw, so it must not
+  # enter the denominator or numerator for p_below_replacement.
+  u <- wc_uncertainty_summary(final_draws = c(100, NA, 110),
+                              ratio_draws = c(1.5, 0.5, NA),
+                              baseline = 100)
+  expect_equal(u$n_draws, 2L)
+  expect_equal(u$p_below_replacement, 0)
+})
+
 test_that("wc_uncertainty_sentence renders the key quantities", {
   u <- wc_uncertainty_summary(c(90, 100, 110), ratio_draws = c(0.5, 1, 2), baseline = 100)
   s <- wc_uncertainty_sentence(u, unit = "urogynecologists")

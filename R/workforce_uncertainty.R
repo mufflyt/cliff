@@ -64,9 +64,9 @@ wc_uncertainty_summary <- function(final_draws, ratio_draws = NULL, baseline,
 
   p_below_replacement <- NA_real_
   if (!is.null(ratio_draws)) {
-    if (length(ratio_draws) != length(final_draws))
-      stop("wc_uncertainty_summary: ratio_draws must match final_draws length", call. = FALSE)
-    rd <- ratio_draws[is.finite(ratio_draws)]
+    if (!is.numeric(ratio_draws) || length(ratio_draws) != length(final_draws))
+      stop("wc_uncertainty_summary: ratio_draws must be numeric and match final_draws length", call. = FALSE)
+    rd <- ratio_draws[is.finite(final_draws) & is.finite(ratio_draws)]
     if (length(rd) > 0L) p_below_replacement <- mean(rd < 1)
   }
 

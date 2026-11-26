@@ -106,6 +106,23 @@ test_that("[edge] requesting a band absent from the contract fails loudly", {
   expect_error(cb$bridge_medicare_to_all_payer(md, contract = calib()))
 })
 
+test_that("[adversarial] empty or volume-less bridges are not fully identified", {
+  empty <- data.frame(age_lower = integer(), all_payer_volume = numeric(),
+                      identified = logical())
+  agg_empty <- cb$chia_bridge_all_payer_total(empty)
+  expect_false(agg_empty$fully_identified)
+  expect_equal(agg_empty$n_total, 0L)
+
+  # A row marked identified but carrying no finite all-payer volume is not a
+  # usable demand basis; all(logical) alone let it through as fully identified.
+  no_volume <- data.frame(age_lower = 65L, all_payer_volume = NA_real_,
+                          identified = TRUE)
+  agg <- cb$chia_bridge_all_payer_total(no_volume)
+  expect_false(agg$fully_identified)
+  expect_equal(agg$n_identified, 0L)
+  expect_true(65L %in% agg$unidentified_bands)
+})
+
 test_that("[contract] the bridge return shape is stable", {
   md <- data.frame(age_lower = 65L, medicare_volume = 400)
   b <- cb$bridge_medicare_to_all_payer(md, contract = calib())

@@ -109,6 +109,8 @@ canonicalize_fellowship_code <- function(x) {
                   tolower(x_clean), perl = TRUE)
   std[is_gen] <- "GEN"
 
+  known_codes <- c("FPMRS", "GO", "MFM", "MIG", "PAG", "REI", "CFP", "GEN", "Other")
+  std[!std %in% known_codes] <- NA_character_
   std[empty] <- NA_character_
   std
 }

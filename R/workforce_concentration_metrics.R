@@ -174,24 +174,45 @@ top_k_share <- function(counts, k = 5L) {
 #' @return A one-row tibble.
 concentration_summary <- function(counts, n_units_total = length(counts),
                                    label = NA_character_, weight = NULL) {
-  counts <- as.numeric(counts)
-  n_occupied <- sum(counts > 0, na.rm = TRUE)
+  if (!is.numeric(counts) || any(!is.finite(counts)) || any(counts < 0)) {
+    stop("concentration_summary(): counts must be finite non-negative numeric values.",
+         call. = FALSE)
+  }
+  if (!is.numeric(n_units_total) || length(n_units_total) != 1L ||
+      !is.finite(n_units_total) || n_units_total <= 0 ||
+      n_units_total != round(n_units_total)) {
+    stop("concentration_summary(): n_units_total must be a positive whole-number scalar.",
+         call. = FALSE)
+  }
+  n_units_total <- as.integer(n_units_total)
+  n_occupied <- sum(counts > 0)
   if (n_units_total < n_occupied)
     stop(sprintf(paste0("concentration_summary(): n_units_total (%s) is smaller than the ",
                         "number of occupied units (%s); the unit universe cannot be smaller ",
                         "than the units that already contain providers."),
                  n_units_total, n_occupied), call. = FALSE)
-  n_pad <- max(0L, n_units_total - length(counts))
+  if (n_units_total < length(counts))
+    stop(sprintf(paste0("concentration_summary(): n_units_total (%s) is smaller than the ",
+                        "supplied unit rows (%s); explicit zero-provider units also belong ",
+                        "to the unit universe."),
+                 n_units_total, length(counts)), call. = FALSE)
+  n_pad <- n_units_total - length(counts)
   full <- c(counts, rep(0, n_pad))
 
   gini_weighted <- NA_real_
   if (!is.null(weight)) {
-    weight <- as.numeric(weight)
-    ok <- is.finite(weight) & weight > 0 & is.finite(counts)
-    if (any(ok)) {
-      ord   <- order(counts[ok] / weight[ok])          # areas: sparsest first
-      w_ord <- weight[ok][ord]
-      c_ord <- counts[ok][ord]
+    if (!is.numeric(weight) || length(weight) != length(counts)) {
+      stop("concentration_summary(): weight must be numeric and the same length as counts.",
+           call. = FALSE)
+    }
+    if (any(!is.finite(weight)) || any(weight <= 0)) {
+      stop("concentration_summary(): weight must contain positive finite denominators.",
+           call. = FALSE)
+    }
+    if (sum(counts) > 0) {
+      ord   <- order(counts / weight)                  # areas: sparsest first
+      w_ord <- weight[ord]
+      c_ord <- counts[ord]
       Lx <- cumsum(w_ord) / sum(w_ord)                 # cum population
       Ly <- cumsum(c_ord) / sum(c_ord)                 # cum providers
       gini_weighted <- sum(utils::head(Lx, -1) * utils::tail(Ly, -1) -
@@ -261,6 +282,10 @@ rate_dispersion <- function(rate) {
 equity_breakdown <- function(df, characteristic, stratum = NULL,
                              levels = NULL, missing_label = "Missing") {
   ch <- rlang::as_name(rlang::ensym(characteristic))
+  if (!ch %in% names(df)) {
+    stop("equity_breakdown(): characteristic column '", ch, "' is not present in df.",
+         call. = FALSE)
+  }
   # Capture the stratum as an expression WITHOUT evaluating it (a bare column
   # name is not a variable in the caller frame): NULL when the arg is omitted.
   stratum_expr <- rlang::enexpr(stratum)
@@ -276,10 +301,18 @@ equity_breakdown <- function(df, characteristic, stratum = NULL,
     else c(levels[levels %in% names(ov)], setdiff(names(ov), levels))
   }
 
-  st_col <- if (is.null(st_name)) NULL else as.character(df[[st_name]])
-  strata <- if (is.null(st_col)) character(0) else sort(unique(st_col))
+  st_col <- NULL
+  if (!is.null(st_name)) {
+    if (!st_name %in% names(df)) {
+      stop("equity_breakdown(): stratum column '", st_name, "' is not present in df.",
+           call. = FALSE)
+    }
+    st_col <- as.character(df[[st_name]])
+  }
+  strata <- if (is.null(st_col)) character(0) else sort(unique(st_col[!is.na(st_col)]))
 
   build_col <- function(mask, level) {
+    mask[is.na(mask)] <- FALSE
     sub <- df$.level[mask]
     n <- sum(sub == level)
     denom <- length(sub)
@@ -288,7 +321,7 @@ equity_breakdown <- function(df, characteristic, stratum = NULL,
 
   out <- tibble::tibble(characteristic = ch, level = ordered_levels)
   for (s in strata) {
-    mask <- st_col == s
+    mask <- !is.na(st_col) & st_col == s
     stats <- vapply(ordered_levels, function(l) build_col(mask, l), numeric(2))
     out[[paste0(s, "_n")]]   <- unname(stats["n", ])
     out[[paste0(s, "_pct")]] <- unname(stats["pct", ])

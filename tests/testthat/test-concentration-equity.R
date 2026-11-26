@@ -61,6 +61,18 @@ test_that("concentration_summary pads the full geography and flags zero units", 
   expect_gt(s$gini, 0.9)   # near-total concentration across the 100 units
 })
 
+test_that("[adversarial] concentration_summary fails loud on an impossible unit universe", {
+  # Three explicit zero units cannot fit inside a two-unit universe: the old code
+  # only counted occupied units and silently built a longer vector than reported.
+  expect_error(concentration_summary(c(0, 0, 0), n_units_total = 2), "n_units_total")
+  expect_error(concentration_summary(c(1, 0), n_units_total = 1.5), "n_units_total")
+  expect_error(concentration_summary(c(1, NA), n_units_total = 2), "finite")
+  expect_error(concentration_summary(c(1, 2), n_units_total = 2, weight = 100), "same length")
+
+  zero <- concentration_summary(c(0, 0), n_units_total = 2, weight = c(100, 200))
+  expect_true(is.na(zero$gini_pop_weighted))
+})
+
 test_that("concentration_summary adds a population-weighted Gini when weights given", {
   # providers proportional to population -> maldistribution Gini ~ 0
   counts <- c(10, 20, 30)
@@ -89,4 +101,24 @@ test_that("equity_breakdown tabulates counts, percentages, and strata", {
   expect_equal(sum(tab$overall_n), nrow(df))              # every row counted once
   expect_equal(tab$overall_n[tab$level == "F"], 2)
   expect_equal(tab$overall_n[tab$level == "Missing"], 1)  # NA -> Missing row
+})
+
+test_that("[adversarial] missing strata do not dilute stratum denominators", {
+  df <- data.frame(
+    gender  = c("F", "M", "M"),
+    pathway = c("ABOG", "ABOG", NA),
+    stringsAsFactors = FALSE
+  )
+  tab <- equity_breakdown(df, gender, pathway)
+  expect_equal(tab$ABOG_n[tab$level == "F"], 1)
+  expect_equal(tab$ABOG_n[tab$level == "M"], 1)
+  expect_equal(tab$ABOG_pct[tab$level == "F"], 50)   # denominator is 2, not 3
+  expect_equal(tab$ABOG_pct[tab$level == "M"], 50)
+  expect_equal(tab$overall_n[tab$level == "M"], 2)   # missing-stratum row remains overall
+})
+
+test_that("[adversarial] requested but absent tabulation columns fail loudly", {
+  df <- data.frame(gender = c("F", "M"), stringsAsFactors = FALSE)
+  expect_error(equity_breakdown(df, gender, pathway), "stratum")
+  expect_error(equity_breakdown(df, pathway), "characteristic")
 })
