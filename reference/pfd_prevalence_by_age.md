@@ -1,6 +1,7 @@
-# Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
+# Age-specific PFD prevalence (vectorized). Ages below 0 return 0; missing ages return NA.
 
-Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
+Age-specific PFD prevalence (vectorized). Ages below 0 return 0; missing
+ages return NA.
 
 ## Usage
 

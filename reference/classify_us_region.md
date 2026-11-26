@@ -1,7 +1,8 @@
 # Canonical US Census Region Classification
 
-Classifies a 2-character state abbreviation into Census regions. Covers
-all 50 states + DC + PR. Returns "Unknown" for unrecognized values.
+Classifies a state abbreviation or full state name into Census regions.
+Covers all 50 states + DC + PR. Returns "Unknown" for unrecognized
+values.
 
 ## Usage
 
@@ -13,7 +14,7 @@ classify_us_region(state_abbr)
 
 - state_abbr:
 
-  Character vector of 2-character state abbreviations
+  Character vector of state abbreviations or names
 
 ## Value
 

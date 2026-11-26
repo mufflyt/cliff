@@ -716,7 +716,8 @@ points at.
   demand denominator. Returns c("POP_65", ..., "POP_100"). Apply
   npp_total_female() first to select the female rows.
 - [`pfd_prevalence_by_age()`](https://mufflyt.github.io/cliff/reference/pfd_prevalence_by_age.md)
-  : Age-specific PFD prevalence (vectorized). Ages below 0 return 0.
+  : Age-specific PFD prevalence (vectorized). Ages below 0 return 0;
+  missing ages return NA.
 - [`project_absolute_adequacy()`](https://mufflyt.github.io/cliff/reference/project_absolute_adequacy.md)
   : Anchor a relative projection to a gated absolute adequacy
 - [`project_urps_workforce()`](https://mufflyt.github.io/cliff/reference/project_urps_workforce.md)
