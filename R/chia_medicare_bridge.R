@@ -241,12 +241,14 @@ chia_bridge_all_payer_total <- function(bridged) {
   stopifnot(
     is.data.frame(bridged),
     all(c("age_lower", "all_payer_volume", "identified") %in% names(bridged)),
+    is.numeric(bridged$all_payer_volume),
     is.logical(bridged$identified)
   )
-  ident <- bridged$identified
+  ident <- !is.na(bridged$identified) & bridged$identified &
+    is.finite(bridged$all_payer_volume)
   list(
     total              = if (any(ident)) sum(bridged$all_payer_volume[ident]) else NA_real_,
-    fully_identified   = all(ident),
+    fully_identified   = nrow(bridged) > 0L && all(ident),
     n_identified       = sum(ident),
     n_total            = nrow(bridged),
     unidentified_bands = bridged$age_lower[!ident]

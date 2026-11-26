@@ -233,6 +233,19 @@ test_that("count_distinct_fellowships: all-empty row counts as 0", {
   expect_equal(n, 0L)
 })
 
+test_that("[adversarial] unrecognized labels do not count as fellowships", {
+  # Returning the raw label as a pseudo-code made any arbitrary cell a distinct
+  # fellowship. Unknown labels are missing evidence, not a new canonical code.
+  expect_identical(canonicalize_fellowship_code("Completely Unrecognized Text"), NA_character_)
+  expect_identical(canonicalize_fellowship_code("Retired"), NA_character_)
+  n <- count_distinct_fellowships(
+    subspecialty_name = "Completely Unrecognized Text",
+    sub1FullDescr     = "Also Unrecognized",
+    sub2FullDescr     = "Generalist"
+  )
+  expect_identical(n, 0L)
+})
+
 test_that("canonicalize_fellowship_code: tolerates ABOG \\r\\n artifact and whitespace", {
   # The raw ABOG export carries a literal \r\n inside the long REI string:
   # "Reproductive Endocr\r\ninology and Infertility Subspecialty Certification"

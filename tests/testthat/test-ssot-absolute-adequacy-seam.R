@@ -58,6 +58,14 @@ test_that("an empty application is not fully identified and totals NA", {
   expect_true(is.na(de$total))
 })
 
+test_that("[adversarial] a non-finite multiplier cannot count as identified", {
+  de <- sm$chia_calibrated_all_payer_total(applied_df(c(1.8, Inf), c(900, 700)))
+  expect_false(de$fully_identified)
+  expect_equal(de$n_identified, 1L)
+  expect_equal(de$total, 900)
+  expect_equal(de$unidentified_bands, 70L)
+})
+
 test_that("the calibrated total hard-fails on a malformed application", {
   expect_error(sm$chia_calibrated_all_payer_total(data.frame(x = 1)))
 })

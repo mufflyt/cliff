@@ -1,6 +1,7 @@
 extract_year_safely <- function(x) {
   if (inherits(x, c("Date", "POSIXct", "POSIXlt"))) {
-    return(suppressWarnings(as.integer(format(as.Date(x), "%Y"))))
+    y <- suppressWarnings(as.integer(format(as.Date(x), "%Y")))
+    return(ifelse(!is.na(y) & y >= 1900L & y <= 2100L, y, NA_integer_))
   }
   if (is.numeric(x)) {
     y <- suppressWarnings(as.integer(x))
@@ -10,7 +11,7 @@ extract_year_safely <- function(x) {
   out <- rep(NA_integer_, length(x))
   ok <- !is.na(x) & nzchar(x)
   if (any(ok)) {
-    pos <- regexpr("[12][0-9]{3}", x[ok])
+    pos <- regexpr("(19|20)[0-9]{2}", x[ok])
     hit <- which(pos > 0)
     if (length(hit)) {
       out[which(ok)[hit]] <- suppressWarnings(as.integer(regmatches(x[ok], pos)))

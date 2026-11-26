@@ -51,8 +51,10 @@ test_that("[validate] malformed fields fail loud", {
   base <- offered_row("A", 30)
   expect_error(e$validate_access_wait_audit(transform(base, outcome = "banana")), "outcome must be one")
   expect_error(e$validate_access_wait_audit(transform(base, appointment_type = "walk_in")), "appointment_type")
-  expect_error(e$validate_access_wait_audit(transform(base, wait_days = "-3")), "wait_days must be >= 0")
-  expect_error(e$validate_access_wait_audit(transform(base, wait_days = "soon")), "wait_days must be numeric")
+  expect_error(e$validate_access_wait_audit(transform(base, provider_npi = "")), "provider_npi")
+  expect_error(e$validate_access_wait_audit(transform(base, wait_days = "-3")), "wait_days")
+  expect_error(e$validate_access_wait_audit(transform(base, wait_days = "Inf")), "wait_days")
+  expect_error(e$validate_access_wait_audit(transform(base, wait_days = "soon")), "wait_days")
   expect_error(e$validate_access_wait_audit(transform(base, contact_date = "09/01/2026")), "YYYY-MM-DD")
   expect_error(e$validate_access_wait_audit(rbind(base, base)), "duplicated observation_id")
   # wait_days that disagrees with (offered - contact) is a data error in strict mode
@@ -60,6 +62,17 @@ test_that("[validate] malformed fields fail loud", {
   expect_error(e$validate_access_wait_audit(bad, strict = TRUE), "disagrees")
   expect_warning(w <- e$validate_access_wait_audit(bad, strict = FALSE), "disagrees")
   expect_equal(w$wait_days, 19)                            # date difference wins
+})
+
+test_that("[adversarial] a date-derived negative wait is rejected, not silently excluded", {
+  row <- transform(offered_row("NEG", ""), contact_date = "2026-09-10",
+                   offered_appointment_date = "2026-09-01")
+  expect_error(e$validate_access_wait_audit(row), "wait_days must be a finite number >= 0")
+
+  swapped <- transform(offered_row("SWAP", 30), contact_date = "2026-09-10",
+                       offered_appointment_date = "2026-09-01", wait_days = "30")
+  expect_error(e$validate_access_wait_audit(swapped, strict = FALSE),
+               "wait_days must be a finite number >= 0")
 })
 
 test_that("[extract] measured waits are separated from access failures and counted", {

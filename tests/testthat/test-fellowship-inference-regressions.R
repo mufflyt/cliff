@@ -252,3 +252,15 @@ test_that("add_fellowship_to_table1 handles program tables without ACGME ids", {
   expect_true("fellowship_subspecialty" %in% names(out))
   expect_true(is.na(out$fellowship_subspecialty))
 })
+
+test_that("[adversarial] extract_year_safely bounds string-extracted years", {
+  extract_year_safely <- getFromNamespace("extract_year_safely", "cliff")
+  expect_identical(
+    extract_year_safely(c("certified 2020", "certified 1899", "certified 2101",
+                          "certified 2999", "no year")),
+    c(2020L, NA_integer_, NA_integer_, NA_integer_, NA_integer_)
+  )
+  expect_identical(extract_year_safely(c(2020, 1899, 2101)), c(2020L, NA_integer_, NA_integer_))
+  expect_identical(extract_year_safely(as.Date(c("2020-01-01", "1899-01-01", "2101-01-01"))),
+                   c(2020L, NA_integer_, NA_integer_))
+})

@@ -75,7 +75,7 @@ chia_calibrated_all_payer_total <- function(applied) {
     is.numeric(applied$bridge_multiplier),
     is.numeric(applied$calibrated_all_payer_workload)
   )
-  ident <- !is.na(applied$bridge_multiplier) &
+  ident <- is.finite(applied$bridge_multiplier) &
     is.finite(applied$calibrated_all_payer_workload)
   list(
     total              = if (any(ident)) {
