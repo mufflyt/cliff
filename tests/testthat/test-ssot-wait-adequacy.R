@@ -101,3 +101,11 @@ test_that("[contract] the return shape is a stable one-row frame with the docume
                    c("wait", "mu", "s", "rho", "adequacy", "identified", "reason"))
   expect_type(r$identified, "logical")
 })
+
+test_that("[adversarial] waits below numerical root resolution refuse instead of erroring", {
+  r <- wa$wait_to_adequacy(wait = .Machine$double.eps^2, mu = 1, s = 1)
+  expect_s3_class(r, "data.frame")
+  expect_false(r$identified)
+  expect_true(is.na(r$adequacy))
+  expect_match(r$reason, "resolution|unbounded", ignore.case = TRUE)
+})

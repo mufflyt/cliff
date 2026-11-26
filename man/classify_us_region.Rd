@@ -7,12 +7,12 @@
 classify_us_region(state_abbr)
 }
 \arguments{
-\item{state_abbr}{Character vector of 2-character state abbreviations}
+\item{state_abbr}{Character vector of state abbreviations or names}
 }
 \value{
 Character vector of region names
 }
 \description{
-Classifies a 2-character state abbreviation into Census regions.
+Classifies a state abbreviation or full state name into Census regions.
 Covers all 50 states + DC + PR. Returns "Unknown" for unrecognized values.
 }

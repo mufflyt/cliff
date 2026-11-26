@@ -40,3 +40,9 @@ test_that("[adversarial] the supply-demand producer references the canonical, no
   expect_true(any(grepl("pfd_prevalence_by_age", ls)))
   expect_false(any(grepl("fifelse\\(age *< *20", ls)))   # no inline magic-number ladder remains
 })
+
+test_that("[adversarial] missing ages stay missing instead of becoming zero prevalence", {
+  f <- ee$pfd_prevalence_by_age
+  out <- f(c(19, NA_real_, 80, NaN))
+  expect_identical(out, c(0, NA_real_, 0.497, NA_real_))
+})

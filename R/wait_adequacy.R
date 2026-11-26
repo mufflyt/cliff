@@ -218,6 +218,14 @@ wait_to_adequacy <- function(wait, mu, s = 1L, rho_ceiling = WAIT_ADEQUACY_RHO_C
                        wait, rho_ceiling, 1 / rho_ceiling)))
   }
 
+  # At the other end, rho is bounded below by double precision. A positive wait
+  # below that resolution implies an unbounded surplus, not an error.
+  wait_at_min <- mmc_wait_in_queue(s, mu, .Machine$double.eps)
+  if (wait < wait_at_min) {
+    return(out(NA_real_, NA_real_, FALSE,
+               "observed wait is below numerical root resolution; adequacy is unbounded above"))
+  }
+
   rho <- stats::uniroot(
     function(r) mmc_wait_in_queue(s, mu, r) - wait,
     lower = .Machine$double.eps, upper = rho_ceiling,

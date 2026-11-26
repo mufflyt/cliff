@@ -1001,6 +1001,12 @@ add_fellowship_to_table1 <- function(physicians, temporal_db_path = NULL) {
   name_lookup <- stats::setNames(as.character(programs$specialty),
                                   programs$program_name)
 
+  # Canonicalise all state spellings before equality checks: inference and
+  # practice columns may mix abbreviations, full names, and case.
+  practice_state_norm <- mufflyaccess::standardize_state_name(results$state, output = "abbr")
+  inferred_state_norm <- mufflyaccess::standardize_state_name(results$inferred_state, output = "abbr")
+  inference_state_norm <- mufflyaccess::standardize_state_name(results$inference_state, output = "abbr")
+
   # Create Table 1 categories
   results <- results %>%
     mutate(
@@ -1017,15 +1023,15 @@ add_fellowship_to_table1 <- function(physicians, temporal_db_path = NULL) {
 
       # Binary: trained in same state as practicing?
       trained_in_practice_state = case_when(
-        is.na(inferred_state) | is.na(state) ~ NA_character_,
-        inferred_state == state ~ "Yes",
+        is.na(.env$inferred_state_norm) | is.na(.env$practice_state_norm) ~ NA_character_,
+        .env$inferred_state_norm == .env$practice_state_norm ~ "Yes",
         TRUE ~ "No"
       ),
 
       # Geographic plausibility flag
       geo_plausible = case_when(
-        is.na(inferred_state) | is.na(inference_state) ~ NA,
-        inferred_state == inference_state ~ TRUE,
+        is.na(.env$inferred_state_norm) | is.na(.env$inference_state_norm) ~ NA,
+        .env$inferred_state_norm == .env$inference_state_norm ~ TRUE,
         TRUE ~ FALSE
       ),
 
